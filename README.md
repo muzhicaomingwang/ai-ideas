@@ -6,7 +6,7 @@
 
 本仓库用于沉淀「AI 原生产品」的想法池、产品文档（PRD/BP）与可复用模板，并配套一套面向产品人的 AI Coding 课程大纲，支持从 0→1 的快速论证与落地。
 
-**📊 仓库概况**: 6个AI产品想法 | 1个完整PRD+BP样例 | 12周课程体系 | 2,400+行结构化文档
+**📊 仓库概况**: 6个AI产品想法 | 2个完整PRD+BP样例 | 12周课程体系 | 15,000+行结构化文档
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 想法 | 类型 | 核心价值 | 状态 |
 |------|------|---------|------|
-| **Ego-Echo** | toC | 10分钟职场情绪复原 | ✅ [完整PRD+BP](prds/) |
+| **Ego-Echo** | toC | 10分钟职场情绪复原 | ✅ [完整PRD+BP](docs/prds/) |
 | **DeepScan AI** | toProC | 科研/深度调研助手 | 💡 概念阶段 |
 | **CodeLegacy AI** | toProC | 代码"考古"与重构专家 | 💡 概念阶段 |
 | **LifeLens** | toC | 视觉化生活记录与搜索 | 💡 概念阶段 |
@@ -25,13 +25,24 @@
 | **TeamVenture** | toProC | AI团建策划助手 | 💡 概念阶段 |
 
 ### 2) 产品文档（PRD / Business Plan）
-- **`prds/ego-echo-workplace-recovery-prd.md`**
+
+**PRD（产品需求文档）**
+- **`docs/prds/ego-echo-workplace-recovery-prd.md`**
   Ego-Echo（职场压力复原）微信小程序 MVP 的完整PRD
   包含：目标/范围/用户流程/页面交互/AI Prompt设计/数据结构/API设计/埋点/实验计划/合规与隐私
 
-- **`prds/ego-echo-business-plan.md`**
+- **`docs/prds/teamventure-team-building-assistant-prd.md`**
+  TeamVenture（AI团建策划助手）的完整PRD
+  包含：JTBD定义/用户画像/功能设计/AI架构/数据结构/API设计/埋点计划/MVP实验
+
+**Business Plan（商业计划书）**
+- **`docs/business-plans/ego-echo-business-plan.md`**
   Ego-Echo 的完整 Business Plan（经过10轮迭代优化）
   包含：市场分析/产品方案/技术架构/竞争护城河/GTM策略/单位经济/融资计划/风险应对
+
+- **`docs/business-plans/teamventure-business-plan.md`**
+  TeamVenture 的完整 Business Plan
+  包含：市场分析/产品方案/技术架构/竞争分析/GTM策略/单位经济/融资计划/风险应对
 
 ### 3) 可复用模板（Templates）
 - **`templates/business-plan-template.md`**
@@ -74,8 +85,8 @@
 
 ### 深度学习样例（1小时）
 适合想要学习完整PRD/BP写作方法的产品经理
-1. 阅读完整PRD：[`prds/ego-echo-workplace-recovery-prd.md`](prds/ego-echo-workplace-recovery-prd.md)
-2. 阅读完整BP：[`prds/ego-echo-business-plan.md`](prds/ego-echo-business-plan.md)
+1. 阅读完整PRD：[`docs/prds/ego-echo-workplace-recovery-prd.md`](docs/prds/ego-echo-workplace-recovery-prd.md)
+2. 阅读完整BP：[`docs/business-plans/ego-echo-business-plan.md`](docs/business-plans/ego-echo-business-plan.md)
 3. 对照模板理解每个章节的写作要点
 
 ### 了解架构与风险（30分钟）
@@ -95,7 +106,8 @@
 
 ### 命名规范
 - 文件命名尽量稳定（避免破坏链接与目录锚点）
-- 新增产品建议在 `prds/` 下按 `产品代号-模块-prd.md` / `产品代号-business-plan.md` 组织
+- 新增产品PRD建议在 `docs/prds/` 下按 `产品代号-模块-prd.md` 格式命名
+- 新增产品BP建议在 `docs/business-plans/` 下按 `产品代号-business-plan.md` 格式命名
 
 ### 版本管理
 - PRD/BP 重大变更建议按"版本号 + 日期 + 变更点"记录在文档头部

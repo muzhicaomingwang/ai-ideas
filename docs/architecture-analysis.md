@@ -47,7 +47,8 @@
 ideas/ (根目录)
 ├── README.md                              (37行) - 导航枢纽
 ├── ai-product-ideas.md                    (91行) - 5个AI产品想法
-├── prds/                                  (761行)
+├── docs/
+│   ├── prds/                                  (761行)
 │   ├── ego-echo-workplace-recovery-prd.md (328行) - 职场复原MVP的PRD
 │   └── ego-echo-business-plan.md          (433行) - 完整商业计划
 ├── templates/                             (232行)
@@ -71,7 +72,7 @@ ideas/ (根目录)
 ├─────────────────────────────────────────┤
 │  L2: 想法层 - ai-product-ideas.md       │  ← 5个产品创意(toC/toProC/toB)
 ├─────────────────────────────────────────┤
-│  L3: 执行层 - prds/                     │  ← 深度PRD(328行) + BP(433行)
+│  L3: 执行层 - docs/prds/ & docs/business-plans/                     │  ← 深度PRD(328行) + BP(433行)
 │     ├─ ego-echo-workplace-recovery-prd  │
 │     └─ ego-echo-business-plan           │
 ├─────────────────────────────────────────┤
@@ -483,8 +484,8 @@ Response:
 3. **长期**: 建立敏感信息管理规范
 
 **代码位置**:
-- `prds/ego-echo-business-plan.md:318-342` (融资计划章节)
-- `prds/ego-echo-business-plan.md:285-305` (单位经济数据)
+- `docs/docs/business-plans/ego-echo-business-plan.md:318-342` (融资计划章节)
+- `docs/docs/business-plans/ego-echo-business-plan.md:285-305` (单位经济数据)
 
 ---
 
@@ -546,13 +547,13 @@ Response:
 **示例**:
 ```bash
 # 当前状态
-prds/ego-echo-business-plan.md  (433行, 第10轮版本)
+docs/docs/business-plans/ego-echo-business-plan.md  (433行, 第10轮版本)
 
 # 缺失状态
-prds/ego-echo-business-plan-v1.0.md  (Round 1)
-prds/ego-echo-business-plan-v1.1.md  (Round 2)
+docs/docs/business-plans/ego-echo-business-plan-v1.0.md  (Round 1)
+docs/docs/business-plans/ego-echo-business-plan-v1.1.md  (Round 2)
 ...
-prds/ego-echo-business-plan-v2.0.md  (Round 10)
+docs/docs/business-plans/ego-echo-business-plan-v2.0.md  (Round 10)
 ```
 
 **影响**:
@@ -819,8 +820,8 @@ jobs:
 
 **检查清单示例** (修改"10分钟"为"15分钟"):
 ```markdown
-[ ] prds/ego-echo-workplace-recovery-prd.md:42
-[ ] prds/ego-echo-business-plan.md:28
+[ ] docs/prds/ego-echo-workplace-recovery-prd.md:42
+[ ] docs/docs/business-plans/ego-echo-business-plan.md:28
 [ ] README.md:15
 [ ] 全局搜索"10分钟"确认无遗漏
 ```
@@ -888,7 +889,7 @@ jobs:
 # 文档一致性检查清单
 
 ## 核心概念（修改需同步3+处）
-- [ ] 产品Slogan: `prds/ego-echo-*.md`, `README.md`
+- [ ] 产品Slogan: `docs/prds/ego-echo-*.md`, `README.md`
 - [ ] 核心时间承诺: PRD:42, BP:28, README:15
 - [ ] 目标用户描述: PRD:用户章节, BP:市场章节, 想法池
 
@@ -942,9 +943,9 @@ jobs:
       - name: 检查核心时间承诺一致性
         run: |
           # 提取PRD中的时间承诺
-          PRD_TIME=$(grep -o '[0-9]\+分钟' prds/ego-echo-workplace-recovery-prd.md | head -1)
+          PRD_TIME=$(grep -o '[0-9]\+分钟' docs/prds/ego-echo-workplace-recovery-prd.md | head -1)
           # 提取BP中的时间承诺
-          BP_TIME=$(grep -o '[0-9]\+分钟' prds/ego-echo-business-plan.md | head -1)
+          BP_TIME=$(grep -o '[0-9]\+分钟' docs/docs/business-plans/ego-echo-business-plan.md | head -1)
           # 对比
           if [ "$PRD_TIME" != "$BP_TIME" ]; then
             echo "❌ 时间承诺不一致: PRD=$PRD_TIME, BP=$BP_TIME"
@@ -1007,7 +1008,7 @@ jobs:
 |------|------|---------|
 | `educational-products/README.md` | 工具清单 (L67-83) | 更新AI对话/编程/低代码工具 |
 | `educational-products/syllabus.md` | 各周课程内容 | 搜索替换具体工具名称 |
-| `prds/ego-echo-business-plan.md` | 技术方案章节 (L168-212) | 更新AI模型选择+成本估算 |
+| `docs/docs/business-plans/ego-echo-business-plan.md` | 技术方案章节 (L168-212) | 更新AI模型选择+成本估算 |
 
 #### 1.2 操作步骤
 
@@ -1026,7 +1027,7 @@ sed -i '' 's/ChatGPT/Claude/g' educational-products/README.md
 # 注意：手动检查上下文，避免误替换
 
 # Step 4: 更新成本估算（如果模型定价不同）
-# 编辑 prds/ego-echo-business-plan.md 技术方案章节
+# 编辑 docs/docs/business-plans/ego-echo-business-plan.md 技术方案章节
 ```
 
 #### 1.3 风险评估
@@ -1122,7 +1123,7 @@ mkdir -p .github/workflows
 #### 第3步：长期优化（1-3月）
 ```bash
 # 1. 深化想法池
-mkdir -p prds/mini  # 简版PRD目录
+mkdir -p docs/prds/mini  # 简版PRD目录
 # 为DeepScan, LifeLens, GhostAudit各写100行PRD
 
 # 2. 课程示例代码
@@ -1158,7 +1159,8 @@ touch tools-changelog.md
 /Users/qitmac001395/workspace/QAL/ideas/
 ├── README.md                                           (37行)
 ├── ai-product-ideas.md                                 (91行)
-├── prds/
+├── docs/
+│   ├── prds/
 │   ├── ego-echo-workplace-recovery-prd.md              (328行)
 │   └── ego-echo-business-plan.md                       (433行)
 ├── templates/
