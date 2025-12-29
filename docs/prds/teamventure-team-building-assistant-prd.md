@@ -713,16 +713,19 @@ PROMPT_GENERATE_DESCRIPTION = """
 
 ```sql
 CREATE TABLE users (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  -- 说明：
+  -- - 对外暴露/跨系统传递的主键建议使用全局唯一ID（ULID/UUID），避免依赖自增ID
+  -- - 下方示例以 PostgreSQL 风格书写（JSONB/CHECK/TIMESTAMPTZ）；如选 MySQL 需改写语法
+  user_id TEXT PRIMARY KEY,  -- e.g. user_01JHxxxx（ULID）或 UUID
   email VARCHAR(255) UNIQUE NOT NULL,
   name VARCHAR(100),
   phone VARCHAR(20),
   company_name VARCHAR(200),
-  company_size ENUM('small', 'medium', 'large'),  -- <50, 50-200, >200
+  company_size TEXT CHECK (company_size IN ('small', 'medium', 'large')),  -- <50, 50-200, >200
   role VARCHAR(50),  -- HR, 行政, 创始人
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_login_at TIMESTAMP,
-  subscription_status ENUM('trial', 'paid', 'expired') DEFAULT 'trial'
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_login_at TIMESTAMPTZ,
+  subscription_status TEXT CHECK (subscription_status IN ('trial', 'paid', 'expired')) DEFAULT 'trial'
 );
 ```
 
@@ -730,11 +733,11 @@ CREATE TABLE users (
 
 ```sql
 CREATE TABLE plans (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  user_id BIGINT NOT NULL,
+  plan_id TEXT PRIMARY KEY,  -- e.g. plan_01JHxxxx（ULID）或 UUID
+  user_id TEXT NOT NULL REFERENCES users(user_id),
   plan_name VARCHAR(200),
-  plan_type ENUM('budget', 'standard', 'premium'),  -- 经济/平衡/品质
-  status ENUM('draft', 'confirmed', 'cancelled') DEFAULT 'draft',
+  plan_type TEXT CHECK (plan_type IN ('budget', 'standard', 'premium')),  -- 经济/平衡/品质
+  status TEXT CHECK (status IN ('draft', 'confirmed', 'cancelled')) DEFAULT 'draft',
 
   -- 基础信息
   people_count INT NOT NULL,
@@ -746,20 +749,18 @@ CREATE TABLE plans (
   departure_location VARCHAR(200),
 
   -- 偏好信息（JSON）
-  preferences JSON,  -- {"activity_types": [], "accommodation": "", ...}
+  preferences JSONB,  -- {"activity_types": [], "accommodation": "", ...}
 
   -- 生成的方案内容（JSON）
-  itinerary JSON,  -- 完整行程表
-  budget_breakdown JSON,  -- 预算明细
-  suppliers JSON,  -- 供应商信息
+  itinerary JSONB,  -- 完整行程表
+  budget_breakdown JSONB,  -- 预算明细
+  suppliers JSONB,  -- 供应商信息（或做关联表）
 
   -- 元数据
-  generated_at TIMESTAMP,
-  confirmed_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  generated_at TIMESTAMPTZ,
+  confirmed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
@@ -767,9 +768,9 @@ CREATE TABLE plans (
 
 ```sql
 CREATE TABLE suppliers (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  supplier_id TEXT PRIMARY KEY,  -- e.g. sup_01JHxxxx（ULID）或 UUID
   name VARCHAR(200) NOT NULL,
-  category ENUM('venue', 'activity', 'dining', 'accommodation', 'transportation'),
+  category TEXT CHECK (category IN ('venue', 'activity', 'dining', 'accommodation', 'transportation')),
   subcategory VARCHAR(100),  -- 如：真人CS, 民宿, 农家菜
 
   -- 位置信息
@@ -797,14 +798,14 @@ CREATE TABLE suppliers (
   contact_wechat VARCHAR(100),
 
   -- 标签（JSON）
-  tags JSON,  -- ["适合拓展", "湖景房", "亲子友好"]
+  tags JSONB,  -- ["适合拓展", "湖景房", "亲子友好"]
 
   -- 状态
-  status ENUM('active', 'inactive') DEFAULT 'active',
+  status TEXT CHECK (status IN ('active', 'inactive')) DEFAULT 'active',
   verified BOOLEAN DEFAULT FALSE,  -- 是否平台认证
 
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
@@ -812,17 +813,15 @@ CREATE TABLE suppliers (
 
 ```sql
 CREATE TABLE plan_supplier_matches (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  plan_id BIGINT NOT NULL,
-  supplier_id BIGINT NOT NULL,
+  -- 关联表通常可用组合主键，避免引入自增ID
+  plan_id TEXT NOT NULL REFERENCES plans(plan_id),
+  supplier_id TEXT NOT NULL REFERENCES suppliers(supplier_id),
   match_score DECIMAL(5,2),  -- AI计算的匹配分数
   selected BOOLEAN DEFAULT FALSE,  -- 用户是否选择
   contacted BOOLEAN DEFAULT FALSE,  -- 是否已联系
 
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (plan_id) REFERENCES plans(id),
-  FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (plan_id, supplier_id)
 );
 ```
 
@@ -968,7 +967,7 @@ POST /api/plans/generate
   "data": {
     "plans": [
       {
-        "plan_id": "plan_123456",
+        "plan_id": "plan_01JHXXXXXXXEXAMPLE0000000000",
         "plan_type": "budget",
         "plan_name": "经济实惠·怀柔山野团建",
         "highlight": "人均¥700，2个精选活动，农家乐住宿",
@@ -981,13 +980,13 @@ POST /api/plans/generate
         "suitable_for": ["预算有限", "注重性价比", "喜欢户外"]
       },
       {
-        "plan_id": "plan_123457",
+        "plan_id": "plan_01JHXXXXXXXEXAMPLE0000000001",
         "plan_type": "standard",
         "plan_name": "平衡之选·密云水库度假",
         // ...
       },
       {
-        "plan_id": "plan_123458",
+        "plan_id": "plan_01JHXXXXXXXEXAMPLE0000000002",
         "plan_type": "premium",
         "plan_name": "品质体验·古北水镇团建",
         // ...
@@ -1024,7 +1023,7 @@ GET /api/plans/{plan_id}
 {
   "success": true,
   "data": {
-    "plan_id": "plan_123456",
+    "plan_id": "plan_01JHXXXXXXXEXAMPLE0000000000",
     "plan_name": "经济实惠·怀柔山野团建",
     "status": "confirmed",
     "people_count": 50,
@@ -1128,7 +1127,7 @@ trackEvent('plan_generate_start', {
 
 // 方案生成成功
 trackEvent('plan_generate_success', {
-  plan_ids: ['plan_123456', 'plan_123457', 'plan_123458'],
+  plan_ids: ['plan_01JHXXXXXXXEXAMPLE0000000000', 'plan_01JHXXXXXXXEXAMPLE0000000001', 'plan_01JHXXXXXXXEXAMPLE0000000002'],
   generation_time_ms: 45000,
   alternatives_count: 27,
   user_id: 'user_123',

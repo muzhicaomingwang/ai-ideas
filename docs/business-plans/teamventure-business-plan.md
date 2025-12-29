@@ -429,35 +429,38 @@ Step 6: 联系供应商（2分钟）
 **表1：plans（方案表）**
 ```sql
 CREATE TABLE plans (
-  id BIGINT PRIMARY KEY,
-  user_id BIGINT,
+  -- 说明：
+  -- - 对外暴露/跨系统传递的主键建议使用可排序的全局唯一ID（如 ULID/UUID），避免依赖自增ID
+  -- - 若使用 PostgreSQL：推荐 TEXT/UUID + JSONB + CHECK 约束（下方示例为 PostgreSQL 风格）
+  plan_id TEXT PRIMARY KEY,  -- e.g. plan_01JHxxxx（ULID）或 UUID
+  user_id TEXT NOT NULL,
   plan_name VARCHAR(200),
-  plan_type ENUM('budget', 'standard', 'premium'),
+  plan_type TEXT CHECK (plan_type IN ('budget', 'standard', 'premium')),
   people_count INT,
   budget_total DECIMAL(10,2),
   start_date DATE,
   end_date DATE,
-  itinerary JSON,  -- 行程表
-  budget_breakdown JSON,  -- 预算明细
-  suppliers JSON,  -- 供应商信息
-  status ENUM('draft', 'confirmed'),
-  created_at TIMESTAMP
+  itinerary JSONB,  -- 行程表
+  budget_breakdown JSONB,  -- 预算明细
+  suppliers JSONB,  -- 供应商信息（或做关联表）
+  status TEXT CHECK (status IN ('draft', 'confirmed')) DEFAULT 'draft',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
 **表2：suppliers（供应商表）**
 ```sql
 CREATE TABLE suppliers (
-  id BIGINT PRIMARY KEY,
+  supplier_id TEXT PRIMARY KEY,  -- e.g. sup_01JHxxxx（ULID）或 UUID
   name VARCHAR(200),
-  category ENUM('venue', 'activity', 'dining', 'accommodation'),
+  category TEXT CHECK (category IN ('venue', 'activity', 'dining', 'accommodation')),
   city VARCHAR(50),
   rating DECIMAL(3,2),  -- 4.5
   price_range_min DECIMAL(10,2),
   price_range_max DECIMAL(10,2),
   contact_phone VARCHAR(20),
-  tags JSON,  -- ["适合拓展", "湖景房"]
-  status ENUM('active', 'inactive')
+  tags JSONB,  -- ["适合拓展", "湖景房"]
+  status TEXT CHECK (status IN ('active', 'inactive')) DEFAULT 'active'
 );
 ```
 
