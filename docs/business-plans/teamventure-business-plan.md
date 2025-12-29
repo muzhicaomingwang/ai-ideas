@@ -448,6 +448,29 @@ CREATE TABLE plans (
 );
 ```
 
+```sql
+-- Comments（字段释义）
+COMMENT ON TABLE plans IS '团建方案表（Business Plan 示例）';
+COMMENT ON COLUMN plans.plan_id IS '方案全局唯一ID（ULID/UUID），对外可暴露';
+COMMENT ON COLUMN plans.user_id IS '所属用户ID（建议同样使用全局唯一ID）';
+COMMENT ON COLUMN plans.plan_name IS '方案名称';
+COMMENT ON COLUMN plans.plan_type IS '方案档位：budget/standard/premium';
+COMMENT ON COLUMN plans.people_count IS '参与人数';
+COMMENT ON COLUMN plans.budget_total IS '总预算（元）';
+COMMENT ON COLUMN plans.start_date IS '开始日期';
+COMMENT ON COLUMN plans.end_date IS '结束日期';
+COMMENT ON COLUMN plans.itinerary IS '行程明细（JSONB）';
+COMMENT ON COLUMN plans.budget_breakdown IS '预算明细（JSONB）';
+COMMENT ON COLUMN plans.suppliers IS '供应商信息快照（JSONB；或拆为关联表）';
+COMMENT ON COLUMN plans.status IS '状态：draft/confirmed';
+COMMENT ON COLUMN plans.created_at IS '创建时间';
+
+-- Indexes（常用查询）
+CREATE INDEX idx_plans_user_id_created_at ON plans (user_id, created_at DESC);
+CREATE INDEX idx_plans_status_created_at ON plans (status, created_at DESC);
+CREATE INDEX idx_plans_plan_type ON plans (plan_type);
+```
+
 **表2：suppliers（供应商表）**
 ```sql
 CREATE TABLE suppliers (
@@ -462,6 +485,26 @@ CREATE TABLE suppliers (
   tags JSONB,  -- ["适合拓展", "湖景房"]
   status TEXT CHECK (status IN ('active', 'inactive')) DEFAULT 'active'
 );
+```
+
+```sql
+-- Comments（字段释义）
+COMMENT ON TABLE suppliers IS '供应商表（Business Plan 示例）';
+COMMENT ON COLUMN suppliers.supplier_id IS '供应商全局唯一ID（ULID/UUID）';
+COMMENT ON COLUMN suppliers.name IS '供应商名称';
+COMMENT ON COLUMN suppliers.category IS '供应商类别：venue/activity/dining/accommodation';
+COMMENT ON COLUMN suppliers.city IS '城市';
+COMMENT ON COLUMN suppliers.rating IS '评分';
+COMMENT ON COLUMN suppliers.price_range_min IS '价格区间下限（元）';
+COMMENT ON COLUMN suppliers.price_range_max IS '价格区间上限（元）';
+COMMENT ON COLUMN suppliers.contact_phone IS '联系电话';
+COMMENT ON COLUMN suppliers.tags IS '标签（JSONB 数组）';
+COMMENT ON COLUMN suppliers.status IS '状态：active/inactive';
+
+-- Indexes（筛选/排序）
+CREATE INDEX idx_suppliers_city_category_status ON suppliers (city, category, status);
+CREATE INDEX idx_suppliers_rating ON suppliers (rating DESC);
+CREATE INDEX idx_suppliers_tags_gin ON suppliers USING GIN (tags);
 ```
 
 ### 5.5 性能与成本
