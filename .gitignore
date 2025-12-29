@@ -1,0 +1,10 @@
+# Claude Code配置
+.claude/
+
+# macOS
+.DS_Store
+
+# 临时文件
+*.tmp
+*.swp
+*~
