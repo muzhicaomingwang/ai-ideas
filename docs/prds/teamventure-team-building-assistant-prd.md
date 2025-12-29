@@ -717,7 +717,7 @@ CREATE TABLE users (
   -- - 对外暴露/跨系统传递的主键建议使用全局唯一ID（ULID/UUID），避免依赖自增ID
   -- - 下方示例以 PostgreSQL 风格书写（JSONB/CHECK/TIMESTAMPTZ）；如选 MySQL 需改写语法
   user_id TEXT PRIMARY KEY,  -- e.g. user_01JHxxxx（ULID）或 UUID
-  email VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255) NOT NULL,
   name VARCHAR(100),
   phone VARCHAR(20),
   company_name VARCHAR(200),
@@ -727,6 +727,29 @@ CREATE TABLE users (
   last_login_at TIMESTAMPTZ,
   subscription_status TEXT CHECK (subscription_status IN ('trial', 'paid', 'expired')) DEFAULT 'trial'
 );
+```
+
+```sql
+-- Comments（字段释义）
+COMMENT ON TABLE users IS 'TeamVenture 用户表（企业HR/行政等登录用户）';
+COMMENT ON COLUMN users.user_id IS '用户全局唯一ID（ULID/UUID），对外可暴露';
+COMMENT ON COLUMN users.email IS '登录邮箱（唯一）';
+COMMENT ON COLUMN users.name IS '用户姓名/称呼';
+COMMENT ON COLUMN users.phone IS '手机号（可选；如涉及隐私需脱敏/加密存储）';
+COMMENT ON COLUMN users.company_name IS '公司名称';
+COMMENT ON COLUMN users.company_size IS '公司规模：small(<50)/medium(50-200)/large(>200)';
+COMMENT ON COLUMN users.role IS '用户角色：HR/行政/创始人等';
+COMMENT ON COLUMN users.created_at IS '创建时间';
+COMMENT ON COLUMN users.last_login_at IS '最近登录时间';
+COMMENT ON COLUMN users.subscription_status IS '订阅状态：trial/paid/expired';
+
+-- Unique Indexes（唯一索引，显式写法）
+CREATE UNIQUE INDEX ux_users_email ON users (email);
+
+-- Indexes（常用查询路径）
+CREATE INDEX idx_users_created_at ON users (created_at);
+CREATE INDEX idx_users_last_login_at ON users (last_login_at);
+CREATE INDEX idx_users_subscription_status ON users (subscription_status);
 ```
 
 #### 表2：团建方案表（plans）
@@ -762,6 +785,39 @@ CREATE TABLE plans (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+```
+
+```sql
+-- Comments（字段释义）
+COMMENT ON TABLE plans IS '团建方案表（一次需求会生成多套方案，每套为一条记录）';
+COMMENT ON COLUMN plans.plan_id IS '方案全局唯一ID（ULID/UUID），对外可暴露';
+COMMENT ON COLUMN plans.user_id IS '所属用户ID（users.user_id）';
+COMMENT ON COLUMN plans.plan_name IS '方案名称';
+COMMENT ON COLUMN plans.plan_type IS '方案档位：budget/standard/premium';
+COMMENT ON COLUMN plans.status IS '方案状态：draft/confirmed/cancelled';
+COMMENT ON COLUMN plans.people_count IS '参与人数';
+COMMENT ON COLUMN plans.budget_total IS '总预算（元）';
+COMMENT ON COLUMN plans.budget_per_person IS '人均预算（元）';
+COMMENT ON COLUMN plans.start_date IS '开始日期';
+COMMENT ON COLUMN plans.end_date IS '结束日期';
+COMMENT ON COLUMN plans.duration_days IS '总天数';
+COMMENT ON COLUMN plans.departure_location IS '出发地（文本/行政区划）';
+COMMENT ON COLUMN plans.preferences IS '用户偏好（JSONB），用于复用与检索';
+COMMENT ON COLUMN plans.itinerary IS '行程明细（JSONB）';
+COMMENT ON COLUMN plans.budget_breakdown IS '预算明细（JSONB）';
+COMMENT ON COLUMN plans.suppliers IS '方案中使用/推荐的供应商快照（JSONB；也可拆为关联表）';
+COMMENT ON COLUMN plans.generated_at IS '生成完成时间';
+COMMENT ON COLUMN plans.confirmed_at IS '用户确认时间';
+COMMENT ON COLUMN plans.created_at IS '创建时间';
+COMMENT ON COLUMN plans.updated_at IS '更新时间（需应用层维护）';
+
+-- Indexes（常用查询路径）
+CREATE INDEX idx_plans_user_id_created_at ON plans (user_id, created_at DESC);
+CREATE INDEX idx_plans_status_created_at ON plans (status, created_at DESC);
+CREATE INDEX idx_plans_plan_type ON plans (plan_type);
+CREATE INDEX idx_plans_generated_at ON plans (generated_at);
+CREATE INDEX idx_plans_confirmed_at ON plans (confirmed_at);
+CREATE INDEX idx_plans_preferences_gin ON plans USING GIN (preferences);
 ```
 
 #### 表3：供应商表（suppliers）
@@ -809,6 +865,43 @@ CREATE TABLE suppliers (
 );
 ```
 
+```sql
+-- Comments（字段释义）
+COMMENT ON TABLE suppliers IS '供应商表（场地/活动/餐饮/住宿/交通等资源方）';
+COMMENT ON COLUMN suppliers.supplier_id IS '供应商全局唯一ID（ULID/UUID）';
+COMMENT ON COLUMN suppliers.name IS '供应商名称';
+COMMENT ON COLUMN suppliers.category IS '供应商类别：venue/activity/dining/accommodation/transportation';
+COMMENT ON COLUMN suppliers.subcategory IS '子类目（如：真人CS/民宿/农家菜）';
+COMMENT ON COLUMN suppliers.province IS '省';
+COMMENT ON COLUMN suppliers.city IS '市';
+COMMENT ON COLUMN suppliers.district IS '区/县';
+COMMENT ON COLUMN suppliers.address IS '详细地址';
+COMMENT ON COLUMN suppliers.latitude IS '纬度';
+COMMENT ON COLUMN suppliers.longitude IS '经度';
+COMMENT ON COLUMN suppliers.description IS '资源描述';
+COMMENT ON COLUMN suppliers.capacity_min IS '最小接待人数';
+COMMENT ON COLUMN suppliers.capacity_max IS '最大接待人数';
+COMMENT ON COLUMN suppliers.price_range_min IS '价格区间下限（元）';
+COMMENT ON COLUMN suppliers.price_range_max IS '价格区间上限（元）';
+COMMENT ON COLUMN suppliers.rating IS '评分（如 4.5）';
+COMMENT ON COLUMN suppliers.review_count IS '评价数';
+COMMENT ON COLUMN suppliers.contact_name IS '联系人';
+COMMENT ON COLUMN suppliers.contact_phone IS '联系电话';
+COMMENT ON COLUMN suppliers.contact_wechat IS '联系微信';
+COMMENT ON COLUMN suppliers.tags IS '标签（JSONB 数组）';
+COMMENT ON COLUMN suppliers.status IS '状态：active/inactive';
+COMMENT ON COLUMN suppliers.verified IS '是否平台认证';
+COMMENT ON COLUMN suppliers.created_at IS '创建时间';
+COMMENT ON COLUMN suppliers.updated_at IS '更新时间（需应用层维护）';
+
+-- Indexes（检索/筛选/排序）
+CREATE INDEX idx_suppliers_city_category_status ON suppliers (city, category, status);
+CREATE INDEX idx_suppliers_capacity ON suppliers (capacity_min, capacity_max);
+CREATE INDEX idx_suppliers_price_range ON suppliers (price_range_min, price_range_max);
+CREATE INDEX idx_suppliers_rating ON suppliers (rating DESC);
+CREATE INDEX idx_suppliers_tags_gin ON suppliers USING GIN (tags);
+```
+
 #### 表4：匹配记录表（plan_supplier_matches）
 
 ```sql
@@ -823,6 +916,23 @@ CREATE TABLE plan_supplier_matches (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (plan_id, supplier_id)
 );
+```
+
+```sql
+-- Comments（字段释义）
+COMMENT ON TABLE plan_supplier_matches IS '方案与供应商匹配结果（用于推荐、比价与用户选择跟踪）';
+COMMENT ON COLUMN plan_supplier_matches.plan_id IS '方案ID（plans.plan_id）';
+COMMENT ON COLUMN plan_supplier_matches.supplier_id IS '供应商ID（suppliers.supplier_id）';
+COMMENT ON COLUMN plan_supplier_matches.match_score IS '匹配分（AI/规则综合评分）';
+COMMENT ON COLUMN plan_supplier_matches.selected IS '用户是否选中该供应商';
+COMMENT ON COLUMN plan_supplier_matches.contacted IS '用户是否已联系该供应商';
+COMMENT ON COLUMN plan_supplier_matches.created_at IS '创建时间';
+
+-- Indexes（反向查询与运营统计）
+CREATE INDEX idx_plan_supplier_matches_supplier_id ON plan_supplier_matches (supplier_id);
+CREATE INDEX idx_plan_supplier_matches_selected ON plan_supplier_matches (selected);
+CREATE INDEX idx_plan_supplier_matches_contacted ON plan_supplier_matches (contacted);
+CREATE INDEX idx_plan_supplier_matches_created_at ON plan_supplier_matches (created_at DESC);
 ```
 
 ### 9.2 JSON字段详细结构
