@@ -6,14 +6,14 @@
 
 本仓库用于沉淀「AI 原生产品」的想法池、产品文档（PRD/BP）与可复用模板，并配套一套面向产品人的 AI Coding 课程大纲，支持从 0→1 的快速论证与落地。
 
-**📊 仓库概况**: 5个AI产品想法 | 1个完整PRD+BP样例 | 12周课程体系 | 2,300+行结构化文档
+**📊 仓库概况**: 6个AI产品想法 | 1个完整PRD+BP样例 | 12周课程体系 | 2,400+行结构化文档
 
 ---
 
 ## 📚 你可以在这里找到什么
 
 ### 1) 想法池（Idea Pool）
-`ai-product-ideas.md` - 5个AI产品想法收集与初步分析：
+`ai-product-ideas.md` - 6个AI产品想法收集与初步分析：
 
 | 想法 | 类型 | 核心价值 | 状态 |
 |------|------|---------|------|
@@ -22,6 +22,7 @@
 | **CodeLegacy AI** | toProC | 代码"考古"与重构专家 | 💡 概念阶段 |
 | **LifeLens** | toC | 视觉化生活记录与搜索 | 💡 概念阶段 |
 | **GhostAudit** | toB | AI风控分析师 | 💡 概念阶段 |
+| **TeamVenture** | toProC | AI团建策划助手 | 💡 概念阶段 |
 
 ### 2) 产品文档（PRD / Business Plan）
 - **`prds/ego-echo-workplace-recovery-prd.md`**
