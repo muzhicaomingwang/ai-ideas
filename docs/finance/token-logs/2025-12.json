@@ -1,0 +1,29 @@
+{
+  "2025-12-30": {
+    "date": "2025-12-30",
+    "claude_code": {
+      "sonnet_4_5": {
+        "input_tokens": 71727,
+        "output_tokens": 15000,
+        "sessions": 3,
+        "cost_usd": 0.4402
+      },
+      "haiku": {
+        "input_tokens": 5000,
+        "output_tokens": 1000,
+        "sessions": 2,
+        "cost_usd": 0.0025
+      },
+      "total_cost_usd": 0.44
+    },
+    "codex": {
+      "service": "cursor_pro",
+      "fast_requests_used": 45,
+      "slow_requests_used": 120,
+      "monthly_cost_usd": 20.0,
+      "daily_amortized_cost_usd": 0.67
+    },
+    "total_daily_cost_usd": 1.11,
+    "notes": "完成 TeamVenture 一期文档专业 Review，生成 582 行评审报告，涵盖事件风暴/DDD/产品设计/API/QA 五大文档"
+  }
+}

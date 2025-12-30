@@ -22,38 +22,41 @@
 | **CodeLegacy AI** | toProC | 代码"考古"与重构专家 | 💡 概念阶段 |
 | **LifeLens** | toC | 视觉化生活记录与搜索 | 💡 概念阶段 |
 | **GhostAudit** | toB | AI风控分析师 | 💡 概念阶段 |
-| **TeamVenture** | toProC | AI团建策划助手 | 💡 概念阶段 |
+| **TeamVenture** | toProC | AI团建策划助手 | 🟡 [Phase 1 开发中](apps/teamventure/) |
 
-### 2) 产品文档（PRD / Business Plan）
+### 2) 应用开发（Applications）
+
+**`apps/` 目录** - 进入开发阶段的应用，包含完整的需求文档、设计文档、源代码
+
+- **[TeamVenture](apps/teamventure/)** - AI团建策划助手
+  - 📚 [完整文档集](apps/teamventure/docs/) - 需求、设计、测试、评审
+  - 💻 [源代码](apps/teamventure/src/) - Java/Python/小程序 Monorepo
+  - 📊 状态: Phase 1 Week 0（文档就绪，准备启动开发）
+
+### 3) 产品文档（PRD / Business Plan）
 
 **PRD（产品需求文档）**
 - **`docs/prds/ego-echo-workplace-recovery-prd.md`**
   Ego-Echo（职场压力复原）微信小程序 MVP 的完整PRD
   包含：目标/范围/用户流程/页面交互/AI Prompt设计/数据结构/API设计/埋点/实验计划/合规与隐私
 
-- **`docs/prds/teamventure-team-building-assistant-prd.md`**
-  TeamVenture（AI团建策划助手）的完整PRD
-  包含：JTBD定义/用户画像/功能设计/AI架构/数据结构/API设计/埋点计划/MVP实验
-
 **Business Plan（商业计划书）**
 - **`docs/business-plans/ego-echo-business-plan.md`**
   Ego-Echo 的完整 Business Plan（经过10轮迭代优化）
   包含：市场分析/产品方案/技术架构/竞争护城河/GTM策略/单位经济/融资计划/风险应对
 
-- **`docs/business-plans/teamventure-business-plan.md`**
-  TeamVenture 的完整 Business Plan
-  包含：市场分析/产品方案/技术架构/竞争分析/GTM策略/单位经济/融资计划/风险应对
+**注**: TeamVenture 的完整文档（PRD/BP/设计/测试）已迁移至 [`apps/teamventure/docs/`](apps/teamventure/docs/)
 
-### 3) 可复用模板（Templates）
+### 4) 可复用模板（Templates）
 - **`templates/business-plan-template.md`**
   0→1 新产品 BP 标准模板
   特色：包含AI特有章节（AI成本估算、安全评估、合规风险等）
 
-### 4) 课程内容（Educational Products）
+### 5) 课程内容（Educational Products）
 - **`educational-products/README.md`** - 课程概览（面向产品/设计/非技术背景的 AI 辅助开发）
 - **`educational-products/syllabus.md`** - 12周详细大纲（108小时学习内容 + 4个实战项目）
 
-### 5) 架构分析与优化指南（Architecture Analysis）
+### 6) 架构分析与优化指南（Architecture Analysis）
 - **`docs/architecture-analysis.md`**
   仓库深度分析报告（1,200+行）
   包含：架构设计/风险识别/技术债务/变更风险评估/优化路线图
