@@ -1,5 +1,6 @@
 package com.teamventure;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -21,6 +22,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2025-12-30
  */
 @SpringBootApplication
+@MapperScan("com.teamventure.infrastructure.persistence.mapper")
 public class TeamVentureApplication {
 
     public static void main(String[] args) {
