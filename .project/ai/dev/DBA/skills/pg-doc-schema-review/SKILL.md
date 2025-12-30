@@ -50,7 +50,6 @@ Follow this workflow when reviewing or editing PRD/BP Markdown that contains dat
 
 Run the bundled linter to quickly flag common violations:
 
-- `python .project/ai/skills/pg-doc-schema-review/scripts/lint_md_schema.py docs/path/or/file.md`
+- `python .project/ai/dev/DBA/skills/pg-doc-schema-review/scripts/lint_md_schema.py docs/path/or/file.md`
 
 It scans Markdown ` ```sql ` blocks and reports violations and missing comment/index sections.
-
