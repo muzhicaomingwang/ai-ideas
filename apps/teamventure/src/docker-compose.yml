@@ -27,7 +27,7 @@ services:
       - ./.env.local
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
-      SPRING_DATASOURCE_DRUID_MASTER_URL: ${SPRING_DATASOURCE_DRUID_MASTER_URL:-jdbc:mysql://mysql-master:3306/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4&allowPublicKeyRetrieval=true}
+      SPRING_DATASOURCE_DRUID_MASTER_URL: ${SPRING_DATASOURCE_DRUID_MASTER_URL:-jdbc:mysql://mysql-master:3306/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_RABBITMQ_HOST: rabbitmq
       TEAMVENTURE_AI_SERVICE_URL: http://python-ai-service:8000
@@ -173,7 +173,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
