@@ -31,7 +31,8 @@
 
         <!-- MyBatis -->
         <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
-        <mybatis-plus.version>3.5.5</mybatis-plus.version>
+        <mybatis-spring.version>3.0.3</mybatis-spring.version>
+        <mybatis-plus.version>3.5.6</mybatis-plus.version>
 
         <!-- Database -->
         <mysql.version>8.0.33</mysql.version>
@@ -44,7 +45,7 @@
         <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <hutool.version>5.8.24</hutool.version>
-        <ulid.version>8.3.0</ulid.version>
+        <ulid.version>5.2.3</ulid.version>
     </properties>
 
     <dependencies>
@@ -98,6 +99,13 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- Spring Boot 3 / Spring 6 compatibility -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>${mybatis-spring.version}</version>
         </dependency>
 
         <!-- Database -->

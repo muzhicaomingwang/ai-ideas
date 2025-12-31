@@ -8,3 +8,10 @@
 *.tmp
 *.swp
 *~
+
+# 环境变量文件（本地开发环境不提交）
+.env
+.env.local
+*.env.local
+
+# 注意：.env.dev、.env.beta、.env.prod 作为环境配置模板提交到仓库
