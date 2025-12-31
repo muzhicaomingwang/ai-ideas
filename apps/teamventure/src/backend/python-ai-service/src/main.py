@@ -24,6 +24,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.models.config import settings
 from src.services.mq_consumer import start_mq_consumer, stop_mq_consumer
@@ -77,6 +78,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Instrument the app with default metrics
+Instrumentator().instrument(app).expose(app)
+
 
 # CORS中间件
 app.add_middleware(
