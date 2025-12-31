@@ -6,8 +6,8 @@ services:
     image: nginx:1.24-alpine
     container_name: teamventure-nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -24,14 +24,14 @@ services:
       context: ./backend/java-business-service
     container_name: teamventure-java
     environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_DRUID_MASTER_URL: jdbc:mysql://mysql-master:3306/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4&allowPublicKeyRetrieval=true
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_DATASOURCE_DRUID_MASTER_URL: ${SPRING_DATASOURCE_DRUID_MASTER_URL}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_RABBITMQ_HOST: rabbitmq
       TEAMVENTURE_AI_SERVICE_URL: http://python-ai-service:8000
-      TEAMVENTURE_AI_SERVICE_CALLBACK_SECRET: change-this-in-production
+      TEAMVENTURE_AI_SERVICE_CALLBACK_SECRET: ${TEAMVENTURE_AI_SERVICE_CALLBACK_SECRET}
     ports:
-      - "8080:8080"
+      - "${JAVA_SERVICE_PORT:-8080}:8080"
     depends_on:
       mysql-master:
         condition: service_healthy
@@ -48,23 +48,23 @@ services:
       context: ./backend/python-ai-service
     container_name: teamventure-python
     environment:
-      DEBUG: "true"
-      HOST: 0.0.0.0
+      DEBUG: ${DEBUG:-true}
+      HOST: ${HOST:-0.0.0.0}
       PORT: "8000"
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: "5672"
-      RABBITMQ_USER: admin
-      RABBITMQ_PASSWORD: admin123456
-      MQ_EXCHANGE: plan.generation.topic
-      MQ_QUEUE: ai.gen.req.queue
-      MQ_ROUTING_KEY: plan.request.#
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      MQ_EXCHANGE: ${MQ_EXCHANGE}
+      MQ_QUEUE: ${MQ_QUEUE}
+      MQ_ROUTING_KEY: ${MQ_ROUTING_KEY}
       JAVA_CALLBACK_URL: http://java-business-service:8080/internal/plans/batch
-      JAVA_INTERNAL_SECRET: change-this-in-production
+      JAVA_INTERNAL_SECRET: ${JAVA_INTERNAL_SECRET}
       REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: redis123456
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
-      - "8000:8000"
+      - "${PYTHON_SERVICE_PORT:-8000}:8000"
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -78,12 +78,12 @@ services:
     image: mysql:8.0
     container_name: teamventure-mysql-master
     environment:
-      MYSQL_ROOT_PASSWORD: root123456
-      MYSQL_DATABASE: teamventure_main
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_CHARACTER_SET_SERVER: ${MYSQL_CHARACTER_SET_SERVER}
+      MYSQL_COLLATION_SERVER: ${MYSQL_COLLATION_SERVER}
     ports:
-      - "3306:3306"
+      - "${MYSQL_MASTER_PORT:-3306}:3306"
     volumes:
       - mysql-master-data:/var/lib/mysql
       - ./database/schema:/docker-entrypoint-initdb.d
@@ -91,7 +91,7 @@ services:
     networks:
       - teamventure-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123456"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -101,12 +101,12 @@ services:
     image: mysql:8.0
     container_name: teamventure-mysql-slave
     environment:
-      MYSQL_ROOT_PASSWORD: root123456
-      MYSQL_DATABASE: teamventure_main
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_CHARACTER_SET_SERVER: ${MYSQL_CHARACTER_SET_SERVER}
+      MYSQL_COLLATION_SERVER: ${MYSQL_COLLATION_SERVER}
     ports:
-      - "3307:3306"
+      - "${MYSQL_SLAVE_PORT:-3307}:3306"
     volumes:
       - mysql-slave-data:/var/lib/mysql
     command: --server-id=2 --relay-log=mysql-relay-bin
@@ -116,7 +116,7 @@ services:
       mysql-master:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123456"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -126,14 +126,14 @@ services:
     image: redis:7.0-alpine
     container_name: teamventure-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
-    command: redis-server --appendonly yes --requirepass redis123456
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     networks:
       - teamventure-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -143,10 +143,10 @@ services:
     image: rabbitmq:3.12-management
     container_name: teamventure-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin123456
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5672:5672"    # AMQP端口
+      - "${RABBITMQ_PORT:-5672}:5672"    # AMQP端口
       - "15672:15672"  # 管理界面
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
