@@ -151,15 +151,19 @@ function handleMockRequest(url, method, data, options, resolve, reject) {
       }
       // 用户登录
       else if (url === API_ENDPOINTS.USER_LOGIN) {
+        // 如果登录时提供了头像和昵称，则使用提供的值
+        const nickname = data.nickname || '测试用户'
+        const avatar = data.avatarUrl || ''
+
         mockResponse = {
           sessionToken: 'mock_token_' + Date.now(),
           userInfo: {
             user_id: 'mock_user_001',
-            nickname: '测试用户',
-            avatar: 'https://via.placeholder.com/100'
+            nickname: nickname,
+            avatar: avatar
           }
         }
-        console.log('[MOCK] 返回登录信息')
+        console.log('[MOCK] 返回登录信息:', mockResponse.userInfo)
       }
       // 确认方案
       else if (url.includes('/confirm')) {
