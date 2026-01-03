@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "生成方案",
+  "usingComponents": {
+    "stepper": "/components/stepper/stepper"
+  }
+}

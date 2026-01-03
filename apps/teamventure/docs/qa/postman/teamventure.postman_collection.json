@@ -1,0 +1,297 @@
+{
+  "info": {
+    "_postman_id": "49c30e62-fd5e-4a1f-8f07-2ac1c55f06af",
+    "name": "TeamVenture Backend API - Full Coverage",
+    "description": "Auto-smoke + full functional coverage for TeamVenture backend APIs (auth/plans/suppliers + async plan generation via MQ).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('nowIso', new Date().toISOString());"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Auth - WeChat Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });",
+                  "pm.test('token present', function () { pm.expect(json.data && json.data.session_token).to.be.a('string').and.not.empty; });",
+                  "pm.environment.set('sessionToken', json.data.session_token);",
+                  "pm.environment.set('userId', json.data.user_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{wechatCode}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/wechat/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "wechat", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plans",
+      "item": [
+        {
+          "name": "Plans - Generate (Async)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });",
+                  "pm.test('plan_request_id present', function () { pm.expect(json.data && json.data.plan_request_id).to.be.a('string').and.not.empty; });",
+                  "pm.environment.set('planRequestId', json.data.plan_request_id);",
+                  "pm.environment.set('pollAttempt', '0');",
+                  "postman.setNextRequest('Plans - Wait Until 3 Plans Ready');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"people_count\": {{peopleCount}},\n  \"budget_min\": {{budgetMin}},\n  \"budget_max\": {{budgetMax}},\n  \"start_date\": \"{{startDate}}\",\n  \"end_date\": \"{{endDate}}\",\n  \"departure_city\": \"{{departureCity}}\",\n  \"preferences\": { \"qa_run_at\": \"{{nowIso}}\" }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/plans/generate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "plans", "generate"] }
+          }
+        },
+        {
+          "name": "Plans - Wait Until 3 Plans Ready",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });",
+                  "const records = (((json || {}).data || {}).records) || [];",
+                  "const attempt = parseInt(pm.environment.get('pollAttempt') || '0', 10) + 1;",
+                  "pm.environment.set('pollAttempt', String(attempt));",
+                  "if (records.length >= 3) {",
+                  "  pm.environment.set('planId', records[0].planId || records[0].plan_id || '');",
+                  "  postman.setNextRequest('Plans - List');",
+                  "} else {",
+                  "  const maxAttempts = parseInt(pm.environment.get('pollMaxAttempts') || '30', 10);",
+                  "  const intervalMs = parseInt(pm.environment.get('pollIntervalMs') || '1000', 10);",
+                  "  if (attempt >= maxAttempts) {",
+                  "    pm.test('plans generated within polling window', function () {",
+                  "      pm.expect(records.length, 'records.length').to.be.at.least(3);",
+                  "    });",
+                  "    postman.setNextRequest(null);",
+                  "  } else {",
+                  "    setTimeout(function () { postman.setNextRequest('Plans - Wait Until 3 Plans Ready'); }, intervalMs);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{sessionToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans?page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plans"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Plans - List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });",
+                  "const records = (((json || {}).data || {}).records) || [];",
+                  "pm.test('has records', function () { pm.expect(records.length).to.be.greaterThan(0); });",
+                  "const first = records[0] || {};",
+                  "pm.environment.set('planId', first.planId || first.plan_id || pm.environment.get('planId') || '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{sessionToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans?page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plans"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Plans - Detail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{sessionToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/plans/{{planId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "plans", "{{planId}}"] }
+          }
+        },
+        {
+          "name": "Plans - Confirm (Idempotent)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{sessionToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/plans/{{planId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "plans", "{{planId}}", "confirm"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Suppliers",
+      "item": [
+        {
+          "name": "Suppliers - Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });",
+                  "pm.test('array', function () { pm.expect(json.data).to.be.an('array'); });",
+                  "const first = (json.data || [])[0] || {};",
+                  "pm.environment.set('supplierId', first.supplierId || first.supplier_id || '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{sessionToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/suppliers", "host": ["{{baseUrl}}"], "path": ["api", "v1", "suppliers"] }
+          }
+        },
+        {
+          "name": "Suppliers - Detail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{sessionToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/suppliers/{{supplierId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "suppliers", "{{supplierId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plan Supplier Contacts",
+      "item": [
+        {
+          "name": "Plans - Record Supplier Contact",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true', function () { pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplier_id\": \"{{supplierId}}\",\n  \"channel\": \"{{contactChannel}}\",\n  \"notes\": \"qa-run {{nowIso}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/plans/{{planId}}/supplier-contacts", "host": ["{{baseUrl}}"], "path": ["api", "v1", "plans", "{{planId}}", "supplier-contacts"] }
+          }
+        }
+      ]
+    }
+  ]
+}
+

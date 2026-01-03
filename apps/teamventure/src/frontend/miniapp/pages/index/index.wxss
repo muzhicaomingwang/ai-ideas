@@ -1,0 +1,405 @@
+/* pages/index/index.wxss */
+.index-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 120rpx;
+}
+
+/* 步骤指示器 */
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 64rpx 32rpx;
+  background-color: #fff;
+  margin-bottom: 24rpx;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step-number {
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #e8e8e8;
+  color: #999;
+  font-size: 28rpx;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+}
+
+.step-item.active .step-number {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.step-item.completed .step-number {
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.step-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.step-item.active .step-label {
+  color: #333;
+  font-weight: 500;
+}
+
+.step-line {
+  flex: 1;
+  height: 2rpx;
+  background-color: #e8e8e8;
+  margin: 0 32rpx;
+  margin-bottom: 40rpx;
+}
+
+.step-line.active {
+  background-color: #52c41a;
+}
+
+/* 表单容器 */
+.form-container {
+  padding: 32rpx;
+}
+
+.form-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 48rpx;
+  text-align: center;
+}
+
+/* 表单项 */
+.form-item {
+  margin-bottom: 48rpx;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.label-text {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.required {
+  color: #f5222d;
+  margin-left: 4rpx;
+}
+
+.hint-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+/* 输入框组 */
+.input-group {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid #e8e8e8;
+}
+
+.unit {
+  margin-left: 16rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+
+/* 快捷按钮 */
+.quick-buttons {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.quick-btn {
+  flex: 1;
+  padding: 16rpx 24rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.quick-btn.active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* 预算输入 */
+.budget-input-group {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.budget-input-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid #e8e8e8;
+}
+
+.currency {
+  color: #666;
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.budget-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.separator {
+  color: #999;
+  font-size: 28rpx;
+}
+
+.budget-hint {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #1890ff;
+}
+
+.budget-warning {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #faad14;
+}
+
+/* 日期输入 */
+.date-input-group {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.date-picker {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid #e8e8e8;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.date-picker .placeholder {
+  color: #ccc;
+}
+
+.date-hint {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #52c41a;
+}
+
+/* 文本输入 */
+.text-input {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid #e8e8e8;
+  font-size: 28rpx;
+}
+
+/* 标签组 */
+.chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.chip {
+  padding: 16rpx 32rpx;
+  background-color: #f5f5f5;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  color: #666;
+  border: 2rpx solid transparent;
+}
+
+.chip.selected {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border-color: #1890ff;
+  font-weight: 500;
+}
+
+/* 单选组 */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background-color: #fff;
+  border-radius: 12rpx;
+  border: 2rpx solid #e8e8e8;
+}
+
+.radio-item.selected {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+.radio-circle {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 2rpx solid #d9d9d9;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-item.selected .radio-circle {
+  border-color: #1890ff;
+}
+
+.radio-dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  background-color: #1890ff;
+}
+
+/* 文本域 */
+.textarea-input {
+  width: 100%;
+  min-height: 200rpx;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid #e8e8e8;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.textarea-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 生成提示 */
+.generate-tips {
+  margin-top: 48rpx;
+  padding: 32rpx;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  border-radius: 16rpx;
+  border: 2rpx solid #91d5ff;
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.tip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tip-icon {
+  font-size: 36rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #1890ff;
+  line-height: 1.6;
+  flex: 1;
+  font-weight: 500;
+}
+
+/* 表单操作按钮 */
+.form-actions {
+  margin-top: 48rpx;
+}
+
+.form-actions-double {
+  display: flex;
+  gap: 24rpx;
+}
+
+.btn-next,
+.btn-generate,
+.btn-back {
+  width: 100%;
+  height: 88rpx;
+  border-radius: 44rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-next,
+.btn-generate {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.btn-icon {
+  font-size: 36rpx;
+  margin-right: 8rpx;
+}
+
+.btn-back {
+  flex: 1;
+  background-color: #fff;
+  color: #666;
+  border: 2rpx solid #d9d9d9;
+}
+
+.btn-next::after,
+.btn-generate::after,
+.btn-back::after {
+  border: none;
+}
+
+.btn-next:active,
+.btn-generate:active {
+  background-color: #0070dd;
+}
+
+.btn-back:active {
+  background-color: #f5f5f5;
+}

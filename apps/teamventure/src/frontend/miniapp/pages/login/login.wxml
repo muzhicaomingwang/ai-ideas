@@ -1,0 +1,67 @@
+<!--pages/login/login.wxml-->
+<view class="login-page">
+  <!-- Logo 和标题 -->
+  <view class="header">
+    <view class="logo">
+      <text class="logo-text">TV</text>
+    </view>
+    <view class="title">TeamVenture</view>
+    <view class="subtitle">AI驱动的团建策划助手</view>
+  </view>
+
+  <!-- 功能亮点 -->
+  <view class="features">
+    <view class="feature-item">
+      <view class="feature-icon">⚡</view>
+      <view class="feature-text">15分钟生成方案</view>
+    </view>
+    <view class="feature-item">
+      <view class="feature-icon">💰</view>
+      <view class="feature-text">成本降低50%+</view>
+    </view>
+    <view class="feature-item">
+      <view class="feature-icon">🎯</view>
+      <view class="feature-text">智能供应商匹配</view>
+    </view>
+  </view>
+
+  <!-- 登录按钮 -->
+  <view class="login-section">
+    <button
+      class="btn-wechat-login"
+      open-type="getUserInfo"
+      bindgetuserinfo="handleGetUserInfo"
+      wx:if="{{!isLogin}}"
+    >
+      <text class="wechat-icon">🔐</text>
+      <text>微信一键登录</text>
+    </button>
+
+    <button
+      class="btn-continue"
+      bindtap="handleContinue"
+      wx:if="{{isLogin}}"
+    >
+      继续使用
+    </button>
+  </view>
+
+  <!-- 用户协议 -->
+  <view class="agreement">
+    <checkbox-group bindchange="handleAgreementChange">
+      <label class="agreement-label">
+        <checkbox value="agree" checked="{{agreed}}" color="#1890ff"/>
+        <text class="agreement-text">
+          我已阅读并同意
+          <text class="link" bindtap="handleShowAgreement" data-type="user">《用户协议》</text>
+          和
+          <text class="link" bindtap="handleShowAgreement" data-type="privacy">《隐私政策》</text>
+        </text>
+      </label>
+    </checkbox-group>
+  </view>
+
+  <!-- 装饰元素 -->
+  <view class="decoration-circle decoration-circle-1"></view>
+  <view class="decoration-circle decoration-circle-2"></view>
+</view>

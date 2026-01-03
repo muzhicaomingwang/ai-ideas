@@ -25,17 +25,28 @@ async def run_generation_workflow(message: dict[str, Any]) -> GenerationState:
     }
 
     try:
+        logger.info("workflow start plan_request_id=%s", state["plan_request_id"])
         state["parsed_requirements"] = parse_requirements(message)
+        logger.info("requirements parsed plan_request_id=%s", state["plan_request_id"])
         state["matched_suppliers"] = await match_suppliers(state["parsed_requirements"])
+        logger.info(
+            "suppliers matched plan_request_id=%s count=%s",
+            state["plan_request_id"],
+            len(state.get("matched_suppliers") or []),
+        )
         state["generated_plans"] = await generate_three_plans(
             plan_request_id=state["plan_request_id"],
             user_id=state["user_id"],
             inputs=state["parsed_requirements"],
             matched_suppliers=state["matched_suppliers"],
         )
+        logger.info(
+            "plans generated plan_request_id=%s count=%s",
+            state["plan_request_id"],
+            len(state.get("generated_plans") or []),
+        )
         return state
     except Exception as exc:
         logger.exception("Generation workflow failed")
         state["error"] = str(exc)
         return state
-

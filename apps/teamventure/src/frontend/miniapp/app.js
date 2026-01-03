@@ -1,0 +1,74 @@
+// app.js
+App({
+  onLaunch(options) {
+    console.log('TeamVenture 小程序启动', options)
+
+    // 检查登录状态
+    this.checkLoginStatus()
+
+    // 获取系统信息
+    this.getSystemInfo()
+  },
+
+  onShow(options) {
+    console.log('TeamVenture 小程序显示', options)
+  },
+
+  onHide() {
+    console.log('TeamVenture 小程序隐藏')
+  },
+
+  onError(error) {
+    console.error('TeamVenture 小程序错误', error)
+  },
+
+  // 检查登录状态
+  checkLoginStatus() {
+    const sessionToken = wx.getStorageSync('sessionToken')
+    const userInfo = wx.getStorageSync('userInfo')
+
+    if (sessionToken && userInfo) {
+      this.globalData.isLogin = true
+      this.globalData.userInfo = userInfo
+      console.log('已登录用户:', userInfo)
+    } else {
+      this.globalData.isLogin = false
+      console.log('用户未登录')
+    }
+  },
+
+  // 获取系统信息
+  getSystemInfo() {
+    wx.getSystemInfo({
+      success: (res) => {
+        this.globalData.systemInfo = res
+        console.log('系统信息:', res)
+      },
+      fail: (error) => {
+        console.error('获取系统信息失败:', error)
+      }
+    })
+  },
+
+  // 登录
+  login(userInfo) {
+    this.globalData.isLogin = true
+    this.globalData.userInfo = userInfo
+    wx.setStorageSync('userInfo', userInfo)
+  },
+
+  // 退出登录
+  logout() {
+    this.globalData.isLogin = false
+    this.globalData.userInfo = null
+    wx.removeStorageSync('sessionToken')
+    wx.removeStorageSync('userInfo')
+  },
+
+  // 全局数据
+  globalData: {
+    isLogin: false,
+    userInfo: null,
+    systemInfo: null
+  }
+})

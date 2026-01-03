@@ -1,0 +1,338 @@
+/* pages/comparison/comparison.wxss */
+.comparison-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 160rpx;
+}
+
+/* 页面头部 */
+.page-header {
+  background-color: #fff;
+  padding: 48rpx 32rpx 32rpx;
+  text-align: center;
+}
+
+.header-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.header-subtitle {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 方案卡片容器 */
+.plans-container {
+  margin-top: 24rpx;
+  background-color: #fff;
+  padding: 32rpx 0;
+}
+
+.plans-scroll {
+  white-space: nowrap;
+}
+
+.plans-wrapper {
+  display: inline-flex;
+  padding: 0 32rpx;
+  gap: 16rpx;
+}
+
+/* 方案卡片 */
+.plan-card {
+  position: relative;
+  display: inline-block;
+  width: 440rpx;
+  background-color: #fff;
+  border: 2rpx solid #e8e8e8;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  vertical-align: top;
+}
+
+.plan-card.selected {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+  box-shadow: 0 4rpx 16rpx rgba(24, 144, 255, 0.15);
+}
+
+/* 推荐标签 */
+.recommended-badge {
+  position: absolute;
+  top: -12rpx;
+  right: 24rpx;
+  background: linear-gradient(135deg, #faad14 0%, #ff7a00 100%);
+  color: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(250, 173, 20, 0.3);
+}
+
+/* 方案头部 */
+.plan-header {
+  margin-bottom: 24rpx;
+}
+
+.plan-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-type-label {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  background-color: #f0f0f0;
+  color: #666;
+  border-radius: 4rpx;
+  font-size: 24rpx;
+}
+
+.plan-card.budget .plan-type-label {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.plan-card.standard .plan-type-label {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.plan-card.premium .plan-type-label {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+/* 预算 */
+.plan-budget {
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.budget-total {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+  margin-bottom: 8rpx;
+}
+
+.budget-per-person {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 方案亮点 */
+.plan-highlights {
+  margin-bottom: 24rpx;
+}
+
+.highlight-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.highlight-item:last-child {
+  margin-bottom: 0;
+}
+
+.highlight-item .icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+  width: 40rpx;
+}
+
+.highlight-item .label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 适合人群标签 */
+.suitable-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.suitable-tags .tag {
+  padding: 8rpx 16rpx;
+  background-color: #f0f0f0;
+  color: #666;
+  border-radius: 4rpx;
+  font-size: 24rpx;
+}
+
+.plan-card.selected .suitable-tags .tag {
+  background-color: rgba(24, 144, 255, 0.1);
+  color: #1890ff;
+}
+
+/* 操作按钮 */
+.plan-actions {
+  margin-top: 24rpx;
+}
+
+.btn-detail {
+  width: 100%;
+  height: 72rpx;
+  line-height: 72rpx;
+  background-color: #fff;
+  color: #1890ff;
+  border: 2rpx solid #1890ff;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.plan-card.selected .btn-detail {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.btn-detail::after {
+  border: none;
+}
+
+/* 对比表格部分 */
+.comparison-section {
+  margin-top: 24rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  margin: 24rpx 32rpx 0;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  background-color: #fafafa;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.toggle-icon {
+  font-size: 24rpx;
+  color: #999;
+  transition: transform 0.3s ease;
+}
+
+/* 对比表格 */
+.comparison-table {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.comparison-table.expanded {
+  max-height: 1000rpx;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row.header-row {
+  background-color: #fafafa;
+}
+
+.table-cell {
+  flex: 1;
+  padding: 24rpx 16rpx;
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+  border-right: 1rpx solid #e8e8e8;
+}
+
+.table-cell:last-child {
+  border-right: none;
+}
+
+.table-cell.label-cell {
+  font-weight: 500;
+  color: #333;
+  background-color: #fafafa;
+}
+
+.header-row .table-cell {
+  font-weight: 500;
+  color: #333;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 32rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #e8e8e8;
+  box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.05);
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.btn-regenerate {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #fff;
+  color: #666;
+  border: 2rpx solid #d9d9d9;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.btn-regenerate::after {
+  border: none;
+}
+
+.btn-select-plan {
+  flex: 2;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #1890ff;
+  color: #fff;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+}
+
+.btn-select-plan::after {
+  border: none;
+}
+
+.btn-select-plan[disabled] {
+  background-color: #d9d9d9;
+  color: #999;
+}

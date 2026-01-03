@@ -1,0 +1,262 @@
+<!--pages/index/index.wxml-->
+<view class="index-page">
+  <!-- 步骤指示器 -->
+  <view class="steps">
+    <view class="step-item {{currentStep >= 1 ? 'active' : ''}} {{currentStep > 1 ? 'completed' : ''}}">
+      <view class="step-number">1</view>
+      <view class="step-label">基础信息</view>
+    </view>
+    <view class="step-line {{currentStep > 1 ? 'active' : ''}}"></view>
+    <view class="step-item {{currentStep >= 2 ? 'active' : ''}}">
+      <view class="step-number">2</view>
+      <view class="step-label">偏好选择</view>
+    </view>
+  </view>
+
+  <!-- Step 1: 基础信息 -->
+  <view class="form-container" wx:if="{{currentStep === 1}}">
+    <view class="form-title">告诉我们您的团建需求</view>
+
+    <!-- 参与人数 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">参与人数</text>
+        <text class="required">*</text>
+      </view>
+      <view class="input-group">
+        <stepper
+          value="{{formData.peopleCount}}"
+          min="1"
+          max="500"
+          bindchange="handlePeopleCountChange"
+        ></stepper>
+        <text class="unit">人</text>
+      </view>
+      <!-- 快捷按钮 -->
+      <view class="quick-buttons">
+        <view
+          class="quick-btn {{formData.peopleCount === 20 ? 'active' : ''}}"
+          bindtap="handleQuickPeople"
+          data-value="20"
+        >20人</view>
+        <view
+          class="quick-btn {{formData.peopleCount === 50 ? 'active' : ''}}"
+          bindtap="handleQuickPeople"
+          data-value="50"
+        >50人</view>
+        <view
+          class="quick-btn {{formData.peopleCount === 100 ? 'active' : ''}}"
+          bindtap="handleQuickPeople"
+          data-value="100"
+        >100人</view>
+      </view>
+    </view>
+
+    <!-- 预算范围 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">预算范围</text>
+        <text class="required">*</text>
+      </view>
+      <view class="budget-input-group">
+        <view class="budget-input-item">
+          <text class="currency">¥</text>
+          <input
+            class="budget-input"
+            type="digit"
+            placeholder="最低预算"
+            value="{{formData.budgetMin}}"
+            bindinput="handleBudgetMinInput"
+          />
+        </view>
+        <text class="separator">-</text>
+        <view class="budget-input-item">
+          <text class="currency">¥</text>
+          <input
+            class="budget-input"
+            type="digit"
+            placeholder="最高预算"
+            value="{{formData.budgetMax}}"
+            bindinput="handleBudgetMaxInput"
+          />
+        </view>
+      </view>
+      <view class="budget-hint" wx:if="{{budgetPerPerson}}">
+        人均预算：{{budgetPerPerson}}
+      </view>
+      <view class="budget-warning" wx:if="{{budgetWarning}}">
+        {{budgetWarning}}
+      </view>
+    </view>
+
+    <!-- 活动日期 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">活动日期</text>
+        <text class="required">*</text>
+      </view>
+      <view class="date-input-group">
+        <picker
+          mode="date"
+          value="{{formData.startDate}}"
+          start="{{minDate}}"
+          bindchange="handleStartDateChange"
+        >
+          <view class="date-picker">
+            <text wx:if="{{formData.startDate}}">{{formData.startDate}}</text>
+            <text wx:else class="placeholder">开始日期</text>
+          </view>
+        </picker>
+        <text class="separator">至</text>
+        <picker
+          mode="date"
+          value="{{formData.endDate}}"
+          start="{{formData.startDate || minDate}}"
+          bindchange="handleEndDateChange"
+        >
+          <view class="date-picker">
+            <text wx:if="{{formData.endDate}}">{{formData.endDate}}</text>
+            <text wx:else class="placeholder">结束日期</text>
+          </view>
+        </picker>
+      </view>
+      <view class="date-hint" wx:if="{{durationDays}}">
+        {{durationDays}}
+      </view>
+    </view>
+
+    <!-- 出发地点 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">出发地点</text>
+        <text class="required">*</text>
+      </view>
+      <input
+        class="text-input"
+        placeholder="请输入出发城市或地点"
+        value="{{formData.departureLocation}}"
+        bindinput="handleDepartureLocationInput"
+      />
+    </view>
+
+    <!-- 目的地 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">目的地</text>
+        <text class="hint-text">（可选，留空则由AI推荐）</text>
+      </view>
+      <input
+        class="text-input"
+        placeholder="例如：北京怀柔、杭州千岛湖等"
+        value="{{formData.destination}}"
+        bindinput="handleDestinationInput"
+      />
+    </view>
+
+    <!-- 下一步按钮 -->
+    <view class="form-actions">
+      <button class="btn-next" bindtap="handleNextStep">下一步</button>
+    </view>
+  </view>
+
+  <!-- Step 2: 偏好选择 -->
+  <view class="form-container" wx:if="{{currentStep === 2}}">
+    <view class="form-title">选择您的偏好</view>
+
+    <!-- 活动类型 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">活动类型</text>
+        <text class="hint-text">（可多选）</text>
+      </view>
+      <view class="chips-group">
+        <view
+          wx:for="{{activityTypes}}"
+          wx:key="value"
+          class="chip {{formData.preferences.activityTypes.includes(item.value) ? 'selected' : ''}}"
+          bindtap="handleActivityTypeToggle"
+          data-value="{{item.value}}"
+        >
+          {{item.label}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 住宿标准 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">住宿标准</text>
+      </view>
+      <view class="radio-group">
+        <view
+          wx:for="{{accommodationLevels}}"
+          wx:key="value"
+          class="radio-item {{formData.preferences.accommodationLevel === item.value ? 'selected' : ''}}"
+          bindtap="handleAccommodationLevelChange"
+          data-value="{{item.value}}"
+        >
+          <view class="radio-circle">
+            <view class="radio-dot" wx:if="{{formData.preferences.accommodationLevel === item.value}}"></view>
+          </view>
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 餐饮偏好 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">餐饮偏好</text>
+        <text class="hint-text">（可多选）</text>
+      </view>
+      <view class="chips-group">
+        <view
+          wx:for="{{diningPreferences}}"
+          wx:key="value"
+          class="chip {{formData.preferences.diningStyle.includes(item.value) ? 'selected' : ''}}"
+          bindtap="handleDiningStyleToggle"
+          data-value="{{item.value}}"
+        >
+          {{item.label}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 特殊需求 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">特殊需求</text>
+        <text class="hint-text">（选填）</text>
+      </view>
+      <textarea
+        class="textarea-input"
+        placeholder="请输入特殊需求，如：有老人或小孩、身体限制等"
+        value="{{formData.preferences.specialRequirements}}"
+        bindinput="handleSpecialRequirementsInput"
+        maxlength="200"
+      />
+      <view class="textarea-count">{{formData.preferences.specialRequirements.length}}/200</view>
+    </view>
+
+    <!-- 生成说明 -->
+    <view class="generate-tips">
+      <view class="tip-item">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">点击「生成方案」后，AI将为您生成3套方案供对比</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">⏱️</text>
+        <text class="tip-text">生成时间约15-30秒，请耐心等待</text>
+      </view>
+    </view>
+
+    <!-- 按钮组 -->
+    <view class="form-actions form-actions-double">
+      <button class="btn-back" bindtap="handleBackStep">上一步</button>
+      <button class="btn-generate" bindtap="handleGenerate">
+        <text class="btn-icon">✨</text>
+        <text>AI 生成方案</text>
+      </button>
+    </view>
+  </view>
+</view>

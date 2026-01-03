@@ -1,0 +1,153 @@
+<!--pages/comparison/comparison.wxml-->
+<view class="comparison-page">
+  <!-- 标题 -->
+  <view class="page-header">
+    <view class="header-title">为您生成了 3 套方案</view>
+    <view class="header-subtitle">请选择最适合您的方案</view>
+  </view>
+
+  <!-- 方案卡片列表 -->
+  <view class="plans-container">
+    <scroll-view scroll-x="true" class="plans-scroll">
+      <view class="plans-wrapper">
+        <view
+          wx:for="{{plans}}"
+          wx:key="plan_id"
+          class="plan-card {{item.plan_type}} {{selectedPlanId === item.plan_id ? 'selected' : ''}}"
+          bindtap="handleSelectPlan"
+          data-plan-id="{{item.plan_id}}"
+        >
+          <!-- 推荐标签 -->
+          <view class="recommended-badge" wx:if="{{item.recommended}}">
+            ⭐ 推荐
+          </view>
+
+          <!-- 方案类型 -->
+          <view class="plan-header">
+            <view class="plan-name">{{item.plan_name}}</view>
+            <view class="plan-type-label">{{item.plan_type_label}}</view>
+          </view>
+
+          <!-- 金额 -->
+          <view class="plan-budget">
+            <view class="budget-total">¥{{item.budget_total}}</view>
+            <view class="budget-per-person">{{item.budget_per_person}}/人</view>
+          </view>
+
+          <!-- 方案亮点 -->
+          <view class="plan-highlights">
+            <view class="highlight-item">
+              <text class="icon">🏠</text>
+              <text class="label">{{item.accommodation_label}}</text>
+            </view>
+            <view class="highlight-item">
+              <text class="icon">🎯</text>
+              <text class="label">{{item.activity_count}}个活动</text>
+            </view>
+            <view class="highlight-item">
+              <text class="icon">🍴</text>
+              <text class="label">{{item.dining_label}}</text>
+            </view>
+          </view>
+
+          <!-- 适合人群 -->
+          <view class="suitable-tags">
+            <view
+              wx:for="{{item.suitable_for}}"
+              wx:for-item="tag"
+              wx:key="*this"
+              class="tag"
+            >
+              {{tag}}
+            </view>
+          </view>
+
+          <!-- 操作按钮 -->
+          <view class="plan-actions">
+            <button
+              class="btn-detail"
+              bindtap="handleViewDetail"
+              data-plan-id="{{item.plan_id}}"
+              catchtap="handleViewDetail"
+            >
+              查看详情
+            </button>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 详细对比表格 -->
+  <view class="comparison-section">
+    <view class="section-header" bindtap="toggleComparison">
+      <text class="section-title">详细对比</text>
+      <text class="toggle-icon">{{comparisonExpanded ? '▼' : '▶'}}</text>
+    </view>
+
+    <view class="comparison-table {{comparisonExpanded ? 'expanded' : ''}}">
+      <view class="table-row header-row">
+        <view class="table-cell">对比项</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          {{item.plan_type_label}}
+        </view>
+      </view>
+
+      <view class="table-row">
+        <view class="table-cell label-cell">总预算</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          ¥{{item.budget_total}}
+        </view>
+      </view>
+
+      <view class="table-row">
+        <view class="table-cell label-cell">人均成本</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          {{item.budget_per_person}}
+        </view>
+      </view>
+
+      <view class="table-row">
+        <view class="table-cell label-cell">住宿标准</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          {{item.accommodation_label}}
+        </view>
+      </view>
+
+      <view class="table-row">
+        <view class="table-cell label-cell">活动数量</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          {{item.activity_count}}个
+        </view>
+      </view>
+
+      <view class="table-row">
+        <view class="table-cell label-cell">餐饮标准</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          {{item.dining_label}}
+        </view>
+      </view>
+
+      <view class="table-row">
+        <view class="table-cell label-cell">适合人群</view>
+        <view class="table-cell" wx:for="{{plans}}" wx:key="plan_id">
+          {{item.suitable_for[0]}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <button class="btn-regenerate" bindtap="handleRegenerate">
+      重新生成
+    </button>
+    <button
+      class="btn-select-plan"
+      bindtap="handleConfirmSelection"
+      disabled="{{!selectedPlanId}}"
+    >
+      选择此方案
+    </button>
+  </view>
+</view>

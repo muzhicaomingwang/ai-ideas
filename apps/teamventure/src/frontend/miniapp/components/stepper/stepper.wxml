@@ -1,0 +1,22 @@
+<!--components/stepper/stepper.wxml-->
+<view class="stepper">
+  <view
+    class="stepper-btn stepper-minus {{value <= min ? 'disabled' : ''}}"
+    bindtap="handleMinus"
+  >
+    -
+  </view>
+  <input
+    class="stepper-input"
+    type="number"
+    value="{{value}}"
+    bindinput="handleInput"
+    bindblur="handleBlur"
+  />
+  <view
+    class="stepper-btn stepper-plus {{value >= max ? 'disabled' : ''}}"
+    bindtap="handlePlus"
+  >
+    +
+  </view>
+</view>

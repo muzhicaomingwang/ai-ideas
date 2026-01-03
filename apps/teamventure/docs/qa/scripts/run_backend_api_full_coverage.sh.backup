@@ -121,25 +121,21 @@ parse_curl_response() {
 
 py_assert() {
   local expr="$1"
-  local json_input
-  json_input="$(cat)"
-  JSON_INPUT="$json_input" PY_EXPR="$expr" python3 <<'PY'
-import json, os
-data = json.loads(os.environ.get('JSON_INPUT', '{}'))
-PY_EXPR = os.environ.get('PY_EXPR', 'True')
-assert eval(PY_EXPR), f"assertion failed: {PY_EXPR}"
+  local input="${2:-}"
+  python3 - <<PY
+import json, sys
+data = json.loads(sys.stdin.read() or "{}")
+assert (${expr}), "assertion failed: ${expr}"
 print("OK")
 PY
 }
 
 py_get() {
   local expr="$1"
-  local json_input
-  json_input="$(cat)"
-  JSON_INPUT="$json_input" PY_EXPR="$expr" python3 <<'PY'
-import json, os
-data = json.loads(os.environ.get('JSON_INPUT', '{}'))
-val = eval(os.environ.get('PY_EXPR', 'None'))
+  python3 - <<PY
+import json, sys
+data = json.loads(sys.stdin.read() or "{}")
+val = ${expr}
 if val is None:
   print("")
 else:
@@ -228,16 +224,15 @@ main() {
   # 3) 供应商查询（拿一个 supplierId）
   log "Step 3: suppliers search"
   CURL_EXTRA_HEADERS=$'Authorization: Bearer '"$session_token"
-  local sup_list_raw
-  sup_list_raw="$(curl_json GET "${BASE_URL%/}/api/v1/suppliers")" || {
+  local sup_list_resp
+  sup_list_resp="$(curl_json GET "${BASE_URL%/}/api/v1/suppliers")" || {
     dump_debug_logs
     die "suppliers search failed"
   }
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "suppliers search http status=$CURL_STATUS"; }
-  parse_curl_response "$sup_list_raw"
-  echo "$CURL_BODY" | py_assert "data.get('success') is True"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$sup_list_resp"; dump_debug_logs; die "suppliers search http status=$CURL_STATUS"; }
+  echo "$sup_list_resp" | py_assert "data.get('success') is True"
   local supplier_id
-  supplier_id="$(echo "$CURL_BODY" | py_get "(data.get('data') or [{}])[0].get('supplierId') or (data.get('data') or [{}])[0].get('supplier_id')")"
+  supplier_id="$(echo "$sup_list_resp" | py_get "(data.get('data') or [{}])[0].get('supplierId') or (data.get('data') or [{}])[0].get('supplier_id')")"
   if [[ -z "$supplier_id" ]]; then
     log "WARN: supplier list empty; ensure DB seed applied (V1.0.1__seed_suppliers.sql)"
   else
@@ -260,15 +255,14 @@ main() {
 JSON
 )"
   local gen_resp
-  gen_raw="$(curl_json POST "${BASE_URL%/}/api/v1/plans/generate" "$gen_body")" || {
+  gen_resp="$(curl_json POST "${BASE_URL%/}/api/v1/plans/generate" "$gen_body")" || {
     dump_debug_logs
     die "plans generate failed"
   }
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plans generate http status=$CURL_STATUS"; }
-  parse_curl_response "$gen_raw"
-  echo "$CURL_BODY" | py_assert "data.get('success') is True"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$gen_resp"; dump_debug_logs; die "plans generate http status=$CURL_STATUS"; }
+  echo "$gen_resp" | py_assert "data.get('success') is True"
   local plan_request_id
-  plan_request_id="$(echo "$CURL_BODY" | py_get "data['data']['plan_request_id']")"
+  plan_request_id="$(echo "$gen_resp" | py_get "data['data']['plan_request_id']")"
   [[ -n "$plan_request_id" ]] || { dump_debug_logs; die "missing plan_request_id"; }
   log "plan_request_id=$plan_request_id"
 
@@ -279,24 +273,27 @@ JSON
   # 6) 轮询 plans 列表，直到 records >= 3
   log "Step 6: poll plans list until >= 3 records (max=${POLL_MAX_ATTEMPTS}, interval=${POLL_INTERVAL_SEC}s)"
   local attempt=0
-  local list_raw=""
-  local list_resp_body=""
+  local list_resp=""
   local record_count=0
   while [[ $attempt -lt $POLL_MAX_ATTEMPTS ]]; do
     attempt=$((attempt + 1))
-    list_raw="$(curl_json GET "${BASE_URL%/}/api/v1/plans?page=1&pageSize=10")" || {
+    list_resp="$(curl_json GET "${BASE_URL%/}/api/v1/plans?page=1&pageSize=10")" || {
       dump_debug_logs
       die "plans list failed during polling"
     }
-    parse_curl_response "$list_raw"
-    list_resp_body="$CURL_BODY"
     if [[ "$CURL_STATUS" != "200" ]]; then
-      echo "$CURL_BODY"
+      echo "$list_resp"
       dump_debug_logs
       die "plans list http status=$CURL_STATUS"
     fi
-    echo "$CURL_BODY" | py_assert "data.get('success') is True"
-    record_count="$(echo "$CURL_BODY" | py_get "len((((data or {}).get('data') or {}).get('records')) or [])")"
+    echo "$list_resp" | py_assert "data.get('success') is True"
+    record_count="$(echo "$list_resp" | python3 - <<'PY'
+import json, sys
+j = json.loads(sys.stdin.read() or "{}")
+records = (((j or {}).get("data") or {}).get("records")) or []
+print(len(records))
+PY
+)"
     log "poll attempt=${attempt}: records=${record_count}"
     if [[ "$record_count" -ge 3 ]]; then
       break
@@ -312,11 +309,9 @@ JSON
   # 7) 取一个 planId，调详情
   log "Step 7: plan detail"
   local plan_id
-  local json_input
-  json_input="$CURL_BODY"
-  plan_id="$(JSON_INPUT="$json_input" python3 <<'PY'
-import json, os
-j = json.loads(os.environ.get('JSON_INPUT', '{}'))
+  plan_id="$(echo "$list_resp" | python3 - <<'PY'
+import json, sys
+j = json.loads(sys.stdin.read() or "{}")
 records = (((j or {}).get("data") or {}).get("records")) or []
 first = records[0] if records else {}
 print(first.get("planId") or first.get("plan_id") or "")
@@ -324,44 +319,40 @@ PY
 )"
   [[ -n "$plan_id" ]] || { dump_debug_logs; die "missing plan_id from list"; }
   local detail_resp
-  detail_raw="$(curl_json GET "${BASE_URL%/}/api/v1/plans/${plan_id}")" || {
+  detail_resp="$(curl_json GET "${BASE_URL%/}/api/v1/plans/${plan_id}")" || {
     dump_debug_logs
     die "plan detail failed"
   }
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plan detail http status=$CURL_STATUS"; }
-  parse_curl_response "$detail_raw"
-  echo "$CURL_BODY" | py_assert "data.get('success') is True"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$detail_resp"; dump_debug_logs; die "plan detail http status=$CURL_STATUS"; }
+  echo "$detail_resp" | py_assert "data.get('success') is True"
 
   # 8) confirm 幂等（调用两次都应成功）
   log "Step 8: confirm plan (idempotent) - twice"
-  local confirm_raw_1 confirm_raw_2
-  confirm_raw_1="$(curl_json POST "${BASE_URL%/}/api/v1/plans/${plan_id}/confirm" "")" || {
+  local confirm_resp_1 confirm_resp_2
+  confirm_resp_1="$(curl_json POST "${BASE_URL%/}/api/v1/plans/${plan_id}/confirm" "")" || {
     dump_debug_logs
     die "plan confirm #1 failed"
   }
-  parse_curl_response "$confirm_raw_1"
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plan confirm #1 http status=$CURL_STATUS"; }
-  echo "$CURL_BODY" | py_assert "data.get('success') is True"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$confirm_resp_1"; dump_debug_logs; die "plan confirm #1 http status=$CURL_STATUS"; }
+  echo "$confirm_resp_1" | py_assert "data.get('success') is True"
 
-  confirm_raw_2="$(curl_json POST "${BASE_URL%/}/api/v1/plans/${plan_id}/confirm" "")" || {
+  confirm_resp_2="$(curl_json POST "${BASE_URL%/}/api/v1/plans/${plan_id}/confirm" "")" || {
     dump_debug_logs
     die "plan confirm #2 failed"
   }
-  parse_curl_response "$confirm_raw_2"
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plan confirm #2 http status=$CURL_STATUS"; }
-  echo "$CURL_BODY" | py_assert "data.get('success') is True"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$confirm_resp_2"; dump_debug_logs; die "plan confirm #2 http status=$CURL_STATUS"; }
+  echo "$confirm_resp_2" | py_assert "data.get('success') is True"
 
   # 9) 供应商详情（如果有 supplier_id）
   if [[ -n "$supplier_id" ]]; then
     log "Step 9: supplier detail"
     local sup_detail_resp
-    sup_detail_raw="$(curl_json GET "${BASE_URL%/}/api/v1/suppliers/${supplier_id}")" || {
+    sup_detail_resp="$(curl_json GET "${BASE_URL%/}/api/v1/suppliers/${supplier_id}")" || {
       dump_debug_logs
       die "supplier detail failed"
     }
-    [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "supplier detail http status=$CURL_STATUS"; }
-  parse_curl_response "$sup_detail_raw"
-    echo "$CURL_BODY" | py_assert "data.get('success') is True"
+    [[ "$CURL_STATUS" == "200" ]] || { echo "$sup_detail_resp"; dump_debug_logs; die "supplier detail http status=$CURL_STATUS"; }
+    echo "$sup_detail_resp" | py_assert "data.get('success') is True"
   else
     log "Step 9: skip supplier detail (no supplier_id)"
   fi
@@ -376,8 +367,8 @@ PY
       dump_debug_logs
       die "supplier contact failed"
     }
-    [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "supplier contact http status=$CURL_STATUS"; }
-    echo "$CURL_BODY" | py_assert "data.get('success') is True"
+    [[ "$CURL_STATUS" == "200" ]] || { echo "$contact_resp"; dump_debug_logs; die "supplier contact http status=$CURL_STATUS"; }
+    echo "$contact_resp" | py_assert "data.get('success') is True"
   else
     log "Step 10: skip supplier contact (no supplier_id)"
   fi
@@ -388,14 +379,13 @@ PY
   CURL_EXTRA_HEADERS="X-Internal-Secret: wrong"
   local internal_body
   internal_body="$(printf '{"plan_request_id":"%s","user_id":"%s","plans":[],"trace_id":"trace_qa"}' "$plan_request_id" "$user_id")"
-  local internal_raw
-  internal_raw="$(curl_json POST "${JAVA_DIRECT_URL%/}/internal/plans/batch" "$internal_body")" || {
+  local internal_resp
+  internal_resp="$(curl_json POST "${JAVA_DIRECT_URL%/}/internal/plans/batch" "$internal_body")" || {
     dump_debug_logs
     die "internal callback request failed"
   }
-  parse_curl_response "$internal_raw"
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "internal callback http status=$CURL_STATUS"; }
-  echo "$CURL_BODY" | py_assert "data.get('success') is False and (data.get('error') or {}).get('code') == 'UNAUTHORIZED'"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$internal_resp"; dump_debug_logs; die "internal callback http status=$CURL_STATUS"; }
+  echo "$internal_resp" | py_assert "data.get('success') is False and (data.get('error') or {}).get('code') == 'UNAUTHORIZED'"
 
   log "ALL PASSED"
 }
