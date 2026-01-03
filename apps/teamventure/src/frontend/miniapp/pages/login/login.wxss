@@ -155,6 +155,93 @@
   font-weight: 500;
 }
 
+/* 用户信息表单 */
+.user-form {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 56rpx 48rpx;
+  margin-bottom: 60rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  margin-top: auto;
+}
+
+.form-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  margin-bottom: 48rpx;
+}
+
+.form-item {
+  margin-bottom: 40rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+/* 头像选择 */
+.avatar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0 20rpx;
+  background: #f8f8f8;
+  border-radius: 16rpx;
+  border: none;
+}
+
+.avatar-wrapper::after {
+  border: none;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: #e8e8e8;
+  margin-bottom: 16rpx;
+}
+
+.avatar-tip {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 昵称输入 */
+.nickname-input {
+  width: 100%;
+  height: 88rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 30rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+/* 完成按钮 */
+.btn-complete {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12rpx;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-top: 32rpx;
+  border: none;
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.4);
+}
+
+.btn-complete::after {
+  border: none;
+}
+
 /* 装饰圆圈 */
 .decoration-circle {
   position: absolute;

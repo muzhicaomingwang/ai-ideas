@@ -25,22 +25,57 @@
     </view>
   </view>
 
-  <!-- 登录按钮 -->
-  <view class="login-section">
+  <!-- 未登录状态 -->
+  <view class="login-section" wx:if="{{!isLogin && !showUserForm}}">
     <button
       class="btn-wechat-login"
-      open-type="getUserInfo"
-      bindgetuserinfo="handleGetUserInfo"
-      wx:if="{{!isLogin}}"
+      bindtap="handleWechatLogin"
     >
       <text class="wechat-icon">🔐</text>
       <text>微信一键登录</text>
     </button>
+  </view>
 
+  <!-- 用户信息填写表单 -->
+  <view class="user-form" wx:if="{{showUserForm}}">
+    <view class="form-title">完善个人信息</view>
+
+    <!-- 头像选择 -->
+    <view class="form-item">
+      <view class="form-label">头像</view>
+      <button
+        class="avatar-wrapper"
+        open-type="chooseAvatar"
+        bindchooseavatar="onChooseAvatar"
+      >
+        <image class="avatar" src="{{avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="avatar-tip">点击选择头像</view>
+      </button>
+    </view>
+
+    <!-- 昵称输入 -->
+    <view class="form-item">
+      <view class="form-label">昵称</view>
+      <input
+        class="nickname-input"
+        type="nickname"
+        placeholder="请输入昵称"
+        value="{{nickname}}"
+        bindblur="onNicknameBlur"
+      />
+    </view>
+
+    <!-- 完成按钮 -->
+    <button class="btn-complete" bindtap="handleCompleteLogin">
+      完成登录
+    </button>
+  </view>
+
+  <!-- 已登录状态 -->
+  <view class="login-section" wx:if="{{isLogin}}">
     <button
       class="btn-continue"
       bindtap="handleContinue"
-      wx:if="{{isLogin}}"
     >
       继续使用
     </button>

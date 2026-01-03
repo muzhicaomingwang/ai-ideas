@@ -3,12 +3,12 @@
   <!-- 用户信息卡片 -->
   <view class="user-card">
     <view class="user-avatar">
-      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+      <image wx:if="{{userInfo.avatar || userInfo.avatarUrl}}" src="{{userInfo.avatar || userInfo.avatarUrl}}" mode="aspectFill" />
       <text wx:else class="avatar-placeholder">👤</text>
     </view>
     <view class="user-info">
-      <view class="user-name">{{userInfo.nickName || '点击登录'}}</view>
-      <view class="user-id" wx:if="{{userInfo.userId}}">ID: {{userInfo.userId}}</view>
+      <view class="user-name">{{userInfo.nickname || userInfo.nickName || '点击登录'}}</view>
+      <view class="user-id" wx:if="{{userInfo.user_id || userInfo.userId}}">ID: {{userInfo.user_id || userInfo.userId}}</view>
     </view>
     <view class="login-btn" wx:if="{{!isLoggedIn}}" bindtap="handleLogin">
       登录 →
