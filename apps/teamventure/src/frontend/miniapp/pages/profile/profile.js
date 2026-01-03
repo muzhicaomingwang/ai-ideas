@@ -1,5 +1,8 @@
 // pages/profile/profile.js
 import { get } from '../../utils/request.js'
+import { STORAGE_KEYS } from '../../utils/config.js'
+
+const app = getApp()
 
 Page({
   data: {
@@ -21,15 +24,16 @@ Page({
   },
 
   onShow() {
-    if (this.data.isLoggedIn) {
-      this.loadUserStats();
-    }
+    // 每次显示页面时重新检查登录状态
+    this.checkLoginStatus();
   },
 
   // 检查登录状态
   checkLoginStatus() {
-    const token = wx.getStorageSync('token');
-    const userInfo = wx.getStorageSync('userInfo');
+    const token = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN);
+    const userInfo = wx.getStorageSync(STORAGE_KEYS.USER_INFO);
+
+    console.log('检查登录状态:', { token, userInfo });
 
     if (token && userInfo) {
       this.setData({
@@ -37,6 +41,15 @@ Page({
         userInfo: userInfo
       });
       this.loadUserStats();
+    } else {
+      this.setData({
+        isLoggedIn: false,
+        userInfo: {
+          userId: '',
+          nickName: '',
+          avatarUrl: ''
+        }
+      });
     }
   },
 
@@ -74,8 +87,14 @@ Page({
       content: '确定要退出登录吗？',
       success: (res) => {
         if (res.confirm) {
-          wx.removeStorageSync('token');
-          wx.removeStorageSync('userInfo');
+          // 清除本地存储
+          wx.removeStorageSync(STORAGE_KEYS.SESSION_TOKEN);
+          wx.removeStorageSync(STORAGE_KEYS.USER_INFO);
+
+          // 清除全局状态
+          app.logout();
+
+          // 重置页面数据
           this.setData({
             isLoggedIn: false,
             userInfo: {
@@ -89,6 +108,7 @@ Page({
               completedPlans: 0
             }
           });
+
           wx.showToast({
             title: '已退出登录',
             icon: 'success'

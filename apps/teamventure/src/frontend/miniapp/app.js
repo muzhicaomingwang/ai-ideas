@@ -24,7 +24,7 @@ App({
 
   // 检查登录状态
   checkLoginStatus() {
-    const sessionToken = wx.getStorageSync('sessionToken')
+    const sessionToken = wx.getStorageSync('sessionToken') || wx.getStorageSync('token')
     const userInfo = wx.getStorageSync('userInfo')
 
     if (sessionToken && userInfo) {
@@ -62,6 +62,7 @@ App({
     this.globalData.isLogin = false
     this.globalData.userInfo = null
     wx.removeStorageSync('sessionToken')
+    wx.removeStorageSync('token')
     wx.removeStorageSync('userInfo')
   },
 
