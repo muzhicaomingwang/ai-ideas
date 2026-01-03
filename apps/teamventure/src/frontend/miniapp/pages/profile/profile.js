@@ -1,5 +1,5 @@
 // pages/profile/profile.js
-const { request } = require('../../utils/request');
+import { get } from '../../utils/request.js'
 
 Page({
   data: {
