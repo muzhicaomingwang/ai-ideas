@@ -1,0 +1,100 @@
+<!--pages/home/home.wxml-->
+<view class="home-page">
+  <!-- Banner 区域 -->
+  <view class="banner">
+    <view class="banner-content">
+      <view class="banner-title">TeamVenture</view>
+      <view class="banner-subtitle">AI 驱动的智能团建方案生成平台</view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="action-card" bindtap="handleGoGenerate">
+      <view class="action-icon">✨</view>
+      <view class="action-title">生成方案</view>
+      <view class="action-desc">AI 为您定制团建方案</view>
+    </view>
+    <view class="action-card" bindtap="handleGoMyPlans">
+      <view class="action-icon">📋</view>
+      <view class="action-title">我的方案</view>
+      <view class="action-desc">查看历史方案</view>
+    </view>
+  </view>
+
+  <!-- 热门目的地 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">热门目的地</view>
+      <view class="section-more" bindtap="handleViewMoreDestinations">
+        更多 →
+      </view>
+    </view>
+    <scroll-view class="destinations-scroll" scroll-x>
+      <view
+        wx:for="{{hotDestinations}}"
+        wx:key="id"
+        class="destination-card"
+        bindtap="handleSelectDestination"
+        data-destination="{{item.name}}"
+      >
+        <view class="destination-image">
+          <text class="destination-emoji">{{item.emoji}}</text>
+        </view>
+        <view class="destination-name">{{item.name}}</view>
+        <view class="destination-tag">{{item.tag}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 推荐方案 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">推荐方案</view>
+      <view class="section-more" bindtap="handleViewMorePlans">
+        更多 →
+      </view>
+    </view>
+    <view class="recommended-plans">
+      <view
+        wx:for="{{recommendedPlans}}"
+        wx:key="id"
+        class="plan-card-mini"
+        bindtap="handleViewPlanTemplate"
+        data-plan-id="{{item.id}}"
+      >
+        <view class="plan-header-mini">
+          <view class="plan-name-mini">{{item.name}}</view>
+          <view class="plan-price-mini">¥{{item.pricePerPerson}}/人起</view>
+        </view>
+        <view class="plan-tags-mini">
+          <text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" class="tag-mini">{{tag}}</text>
+        </view>
+        <view class="plan-stats-mini">
+          <text class="stat-mini">{{item.duration}}</text>
+          <text class="divider-mini">|</text>
+          <text class="stat-mini">{{item.destination}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 活动类型推荐 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">活动类型</view>
+    </view>
+    <view class="activity-types">
+      <view
+        wx:for="{{activityTypes}}"
+        wx:key="value"
+        class="activity-type-card"
+        bindtap="handleSelectActivityType"
+        data-type="{{item.value}}"
+      >
+        <view class="activity-type-icon">{{item.emoji}}</view>
+        <view class="activity-type-name">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+</view>

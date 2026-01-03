@@ -1,0 +1,79 @@
+<!--pages/profile/profile.wxml-->
+<view class="profile-page">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-avatar">
+      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+      <text wx:else class="avatar-placeholder">👤</text>
+    </view>
+    <view class="user-info">
+      <view class="user-name">{{userInfo.nickName || '点击登录'}}</view>
+      <view class="user-id" wx:if="{{userInfo.userId}}">ID: {{userInfo.userId}}</view>
+    </view>
+    <view class="login-btn" wx:if="{{!isLoggedIn}}" bindtap="handleLogin">
+      登录 →
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-section">
+    <view class="stat-item">
+      <view class="stat-number">{{stats.totalPlans}}</view>
+      <view class="stat-label">生成方案</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{stats.favoritePlans}}</view>
+      <view class="stat-label">收藏方案</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{stats.completedPlans}}</view>
+      <view class="stat-label">已完成</view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-group">
+      <view class="menu-item" bindtap="handleGoMyPlans">
+        <view class="menu-icon">📋</view>
+        <view class="menu-text">我的方案</view>
+        <view class="menu-arrow">→</view>
+      </view>
+      <view class="menu-item" bindtap="handleGoFavorites">
+        <view class="menu-icon">⭐</view>
+        <view class="menu-text">我的收藏</view>
+        <view class="menu-arrow">→</view>
+      </view>
+      <view class="menu-item" bindtap="handleGoHistory">
+        <view class="menu-icon">🕐</view>
+        <view class="menu-text">浏览历史</view>
+        <view class="menu-arrow">→</view>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-item" bindtap="handleGoSettings">
+        <view class="menu-icon">⚙️</view>
+        <view class="menu-text">设置</view>
+        <view class="menu-arrow">→</view>
+      </view>
+      <view class="menu-item" bindtap="handleGoHelp">
+        <view class="menu-icon">❓</view>
+        <view class="menu-text">帮助与反馈</view>
+        <view class="menu-arrow">→</view>
+      </view>
+      <view class="menu-item" bindtap="handleGoAbout">
+        <view class="menu-icon">ℹ️</view>
+        <view class="menu-text">关于我们</view>
+        <view class="menu-arrow">→</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录按钮 -->
+  <view class="logout-section" wx:if="{{isLoggedIn}}">
+    <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+  </view>
+</view>

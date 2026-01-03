@@ -1,7 +1,9 @@
 {
   "pages": [
+    "pages/home/home",
     "pages/index/index",
     "pages/myplans/myplans",
+    "pages/profile/profile",
     "pages/login/login",
     "pages/comparison/comparison",
     "pages/detail/detail"
@@ -21,12 +23,20 @@
     "borderStyle": "black",
     "list": [
       {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
         "pagePath": "pages/index/index",
         "text": "生成方案"
       },
       {
         "pagePath": "pages/myplans/myplans",
         "text": "我的方案"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
       }
     ]
   },
