@@ -1,15 +1,15 @@
 // 配置文件
 
 // 🧪 测试模式开关（本地测试时设为 true，使用模拟数据）
-export const USE_MOCK_DATA = true
+export const USE_MOCK_DATA = false
 
 // 环境配置
 const ENV = 'local' // local | dev | beta | prod
 
 // API 基础地址配置
 const API_BASE_URLS = {
-  local: 'http://api.teamventure.com/api/v1',      // 本地开发环境（通过 /etc/hosts 绑定到 127.0.0.1）
-  dev: 'http://dev-api.teamventure.com/api/v1',    // 开发环境
+  local: 'https://api.teamventure.com/api/v1',     // 本地开发环境（/etc/hosts绑定 + HTTPS）
+  dev: 'https://dev-api.teamventure.com/api/v1',   // 开发环境
   beta: 'https://beta-api.teamventure.com/api/v1', // 测试环境
   prod: 'https://api.teamventure.com/api/v1'       // 生产环境
 }
@@ -20,7 +20,7 @@ export const API_BASE_URL = API_BASE_URLS[ENV]
 // API 端点
 export const API_ENDPOINTS = {
   // 用户相关
-  USER_LOGIN: '/users/login',
+  USER_LOGIN: '/auth/wechat/login',
   USER_REGISTER: '/users/register',
   USER_INFO: '/users/info',
 

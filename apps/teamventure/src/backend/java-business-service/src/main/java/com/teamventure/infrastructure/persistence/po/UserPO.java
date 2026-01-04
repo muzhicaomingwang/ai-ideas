@@ -9,6 +9,9 @@ public class UserPO {
     private String user_id;
     private String wechat_openid;
     private String nickname;
+    private String avatar_url;
+    private String phone;
+    private String company;
     private String role;
     private String status;
 
@@ -18,6 +21,12 @@ public class UserPO {
     public void setWechatOpenid(String v) { this.wechat_openid = v; }
     public String getNickname() { return nickname; }
     public void setNickname(String v) { this.nickname = v; }
+    public String getAvatarUrl() { return avatar_url; }
+    public void setAvatarUrl(String v) { this.avatar_url = v; }
+    public String getPhone() { return phone; }
+    public void setPhone(String v) { this.phone = v; }
+    public String getCompany() { return company; }
+    public void setCompany(String v) { this.company = v; }
     public String getRole() { return role; }
     public void setRole(String v) { this.role = v; }
     public String getStatus() { return status; }

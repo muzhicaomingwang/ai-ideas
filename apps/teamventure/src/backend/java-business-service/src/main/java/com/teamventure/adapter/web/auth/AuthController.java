@@ -18,22 +18,40 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest req) {
-        return ApiResponse.success(authService.loginWithWeChat(req.code));
+        return ApiResponse.success(authService.loginWithWeChat(req.code, req.nickname, req.avatarUrl));
     }
 
     public static class LoginRequest {
         @NotBlank public String code;
+        public String nickname;     // 可选：用户昵称
+        public String avatarUrl;    // 可选：用户头像URL
     }
 
     public static class LoginResponse {
-        public String user_id;
-        public String session_token;
-        public long expires_in_seconds;
+        public String sessionToken;
+        public UserInfo userInfo;
 
-        public LoginResponse(String userId, String token, long expiresInSeconds) {
-            this.user_id = userId;
-            this.session_token = token;
-            this.expires_in_seconds = expiresInSeconds;
+        public LoginResponse(String sessionToken, UserInfo userInfo) {
+            this.sessionToken = sessionToken;
+            this.userInfo = userInfo;
+        }
+
+        public static class UserInfo {
+            public String user_id;
+            public String nickname;
+            public String avatar;
+            public String phone;
+            public String company;
+            public String role;
+
+            public UserInfo(String userId, String nickname, String avatar, String phone, String company, String role) {
+                this.user_id = userId;
+                this.nickname = nickname;
+                this.avatar = avatar;
+                this.phone = phone;
+                this.company = company;
+                this.role = role;
+            }
         }
     }
 }

@@ -33,23 +33,59 @@ public class AuthService {
         this.jwt = new JwtSupport(jwtSecret);
     }
 
-    public LoginResponse loginWithWeChat(String code) {
+    public LoginResponse loginWithWeChat(String code, String nickname, String avatarUrl) {
         String openid = pseudoOpenId(code);
 
         UserPO user = userMapper.selectOne(new QueryWrapper<UserPO>().eq("wechat_openid", openid));
         if (user == null) {
+            // 创建新用户
             user = new UserPO();
             user.setUserId(IdGenerator.newId("user"));
             user.setWechatOpenid(openid);
-            user.setNickname("新用户");
+            // 使用传入的nickname，如果为空则使用默认值
+            user.setNickname(hasText(nickname) ? nickname.trim() : "微信用户");
+            user.setAvatarUrl(hasText(avatarUrl) ? avatarUrl : "");
             user.setRole("HR");
             user.setStatus("ACTIVE");
             userMapper.insert(user);
+        } else {
+            // 更新现有用户信息（如果提供了新的nickname或avatarUrl）
+            boolean needUpdate = false;
+
+            if (hasText(nickname) && !nickname.trim().equals(user.getNickname())) {
+                user.setNickname(nickname.trim());
+                needUpdate = true;
+            }
+
+            if (hasText(avatarUrl) && !avatarUrl.equals(user.getAvatarUrl())) {
+                user.setAvatarUrl(avatarUrl);
+                needUpdate = true;
+            }
+
+            if (needUpdate) {
+                userMapper.updateById(user);
+            }
         }
 
         String token = jwt.issueToken(user.getUserId(), EXPIRES_SECONDS);
         redis.opsForValue().set("session:" + token, user.getUserId(), Duration.ofSeconds(EXPIRES_SECONDS));
-        return new LoginResponse(user.getUserId(), token, EXPIRES_SECONDS);
+
+        // 构建包含完整userInfo的响应
+        LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
+            user.getUserId(),
+            user.getNickname(),
+            user.getAvatarUrl() != null ? user.getAvatarUrl() : "",
+            user.getPhone(),
+            user.getCompany(),
+            user.getRole()
+        );
+
+        return new LoginResponse(token, userInfo);
+    }
+
+    // 辅助方法：检查字符串是否有内容
+    private boolean hasText(String str) {
+        return str != null && !str.trim().isEmpty();
     }
 
     public String getUserIdFromAuthorization(String authorization) {

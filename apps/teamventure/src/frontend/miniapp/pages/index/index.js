@@ -222,16 +222,21 @@ Page({
 
   // 餐饮偏好切换
   handleDiningStyleToggle(e) {
+    console.log('🍽️ 餐饮偏好被点击', e)
     const value = e.currentTarget.dataset.value
+    console.log('选择的餐饮类型:', value)
     const diningStyle = [...this.data.formData.preferences.diningStyle]
     const index = diningStyle.indexOf(value)
 
     if (index > -1) {
       diningStyle.splice(index, 1)
+      console.log('取消选择:', value)
     } else {
       diningStyle.push(value)
+      console.log('添加选择:', value)
     }
 
+    console.log('更新后的餐饮偏好:', diningStyle)
     this.setData({
       'formData.preferences.diningStyle': diningStyle
     })
@@ -331,7 +336,7 @@ Page({
         budget_max: parseFloat(formData.budgetMax),
         start_date: formData.startDate,
         end_date: formData.endDate,
-        departure_location: formData.departureLocation,
+        departure_city: formData.departureLocation, // 后端字段名为 departure_city
         destination: formData.destination || '', // 目的地（可选）
         preferences: {
           activity_types: formData.preferences.activityTypes,
