@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   `city` VARCHAR(50) NOT NULL COMMENT '城市',
   `district` VARCHAR(50) DEFAULT NULL COMMENT '区县',
   `address` VARCHAR(255) DEFAULT NULL COMMENT '详细地址',
-  `coordinates` POINT NOT NULL COMMENT '经纬度坐标',
+  `coordinates` POINT DEFAULT NULL COMMENT '经纬度坐标',
 
   -- 联系方式
   `contact_phone` VARCHAR(20) NOT NULL COMMENT '联系电话',
@@ -162,8 +162,8 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   PRIMARY KEY (`supplier_id`),
   KEY `idx_category_city` (`category`, `city`),
   KEY `idx_city_rating` (`city`, `rating` DESC),
-  KEY `idx_status` (`status`),
-  SPATIAL KEY `idx_coordinates` (`coordinates`)
+  KEY `idx_status` (`status`)
+  -- SPATIAL KEY `idx_coordinates` (`coordinates`)  -- Commented out: requires NOT NULL, will add when coordinates are populated
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商表';
 
 -- ====================================
