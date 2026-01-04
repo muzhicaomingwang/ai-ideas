@@ -811,31 +811,191 @@ height: 96rpx;
 box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
 ```
 
-#### 交互流程
+#### 交互流程（v1.2 更新：新增两步登录流程）
+
+**v1.2 两步登录流程**（当前版本）：
 
 ```mermaid
 graph LR
     A[进入登录页] --> B{已登录?}
     B -->|是| C[显示"继续使用"按钮]
     B -->|否| D[显示"微信一键登录"按钮]
-    D --> E[点击登录]
-    E --> F{协议勾选?}
-    F -->|否| G[提示勾选协议]
-    F -->|是| H[请求微信授权]
-    H --> I{授权成功?}
-    I -->|是| J[调用后端登录]
-    I -->|否| K[提示授权失败]
-    J --> L[跳转首页]
-    C --> L
+    D --> E[点击登录按钮]
+    E --> F[调用 wx.login 获取 code]
+    F --> G{获取成功?}
+    G -->|否| H[提示网络错误]
+    G -->|是| I[显示用户信息表单]
+    I --> J[用户选择头像/输入昵称]
+    J --> K[点击完成登录]
+    K --> L[提交 code + nickname + avatarUrl]
+    L --> M{登录成功?}
+    M -->|是| N[存储 token 和 userInfo]
+    M -->|否| O[显示错误信息]
+    N --> P[跳转首页]
+    C --> P
 ```
 
-#### 边界情况
+**Step 1: 微信授权**
+- 用户点击"微信一键登录"按钮
+- 调用 `wx.login()` 获取临时登录凭证 `code`
+- 无需弹出授权窗口，静默获取
+
+**Step 2: 填写用户信息**
+- 显示用户信息表单，包含：
+  - 头像选择按钮（使用 `open-type="chooseAvatar"` 的 button）
+  - 昵称输入框（使用 `type="nickname"` 的 input，支持微信昵称快速填充）
+  - 完成登录按钮
+- 用户可选择头像，输入昵称
+- 点击"完成登录"提交到后端
+
+#### 用户信息表单设计（v1.2 新增）
+
+**布局结构**:
+```
+┌───────────────────────────┐
+│                           │
+│    请完善您的信息          │  ← 32rpx font-size
+│                           │
+│  ┌─────────────────────┐  │
+│  │                     │  │
+│  │    [头像预览]        │  │  ← 160rpx × 160rpx 圆形
+│  │     或 👤           │  │  ← 空状态显示 emoji
+│  │                     │  │
+│  │   [点击选择头像]     │  │  ← open-type="chooseAvatar"
+│  │                     │  │
+│  └─────────────────────┘  │
+│                           │
+│  ┌─────────────────────┐  │
+│  │ 请输入昵称           │  │  ← type="nickname" input
+│  └─────────────────────┘  │  ← 支持微信昵称快速填充
+│                           │
+│  [完成登录]               │  ← 主按钮，96rpx 高度
+│                           │
+└───────────────────────────┘
+```
+
+**头像选择按钮**:
+```css
+.avatar-selector {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  border: 4rpx dashed #d9d9d9;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+}
+
+.avatar-placeholder {
+  font-size: 80rpx;
+  color: #d9d9d9;
+}
+```
+
+**昵称输入框**:
+```css
+.nickname-input {
+  height: 88rpx;
+  padding: 0 32rpx;
+  border: 2rpx solid #d9d9d9;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  background: #fff;
+}
+
+.nickname-input::placeholder {
+  color: #bfbfbf;
+}
+```
+
+**完成登录按钮**:
+```css
+.complete-login-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.complete-login-btn:disabled {
+  opacity: 0.5;
+}
+```
+
+#### API 交互规范（v1.2 更新）
+
+**前端请求**:
+```javascript
+// Step 1: 获取微信登录 code
+wx.login({
+  success: (res) => {
+    const code = res.code
+    // 显示用户信息表单
+  }
+})
+
+// Step 2: 提交登录信息
+POST /api/v1/auth/wechat/login
+{
+  "code": "WECHAT_LOGIN_CODE",
+  "nickname": "用户昵称",
+  "avatarUrl": "https://thirdwx.qlogo.cn/..."
+}
+```
+
+**后端响应**:
+```javascript
+{
+  "success": true,
+  "data": {
+    "sessionToken": "JWT_TOKEN",
+    "userInfo": {
+      "user_id": "user_001",
+      "nickname": "用户昵称",
+      "avatar": "https://thirdwx.qlogo.cn/...",
+      "phone": "",
+      "company": "",
+      "role": "user"
+    }
+  }
+}
+```
+
+#### 边界情况（v1.2 更新）
 
 | 场景 | 处理方式 |
 |------|---------|
-| 用户拒绝授权 | 提示"需要授权才能使用"，保留按钮重试 |
+| wx.login() 失败 | 提示"获取登录信息失败，请重试"，保留登录按钮 |
+| 用户未选择头像 | 允许提交，后端存储空字符串，前端显示占位符 👤 |
+| 用户未输入昵称 | 允许提交，后端使用默认昵称"微信用户" |
+| 昵称包含前后空格 | 前端自动 trim，后端验证并 trim |
 | 网络错误 | 提示"网络错误，请稍后重试"，提供重试按钮 |
 | 后端登录失败 | 显示具体错误信息，保留重试选项 |
+| code 过期（5分钟） | 提示"登录超时，请重新登录"，返回 Step 1 |
+| 临时头像 URL 过期 | 48小时后失效，我的页面显示占位符，提示重新选择 |
+
+#### 技术要点（v1.2 新增）
+
+**微信API版本要求**:
+- `open-type="chooseAvatar"` 需要微信版本 ≥ 8.0.16
+- `type="nickname"` 需要微信版本 ≥ 8.0.16
+- 需要在文档中注明最低支持版本
+
+**头像URL说明**:
+- `wx.chooseAvatar()` 返回临时文件路径
+- 临时路径有效期：24-48小时
+- 当前方案：直接存储临时URL（短期方案）
+- 未来优化：后端下载并上传到OSS，存储永久URL
 
 ---
 
@@ -1413,6 +1573,768 @@ onReachBottom() {
 
   this.data.page++
   this.loadPlans()
+}
+```
+
+---
+
+### 4.6 首页（Home Page）
+
+#### 页面目标
+- 展示平台核心功能和推荐内容
+- 提供快速入口，引导用户使用核心功能
+- 展示热门目的地和精选方案，激发用户灵感
+
+#### 布局结构
+
+```
+┌─────────────────────────────────┐
+│        首页                      │  ← TabBar 页面
+├─────────────────────────────────┤
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │  🎯 智能生成团建方案         │ │
+│ │  让AI帮你策划完美团建        │ │  ← Banner 横幅
+│ │  [立即体验 →]                │ │  ← 80rpx 高度
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────┬─────┬─────┬─────┐      │
+│ │ 🚀  │ 📋  │ ❤️  │ ⚙️  │      │
+│ │生成 │我的 │收藏 │设置 │      │  ← 快捷操作网格（4列）
+│ │方案 │方案 │     │     │      │  ← 每个 140rpx 宽
+│ └─────┴─────┴─────┴─────┘      │
+│                                 │
+│ 热门目的地 >                     │  ← 28rpx font-size
+│                                 │
+│ [🏔️  ][🏞️  ][🌳  ][🏖️  ]...  │  ← 横向滚动
+│ [密云][怀柔][延庆][崇明]         │  ← 每个 160rpx 宽
+│                                 │
+│ 推荐方案                         │  ← 28rpx font-size
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ 密云水库户外团建              │ │
+│ │                             │ │
+│ │ ¥45,000 | 50人 | 2天1夜     │ │  ← 方案卡片
+│ │                             │ │
+│ │ [团队协作] [户外探险]         │ │  ← 标签
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ 怀柔古北水镇文化体验          │ │
+│ │                             │ │
+│ │ ¥38,000 | 50人 | 2天1夜     │ │
+│ │                             │ │
+│ │ [文化体验] [休闲娱乐]         │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ 活动类型                         │  ← 28rpx font-size
+│                                 │
+│ ┌───────┬───────┬───────┐       │
+│ │ 🤝    │ 🏃    │ 🎭    │       │
+│ │团队   │户外   │文化   │       │  ← 活动类型网格（3列×2行）
+│ │协作   │探险   │体验   │       │  ← 每个 220rpx 宽
+│ ├───────┼───────┼───────┤       │
+│ │ 🎮    │ 🏆    │ 🎨    │       │
+│ │休闲   │竞技   │创意   │       │
+│ │娱乐   │挑战   │工坊   │       │
+│ └───────┴───────┴───────┘       │
+│                                 │
+└─────────────────────────────────┘
+```
+
+#### 视觉规范
+
+**Banner 横幅**:
+```css
+.banner {
+  height: 240rpx;
+  margin: 32rpx 32rpx 48rpx;
+  padding: 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+}
+
+.banner-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12rpx;
+}
+
+.banner-subtitle {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 24rpx;
+}
+
+.banner-btn {
+  width: 200rpx;
+  height: 64rpx;
+  background: #fff;
+  color: #667eea;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+```
+
+**快捷操作网格**:
+```css
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24rpx;
+  padding: 0 32rpx;
+  margin-bottom: 48rpx;
+}
+
+.quick-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.quick-action-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.quick-action-text {
+  font-size: 24rpx;
+  color: #333;
+}
+```
+
+**热门目的地横向滚动**:
+```css
+.destinations-scroll {
+  display: flex;
+  overflow-x: scroll;
+  padding: 0 32rpx;
+  margin-bottom: 48rpx;
+  -webkit-overflow-scrolling: touch;
+}
+
+.destination-item {
+  flex-shrink: 0;
+  width: 160rpx;
+  margin-right: 24rpx;
+  text-align: center;
+}
+
+.destination-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin: 0 auto 12rpx;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+}
+
+.destination-name {
+  font-size: 24rpx;
+  color: #333;
+}
+```
+
+**推荐方案卡片**:
+```css
+.recommended-plan {
+  margin: 0 32rpx 24rpx;
+  padding: 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.plan-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.plan-info {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.plan-tags {
+  display: flex;
+  gap: 16rpx;
+}
+
+.plan-tag {
+  padding: 8rpx 16rpx;
+  background: #e6f7ff;
+  color: #1890ff;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+}
+```
+
+**活动类型网格**:
+```css
+.activity-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+  padding: 0 32rpx 32rpx;
+}
+
+.activity-type-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.activity-type-icon {
+  font-size: 56rpx;
+  margin-bottom: 12rpx;
+}
+
+.activity-type-text {
+  font-size: 24rpx;
+  color: #333;
+}
+```
+
+#### 交互细节
+
+**热门目的地数据**（使用 emoji 图标）:
+```javascript
+const hotDestinations = [
+  { icon: '🏔️', name: '密云', id: 'miyun' },
+  { icon: '🏞️', name: '怀柔', id: 'huairou' },
+  { icon: '🌳', name: '延庆', id: 'yanqing' },
+  { icon: '🏖️', name: '崇明', id: 'chongming' },
+  { icon: '⛰️', name: '平谷', id: 'pinggu' },
+  { icon: '🏕️', name: '门头沟', id: 'mentougou' },
+  { icon: '🌊', name: '十渡', id: 'shidu' },
+  { icon: '🌄', name: '古北水镇', id: 'gubei' }
+]
+```
+
+**点击目的地预填**:
+```javascript
+handleSelectDestination(e) {
+  const destination = e.currentTarget.dataset.destination
+
+  // 保存到本地存储
+  wx.setStorageSync('prefilledDestination', destination)
+
+  // 跳转到生成方案页
+  wx.switchTab({
+    url: '/pages/index/index'
+  })
+}
+
+// 在 index 页面 onShow 中读取
+onShow() {
+  const prefilledDestination = wx.getStorageSync('prefilledDestination')
+  if (prefilledDestination) {
+    this.setData({ destination: prefilledDestination })
+    wx.removeStorageSync('prefilledDestination')
+  }
+}
+```
+
+**快捷操作跳转**:
+```javascript
+const quickActions = [
+  { icon: '🚀', text: '生成方案', action: 'generate' },
+  { icon: '📋', text: '我的方案', action: 'myplans' },
+  { icon: '❤️', text: '收藏', action: 'favorites' },
+  { icon: '⚙️', text: '设置', action: 'settings' }
+]
+
+handleQuickAction(e) {
+  const action = e.currentTarget.dataset.action
+
+  switch(action) {
+    case 'generate':
+      wx.switchTab({ url: '/pages/index/index' })
+      break
+    case 'myplans':
+      wx.switchTab({ url: '/pages/myplans/myplans' })
+      break
+    case 'favorites':
+    case 'settings':
+      wx.showToast({ title: '功能开发中', icon: 'none' })
+      break
+  }
+}
+```
+
+**活动类型数据**:
+```javascript
+const activityTypes = [
+  { icon: '🤝', name: '团队协作' },
+  { icon: '🏃', name: '户外探险' },
+  { icon: '🎭', name: '文化体验' },
+  { icon: '🎮', name: '休闲娱乐' },
+  { icon: '🏆', name: '竞技挑战' },
+  { icon: '🎨', name: '创意工坊' }
+]
+```
+
+#### 性能优化
+
+**图片懒加载**（推荐方案如果有图片）:
+```html
+<image lazy-load="{{true}}" mode="aspectFill" src="{{plan.image}}"></image>
+```
+
+**列表虚拟滚动**（如果推荐方案很多）:
+```html
+<scroll-view scroll-y="{{true}}" enable-flex="{{true}}">
+  <view wx:for="{{recommendedPlans}}" wx:key="plan_id">
+    ...
+  </view>
+</scroll-view>
+```
+
+---
+
+### 4.7 我的页面（Profile Page）
+
+#### 页面目标
+- 显示用户个人信息（头像、昵称）
+- 展示用户数据统计（方案数、收藏数等）
+- 提供功能菜单入口（我的方案、收藏、设置等）
+- 支持退出登录
+
+#### 布局结构
+
+**已登录状态**:
+```
+┌─────────────────────────────────┐
+│        我的                      │  ← TabBar 页面
+├─────────────────────────────────┤
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │                             │ │
+│ │    [👤 头像]                │ │  ← 80rpx 圆形头像
+│ │                             │ │  ← 或显示用户选择的头像
+│ │    用户昵称                  │ │  ← 32rpx font-size
+│ │                             │ │
+│ └─────────────────────────────┘ │  ← 用户信息卡片
+│                                 │
+│ ┌───────┬───────┬───────┐       │
+│ │  12   │   5   │   3   │       │
+│ │ 总方案 │ 收藏  │ 已完成 │       │  ← 统计数据卡片（3列等宽）
+│ └───────┴───────┴───────┘       │  ← 每个数字 48rpx，文字 24rpx
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ 📋  我的方案            >    │ │
+│ ├─────────────────────────────┤ │
+│ │ ❤️  我的收藏            >    │ │
+│ ├─────────────────────────────┤ │  ← 功能菜单列表
+│ │ 🕐  浏览历史            >    │ │  ← 每项 100rpx 高度
+│ ├─────────────────────────────┤ │
+│ │ ⚙️  设置                >    │ │
+│ ├─────────────────────────────┤ │
+│ │ 💬  帮助与反馈          >    │ │
+│ ├─────────────────────────────┤ │
+│ │ ℹ️  关于我们            >    │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ [退出登录]                       │  ← 次要按钮，88rpx 高度
+│                                 │
+└─────────────────────────────────┘
+```
+
+**未登录状态**:
+```
+┌─────────────────────────────────┐
+│        我的                      │  ← TabBar 页面
+├─────────────────────────────────┤
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │                             │ │
+│ │    👤                       │ │  ← 80rpx emoji 占位符
+│ │                             │ │
+│ │    未登录                    │ │  ← 32rpx font-size
+│ │                             │ │
+│ │  [点击登录]                  │ │  ← 小按钮，64rpx 高度
+│ │                             │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ ⚙️  设置                >    │ │
+│ ├─────────────────────────────┤ │  ← 仅显示部分功能
+│ │ 💬  帮助与反馈          >    │ │  ← 其他功能需要登录
+│ ├─────────────────────────────┤ │
+│ │ ℹ️  关于我们            >    │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+```
+
+#### 视觉规范
+
+**用户信息卡片**:
+```css
+.user-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  margin: 32rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+}
+
+/* 已登录：头像 */
+.user-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 24rpx;
+  background: #fff;
+}
+
+/* 未登录：占位符 */
+.avatar-placeholder {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16rpx;
+}
+
+.login-btn {
+  padding: 16rpx 48rpx;
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+```
+
+**统计数据卡片**:
+```css
+.stats-card {
+  display: flex;
+  margin: 0 32rpx 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 0;
+  border-right: 2rpx solid #f0f0f0;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-number {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1890ff;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+}
+```
+
+**功能菜单列表**:
+```css
+.menu-list {
+  margin: 0 32rpx 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 40rpx;
+  margin-right: 24rpx;
+  width: 48rpx;
+  text-align: center;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.menu-arrow {
+  font-size: 24rpx;
+  color: #bfbfbf;
+}
+```
+
+**退出登录按钮**:
+```css
+.logout-btn {
+  width: calc(100% - 64rpx);
+  height: 88rpx;
+  margin: 0 32rpx 48rpx;
+  background: #fff;
+  color: #f5222d;
+  border: 2rpx solid #f5222d;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+}
+```
+
+#### 交互细节
+
+**登录状态检测**:
+```javascript
+Page({
+  data: {
+    isLoggedIn: false,
+    userInfo: {
+      userId: '',
+      nickName: '',
+      avatarUrl: ''
+    },
+    stats: {
+      totalPlans: 0,
+      favoritePlans: 0,
+      completedPlans: 0
+    }
+  },
+
+  onLoad() {
+    this.checkLoginStatus()
+  },
+
+  onShow() {
+    // 每次显示页面时重新检查登录状态
+    this.checkLoginStatus()
+  },
+
+  checkLoginStatus() {
+    const token = wx.getStorageSync('sessionToken')
+    const userInfo = wx.getStorageSync('userInfo')
+
+    if (token && userInfo) {
+      this.setData({
+        isLoggedIn: true,
+        userInfo: userInfo
+      })
+      this.loadUserStats()
+    } else {
+      this.setData({
+        isLoggedIn: false
+      })
+    }
+  }
+})
+```
+
+**头像显示fallback**:
+```html
+<!-- 已登录且有头像 -->
+<image wx:if="{{userInfo.avatar || userInfo.avatarUrl}}"
+       class="user-avatar"
+       src="{{userInfo.avatar || userInfo.avatarUrl}}"
+       mode="aspectFill" />
+
+<!-- 已登录但无头像 -->
+<view wx:elif="{{isLoggedIn}}" class="avatar-placeholder">
+  👤
+</view>
+
+<!-- 未登录 -->
+<view wx:else class="avatar-placeholder">
+  👤
+</view>
+```
+
+**功能菜单跳转**:
+```javascript
+// 我的方案
+handleGoMyPlans() {
+  if (!this.data.isLoggedIn) {
+    this.showLoginTip()
+    return
+  }
+  wx.switchTab({ url: '/pages/myplans/myplans' })
+}
+
+// 我的收藏
+handleGoFavorites() {
+  if (!this.data.isLoggedIn) {
+    this.showLoginTip()
+    return
+  }
+  wx.showToast({ title: '功能开发中', icon: 'none' })
+}
+
+// 浏览历史
+handleGoHistory() {
+  if (!this.data.isLoggedIn) {
+    this.showLoginTip()
+    return
+  }
+  wx.showToast({ title: '功能开发中', icon: 'none' })
+}
+
+// 设置（无需登录）
+handleGoSettings() {
+  wx.showToast({ title: '功能开发中', icon: 'none' })
+}
+
+// 帮助与反馈（无需登录）
+handleGoHelp() {
+  wx.showToast({ title: '功能开发中', icon: 'none' })
+}
+
+// 关于我们（无需登录）
+handleGoAbout() {
+  wx.showModal({
+    title: '关于 TeamVenture',
+    content: 'TeamVenture 是一个 AI 驱动的智能团建方案生成平台，致力于为企业提供高质量的团建活动方案。\n\n版本：1.0.0',
+    showCancel: false
+  })
+}
+
+// 显示登录提示
+showLoginTip() {
+  wx.showModal({
+    title: '提示',
+    content: '请先登录',
+    confirmText: '去登录',
+    success: (res) => {
+      if (res.confirm) {
+        this.handleLogin()
+      }
+    }
+  })
+}
+```
+
+**退出登录**:
+```javascript
+handleLogout() {
+  wx.showModal({
+    title: '提示',
+    content: '确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        // 清除本地存储
+        wx.removeStorageSync('sessionToken')
+        wx.removeStorageSync('token')  // 兼容旧key
+        wx.removeStorageSync('userInfo')
+
+        // 清除全局状态
+        const app = getApp()
+        app.logout()
+
+        // 重置页面数据
+        this.setData({
+          isLoggedIn: false,
+          userInfo: {
+            userId: '',
+            nickName: '',
+            avatarUrl: ''
+          },
+          stats: {
+            totalPlans: 0,
+            favoritePlans: 0,
+            completedPlans: 0
+          }
+        })
+
+        wx.showToast({
+          title: '已退出登录',
+          icon: 'success'
+        })
+      }
+    }
+  })
+}
+```
+
+#### 边界情况
+
+| 场景 | 处理方式 |
+|------|---------|
+| 头像URL失效（48小时后） | 显示emoji占位符 👤 |
+| 昵称为空 | 显示"未设置昵称" |
+| 未登录访问需登录功能 | 弹窗提示"请先登录"，提供"去登录"按钮 |
+| 统计数据加载失败 | 显示占位数据 "0"，不影响页面展示 |
+| 网络错误 | Toast 提示"网络错误"，保留重试机会 |
+
+#### 性能优化
+
+**头像缓存**:
+```html
+<!-- 利用微信小程序自动缓存机制 -->
+<image src="{{userInfo.avatar}}" mode="aspectFill" />
+```
+
+**统计数据懒加载**:
+```javascript
+// 仅在登录状态下加载统计数据
+checkLoginStatus() {
+  const token = wx.getStorageSync('sessionToken')
+  const userInfo = wx.getStorageSync('userInfo')
+
+  if (token && userInfo) {
+    this.setData({
+      isLoggedIn: true,
+      userInfo: userInfo
+    })
+
+    // 异步加载统计数据，不阻塞页面渲染
+    this.loadUserStats()
+  }
 }
 ```
 

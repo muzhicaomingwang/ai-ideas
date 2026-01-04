@@ -55,24 +55,267 @@ Java 接口统一返回：
 - “请求/响应”示例中请 QA 按环境替换域名与 token。
 - 除非特别说明，默认走网关：`http://<gateway-host>`
 
-### 2.1 Auth：微信登录
+### 2.1 Auth：微信登录（v1.2 更新）
 
-**TC-AUTH-001 登录成功**
+**API 签名（v1.2）**：
+```
+POST /api/v1/auth/wechat/login
+Content-Type: application/json
+
+Request Body:
+{
+  "code": "string",        // 必填：微信登录 code
+  "nickname": "string",    // 可选：用户昵称
+  "avatarUrl": "string"    // 可选：用户头像 URL
+}
+
+Response (成功):
+{
+  "success": true,
+  "data": {
+    "sessionToken": "JWT_TOKEN_STRING",
+    "userInfo": {
+      "user_id": "user_xxx",
+      "nickname": "用户昵称",
+      "avatar": "https://thirdwx.qlogo.cn/...",
+      "phone": "",
+      "company": "",
+      "role": "user"
+    }
+  }
+}
+```
+
+---
+
+#### 2.1.1 基础登录功能
+
+**TC-AUTH-001 登录成功（提供完整信息）**
 - API：`POST /api/v1/auth/wechat/login`
-- Body：`{"code":"qa-code-001"}`
-- 期望：`success=true`，返回 `data.session_token` 非空、`data.user_id` 非空、`expires_in_seconds>0`
+- Body：
+```json
+{
+  "code": "qa-code-001",
+  "nickname": "测试用户001",
+  "avatarUrl": "https://thirdwx.qlogo.cn/mmopen/test001.jpg"
+}
+```
+- 期望：
+  - HTTP 200，`success=true`
+  - `data.sessionToken` 非空（JWT格式）
+  - `data.userInfo.user_id` 非空
+  - `data.userInfo.nickname` 为 "测试用户001"
+  - `data.userInfo.avatar` 为传入的 avatarUrl
+  - `data.userInfo.role` 为 "user"
+- 验证数据库：
+  - `users` 表中存在该用户记录
+  - `nickname` 字段为 "测试用户001"
+  - `avatar_url` 字段为传入的 URL
+  - `wechat_openid` 非空（基于 code 生成的伪 openid）
+- 验证 Redis：
+  - 存在 session key：`session:{user_id}`
+  - session 数据包含 token 信息
 
-**TC-AUTH-002 缺少 code**
+**TC-AUTH-002 登录成功（仅提供 code）**
+- Body：`{"code":"qa-code-002"}`
+- 期望：
+  - HTTP 200，`success=true`
+  - `data.userInfo.nickname` 为默认值 "微信用户"
+  - `data.userInfo.avatar` 为空字符串 `""`
+- 验证数据库：
+  - `users` 表中 `nickname` 为 "微信用户"
+  - `avatar_url` 为空字符串
+
+**TC-AUTH-003 登录成功（提供 nickname，不提供 avatarUrl）**
+- Body：
+```json
+{
+  "code": "qa-code-003",
+  "nickname": "只有昵称的用户"
+}
+```
+- 期望：
+  - HTTP 200，`success=true`
+  - `data.userInfo.nickname` 为 "只有昵称的用户"
+  - `data.userInfo.avatar` 为空字符串 `""`
+
+**TC-AUTH-004 登录成功（提供 avatarUrl，不提供 nickname）**
+- Body：
+```json
+{
+  "code": "qa-code-004",
+  "avatarUrl": "https://thirdwx.qlogo.cn/mmopen/test004.jpg"
+}
+```
+- 期望：
+  - HTTP 200，`success=true`
+  - `data.userInfo.nickname` 为默认值 "微信用户"
+  - `data.userInfo.avatar` 为传入的 URL
+
+---
+
+#### 2.1.2 重复登录与信息更新
+
+**TC-AUTH-010 重复登录（同一 openid，不同信息）**
+- 步骤：
+  1. 第一次登录：`{"code":"qa-code-010","nickname":"旧昵称","avatarUrl":"https://old.jpg"}`
+  2. 第二次登录（模拟同一微信用户）：`{"code":"qa-code-010-repeat","nickname":"新昵称","avatarUrl":"https://new.jpg"}`
+- 期望：
+  - 两次登录的 `data.userInfo.user_id` 相同（因为 openid 相同）
+  - 第二次登录返回的 `nickname` 为 "新昵称"
+  - 第二次登录返回的 `avatar` 为 "https://new.jpg"
+  - 两次 `sessionToken` 不同（每次登录生成新 token）
+  - 两次 token 均可用于后续 API 调用
+- 验证数据库：
+  - `users` 表中该用户的 `nickname` 已更新为 "新昵称"
+  - `avatar_url` 已更新为 "https://new.jpg"
+  - 仅有一条用户记录（不会重复创建）
+
+**TC-AUTH-011 重复登录（不提供新信息）**
+- 步骤：
+  1. 第一次登录：`{"code":"qa-code-011","nickname":"原始昵称","avatarUrl":"https://original.jpg"}`
+  2. 第二次登录：`{"code":"qa-code-011-repeat"}`（仅提供 code）
+- 期望：
+  - 第二次登录返回的信息保持不变：
+    - `nickname` 仍为 "原始昵称"
+    - `avatar` 仍为 "https://original.jpg"
+  - 数据库中用户信息未被覆盖为默认值
+
+---
+
+#### 2.1.3 边界情况与数据验证
+
+**TC-AUTH-020 nickname 包含前后空格**
+- Body：`{"code":"qa-code-020","nickname":"  有空格的昵称  "}`
+- 期望：
+  - `data.userInfo.nickname` 为 "有空格的昵称"（已 trim）
+- 验证数据库：
+  - `nickname` 字段无前后空格
+
+**TC-AUTH-021 nickname 为空字符串**
+- Body：`{"code":"qa-code-021","nickname":""}`
+- 期望：
+  - `data.userInfo.nickname` 为默认值 "微信用户"
+
+**TC-AUTH-022 nickname 仅包含空格**
+- Body：`{"code":"qa-code-022","nickname":"   "}`
+- 期望：
+  - trim 后为空，使用默认值 "微信用户"
+
+**TC-AUTH-023 nickname 包含特殊字符**
+- Body：`{"code":"qa-code-023","nickname":"昵称@#$%^&*()"}`
+- 期望：
+  - 按原样存储和返回（或按产品需求过滤，记录实际行为）
+
+**TC-AUTH-024 nickname 超长（>64字符）**
+- Body：包含65+字符的昵称
+- 期望：
+  - 按数据库schema限制（VARCHAR(64)），应截断或返回错误
+  - 记录实际行为：成功则截断，失败则返回 400
+
+**TC-AUTH-025 avatarUrl 为空字符串**
+- Body：`{"code":"qa-code-025","avatarUrl":""}`
+- 期望：
+  - `data.userInfo.avatar` 为空字符串 `""`
+  - 前端应显示占位符
+
+**TC-AUTH-026 avatarUrl 格式非法（非URL）**
+- Body：`{"code":"qa-code-026","avatarUrl":"not-a-url"}`
+- 期望：
+  - 按产品需求决定：直接存储或验证URL格式
+  - 记录实际行为
+
+**TC-AUTH-027 avatarUrl 超长（>255字符）**
+- Body：包含256+字符的URL
+- 期望：
+  - 按数据库schema限制（VARCHAR(255)），应截断或返回错误
+
+---
+
+#### 2.1.4 错误场景
+
+**TC-AUTH-030 缺少 code**
 - Body：`{}`
-- 期望：HTTP `400` 或 `500`（如当前未统一校验）；如返回包装，`success=false`
+- 期望：HTTP `400`，`error.code=VALIDATION_ERROR` 或类似，消息包含 "code不能为空"
 
-**TC-AUTH-003 code 为空字符串**
+**TC-AUTH-031 code 为空字符串**
 - Body：`{"code":""}`
-- 期望：HTTP `400`（Jakarta validation），`error.code` 为业务错误或 `INTERNAL_ERROR`（按当前实现记录实际）
+- 期望：HTTP `400`（Jakarta validation），`error.code` 为 `VALIDATION_ERROR`
 
-**TC-AUTH-004 重复 code 登录**
-- 连续两次用相同 code 登录
-- 期望：`user_id` 相同（伪 openid），token 可不同；两次 token 均可用
+**TC-AUTH-032 code 为 null**
+- Body：`{"code":null}`
+- 期望：HTTP `400`
+
+**TC-AUTH-033 微信 API 返回无效 code**
+- Body：`{"code":"INVALID_WX_CODE"}`
+- 期望：
+  - HTTP 200 但 `success=false`，`error.code=INVALID_WX_CODE` 或类似
+  - 或 HTTP 401
+  - 不应返回 500
+
+**TC-AUTH-034 请求体格式错误（非 JSON）**
+- Body：`not-json`
+- Header：`Content-Type: application/json`
+- 期望：HTTP `400`
+
+---
+
+#### 2.1.5 会话与鉴权验证
+
+**TC-AUTH-040 登录后使用 token 访问受保护接口**
+- 步骤：
+  1. 登录获取 `sessionToken`
+  2. 使用该 token 调用 `GET /api/v1/plans`
+- 期望：
+  - 第2步成功返回，不返回 `UNAUTHENTICATED`
+
+**TC-AUTH-041 token 格式验证**
+- 期望：
+  - 返回的 `sessionToken` 符合 JWT 格式（三段式，base64 编码）
+  - 可被解析，payload 包含 `user_id`
+
+**TC-AUTH-042 session 过期**
+- 步骤：
+  1. 登录获取 token
+  2. 手动从 Redis 删除该 session
+  3. 使用该 token 访问受保护接口
+- 期望：
+  - 第3步返回 HTTP `400` 或 `401`，`error.code=UNAUTHENTICATED`
+
+---
+
+#### 2.1.6 并发与压力测试
+
+**TC-AUTH-050 并发登录（同一用户）**
+- 10个并发请求，相同 code（模拟同一 openid）
+- 期望：
+  - 所有请求返回成功
+  - 数据库中仅有一条用户记录
+  - 无死锁或重复插入错误
+
+**TC-AUTH-051 并发登录（不同用户）**
+- 100个并发请求，不同 code
+- 期望：
+  - 所有请求返回成功
+  - 数据库中有100条用户记录
+  - 平均响应时间 < 500ms
+
+---
+
+#### 2.1.7 性能基准
+
+**TC-AUTH-060 登录性能基准**
+- 单用户登录（提供完整信息）
+- 期望：
+  - P50 响应时间 < 200ms
+  - P95 响应时间 < 500ms
+  - P99 响应时间 < 1000ms
+
+**TC-AUTH-061 Redis 连接池正常**
+- 批量登录100次
+- 期望：
+  - Redis 连接池无泄漏
+  - 查看 Druid actuator 端点，空闲连接正常回收
 
 ---
 
