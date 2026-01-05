@@ -1,0 +1,179 @@
+/**
+ * TeamVenture Design Tokens
+ * 自动生成，请勿手动修改
+ * 生成时间: 2026-01-05T18:09:15.619Z
+ *
+ * 使用方法:
+ * @import './design-tokens/variables.wxss';
+ */
+
+page {
+
+  /* ========== 颜色系统 ========== */
+  /* 品牌主色 - 按钮、链接、选中态 */
+  --global-colors-primary: #1890ff;
+  /* 主色深色 - 按钮悬停态 */
+  --global-colors-primary-dark: #096dd9;
+  /* 主色浅色 - 背景色 */
+  --global-colors-primary-light: #e6f7ff;
+  /* 成功状态 - 完成、通过 */
+  --global-colors-success: #52c41a;
+  /* 成功浅色背景 */
+  --global-colors-success-light: #f6ffed;
+  /* 警告状态 */
+  --global-colors-warning: #faad14;
+  /* 警告浅色背景 */
+  --global-colors-warning-light: #fffbe6;
+  /* 危险/删除 - 删除按钮、错误提示 */
+  --global-colors-danger: #f5222d;
+  /* 危险浅色背景 */
+  --global-colors-danger-light: #fff1f0;
+  /* 紫色渐变起始色 - 登录页背景 */
+  --global-colors-purple-start: #667eea;
+  /* 紫色渐变结束色 - 登录页背景 */
+  --global-colors-purple-end: #764ba2;
+
+  /* ========== 中性色 ========== */
+  /* 标题文字 */
+  --global-neutrals-title: #333333;
+  /* 正文文字 */
+  --global-neutrals-text: #666666;
+  /* 次要文字、占位符 */
+  --global-neutrals-secondary: #999999;
+  /* 边框颜色 */
+  --global-neutrals-border: #e8e8e8;
+  /* 分割线 */
+  --global-neutrals-divider: #f0f0f0;
+  /* 页面背景 */
+  --global-neutrals-background: #f5f5f5;
+  /* 卡片背景 */
+  --global-neutrals-card: #ffffff;
+
+  /* ========== 字体排版 ========== */
+  /* 默认字体栈 */
+  --global-typography-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  /* 超小字号 - 标签 */
+  --global-typography-font-size-xs: 20rpx;
+  /* 小字号 - 辅助文字 */
+  --global-typography-font-size-sm: 24rpx;
+  /* 基础字号 - 正文 */
+  --global-typography-font-size-base: 28rpx;
+  /* 中等字号 - 小标题 */
+  --global-typography-font-size-md: 32rpx;
+  /* 大字号 - 标题 */
+  --global-typography-font-size-lg: 36rpx;
+  /* 超大字号 - 页面标题 */
+  --global-typography-font-size-xl: 44rpx;
+  --global-typography-font-weight-normal: 400;
+  --global-typography-font-weight-medium: 500;
+  --global-typography-font-weight-bold: 600;
+
+  /* ========== 间距 ========== */
+  --global-spacing-xs: 8rpx;
+  --global-spacing-sm: 16rpx;
+  --global-spacing-md: 24rpx;
+  --global-spacing-base: 32rpx;
+  --global-spacing-lg: 48rpx;
+  --global-spacing-xl: 64rpx;
+
+  /* ========== 圆角 ========== */
+  --global-borderradius-sm: 8rpx;
+  --global-borderradius-base: 16rpx;
+  --global-borderradius-lg: 24rpx;
+  --global-borderradius-xl: 32rpx;
+  --global-borderradius-full: 9999rpx;
+
+  /* ========== 阴影 ========== */
+  /* 轻微阴影 */
+  --global-shadows-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  /* 默认阴影 */
+  --global-shadows-base: 0 4rpx 16rpx rgba(0, 0, 0, 0.12);
+  /* 大阴影 - 弹窗 */
+  --global-shadows-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.16);
+
+  /* ========== 组件 ========== */
+  --components-button-primary-background: #1890ff;
+  --components-button-primary-text: #ffffff;
+  --components-button-primary-border-radius: 24rpx;
+  --components-button-secondary-background: #ffffff;
+  --components-button-secondary-text: #1890ff;
+  --components-button-secondary-border: #1890ff;
+  --components-button-danger-background: #f5222d;
+  --components-button-danger-text: #ffffff;
+  --components-card-background: #ffffff;
+  --components-card-border-radius: 24rpx;
+  --components-card-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.12);
+  --components-card-padding: 32rpx;
+  --components-input-background: #f5f5f5;
+  --components-input-border: #e8e8e8;
+  --components-input-border-focus: #1890ff;
+  --components-input-placeholder: #999999;
+  --components-input-border-radius: 16rpx;
+  --components-navigation-bar-background: #1890ff;
+  --components-navigation-bar-text: #ffffff;
+  --components-navigation-tab-active: #1890ff;
+  --components-navigation-tab-inactive: #999999;
+  --components-status-generating-background: #e6f7ff;
+  --components-status-generating-text: #1890ff;
+  --components-status-completed-background: #f6ffed;
+  --components-status-completed-text: #52c41a;
+  --components-status-failed-background: #fff1f0;
+  --components-status-failed-text: #f5222d;
+
+  /* ========== 页面 ========== */
+  --pages-login-gradient-start: #667eea;
+  --pages-login-gradient-end: #764ba2;
+  --pages-login-card-background: rgba(255, 255, 255, 0.95);
+  --pages-form-header-background: #1890ff;
+  --pages-form-step-active: #1890ff;
+  --pages-form-step-completed: #52c41a;
+  --pages-form-step-pending: #e8e8e8;
+}
+
+/* ========== 便捷类 ========== */
+
+/* 主色按钮 */
+.btn-primary {
+  background-color: var(--global-colors-primary);
+  color: #ffffff;
+  border-radius: var(--global-borderradius-lg);
+}
+
+/* 次要按钮 */
+.btn-secondary {
+  background-color: var(--global-neutrals-card);
+  color: var(--global-colors-primary);
+  border: 2rpx solid var(--global-colors-primary);
+  border-radius: var(--global-borderradius-lg);
+}
+
+/* 危险按钮 */
+.btn-danger {
+  background-color: var(--global-colors-danger);
+  color: #ffffff;
+  border-radius: var(--global-borderradius-lg);
+}
+
+/* 卡片样式 */
+.card {
+  background-color: var(--global-neutrals-card);
+  border-radius: var(--global-borderradius-lg);
+  box-shadow: var(--global-shadows-base);
+  padding: var(--global-spacing-base);
+}
+
+/* 状态标签 */
+.status-generating {
+  background-color: var(--global-colors-primary-light);
+  color: var(--global-colors-primary);
+}
+
+.status-completed {
+  background-color: var(--global-colors-success-light);
+  color: var(--global-colors-success);
+}
+
+.status-failed {
+  background-color: var(--global-colors-danger-light);
+  color: var(--global-colors-danger);
+}
