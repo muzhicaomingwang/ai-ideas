@@ -41,9 +41,13 @@
 | **方案请求** | Plan Request | HR 提交的团建需求输入，作为生成方案的原始材料 | 人数50、预算¥3.5万、2天1夜 | PlanRequest 是输入，Plan 是输出 |
 | **方案类型** | Plan Type | 方案的定位档次，分为经济/平衡/品质三档 | `budget` / `standard` / `premium` | 一次生成必须产出3种类型 |
 | **方案状态** | Plan Status | 方案的生命周期状态 | `draft`（草稿）/ `confirmed`（已确认） | 状态不可回退（一期） |
+| **出发城市** | Departure City | 团队从哪里出发，通常是公司所在城市 | "上海市" | 用于行程起点规划、交通费用估算 |
+| **目的地** | Destination | 团建活动举办地点，团队前往的地方 | "杭州千岛湖" | 用于供应商匹配、活动安排、住宿费用估算 |
 | **行程** | Itinerary | 按天拆分的活动安排与时间表 | Day1: 09:00 出发 → 12:00 午餐... | 以"天"为单位组织 |
 | **预算明细** | Budget Breakdown | 按类目拆分的费用构成 | 交通¥5000、住宿¥15000... | 分类：交通/住宿/餐饮/活动/其他 |
 | **数据快照** | Snapshot | 方案生成时对外部数据（如供应商信息）的副本存储 | 供应商当时的价格、联系方式 | 避免历史方案因外部数据变更失效 |
+
+> **显示格式约定**：前端展示"出发城市"与"目的地"时，统一使用箭头格式：`{departure_city} → {destination}`，例如："上海市 → 杭州千岛湖"
 
 #### 供应商相关（Supplier Catalog Domain）
 
@@ -111,10 +115,15 @@
 | 产品/业务术语 | 技术术语 | 数据库字段 | API 字段 | 前端展示 |
 |-------------|---------|-----------|---------|---------|
 | 团建方案 | Plan | `plans` 表 | `plan` | "方案" |
+| 方案名称 | PlanName | `plan_name` | `plan_name` | "方案名称" |
 | 方案类型（经济/平衡/品质） | PlanType | `plan_type` | `plan_type: budget/standard/premium` | "经济型"/"平衡型"/"品质型" |
+| 出发城市 | DepartureCity | `departure_city` | `departure_city` | "出发地点" |
+| 目的地 | Destination | `destination` | `destination` | "目的地" |
 | 确认方案 | ConfirmPlan | `status='confirmed'` | `POST /plans/{id}/confirm` | "确认此方案" |
-| 供应商快照 | SupplierSnapshot | `supplier_snapshots` (JSONB) | `suppliers[]` | "供应商信息" |
+| 供应商快照 | SupplierSnapshot | `supplier_snapshots` | `supplier_snapshots` | "供应商信息" |
 | 生成时间 | GenerationDuration | `generation_time_ms` | `generation_time_ms` | "已为您生成方案（耗时 45 秒）" |
+
+> **注意**：前端字段 `departureLocation` 对应 API/数据库的 `departure_city`，需显式映射
 
 ---
 
@@ -197,7 +206,7 @@
 
 ### 聚合B：`PlanRequest`（聚合根，生成编排输入）
 - 标识：`plan_request_id`
-- 关键属性：`user_id`、`people_count`、`budget_range`、`date_range`、`departure_location`、`preferences`
+- 关键属性：`user_id`、`people_count`、`budget_range`、`date_range`、`departure_city`（出发城市）、`destination`（目的地）、`preferences`
 - 不变式：输入校验（人数/预算/日期）通过才可进入生成
 
 ### 聚合C：`Supplier`（聚合根，一期只读）
@@ -214,22 +223,326 @@
 
 > 一期建议最小拆分 3 个 BC；实现可先单体，但边界要在代码结构与接口上体现，便于教学。
 
-1) **Identity & Session Context（身份与会话）**
-- 职责：微信登录、session 管理、用户标识映射（不管理复杂权限）
+### 7.1 BC-1: Identity & Session Context（身份与会话）
 
-2) **Planning Context（方案规划）**
-- 职责：需求输入、生成编排、方案生命周期（draft/confirmed）、方案展示所需数据快照
+**职责**：微信登录、session 管理、用户标识映射（不管理复杂权限）
 
-3) **Supplier Catalog Context（供应商目录）**
-- 职责：供应商数据维护与查询（一期可只读/后台录入），提供给 Planning 的匹配与展示
+**聚合（Aggregates）**：
+- `User`（聚合根）
+  - 标识：`user_id`
+  - 关键属性：`wechat_openid`、`nickname`、`avatar_url`、`role`、`status`
+  - 不变式：`wechat_openid` 必须唯一；`role` 一期固定为 "HR"
 
-> Analytics/Tracking 属于横切能力：一期先作为“埋点事件规范 + 服务端日志”，二期可独立成 BC。
+- `Session`（逻辑聚合，实际存储在 Redis）
+  - 标识：`session_token`（JWT）
+  - 关键属性：`user_id`、`expires_at`
+  - 不变式：过期后自动失效（24小时）
+
+**命令（Commands）**：
+- `LoginWithWeChat(code, nickname, avatarUrl)`：微信登录，创建或更新用户
+- `RefreshSession(token)`：刷新会话（一期未实现）
+- `Logout(token)`：主动登出（一期未实现）
+- `UpdateUserProfile(userId, nickname, avatarUrl)`：更新用户信息
+
+**领域事件（Domain Events）**：
+- ⚠️ **一期未实现**：`WeChatLoginSucceeded`、`WeChatLoginFailed`、`SessionCreated`、`SessionExpired`
+- 实现状态：登录成功/失败目前仅通过 HTTP 响应体现，未记录领域事件
+
+**值对象（Value Objects）**：
+- `SessionToken`：JWT 格式的会话令牌
+- `OpenID`：微信 OpenID（一期使用 SHA-256 哈希模拟）
+
+**对外接口**：
+- `POST /api/v1/auth/wechat/login`：登录接口
+- `Authorization: Bearer <token>`：认证头（所有受保护接口）
+
+---
+
+### 7.2 BC-2: Planning Context（方案规划）
+
+**职责**：需求输入、生成编排、方案生命周期（draft/confirmed）、方案展示所需数据快照
+
+**聚合（Aggregates）**：
+- `PlanRequest`（聚合根）
+  - 标识：`plan_request_id`
+  - 关键属性：`user_id`、`people_count`、`budget_min`、`budget_max`、`start_date`、`end_date`、`departure_city`、`preferences_json`、`status`
+  - 状态机：`GENERATING` → `COMPLETED` / `FAILED`
+  - 不变式：`budget_max` >= `budget_min`；`end_date` >= `start_date`；`people_count` > 0
+
+- `Plan`（聚合根）
+  - 标识：`plan_id`
+  - 关键属性：`plan_request_id`、`user_id`、`plan_type`（budget/standard/premium）、`status`、`plan_name`、`departure_city`（出发城市）、`destination`（目的地）、`itinerary_json`、`budget_breakdown_json`、`supplier_snapshots`
+  - 状态机：`DRAFT`（默认） → `CONFIRMED`（不可回退）
+  - 不变式：`plan_type` ∈ {budget, standard, premium}；`status=CONFIRMED` 时必须有 `confirmed_time`
+
+- `SupplierContactLog`（聚合根）
+  - 标识：`contact_id`
+  - 关键属性：`plan_id`、`supplier_id`、`user_id`、`channel`（PHONE/WECHAT/EMAIL）、`notes`、`contact_time`
+  - 不变式：`channel` 必须合法；`plan_id` 必须存在
+
+**命令（Commands）**：
+- `CreatePlanRequest(input)`：提交需求，触发生成（发送 MQ）
+- `GeneratePlans(planRequestId)`：（AI 服务内部）编排生成 3 套方案
+- `ListPlans(userId, page, pageSize)`：查询我的方案列表
+- `GetPlanDetail(userId, planId)`：查看方案详情
+- `ConfirmPlan(userId, planId)`：确认方案（幂等）
+- `LogSupplierContact(userId, planId, supplierId, channel)`：记录联系供应商
+
+**领域事件（Domain Events）**：
+- ✅ **已实现**：
+  - `PlanRequestCreated(plan_request_id, user_id)`：提交需求后立即记录
+  - `PlanGenerated(plan_id, user_id)`：AI 回调生成方案后记录（每套方案独立事件）
+  - `PlanConfirmed(plan_id, user_id)`：用户确认方案后记录
+  - `SupplierContacted(plan_id, supplier_id, channel, user_id)`：联系供应商后记录
+
+- ⚠️ **未实现**：`PlanGenerationStarted`、`PlanGenerationFailed`、`PlanViewed`、`PlanCompared`、`PlanShared`
+
+**值对象（Value Objects）**：
+- `BudgetRange(min, max)`：预算区间
+- `DateRange(start, end)`：日期区间
+- `Preferences(activityTypes[], accommodationLevel, diningStyle[], specialRequirements)`：偏好设置
+- `Itinerary(days[])`：行程安排（JSON 结构）
+- `BudgetBreakdown(categories[])`：预算明细（JSON 结构）
+- `SupplierSnapshot[]`：供应商快照（避免外部数据变更影响历史方案）
+
+**对外接口**：
+- `POST /api/v1/plans/generate`：生成方案
+- `GET /api/v1/plans?page=1&pageSize=10`：查询我的方案
+- `GET /api/v1/plans/{planId}`：查看详情
+- `POST /api/v1/plans/{planId}/confirm`：确认方案
+- `POST /api/v1/plans/{planId}/contact-supplier`：记录联系供应商
+
+---
+
+### 7.3 BC-3: Supplier Catalog Context（供应商目录）
+
+**职责**：供应商数据维护与查询（一期只读/后台录入），提供给 Planning 的匹配与展示
+
+**聚合（Aggregates）**：
+- `Supplier`（聚合根，一期只读）
+  - 标识：`supplier_id`
+  - 关键属性：`name`、`category`（accommodation/dining/activity/transportation）、`city`、`price_min`、`price_max`、`rating`、`contact_phone`、`contact_wechat`、`tags_json`、`coordinates`（经纬度）
+  - 不变式：`price_max` >= `price_min`；`category` 必须合法；`rating` ∈ [0, 5]
+
+**命令（Commands）**：
+- `SearchSuppliers(city, category, priceRange, sortBy)`：搜索供应商（支持筛选与排序）
+- `GetSupplierDetail(supplierId)`：查看供应商详情
+- ⚠️ **未实现**：`CreateSupplier`、`UpdateSupplier`（一期后台录入，无 API）
+
+**领域事件（Domain Events）**：
+- ⚠️ **一期无事件**：供应商数据变更不记录领域事件（只读场景）
+
+**值对象（Value Objects）**：
+- `GeoLocation(lat, lng, address)`：地理位置
+- `PriceRange(min, max)`：价格区间
+- `ContactInfo(phone, wechat, email)`：联系方式
+
+**对外接口**：
+- `GET /api/v1/suppliers?city=Beijing&category=accommodation`：搜索供应商
+- `GET /api/v1/suppliers/{supplierId}`：查看供应商详情
+
+---
+
+### 7.4 横切关注点：Analytics & Tracking（分析与追踪）
+
+**职责**：统一记录领域事件用于埋点分析、业务报表、审计日志
+
+**实现方式**：
+- 通过 `domain_events` 表集中存储所有领域事件
+- 事件字段：`event_id`、`event_type`、`aggregate_type`、`aggregate_id`、`user_id`、`payload`（JSON）、`occurred_at`、`processed`（是否已消费）
+
+**事件消费场景**（二期扩展）：
+- 北极星指标计算：统计 `PlanConfirmed` 事件的周度数量
+- 转化漏斗分析：`PlanConfirmed` → `SupplierContacted` 转化率
+- 慢查询监控：分析 `PlanGenerationStarted` 到 `PlanGenerated` 的耗时分布
 
 ---
 
 ## 8. 上下文关系（Context Map）
 
-- Planning → Supplier Catalog：**查询依赖**（Planning 读取供应商目录用于匹配与展示）
-- Planning → Identity：**认证依赖**（必须拿到 userId 才能生成/保存方案）
-- Planning → Analytics（横切）：记录关键事件与指标
+```
+┌──────────────────────┐
+│  Identity & Session  │
+│  （身份与会话）       │
+└──────────┬───────────┘
+           │ provides userId
+           ▼
+┌──────────────────────┐       ┌──────────────────────┐
+│      Planning        │──────▶│  Supplier Catalog    │
+│     （方案规划）      │ query │   （供应商目录）      │
+└──────────┬───────────┘       └──────────────────────┘
+           │ emits events
+           ▼
+┌──────────────────────┐
+│  Analytics/Tracking  │
+│   （横切关注点）      │
+└──────────────────────┘
+```
+
+**关系说明**：
+- **Planning → Identity（认证依赖 / ACL）**：Planning 必须通过 `userId` 确认身份，所有方案操作需鉴权
+- **Planning → Supplier Catalog（查询依赖 / Customer-Supplier）**：Planning 读取供应商目录用于匹配与快照存储
+- **Planning → Analytics（事件发布 / Open-Host Service）**：Planning 发布领域事件到 `domain_events` 表，供后续分析消费
+
+---
+
+## 9. 领域事件详细清单（实际实现版本）
+
+> 基于 `DomainEventPO` 与实际业务代码的事件记录逻辑整理。
+
+| 事件类型 | 聚合根 | 触发时机 | Payload 字段 | 后续动作 | 实现状态 |
+|---------|--------|---------|-------------|---------|---------|
+| `PlanRequestCreated` | PlanRequest | 用户提交生成需求后 | `{plan_request_id}` | 1. 写入 `domain_events` 表<br>2. 发送 RabbitMQ 消息到 AI 服务 | ✅ 已实现 |
+| `PlanGenerated` | Plan | AI 服务回调生成单套方案后 | `{plan_id}` | 1. 写入 `domain_events` 表<br>2. 小程序可刷新对比页 | ✅ 已实现 |
+| `PlanConfirmed` | Plan | 用户点击"确认此方案"后 | `{plan_id}` | 1. 写入 `domain_events` 表<br>2. 纳入北极星指标统计 | ✅ 已实现 |
+| `SupplierContacted` | SupplierContactLog | 用户联系供应商后 | `{plan_id, supplier_id, channel}` | 1. 写入 `domain_events` 表<br>2. 转化漏斗分析数据源 | ✅ 已实现 |
+| `WeChatLoginSucceeded` | User | 微信登录成功后 | `{user_id, openid}` | - | ⚠️ 未实现 |
+| `PlanGenerationStarted` | PlanRequest | MQ 消息发送成功后 | `{plan_request_id}` | - | ⚠️ 未实现 |
+| `PlanGenerationFailed` | PlanRequest | AI 服务生成失败后 | `{plan_request_id, error_code}` | - | ⚠️ 未实现 |
+| `PlanViewed` | Plan | 用户打开方案详情页 | `{plan_id}` | - | ⚠️ 未实现 |
+
+### 9.1 事件 Payload 结构示例
+
+**PlanRequestCreated**
+```json
+{
+  "plan_request_id": "plan_req_01JHTXXXXXXX"
+}
+```
+
+**PlanGenerated**
+```json
+{
+  "plan_id": "plan_01JHTXXXXXXX"
+}
+```
+
+**PlanConfirmed**
+```json
+{
+  "plan_id": "plan_01JHTXXXXXXX"
+}
+```
+
+**SupplierContacted**
+```json
+{
+  "plan_id": "plan_01JHTXXXXXXX",
+  "supplier_id": "supp_01JHTXXXXXXX",
+  "channel": "PHONE"
+}
+```
+
+### 9.2 事件消费模式（一期 vs 二期）
+
+**一期（当前实现）**：
+- 所有事件落库到 `domain_events` 表
+- `processed` 字段预留（默认 `false`），暂未实现消费逻辑
+- 事件主要用于审计日志与手动数据分析
+
+**二期（演进方向）**：
+- 引入 EventBus 或 Kafka 实现异步消费
+- 北极星指标实时计算（Flink / ClickHouse）
+- 事件溯源（Event Sourcing）重建聚合状态
+
+---
+
+## 10. 业务流程泳道图（Swimlane Diagrams）
+
+### 10.1 方案生成完整流程
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        方案生成端到端流程（含事件）                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+小程序                Java 业务服务          RabbitMQ         Python AI 服务
+  │                        │                     │                  │
+  │  POST /plans/generate  │                     │                  │
+  ├───────────────────────▶│                     │                  │
+  │                        │ 1. Insert PlanRequest (GENERATING)     │
+  │                        │    生成 plan_request_id                 │
+  │                        │                     │                  │
+  │                        │ 2. Record Event:    │                  │
+  │                        │    PlanRequestCreated                  │
+  │                        │                     │                  │
+  │                        │ 3. Publish MQ       │                  │
+  │                        ├────────────────────▶│                  │
+  │◀───────────────────────┤ 4. Return           │                  │
+  │  {plan_request_id,     │    {plan_request_id,│                  │
+  │   status: "generating"}│     status}         │                  │
+  │                        │                     │                  │
+  │                        │                     │  Consume MQ      │
+  │                        │                     ├─────────────────▶│
+  │                        │                     │                  │ 5. LangGraph Workflow
+  │                        │                     │                  │    - parse_requirements
+  │                        │                     │                  │    - match_suppliers
+  │                        │                     │                  │    - generate_three_plans
+  │                        │                     │                  │
+  │                        │  6. POST /internal/plans/batch        │
+  │                        │◀──────────────────────────────────────┤
+  │                        │  {plan_request_id,                     │
+  │                        │   plans: [3套方案]}                    │
+  │                        │                     │                  │
+  │                        │ 7. Insert 3 Plans   │                  │
+  │                        │ 8. Record Event:    │                  │
+  │                        │    PlanGenerated x3 │                  │
+  │                        │ 9. Update PlanRequest                  │
+  │                        │    status=COMPLETED │                  │
+  │                        ├────────────────────▶│                  │
+  │                        │  Return 200 OK      │                  │
+  │                        │                     │                  │
+  │  10. 轮询/刷新对比页    │                     │                  │
+  ├───────────────────────▶│                     │                  │
+  │  GET /plans?           │                     │                  │
+  │   plan_request_id=xxx  │                     │                  │
+  │◀───────────────────────┤                     │                  │
+  │  返回 3 套方案         │                     │                  │
+```
+
+**关键点**：
+- 步骤 2：`PlanRequestCreated` 事件记录到 `domain_events` 表
+- 步骤 3：异步解耦，Java 服务立即返回
+- 步骤 8：每套方案独立记录 `PlanGenerated` 事件（共 3 个事件）
+- 步骤 10：前端轮询或主动刷新获取生成结果
+
+---
+
+### 10.2 确认方案与联系供应商流程
+
+```
+小程序                Java 业务服务          domain_events 表
+  │                        │                     │
+  │  POST /plans/{id}/confirm                   │
+  ├───────────────────────▶│                     │
+  │                        │ 1. Check ownership  │
+  │                        │    (userId 校验)     │
+  │                        │ 2. Idempotency:     │
+  │                        │    if status=CONFIRMED, return OK
+  │                        │ 3. Update status    │
+  │                        │    = CONFIRMED      │
+  │                        │ 4. Record Event:    │
+  │                        │    PlanConfirmed    │
+  │                        ├────────────────────▶│
+  │◀───────────────────────┤                     │
+  │  200 OK                │                     │
+  │                        │                     │
+  │  用户点击"联系供应商"   │                     │
+  │  POST /plans/{planId}/contact-supplier       │
+  ├───────────────────────▶│                     │
+  │  {supplier_id,         │                     │
+  │   channel: "PHONE"}    │                     │
+  │                        │ 5. Insert           │
+  │                        │    SupplierContactLog
+  │                        │ 6. Record Event:    │
+  │                        │    SupplierContacted│
+  │                        ├────────────────────▶│
+  │◀───────────────────────┤                     │
+  │  200 OK                │                     │
+```
+
+**关键点**：
+- 幂等性：重复确认同一方案不会报错，直接返回成功
+- 事件解耦：`PlanConfirmed` 和 `SupplierContacted` 事件为后续分析提供数据源
+- 北极星指标：可通过统计 `PlanConfirmed` 事件的周度数量计算
 
