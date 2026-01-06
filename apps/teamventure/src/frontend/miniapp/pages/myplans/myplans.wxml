@@ -22,28 +22,94 @@
       wx:for="{{plans}}"
       wx:key="plan_id"
       class="plan-card"
-      bindtap="handleViewPlan"
-      data-plan-id="{{item.plan_id}}"
       bindtouchstart="handleTouchStart"
       bindtouchmove="handleTouchMove"
       bindtouchend="handleTouchEnd"
       data-index="{{index}}"
-      style="transform: translateX({{item.translateX || 0}}rpx)"
     >
-      <!-- 卡片内容 -->
-      <view class="card-content">
+      <!-- 操作按钮（左滑显示，在card-content下方） -->
+      <view class="action-btns">
+        <!-- 归档按钮（仅已生成的方案显示） -->
+        <view
+          wx:if="{{item.status !== 'generating' && item.status !== 'failed'}}"
+          class="archive-btn"
+          catchtap="handleArchive"
+          data-plan-id="{{item.plan_id}}"
+          data-index="{{index}}">
+          归档
+        </view>
+        <!-- 删除按钮 -->
+        <view class="delete-btn" catchtap="handleDelete" data-plan-id="{{item.plan_id}}" data-index="{{index}}">
+          删除
+        </view>
+      </view>
+      <!-- 卡片内容（滑动时移动） -->
+      <view
+        class="card-content {{item.status === 'generating' ? 'generating-card' : (item.status === 'failed' ? 'failed-card' : '')}}"
+        style="transform: translateX({{item.translateX || 0}}rpx)"
+        bindtap="handleViewPlan"
+        data-plan-id="{{item.plan_id}}"
+        data-index="{{index}}">
         <!-- 头部 -->
         <view class="card-header">
           <view class="plan-title">
             <text class="plan-name">{{item.plan_name}}</text>
           </view>
           <view class="status-badge status-{{item.status}}">
+            <text wx:if="{{item.status === 'generating'}}" class="generating-icon">⏳</text>
             {{item.status_label}}
           </view>
         </view>
 
-        <!-- 统计信息 -->
-        <view class="plan-stats">
+        <!-- 生成中状态：显示进度提示 -->
+        <view class="generating-info" wx:if="{{item.status === 'generating'}}">
+          <view class="generating-progress">
+            <view class="progress-dots">
+              <view class="progress-dot"></view>
+              <view class="progress-dot"></view>
+              <view class="progress-dot"></view>
+            </view>
+            <text class="generating-text">AI正在为您规划方案...</text>
+          </view>
+          <view
+            class="refresh-btn {{item.refreshing ? 'refreshing' : ''}}"
+            catchtap="handleRefreshPlan"
+            data-plan-id="{{item.plan_id}}"
+            data-index="{{index}}"
+          >
+            <text class="refresh-icon {{item.refreshing ? 'rotating' : ''}}">🔄</text>
+            <text class="refresh-text">{{item.refreshing ? '刷新中' : '刷新状态'}}</text>
+          </view>
+        </view>
+
+        <!-- 失败状态：显示重试提示 -->
+        <view class="failed-info" wx:if="{{item.status === 'failed'}}">
+          <view class="failed-message">
+            <text class="failed-icon">❌</text>
+            <text class="failed-text">方案生成失败，请重试</text>
+          </view>
+          <view
+            class="retry-btn"
+            catchtap="handleRetryGenerate"
+            data-plan-id="{{item.plan_id}}"
+            data-index="{{index}}"
+          >
+            <text class="retry-icon">🔄</text>
+            <text class="retry-text">重新生成</text>
+          </view>
+        </view>
+
+        <!-- 出发地 → 目的地 -->
+        <view class="plan-location" wx:if="{{(item.departure_city || item.destination) && item.status !== 'generating' && item.status !== 'failed'}}">
+          <text class="location-icon">📍</text>
+          <text class="location-text" wx:if="{{item.departure_city && item.destination}}">{{item.departure_city}} → {{item.destination}}</text>
+          <text class="location-text" wx:elif="{{item.destination}}">{{item.destination}}</text>
+          <text class="location-text" wx:else>{{item.departure_city}}</text>
+          <text class="location-date" wx:if="{{item.start_date}}">{{item.start_date}} ~ {{item.end_date}}</text>
+        </view>
+
+        <!-- 统计信息（非生成中/失败状态显示） -->
+        <view class="plan-stats" wx:if="{{item.status !== 'generating' && item.status !== 'failed'}}">
           <view class="stat-item">
             <text class="stat-icon">💰</text>
             <text class="stat-text">¥{{item.budget_total}}</text>
@@ -60,8 +126,24 @@
           </view>
         </view>
 
+        <!-- 生成中状态：显示基本信息 -->
+        <view class="plan-stats" wx:if="{{item.status === 'generating'}}">
+          <view class="stat-item">
+            <text class="stat-icon">👥</text>
+            <text class="stat-text">{{item.people_count || '-'}}人</text>
+          </view>
+          <view class="stat-divider">|</view>
+          <view class="stat-item">
+            <text class="stat-icon">📍</text>
+            <text class="stat-text" wx:if="{{item.departure_city && item.destination}}">{{item.departure_city}} → {{item.destination}}</text>
+            <text class="stat-text" wx:elif="{{item.destination}}">{{item.destination}}</text>
+            <text class="stat-text" wx:elif="{{item.departure_city}}">从{{item.departure_city}}出发</text>
+            <text class="stat-text" wx:else>待生成</text>
+          </view>
+        </view>
+
         <!-- 日期 -->
-        <view class="plan-date" wx:if="{{item.start_date && item.end_date}}">
+        <view class="plan-date" wx:if="{{item.start_date && item.end_date && item.status !== 'generating'}}">
           {{item.start_date}} 至 {{item.end_date}}
         </view>
 
@@ -69,11 +151,6 @@
         <view class="plan-time">
           {{item.relative_time}}
         </view>
-      </view>
-
-      <!-- 删除按钮（左滑显示） -->
-      <view class="delete-btn" catchtap="handleDelete" data-plan-id="{{item.plan_id}}" data-index="{{index}}">
-        删除
       </view>
     </view>
 

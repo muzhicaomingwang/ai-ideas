@@ -25,8 +25,11 @@ public class PlanPO {
     private BigDecimal budget_per_person;
     private Integer duration_days;
     private String departure_city;
+    private String destination;
     private String status;
     private Instant confirmed_time;
+    private Instant deleted_at;
+    private Instant archived_at;
 
     public static PlanPO fromMap(Map<String, Object> m) {
         PlanPO po = new PlanPO();
@@ -42,6 +45,7 @@ public class PlanPO {
         po.budget_per_person = JsonHelper.safeDecimal(m.get("budget_per_person"));
         po.duration_days = JsonHelper.safeInt(m.get("duration_days"));
         po.departure_city = (String) m.getOrDefault("departure_city", "");
+        po.destination = (String) m.getOrDefault("destination", "");
         po.status = (String) m.getOrDefault("status", "draft");
         return po;
     }
@@ -52,11 +56,48 @@ public class PlanPO {
     public void setPlanRequestId(String v) { this.plan_request_id = v; }
     public String getUserId() { return user_id; }
     public void setUserId(String v) { this.user_id = v; }
+    public String getPlanName() { return plan_name; }
+    public void setPlanName(String v) { this.plan_name = v; }
     public String getPlanType() { return plan_type; }
     public void setPlanType(String v) { this.plan_type = v; }
     public String getStatus() { return status; }
     public void setStatus(String v) { this.status = v; }
     public Instant getConfirmedTime() { return confirmed_time; }
     public void setConfirmedTime(Instant v) { this.confirmed_time = v; }
+    public java.math.BigDecimal getBudgetTotal() { return budget_total; }
+    public void setBudgetTotal(java.math.BigDecimal v) { this.budget_total = v; }
+    public Integer getDurationDays() { return duration_days; }
+    public void setDurationDays(Integer v) { this.duration_days = v; }
+
+    // 以下是详情页所需的完整字段 getter/setter
+    public String getSummary() { return summary; }
+    public void setSummary(String v) { this.summary = v; }
+
+    public String getHighlights() { return highlights; }
+    public void setHighlights(String v) { this.highlights = v; }
+
+    public String getItinerary() { return itinerary; }
+    public void setItinerary(String v) { this.itinerary = v; }
+
+    public String getBudgetBreakdown() { return budget_breakdown; }
+    public void setBudgetBreakdown(String v) { this.budget_breakdown = v; }
+
+    public String getSupplierSnapshots() { return supplier_snapshots; }
+    public void setSupplierSnapshots(String v) { this.supplier_snapshots = v; }
+
+    public BigDecimal getBudgetPerPerson() { return budget_per_person; }
+    public void setBudgetPerPerson(BigDecimal v) { this.budget_per_person = v; }
+
+    public String getDepartureCity() { return departure_city; }
+    public void setDepartureCity(String v) { this.departure_city = v; }
+
+    public String getDestination() { return destination; }
+    public void setDestination(String v) { this.destination = v; }
+
+    public Instant getDeletedAt() { return deleted_at; }
+    public void setDeletedAt(Instant v) { this.deleted_at = v; }
+
+    public Instant getArchivedAt() { return archived_at; }
+    public void setArchivedAt(Instant v) { this.archived_at = v; }
 }
 
