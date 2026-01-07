@@ -1,0 +1,69 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Colors",
+  "description": "TeamVenture小程序颜色系统",
+  "version": "1.0.0",
+
+  "colors": {
+    "primary": {
+      "description": "主品牌色",
+      "default": "#1890ff",
+      "hover": "#40a9ff",
+      "active": "#0070dd",
+      "light": "#e6f7ff",
+      "lighter": "#f0f9ff"
+    },
+
+    "success": {
+      "description": "成功状态色",
+      "default": "#52c41a",
+      "light": "#f6ffed"
+    },
+
+    "warning": {
+      "description": "警告状态色",
+      "default": "#faad14",
+      "light": "#fffbe6"
+    },
+
+    "danger": {
+      "description": "危险/错误状态色",
+      "default": "#f5222d",
+      "light": "#fff2f0"
+    },
+
+    "neutral": {
+      "description": "中性色/灰度",
+      "title": "#333333",
+      "text": "#333333",
+      "secondary": "#666666",
+      "muted": "#999999",
+      "placeholder": "#cccccc",
+      "border": "#e8e8e8",
+      "divider": "#e8e8e8",
+      "disabled": "#d9d9d9",
+      "background": "#f5f5f5",
+      "backgroundLight": "#fafafa",
+      "white": "#ffffff"
+    },
+
+    "gradient": {
+      "description": "渐变色",
+      "banner": {
+        "start": "#667eea",
+        "end": "#764ba2",
+        "css": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      },
+      "tips": {
+        "start": "#f0f9ff",
+        "end": "#e6f7ff",
+        "css": "linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%)"
+      }
+    },
+
+    "special": {
+      "description": "特殊用途色",
+      "price": "#ff6b35"
+    }
+  }
+}

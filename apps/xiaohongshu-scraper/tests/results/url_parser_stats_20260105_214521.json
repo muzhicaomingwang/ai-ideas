@@ -1,0 +1,94 @@
+{
+  "total": 1000,
+  "correct": 995,
+  "incorrect": 5,
+  "by_type": {
+    "explore": {
+      "total": 400,
+      "correct": 400,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "discovery": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "empty": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "explore_with_params": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink_a": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "malformed": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "invalid_format": {
+      "total": 30,
+      "correct": 30,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "invalid_domain": {
+      "total": 30,
+      "correct": 25,
+      "incorrect": 5,
+      "accuracy": 83.33333333333334
+    }
+  },
+  "errors": [
+    {
+      "url": "https://fakexiaohongshu.com/explore/6814efcd3b59b5046f13db0b",
+      "expected": null,
+      "actual": "6814efcd3b59b5046f13db0b",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fakexiaohongshu.com/explore/1214342680025c8f7e0e15a4",
+      "expected": null,
+      "actual": "1214342680025c8f7e0e15a4",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fakexiaohongshu.com/explore/60e151f54d8faf681b40d82e",
+      "expected": null,
+      "actual": "60e151f54d8faf681b40d82e",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fakexiaohongshu.com/explore/532254c884e3b01256a1c3a5",
+      "expected": null,
+      "actual": "532254c884e3b01256a1c3a5",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fakexiaohongshu.com/explore/aed3ed181bd9cb7d19b26934",
+      "expected": null,
+      "actual": "aed3ed181bd9cb7d19b26934",
+      "type": "invalid_domain"
+    }
+  ],
+  "accuracy": 99.5
+}

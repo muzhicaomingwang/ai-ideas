@@ -2,6 +2,11 @@ spring:
   application:
     name: teamventure-business
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
   profiles:
     active: dev
 
@@ -11,14 +16,14 @@ spring:
     druid:
       # 主库（写操作）
       master:
-        url: jdbc:mysql://localhost:3306/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4&allowPublicKeyRetrieval=true
+        url: jdbc:mysql://localhost:3306/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
         username: root
         password: root123456
         driver-class-name: com.mysql.cj.jdbc.Driver
 
       # 从库（读操作）
       slave:
-        url: jdbc:mysql://localhost:3307/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4&allowPublicKeyRetrieval=true
+        url: jdbc:mysql://localhost:3307/teamventure_main?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
         username: root
         password: root123456
         driver-class-name: com.mysql.cj.jdbc.Driver

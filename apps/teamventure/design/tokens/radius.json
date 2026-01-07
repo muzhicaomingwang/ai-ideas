@@ -1,0 +1,40 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Border Radius",
+  "description": "TeamVenture小程序圆角系统",
+  "version": "1.0.0",
+
+  "radius": {
+    "description": "圆角值（rpx单位）",
+
+    "none": "0",
+    "sm": "4rpx",
+    "base": "8rpx",
+    "md": "12rpx",
+    "lg": "16rpx",
+    "xl": "24rpx",
+    "full": "40rpx",
+    "circle": "50%",
+
+    "semantic": {
+      "button": "8rpx",
+      "buttonPill": "44rpx",
+      "card": "16rpx",
+      "input": "12rpx",
+      "tag": "4rpx",
+      "chip": "40rpx",
+      "avatar": "50%",
+      "stepNumber": "50%"
+    },
+
+    "_px": {
+      "description": "对应px值",
+      "sm": "2px",
+      "base": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "xl": "12px",
+      "full": "20px"
+    }
+  }
+}

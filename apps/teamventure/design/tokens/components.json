@@ -1,0 +1,125 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Component Tokens",
+  "description": "TeamVenture小程序组件级设计变量",
+  "version": "1.0.0",
+
+  "components": {
+    "button": {
+      "primary": {
+        "background": "#1890ff",
+        "backgroundActive": "#0070dd",
+        "color": "#ffffff",
+        "borderRadius": "8rpx",
+        "height": "88rpx",
+        "fontSize": "32rpx",
+        "fontWeight": "500",
+        "paddingX": "48rpx",
+        "paddingY": "24rpx"
+      },
+      "secondary": {
+        "background": "#ffffff",
+        "backgroundActive": "#f0f8ff",
+        "color": "#1890ff",
+        "border": "2rpx solid #1890ff",
+        "borderRadius": "8rpx"
+      },
+      "disabled": {
+        "background": "#d9d9d9",
+        "color": "#999999"
+      },
+      "pill": {
+        "borderRadius": "44rpx"
+      }
+    },
+
+    "input": {
+      "background": "#ffffff",
+      "border": "2rpx solid #e8e8e8",
+      "borderFocus": "2rpx solid #1890ff",
+      "borderRadius": "12rpx",
+      "padding": "24rpx 32rpx",
+      "fontSize": "28rpx",
+      "placeholderColor": "#cccccc"
+    },
+
+    "card": {
+      "background": "#ffffff",
+      "borderRadius": "16rpx",
+      "padding": "32rpx",
+      "marginBottom": "24rpx",
+      "shadow": "0 2rpx 12rpx rgba(0, 0, 0, 0.05)"
+    },
+
+    "tag": {
+      "default": {
+        "background": "#f0f0f0",
+        "color": "#666666",
+        "padding": "8rpx 16rpx",
+        "borderRadius": "4rpx",
+        "fontSize": "24rpx"
+      },
+      "primary": {
+        "background": "#e6f7ff",
+        "color": "#1890ff"
+      },
+      "success": {
+        "background": "#f6ffed",
+        "color": "#52c41a"
+      },
+      "warning": {
+        "background": "#fffbe6",
+        "color": "#faad14"
+      }
+    },
+
+    "chip": {
+      "default": {
+        "background": "#f5f5f5",
+        "color": "#666666",
+        "padding": "16rpx 32rpx",
+        "borderRadius": "40rpx",
+        "fontSize": "28rpx",
+        "border": "2rpx solid transparent"
+      },
+      "selected": {
+        "background": "#e6f7ff",
+        "color": "#1890ff",
+        "borderColor": "#1890ff",
+        "fontWeight": "500"
+      }
+    },
+
+    "stepper": {
+      "buttonSize": "56rpx",
+      "buttonBackground": "#f5f5f5",
+      "buttonBackgroundActive": "#e8e8e8",
+      "buttonBorderRadius": "8rpx",
+      "inputMinWidth": "120rpx",
+      "gap": "16rpx"
+    },
+
+    "steps": {
+      "numberSize": "56rpx",
+      "numberBackground": "#e8e8e8",
+      "numberBackgroundActive": "#1890ff",
+      "numberBackgroundCompleted": "#52c41a",
+      "numberColor": "#999999",
+      "numberColorActive": "#ffffff",
+      "labelFontSize": "24rpx",
+      "lineHeight": "2rpx",
+      "lineColor": "#e8e8e8",
+      "lineColorActive": "#52c41a"
+    },
+
+    "radio": {
+      "size": "40rpx",
+      "dotSize": "24rpx",
+      "border": "2rpx solid #d9d9d9",
+      "borderSelected": "2rpx solid #1890ff",
+      "dotColor": "#1890ff",
+      "itemPadding": "24rpx 32rpx",
+      "itemBorderRadius": "12rpx"
+    }
+  }
+}

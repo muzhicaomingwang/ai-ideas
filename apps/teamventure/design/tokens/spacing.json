@@ -1,0 +1,49 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Spacing",
+  "description": "TeamVenture小程序间距系统",
+  "version": "1.0.0",
+
+  "spacing": {
+    "description": "间距值（rpx单位，基于8px网格）",
+
+    "scale": {
+      "0": "0",
+      "1": "8rpx",
+      "2": "16rpx",
+      "3": "24rpx",
+      "4": "32rpx",
+      "5": "40rpx",
+      "6": "48rpx",
+      "8": "64rpx",
+      "10": "80rpx",
+      "12": "96rpx"
+    },
+
+    "semantic": {
+      "containerPadding": "32rpx",
+      "cardPadding": "32rpx",
+      "cardMargin": "24rpx",
+      "inputPadding": "24rpx 32rpx",
+      "buttonPaddingY": "24rpx",
+      "buttonPaddingX": "48rpx",
+      "sectionGap": "32rpx",
+      "formItemGap": "48rpx",
+      "itemGap": "16rpx",
+      "inlineGap": "12rpx"
+    },
+
+    "_px": {
+      "description": "对应px值（用于设计稿标注）",
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "5": "20px",
+      "6": "24px",
+      "8": "32px",
+      "10": "40px",
+      "12": "48px"
+    }
+  }
+}

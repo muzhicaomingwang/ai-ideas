@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "zhimeng-agent"
+version = "0.1.0"
+description = "基于 Obsidian 知识库的智能问答助手"
+authors = ["zhimeng <zhimeng.wang@qunar.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+uvicorn = { extras = ["standard"], version = "^0.27.0" }
+langchain = "^0.1.0"
+langchain-community = "^0.0.13"
+langchain-openai = "^0.0.5"
+langchain-anthropic = "^0.1.0"
+chromadb = "^0.4.22"
+python-dotenv = "^1.0.0"
+pydantic = "^2.5.3"
+pydantic-settings = "^2.1.0"
+httpx = "^0.26.0"
+tiktoken = "^0.5.2"
+lark-oapi = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pytest-asyncio = "^0.23.3"
+black = "^23.12.1"
+isort = "^5.13.2"
+ruff = "^0.1.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,5 +1,6 @@
 package com.teamventure.app.support;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -25,12 +26,31 @@ public class JwtSupport {
     }
 
     public String parseUserId(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    /**
+     * Get token expiration time in seconds since epoch
+     */
+    public long getExpirationTime(String token) {
+        return parseClaims(token).getExpiration().getTime() / 1000;
+    }
+
+    /**
+     * Check if token will expire within given seconds
+     */
+    public boolean willExpireSoon(String token, long thresholdSeconds) {
+        long expirationTime = getExpirationTime(token);
+        long currentTime = Instant.now().getEpochSecond();
+        return (expirationTime - currentTime) < thresholdSeconds;
+    }
+
+    private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                .getPayload();
     }
 }
 

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  xhs-scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xhs-scraper-service
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8100
+      - HEADLESS=${HEADLESS:-true}
+    networks:
+      - apps-shared-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  apps-shared-network:
+    external: true

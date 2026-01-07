@@ -1,0 +1,10 @@
+=== Downloads 目录结构 ===
+
+ls: .: Operation not permitted
+total 0
+
+=== 顶层散落文件 ===
+find: .: Operation not permitted
+
+=== 各子目录文件数量 ===
+*/: 0 个文件

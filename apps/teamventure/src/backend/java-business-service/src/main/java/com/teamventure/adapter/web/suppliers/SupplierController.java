@@ -18,7 +18,7 @@ public class SupplierController {
     }
 
     @GetMapping
-    public ApiResponse<?> search(@RequestHeader("Authorization") String authorization,
+    public ApiResponse<?> search(@RequestHeader(value = "Authorization", required = false) String authorization,
                                  @RequestParam(required = false) String city,
                                  @RequestParam(required = false) String category) {
         authService.getUserIdFromAuthorization(authorization);
@@ -26,10 +26,9 @@ public class SupplierController {
     }
 
     @GetMapping("/{supplierId}")
-    public ApiResponse<?> detail(@RequestHeader("Authorization") String authorization,
+    public ApiResponse<?> detail(@RequestHeader(value = "Authorization", required = false) String authorization,
                                  @PathVariable String supplierId) {
         authService.getUserIdFromAuthorization(authorization);
         return ApiResponse.success(supplierService.getById(supplierId));
     }
 }
-

@@ -11,26 +11,33 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private static final long EXPIRES_SECONDS = 86400L;
+    private static final long REFRESH_THRESHOLD_SECONDS = 3600L; // Refresh when < 1 hour remaining
 
     private final UserMapper userMapper;
     private final StringRedisTemplate redis;
     private final JwtSupport jwt;
+    private final OssService ossService;
 
     public AuthService(
             UserMapper userMapper,
             StringRedisTemplate redis,
-            @Value("${teamventure.jwt.secret:change-me-change-me-change-me-change-me}") String jwtSecret
+            @Value("${teamventure.jwt.secret:change-me-change-me-change-me-change-me}") String jwtSecret,
+            OssService ossService
     ) {
         this.userMapper = userMapper;
         this.redis = redis;
         this.jwt = new JwtSupport(jwtSecret);
+        this.ossService = ossService;
     }
 
     public LoginResponse loginWithWeChat(String code, String nickname, String avatarUrl) {
@@ -68,13 +75,19 @@ public class AuthService {
         }
 
         String token = jwt.issueToken(user.getUserId(), EXPIRES_SECONDS);
-        redis.opsForValue().set("session:" + token, user.getUserId(), Duration.ofSeconds(EXPIRES_SECONDS));
+        try {
+            redis.opsForValue().set("session:" + token, user.getUserId(), Duration.ofSeconds(EXPIRES_SECONDS));
+        } catch (Exception e) {
+            // Redis 不可用时仍允许登录，后续请求可回退到 JWT 解析
+            log.warn("redis unavailable when setting session token, fallback to stateless jwt: userId={}", user.getUserId(), e);
+        }
 
         // 构建包含完整userInfo的响应
+        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());
         LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
             user.getUserId(),
             user.getNickname(),
-            user.getAvatarUrl() != null ? user.getAvatarUrl() : "",
+            avatar,
             user.getPhone(),
             user.getCompany(),
             user.getRole()
@@ -93,7 +106,13 @@ public class AuthService {
             throw new BizException("UNAUTHENTICATED", "missing bearer token");
         }
         String token = authorization.substring("Bearer ".length()).trim();
-        String userId = redis.opsForValue().get("session:" + token);
+        String userId = null;
+        try {
+            userId = redis.opsForValue().get("session:" + token);
+        } catch (Exception e) {
+            // 本地联调常见：Redis 未启动/密码不一致/网络不可达，避免直接 500
+            log.warn("redis unavailable when reading session token, fallback to stateless jwt", e);
+        }
         if (userId == null) {
             // fallback: parse jwt (stateless); still requires that token is valid
             try {
@@ -105,14 +124,73 @@ public class AuthService {
         return userId;
     }
 
-    private static String pseudoOpenId(String code) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(code.getBytes(StandardCharsets.UTF_8));
-            return "openid_" + HexFormat.of().formatHex(hash).substring(0, 16);
-        } catch (Exception e) {
-            throw new BizException("INTERNAL_ERROR", "openid generation failed");
+    /**
+     * Refresh token if it's close to expiration.
+     * Returns new token and user info, or null if token doesn't need refresh.
+     */
+    public LoginResponse refreshTokenIfNeeded(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new BizException("UNAUTHENTICATED", "missing bearer token");
         }
+        String token = authorization.substring("Bearer ".length()).trim();
+
+        // Validate and extract userId
+        String userId;
+        try {
+            userId = jwt.parseUserId(token);
+        } catch (Exception e) {
+            throw new BizException("UNAUTHENTICATED", "invalid token");
+        }
+
+        // Check if token needs refresh
+        boolean needsRefresh;
+        try {
+            needsRefresh = jwt.willExpireSoon(token, REFRESH_THRESHOLD_SECONDS);
+        } catch (Exception e) {
+            throw new BizException("UNAUTHENTICATED", "invalid token");
+        }
+
+        if (!needsRefresh) {
+            return null; // Token is still fresh, no refresh needed
+        }
+
+        // Issue new token
+        String newToken = jwt.issueToken(userId, EXPIRES_SECONDS);
+
+        // Update Redis session
+        try {
+            // Delete old session
+            redis.delete("session:" + token);
+            // Create new session
+            redis.opsForValue().set("session:" + newToken, userId, Duration.ofSeconds(EXPIRES_SECONDS));
+        } catch (Exception e) {
+            log.warn("redis unavailable when refreshing token, fallback to stateless jwt: userId={}", userId, e);
+        }
+
+        // Load user info
+        UserPO user = userMapper.selectOne(new QueryWrapper<UserPO>().eq("user_id", userId));
+        if (user == null) {
+            throw new BizException("UNAUTHENTICATED", "user not found");
+        }
+
+        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());
+        LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
+            user.getUserId(),
+            user.getNickname(),
+            avatar,
+            user.getPhone(),
+            user.getCompany(),
+            user.getRole()
+        );
+
+        log.info("Token refreshed for user: {}", userId);
+        return new LoginResponse(newToken, userInfo);
+    }
+
+    private static String pseudoOpenId(String code) {
+        // 开发模式：使用固定的 openid，确保同一设备登录到同一账号
+        // TODO: 生产环境需调用微信 API (jscode2session) 获取真实 openid
+        // 暂时使用固定 openid 方便测试，所有用户登录到同一账号
+        return "openid_dev_fixed_user";
     }
 }
-

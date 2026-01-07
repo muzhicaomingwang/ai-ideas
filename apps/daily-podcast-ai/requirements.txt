@@ -1,0 +1,28 @@
+# Daily Podcast AI - Dependencies
+
+# RSS 解析
+feedparser>=6.0.10
+requests>=2.31.0
+
+# 配置文件
+PyYAML>=6.0.1
+
+# 音频处理
+pydub>=0.25.1
+
+# ElevenLabs API
+elevenlabs>=1.0.0
+
+# 异步支持
+aiohttp>=3.9.0
+asyncio-throttle>=1.0.2
+
+# 工具
+python-dotenv>=1.0.0
+click>=8.1.7
+
+# 开发依赖
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+ruff>=0.1.0

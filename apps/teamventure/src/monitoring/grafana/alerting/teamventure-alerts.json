@@ -1,0 +1,252 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "TeamVenture Core Alerts",
+      "folder": "TeamVenture Alerts",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "service-down",
+          "title": "Service Down",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "queryType": "",
+              "relativeTimeRange": { "from": 300, "to": 0 },
+              "datasourceUid": "b827ba72-d166-4388-89f0-1556bcd350db",
+              "model": {
+                "expr": "up{job=~\"java-business-service|python-ai-service\"}",
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "queryType": "",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [{ "evaluator": { "params": [], "type": "gt" }, "operator": { "type": "and" }, "query": { "params": ["B"] }, "reducer": { "params": [], "type": "last" }, "type": "query" }],
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce"
+              }
+            },
+            {
+              "refId": "C",
+              "queryType": "",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [{ "evaluator": { "params": [1], "type": "lt" }, "operator": { "type": "and" }, "query": { "params": ["C"] }, "reducer": { "params": [], "type": "last" }, "type": "query" }],
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "B",
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "Alerting",
+          "execErrState": "Alerting",
+          "for": "1m",
+          "annotations": {
+            "description": "Service {{ $labels.job }} is down",
+            "summary": "Critical: Service Down"
+          },
+          "labels": {
+            "severity": "critical"
+          }
+        },
+        {
+          "uid": "high-error-rate",
+          "title": "High Error Rate (>5%)",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "queryType": "",
+              "relativeTimeRange": { "from": 300, "to": 0 },
+              "datasourceUid": "b827ba72-d166-4388-89f0-1556bcd350db",
+              "model": {
+                "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count[5m])) * 100",
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "expression": "A",
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [{ "evaluator": { "params": [5], "type": "gt" } }],
+                "expression": "B",
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "for": "5m",
+          "annotations": {
+            "description": "Error rate is {{ $values.B.Value }}%",
+            "summary": "Warning: High Error Rate"
+          },
+          "labels": {
+            "severity": "warning"
+          }
+        },
+        {
+          "uid": "high-latency",
+          "title": "High P95 Latency (>1s)",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 300, "to": 0 },
+              "datasourceUid": "b827ba72-d166-4388-89f0-1556bcd350db",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le)) * 1000",
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "expression": "A",
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [{ "evaluator": { "params": [1000], "type": "gt" } }],
+                "expression": "B",
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "for": "5m",
+          "annotations": {
+            "description": "P95 latency is {{ $values.B.Value }}ms",
+            "summary": "Warning: High Latency"
+          },
+          "labels": {
+            "severity": "warning"
+          }
+        },
+        {
+          "uid": "jvm-heap-high",
+          "title": "JVM Heap Usage High (>85%)",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 300, "to": 0 },
+              "datasourceUid": "b827ba72-d166-4388-89f0-1556bcd350db",
+              "model": {
+                "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / sum(jvm_memory_max_bytes{area=\"heap\"}) * 100",
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "expression": "A",
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [{ "evaluator": { "params": [85], "type": "gt" } }],
+                "expression": "B",
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "for": "5m",
+          "annotations": {
+            "description": "JVM Heap usage is {{ $values.B.Value }}%",
+            "summary": "Warning: High JVM Heap Usage"
+          },
+          "labels": {
+            "severity": "warning"
+          }
+        },
+        {
+          "uid": "llm-cost-high",
+          "title": "LLM Daily Cost High (>$10)",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 86400, "to": 0 },
+              "datasourceUid": "b827ba72-d166-4388-89f0-1556bcd350db",
+              "model": {
+                "expr": "increase(llm_estimated_cost_usd_total[24h])",
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "expression": "A",
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [{ "evaluator": { "params": [10], "type": "gt" } }],
+                "expression": "B",
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "for": "10m",
+          "annotations": {
+            "description": "24h LLM cost is ${{ $values.B.Value }}",
+            "summary": "Warning: High LLM Cost"
+          },
+          "labels": {
+            "severity": "warning"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -171,6 +171,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- OSS (MinIO / S3-compatible) -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.17</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

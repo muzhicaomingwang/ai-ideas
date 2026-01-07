@@ -1,0 +1,24 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Design Tokens",
+  "description": "TeamVenture小程序设计系统变量",
+  "version": "1.0.0",
+  "platform": "wechat-miniprogram",
+
+  "files": {
+    "colors": "./colors.json",
+    "typography": "./typography.json",
+    "spacing": "./spacing.json",
+    "radius": "./radius.json",
+    "shadows": "./shadows.json",
+    "components": "./components.json"
+  },
+
+  "meta": {
+    "designUnit": "rpx",
+    "baseSize": "750rpx viewport width",
+    "gridSize": "8rpx",
+    "figmaLink": "",
+    "lastUpdated": "2026-01-05"
+  }
+}

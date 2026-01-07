@@ -8,6 +8,16 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 
+/**
+ * 方案实体（plans 表）
+ *
+ * 字段语义说明：
+ * - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
+ * - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+ *
+ * 前端显示格式："{departure_city} → {destination}"
+ * 示例：上海市 → 杭州千岛湖
+ */
 @TableName("plans")
 public class PlanPO {
     @TableId
@@ -24,12 +34,17 @@ public class PlanPO {
     private BigDecimal budget_total;
     private BigDecimal budget_per_person;
     private Integer duration_days;
+    /** 出发城市（团队从哪里出发，如公司所在地：上海市） */
     private String departure_city;
+    /** 目的地（团建活动举办地点，如：杭州千岛湖） */
     private String destination;
     private String status;
+    private Instant create_time;
     private Instant confirmed_time;
     private Instant deleted_at;
     private Instant archived_at;
+    /** 通晒开始时间（draft → reviewing 时设置） */
+    private Instant review_started_at;
 
     public static PlanPO fromMap(Map<String, Object> m) {
         PlanPO po = new PlanPO();
@@ -62,6 +77,8 @@ public class PlanPO {
     public void setPlanType(String v) { this.plan_type = v; }
     public String getStatus() { return status; }
     public void setStatus(String v) { this.status = v; }
+    public Instant getCreateTime() { return create_time; }
+    public void setCreateTime(Instant v) { this.create_time = v; }
     public Instant getConfirmedTime() { return confirmed_time; }
     public void setConfirmedTime(Instant v) { this.confirmed_time = v; }
     public java.math.BigDecimal getBudgetTotal() { return budget_total; }
@@ -99,5 +116,8 @@ public class PlanPO {
 
     public Instant getArchivedAt() { return archived_at; }
     public void setArchivedAt(Instant v) { this.archived_at = v; }
+
+    public Instant getReviewStartedAt() { return review_started_at; }
+    public void setReviewStartedAt(Instant v) { this.review_started_at = v; }
 }
 

@@ -1,6 +1,7 @@
 package com.teamventure.app.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.teamventure.adapter.web.plans.PlanController.GenerateRequest;
 import com.teamventure.adapter.web.plans.PlanController.GenerateResponse;
@@ -64,6 +65,7 @@ public class PlanService {
         po.setStartDate(req.start_date);
         po.setEndDate(req.end_date);
         po.setDepartureCity(req.departure_city);
+        po.setDestination(req.destination);
         po.setPreferencesJson(req.preferences == null ? "{}" : Jsons.toJson(req.preferences));
         po.setStatus("GENERATING");
         po.setGenerationStartedAt(Instant.now());
@@ -80,6 +82,7 @@ public class PlanService {
         mq.put("start_date", req.start_date);
         mq.put("end_date", req.end_date);
         mq.put("departure_city", req.departure_city);
+        mq.put("destination", req.destination);
         mq.put("preferences", req.preferences == null ? Map.of() : req.preferences);
         mq.put("trace_id", IdGenerator.newId("trace"));
 
@@ -89,105 +92,149 @@ public class PlanService {
 
     private static final int GENERATION_TIMEOUT_MINUTES = 5;
 
-    public Map<String, Object> listPlans(String userId, int page, int pageSize) {
-        // 1. 查询 GENERATING 和 FAILED 状态的请求（排除已删除）
-        List<PlanRequestPO> pendingRequests = planRequestMapper.selectList(
-                new QueryWrapper<PlanRequestPO>()
-                        .eq("user_id", userId)
-                        .in("status", List.of("GENERATING", "FAILED"))
-                        .isNull("deleted_at")
-                        .orderByDesc("create_time")
-        );
-
-        // 1.1 自动标记超时的 GENERATING 请求为 FAILED
-        Instant timeoutThreshold = Instant.now().minusSeconds(GENERATION_TIMEOUT_MINUTES * 60);
-        for (PlanRequestPO req : pendingRequests) {
-            if ("GENERATING".equals(req.getStatus()) && req.getGenerationStartedAt() != null
-                    && req.getGenerationStartedAt().isBefore(timeoutThreshold)) {
-                req.setStatus("FAILED");
-                req.setErrorCode("GENERATION_TIMEOUT");
-                req.setErrorMessage("方案生成超时，请重新提交");
-                planRequestMapper.updateById(req);
-            }
-        }
-
-        // 2. 查询已生成的方案（排除已删除和已归档）
-        Page<PlanPO> p = new Page<>(page, pageSize);
-        Page<PlanPO> plansPage = planMapper.selectPage(
-                p,
-                new QueryWrapper<PlanPO>()
-                        .eq("user_id", userId)
-                        .isNull("deleted_at")
-                        .isNull("archived_at")
-                        .orderByDesc("create_time")
-        );
-
-        // 3. 合并结果（生成中的排在前面）
+    /**
+     * 查询方案列表，支持按状态筛选
+     *
+     * @param userId   用户ID
+     * @param page     页码
+     * @param pageSize 每页大小
+     * @param status   状态筛选：draft/confirmed/generating/failed，null表示全部
+     * @return 分页结果
+     */
+    public Map<String, Object> listPlans(String userId, int page, int pageSize, String status) {
         List<Map<String, Object>> mergedList = new ArrayList<>();
+        long totalPending = 0;
 
-        // 添加生成中/失败的请求（转换为统一格式）
-        for (PlanRequestPO req : pendingRequests) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("plan_id", req.getPlanRequestId()); // 用 plan_request_id 作为 plan_id
-            item.put("plan_request_id", req.getPlanRequestId());
-            boolean isGenerating = "GENERATING".equals(req.getStatus());
-            item.put("plan_name", isGenerating ? "方案生成中..." : "生成失败");
-            item.put("status", req.getStatus().toLowerCase());
-            item.put("people_count", req.getPeopleCount());
-            item.put("budget_total", req.getBudgetMax());
-            item.put("start_date", req.getStartDate());
-            item.put("end_date", req.getEndDate());
-            item.put("departure_city", req.getDepartureCity());
-            item.put("destination", req.getDestination());
-            item.put("created_at", req.getGenerationStartedAt());
-            item.put("is_generating", isGenerating);
-            mergedList.add(item);
-        }
+        // 1. 处理 generating/failed 状态（来自 plan_requests 表）
+        boolean needPendingRequests = status == null || "generating".equalsIgnoreCase(status) || "failed".equalsIgnoreCase(status);
+        if (needPendingRequests) {
+            QueryWrapper<PlanRequestPO> pendingQuery = new QueryWrapper<PlanRequestPO>()
+                    .eq("user_id", userId)
+                    .isNull("deleted_at")
+                    .orderByDesc("create_time");
 
-        // 添加已生成的方案
-        // 先收集所有 plan_request_id，批量查询关联信息
-        List<String> planRequestIds = plansPage.getRecords().stream()
-                .map(PlanPO::getPlanRequestId)
-                .filter(id -> id != null)
-                .toList();
-        Map<String, PlanRequestPO> requestMap = new HashMap<>();
-        if (!planRequestIds.isEmpty()) {
-            List<PlanRequestPO> requests = planRequestMapper.selectList(
-                    new QueryWrapper<PlanRequestPO>().in("plan_request_id", planRequestIds)
-            );
-            for (PlanRequestPO req : requests) {
-                requestMap.put(req.getPlanRequestId(), req);
+            // 根据 status 筛选
+            if ("generating".equalsIgnoreCase(status)) {
+                pendingQuery.eq("status", "GENERATING");
+            } else if ("failed".equalsIgnoreCase(status)) {
+                pendingQuery.eq("status", "FAILED");
+            } else {
+                // 全部：包含 GENERATING 和 FAILED
+                pendingQuery.in("status", List.of("GENERATING", "FAILED"));
             }
-        }
 
-        for (PlanPO plan : plansPage.getRecords()) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("plan_id", plan.getPlanId());
-            item.put("plan_request_id", plan.getPlanRequestId());
-            item.put("plan_name", plan.getPlanName());
-            item.put("status", plan.getStatus());
-            item.put("plan_type", plan.getPlanType());
-            item.put("budget_total", plan.getBudgetTotal());
-            item.put("duration_days", plan.getDurationDays());
-            item.put("departure_city", plan.getDepartureCity());
-            item.put("destination", plan.getDestination());
-            // 从 plan_request 获取额外信息
-            PlanRequestPO req = requestMap.get(plan.getPlanRequestId());
-            if (req != null) {
+            List<PlanRequestPO> pendingRequests = planRequestMapper.selectList(pendingQuery);
+
+            // 自动标记超时的 GENERATING 请求为 FAILED
+            Instant timeoutThreshold = Instant.now().minusSeconds(GENERATION_TIMEOUT_MINUTES * 60);
+            for (PlanRequestPO req : pendingRequests) {
+                if ("GENERATING".equals(req.getStatus()) && req.getGenerationStartedAt() != null
+                        && req.getGenerationStartedAt().isBefore(timeoutThreshold)) {
+                    req.setStatus("FAILED");
+                    req.setErrorCode("GENERATION_TIMEOUT");
+                    req.setErrorMessage("方案生成超时，请重新提交");
+                    planRequestMapper.updateById(req);
+                }
+            }
+
+            // 转换为统一格式
+            for (PlanRequestPO req : pendingRequests) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("plan_id", req.getPlanRequestId());
+                item.put("plan_request_id", req.getPlanRequestId());
+                boolean isGenerating = "GENERATING".equals(req.getStatus());
+                item.put("plan_name", isGenerating ? "方案生成中..." : "生成失败");
+                item.put("status", req.getStatus().toLowerCase());
                 item.put("people_count", req.getPeopleCount());
+                item.put("budget_total", req.getBudgetMax());
                 item.put("start_date", req.getStartDate());
                 item.put("end_date", req.getEndDate());
-            } else {
-                item.put("people_count", null);
+                item.put("departure_city", req.getDepartureCity());
+                item.put("destination", req.getDestination());
+                item.put("created_at", req.getGenerationStartedAt());
+                item.put("is_generating", isGenerating);
+                mergedList.add(item);
             }
-            item.put("is_generating", false);
-            mergedList.add(item);
+            totalPending = pendingRequests.size();
         }
 
-        // 4. 返回结果
+        // 2. 处理 draft/reviewing/confirmed 状态（来自 plans 表）
+        boolean needPlans = status == null || "draft".equalsIgnoreCase(status)
+                || "reviewing".equalsIgnoreCase(status) || "confirmed".equalsIgnoreCase(status);
+        Page<PlanPO> plansPage = new Page<>(page, pageSize);
+        if (needPlans) {
+            QueryWrapper<PlanPO> planQuery = new QueryWrapper<PlanPO>()
+                    .eq("user_id", userId)
+                    .isNull("deleted_at")
+                    .isNull("archived_at");
+
+            // 根据 status 筛选
+            if ("draft".equalsIgnoreCase(status)) {
+                planQuery.eq("status", "draft");
+                planQuery.orderByDesc("create_time");
+            } else if ("reviewing".equalsIgnoreCase(status)) {
+                planQuery.eq("status", "reviewing");
+                planQuery.orderByDesc("review_started_at");
+            } else if ("confirmed".equalsIgnoreCase(status)) {
+                planQuery.eq("status", "confirmed");
+                planQuery.orderByDesc("confirmed_time");
+            } else {
+                // 全部：confirmed 置顶，reviewing 次之，然后按 create_time 倒序
+                // 注意：MyBatis-Plus 的 orderByAsc/orderByDesc 仅支持列名；传入表达式可能触发 SQL 注入校验或生成非法 SQL，导致 500。
+                // 这里用 last() 追加固定的 ORDER BY 片段（无用户输入），保证“全部”列表也稳定可用。
+                planQuery.last("ORDER BY CASE WHEN status = 'confirmed' THEN 0 WHEN status = 'reviewing' THEN 1 ELSE 2 END ASC, create_time DESC");
+            }
+
+            plansPage = planMapper.selectPage(new Page<>(page, pageSize), planQuery);
+
+            // 批量查询关联的 plan_request 信息
+            List<String> planRequestIds = plansPage.getRecords().stream()
+                    .map(PlanPO::getPlanRequestId)
+                    .filter(id -> id != null)
+                    .toList();
+            Map<String, PlanRequestPO> requestMap = new HashMap<>();
+            if (!planRequestIds.isEmpty()) {
+                List<PlanRequestPO> requests = planRequestMapper.selectList(
+                        new QueryWrapper<PlanRequestPO>().in("plan_request_id", planRequestIds)
+                );
+                for (PlanRequestPO req : requests) {
+                    requestMap.put(req.getPlanRequestId(), req);
+                }
+            }
+
+            // 转换为统一格式
+            for (PlanPO plan : plansPage.getRecords()) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("plan_id", plan.getPlanId());
+                item.put("plan_request_id", plan.getPlanRequestId());
+                item.put("plan_name", plan.getPlanName());
+                item.put("status", plan.getStatus());
+                item.put("plan_type", plan.getPlanType());
+                item.put("budget_total", plan.getBudgetTotal());
+                item.put("duration_days", plan.getDurationDays());
+                item.put("departure_city", plan.getDepartureCity());
+                item.put("destination", plan.getDestination());
+                item.put("confirmed_time", plan.getConfirmedTime());
+                item.put("review_started_at", plan.getReviewStartedAt());
+                item.put("create_time", plan.getCreateTime());
+                // 从 plan_request 获取额外信息
+                PlanRequestPO req = requestMap.get(plan.getPlanRequestId());
+                if (req != null) {
+                    item.put("people_count", req.getPeopleCount());
+                    item.put("start_date", req.getStartDate());
+                    item.put("end_date", req.getEndDate());
+                } else {
+                    item.put("people_count", null);
+                }
+                item.put("is_generating", false);
+                mergedList.add(item);
+            }
+        }
+
+        // 3. 返回结果
         Map<String, Object> result = new HashMap<>();
         result.put("plans", mergedList);
-        result.put("total", plansPage.getTotal() + pendingRequests.size());
+        result.put("total", plansPage.getTotal() + totalPending);
         result.put("page", page);
         result.put("pageSize", pageSize);
         result.put("hasMore", plansPage.hasNext());
@@ -240,6 +287,10 @@ public class PlanService {
         throw new BizException("NOT_FOUND", "plan not found");
     }
 
+    /**
+     * 确认方案：reviewing → confirmed
+     * 只允许从"通晒中"状态确认方案
+     */
     public void confirmPlan(String userId, String planId) {
         PlanPO plan = planMapper.selectById(planId);
         if (plan == null) {
@@ -248,10 +299,16 @@ public class PlanService {
         if (!userId.equals(plan.getUserId())) {
             throw new BizException("UNAUTHORIZED", "not owner");
         }
-        if ("CONFIRMED".equalsIgnoreCase(plan.getStatus())) {
-            return;
+        if (plan.getDeletedAt() != null) {
+            throw new BizException("NOT_FOUND", "plan not found");
         }
-        plan.setStatus("CONFIRMED");
+        if ("confirmed".equalsIgnoreCase(plan.getStatus())) {
+            return; // 幂等：已确认则直接返回
+        }
+        if (!"reviewing".equalsIgnoreCase(plan.getStatus())) {
+            throw new BizException("INVALID_STATUS", "只有通晒中状态的方案才能确认");
+        }
+        plan.setStatus("confirmed");
         plan.setConfirmedTime(Instant.now());
         planMapper.updateById(plan);
         recordEvent("PlanConfirmed", "Plan", planId, userId, Map.of("plan_id", planId));
@@ -314,8 +371,8 @@ public class PlanService {
     }
 
     /**
-     * 归档方案
-     * 只能归档已生成的方案（不能归档生成中/失败的请求）
+     * 归档方案：confirmed → archived
+     * 只有已确认的方案才能归档
      */
     public void archivePlan(String userId, String planId) {
         PlanPO plan = planMapper.selectById(planId);
@@ -331,9 +388,64 @@ public class PlanService {
         if (plan.getArchivedAt() != null) {
             return; // 幂等：已归档则直接返回
         }
+        if (!"confirmed".equalsIgnoreCase(plan.getStatus())) {
+            throw new BizException("INVALID_STATUS", "只有已确认状态的方案才能归档");
+        }
         plan.setArchivedAt(Instant.now());
+        plan.setStatus("archived");
         planMapper.updateById(plan);
         recordEvent("PlanArchived", "Plan", planId, userId, Map.of("plan_id", planId));
+    }
+
+    /**
+     * 提交通晒：draft → reviewing
+     * 将方案从"制定完成"状态提交到"通晒中"状态
+     */
+    public void submitReview(String userId, String planId) {
+        PlanPO plan = planMapper.selectById(planId);
+        if (plan == null) {
+            throw new BizException("NOT_FOUND", "plan not found");
+        }
+        if (!userId.equals(plan.getUserId())) {
+            throw new BizException("UNAUTHORIZED", "not owner");
+        }
+        if (plan.getDeletedAt() != null) {
+            throw new BizException("NOT_FOUND", "plan not found");
+        }
+        if (!"draft".equalsIgnoreCase(plan.getStatus())) {
+            throw new BizException("INVALID_STATUS", "只有制定完成状态的方案才能提交通晒");
+        }
+        plan.setStatus("reviewing");
+        plan.setReviewStartedAt(Instant.now());
+        planMapper.updateById(plan);
+        recordEvent("PlanSubmittedForReview", "Plan", planId, userId, Map.of("plan_id", planId));
+    }
+
+    /**
+     * 回退通晒：confirmed → reviewing
+     * 将已确认的方案回退到通晒中状态（允许重新修改）
+     */
+    public void revertReview(String userId, String planId) {
+        PlanPO plan = planMapper.selectById(planId);
+        if (plan == null) {
+            throw new BizException("NOT_FOUND", "plan not found");
+        }
+        if (!userId.equals(plan.getUserId())) {
+            throw new BizException("UNAUTHORIZED", "not owner");
+        }
+        if (plan.getDeletedAt() != null) {
+            throw new BizException("NOT_FOUND", "plan not found");
+        }
+        if (!"confirmed".equalsIgnoreCase(plan.getStatus())) {
+            throw new BizException("INVALID_STATUS", "只有已确认状态的方案才能回退通晒");
+        }
+        // 使用 UpdateWrapper 显式将 confirmed_time 设为 null
+        UpdateWrapper<PlanPO> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("plan_id", planId)
+                .set("status", "reviewing")
+                .set("confirmed_time", null);
+        planMapper.update(null, updateWrapper);
+        recordEvent("PlanRevertedToReview", "Plan", planId, userId, Map.of("plan_id", planId));
     }
 
     /**
@@ -352,7 +464,9 @@ public class PlanService {
         result.put("budget_per_person", plan.getBudgetPerPerson());
         result.put("duration_days", plan.getDurationDays());
         result.put("departure_city", plan.getDepartureCity());
+        result.put("destination", plan.getDestination());
         result.put("confirmed_time", plan.getConfirmedTime());
+        result.put("review_started_at", plan.getReviewStartedAt());
 
         // 解析 JSON 字符串字段
         result.put("highlights", Jsons.toStringList(plan.getHighlights())); // highlights 是字符串数组
@@ -378,4 +492,3 @@ public class PlanService {
         eventMapper.insert(evt);
     }
 }
-

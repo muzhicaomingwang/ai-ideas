@@ -1,0 +1,46 @@
+bgm:
+  background_music: assets/bgm/background.mp3
+  background_volume: 0.1
+  enabled: false
+  intro_music: assets/bgm/intro.mp3
+  outro_music: assets/bgm/outro.mp3
+elevenlabs:
+  api_key_env: ELEVENLABS_API_KEY
+  default_voice: Josh
+  model_id: eleven_multilingual_v3
+  voice_id: ''
+  voice_settings:
+    similarity_boost: 0.75
+    stability: 0.5
+    style: 0.0
+    use_speaker_boost: true
+output:
+  directory: output
+  filename_template: daily-podcast-{date}.mp3
+  format: mp3_44100_128
+script:
+  intro_template: '大家好，欢迎收听今日科技早报。今天是{date}，我是你的AI播报员。
+
+    接下来为大家带来今天的科技新闻。
+
+    '
+  outro_template: '以上就是今天的全部新闻内容。
+
+    感谢收听今日科技早报，我们明天同一时间再见。
+
+    '
+  transitions:
+  - 接下来是下一条新闻。
+  - 让我们来看下一条消息。
+  - 继续关注今天的其他新闻。
+  - 下面是另一条值得关注的新闻。
+  - 接着来看这条新闻。
+tts:
+  voice_id: OjkyUe8dIihIFvOisuvM
+voice_cloning:
+  mode: instant
+  sample_files:
+  - samples/my_voice_sample_1.mp3
+  - samples/my_voice_sample_2.mp3
+  voice_description: 我的播客声音
+  voice_name: MyPodcastVoice

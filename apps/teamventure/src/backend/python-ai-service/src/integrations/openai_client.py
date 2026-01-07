@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import Any
 
 from openai import AsyncOpenAI
 
 from src.models.config import settings
+from src.utils.llm_metrics import record_llm_call
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,7 @@ class OpenAIClient:
             raise RuntimeError("OPENAI_API_KEY is not configured")
 
         client = AsyncOpenAI(api_key=self._api_key)
+        start_time = time.perf_counter()
 
         try:
             response = await client.chat.completions.create(
@@ -52,8 +55,39 @@ class OpenAIClient:
                     {"role": "user", "content": prompt},
                 ],
             )
+            duration = time.perf_counter() - start_time
+
+            # Record metrics
+            usage = response.usage
+            input_tokens = usage.prompt_tokens if usage else 0
+            output_tokens = usage.completion_tokens if usage else 0
+
+            record_llm_call(
+                model=self._model,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                duration_seconds=duration,
+                status="success",
+            )
+
+            logger.info(
+                "OpenAI call completed: model=%s, input_tokens=%d, output_tokens=%d, duration=%.2fs",
+                self._model,
+                input_tokens,
+                output_tokens,
+                duration,
+            )
+
         except Exception:
-            logger.exception("OpenAI call failed")
+            duration = time.perf_counter() - start_time
+            record_llm_call(
+                model=self._model,
+                input_tokens=0,
+                output_tokens=0,
+                duration_seconds=duration,
+                status="error",
+            )
+            logger.exception("OpenAI call failed after %.2fs", duration)
             raise
 
         content = (response.choices[0].message.content or "").strip()

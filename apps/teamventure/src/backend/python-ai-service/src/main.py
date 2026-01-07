@@ -29,6 +29,9 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from src.models.config import settings
 from src.services.mq_consumer import start_mq_consumer, stop_mq_consumer
 
+# Import and initialize LLM metrics with Prometheus REGISTRY
+from src.utils.llm_metrics import init_metrics as init_llm_metrics
+
 # 配置日志
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +49,10 @@ async def lifespan(app: FastAPI):
 
     # 启动时初始化
     try:
+        # Initialize LLM metrics (so they appear in /metrics even before first call)
+        init_llm_metrics(default_model=settings.openai_model)
+        logger.info("✅ LLM metrics initialized")
+
         # 启动MQ消费者
         await start_mq_consumer()
         logger.info("✅ MQ Consumer started")

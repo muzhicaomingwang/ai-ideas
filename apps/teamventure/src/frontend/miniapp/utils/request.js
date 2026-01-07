@@ -1,6 +1,72 @@
 // 网络请求封装
-import { API_BASE_URL, REQUEST_TIMEOUT, STORAGE_KEYS, ERROR_CODES, ERROR_MESSAGES, USE_MOCK_DATA, API_ENDPOINTS } from './config.js'
+import { API_BASE_URL, CURRENT_ENV, REQUEST_TIMEOUT, STORAGE_KEYS, ERROR_CODES, ERROR_MESSAGES, USE_MOCK_DATA, API_ENDPOINTS } from './config.js'
 import { mockPlans } from './mock-data.js'
+
+let unauthorizedRedirectInProgress = false
+let tokenRefreshInProgress = null // Promise for ongoing refresh, prevents concurrent refreshes
+
+/**
+ * 刷新 Token（如果即将过期）
+ * 后端会判断是否需要刷新，返回新 token 或 null
+ */
+async function refreshTokenIfNeeded() {
+  const sessionToken = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN)
+  if (!sessionToken) {
+    return false
+  }
+
+  // 防止并发刷新
+  if (tokenRefreshInProgress) {
+    return tokenRefreshInProgress
+  }
+
+  tokenRefreshInProgress = new Promise((resolve) => {
+    const fullUrl = `${API_BASE_URL}${API_ENDPOINTS.USER_REFRESH}`
+
+    wx.request({
+      url: fullUrl,
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      timeout: 10000,
+      success: (res) => {
+        if (res.statusCode === 200 && res.data && res.data.success) {
+          const data = res.data.data
+          // 后端返回 null 表示 token 仍然有效，无需刷新
+          if (data && data.sessionToken) {
+            // 更新存储的 token 和用户信息
+            wx.setStorageSync(STORAGE_KEYS.SESSION_TOKEN, data.sessionToken)
+            if (data.userInfo) {
+              wx.setStorageSync(STORAGE_KEYS.USER_INFO, data.userInfo)
+            }
+            console.log('[Token] 已自动刷新')
+            resolve(true)
+          } else {
+            console.log('[Token] 仍然有效，无需刷新')
+            resolve(true)
+          }
+        } else if (res.statusCode === 401) {
+          console.log('[Token] 刷新失败，需要重新登录')
+          resolve(false)
+        } else {
+          console.log('[Token] 刷新请求异常:', res.statusCode)
+          resolve(true) // 非 401 错误不阻止后续请求
+        }
+      },
+      fail: (error) => {
+        console.warn('[Token] 刷新请求失败:', { env: CURRENT_ENV, url: fullUrl, error })
+        resolve(true) // 网络错误不阻止后续请求
+      },
+      complete: () => {
+        tokenRefreshInProgress = null
+      }
+    })
+  })
+
+  return tokenRefreshInProgress
+}
 
 /**
  * 统一请求方法
@@ -10,13 +76,26 @@ import { mockPlans } from './mock-data.js'
  * @param {Object} options - 其他配置
  * @returns {Promise}
  */
-function request(url, method = 'GET', data = {}, options = {}) {
-  return new Promise((resolve, reject) => {
-    // 🧪 测试模式：使用模拟数据
-    if (USE_MOCK_DATA) {
-      return handleMockRequest(url, method, data, options, resolve, reject)
+async function request(url, method = 'GET', data = {}, options = {}) {
+  // 🧪 测试模式：使用模拟数据
+  if (USE_MOCK_DATA) {
+    return new Promise((resolve, reject) => {
+      handleMockRequest(url, method, data, options, resolve, reject)
+    })
+  }
+
+  // 在请求前尝试刷新 Token（跳过登录和刷新请求本身）
+  if (url !== API_ENDPOINTS.USER_LOGIN && url !== API_ENDPOINTS.USER_REFRESH) {
+    const refreshResult = await refreshTokenIfNeeded()
+    if (refreshResult === false) {
+      // Token 无效且刷新失败，需要重新登录
+      handleUnauthorized()
+      return Promise.reject({ code: ERROR_CODES.UNAUTHORIZED, message: ERROR_MESSAGES[ERROR_CODES.UNAUTHORIZED] })
     }
-    // 获取 session token
+  }
+
+  return new Promise((resolve, reject) => {
+    // 获取 session token（刷新后可能已更新）
     const sessionToken = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN)
 
     // 构建完整 URL
@@ -83,11 +162,16 @@ function request(url, method = 'GET', data = {}, options = {}) {
           wx.hideLoading()
         }
 
-        console.error(`[API ${method}] ${url} 失败:`, error)
+        console.error(`[API ${method}] ${url} 失败:`, { env: CURRENT_ENV, baseUrl: API_BASE_URL, fullUrl, error })
 
         // 判断错误类型
         let errorCode = ERROR_CODES.NETWORK_ERROR
         let errorMsg = ERROR_MESSAGES[ERROR_CODES.NETWORK_ERROR]
+
+        const rawErrMsg = error?.errMsg || ''
+        if (/ECONNREFUSED|ERR_CONNECTION_REFUSED/i.test(rawErrMsg)) {
+          errorMsg = `连接被拒绝：后端服务未启动或端口不可达（${API_BASE_URL}）`
+        }
 
         if (error.errMsg && error.errMsg.includes('timeout')) {
           errorCode = ERROR_CODES.TIMEOUT
@@ -212,6 +296,9 @@ function handleError(message, code, options) {
  * 处理未授权（跳转到登录页）
  */
 function handleUnauthorized() {
+  if (unauthorizedRedirectInProgress) return
+  unauthorizedRedirectInProgress = true
+
   // 清除登录信息
   wx.removeStorageSync(STORAGE_KEYS.SESSION_TOKEN)
   wx.removeStorageSync(STORAGE_KEYS.USER_INFO)
@@ -223,12 +310,18 @@ function handleUnauthorized() {
     duration: 2000
   })
 
-  // 跳转到登录页
-  setTimeout(() => {
-    wx.redirectTo({
-      url: '/pages/login/login'
-    })
-  }, 2000)
+  // 立即跳转到登录页，避免多次 401 堆积导致“刚登录又被跳回登录页”
+  const resetFlag = () => {
+    setTimeout(() => {
+      unauthorizedRedirectInProgress = false
+    }, 500)
+  }
+
+  wx.reLaunch({
+    url: '/pages/login/login',
+    success: resetFlag,
+    fail: resetFlag
+  })
 }
 
 /**

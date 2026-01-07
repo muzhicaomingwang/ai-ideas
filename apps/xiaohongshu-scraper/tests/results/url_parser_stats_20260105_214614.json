@@ -1,0 +1,63 @@
+{
+  "total": 1000,
+  "correct": 1000,
+  "incorrect": 0,
+  "by_type": {
+    "discovery": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "explore_with_params": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "explore": {
+      "total": 400,
+      "correct": 400,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink_a": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "invalid_domain": {
+      "total": 30,
+      "correct": 30,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "empty": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "invalid_format": {
+      "total": 30,
+      "correct": 30,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "malformed": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    }
+  },
+  "errors": [],
+  "accuracy": 100.0
+}

@@ -16,3 +16,14 @@
 *.env.local
 
 # 注意：.env.dev、.env.beta、.env.prod 作为环境配置模板提交到仓库
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Outlook AI sorter (local auth/state)
+scripts/outlook_ai_sorter/.outlook_token_cache.bin
+scripts/outlook_ai_sorter/.outlook_ai_sorter_state.json
+scripts/outlook_ai_sorter/rule_proposals.json

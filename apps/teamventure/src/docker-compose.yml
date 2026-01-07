@@ -1,22 +1,4 @@
 services:
-  # Nginx API Gateway（TeamVenture）
-  nginx:
-    image: nginx:1.24-alpine
-    container_name: teamventure-nginx
-    ports:
-      - "${NGINX_HTTP_PORT:-80}:80"
-      - "${NGINX_HTTPS_PORT:-443}:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      java-business-service:
-        condition: service_started
-      python-ai-service:
-        condition: service_started
-    networks:
-      - teamventure-network
-
   # Java 业务服务（Spring Boot）
   java-business-service:
     build:
@@ -41,7 +23,7 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - teamventure-network
+      - apps-shared-network
 
   # Python AI 服务（FastAPI）
   python-ai-service:
@@ -78,7 +60,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - teamventure-network
+      - apps-shared-network
 
   # MySQL 主库
   mysql-master:
@@ -94,7 +76,7 @@ services:
       - mysql-master-data:/var/lib/mysql
       - ./database/schema:/docker-entrypoint-initdb.d
     networks:
-      - teamventure-network
+      - apps-shared-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root123456}"]
       interval: 10s
@@ -115,7 +97,7 @@ services:
       - mysql-slave-data:/var/lib/mysql
     command: --server-id=2 --relay-log=mysql-relay-bin
     networks:
-      - teamventure-network
+      - apps-shared-network
     depends_on:
       mysql-master:
         condition: service_healthy
@@ -135,7 +117,7 @@ services:
       - redis-data:/data
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123456}
     networks:
-      - teamventure-network
+      - apps-shared-network
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis123456}", "ping"]
       interval: 10s
@@ -155,12 +137,57 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
-      - teamventure-network
+      - apps-shared-network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 20s
       retries: 5
+
+  # ==================== OSS (MinIO) ====================
+  # S3-compatible object storage for avatars and itinerary images
+  minio:
+    image: minio/minio:latest
+    container_name: teamventure-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123456}
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - apps-shared-network
+
+  # Initialize buckets & basic policy (idempotent)
+  minio-init:
+    image: minio/mc:latest
+    container_name: teamventure-minio-init
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123456}
+      MINIO_BUCKET_AVATARS: ${MINIO_BUCKET_AVATARS:-avatars}
+      MINIO_BUCKET_ITINERARY: ${MINIO_BUCKET_ITINERARY:-itinerary}
+      MINIO_BUCKET_AVATARS_PUBLIC: ${MINIO_BUCKET_AVATARS_PUBLIC:-0}
+    entrypoint: >
+      /bin/sh -lc "
+      until mc alias set local http://minio:9000 \"$MINIO_ROOT_USER\" \"$MINIO_ROOT_PASSWORD\" >/dev/null 2>&1; do
+        echo 'waiting for minio...'; sleep 2;
+      done;
+      mc mb -p \"local/$MINIO_BUCKET_AVATARS\" >/dev/null 2>&1 || true;
+      mc mb -p \"local/$MINIO_BUCKET_ITINERARY\" >/dev/null 2>&1 || true;
+      if [ \"$MINIO_BUCKET_AVATARS_PUBLIC\" = \"1\" ]; then
+        mc anonymous set download \"local/$MINIO_BUCKET_AVATARS\" >/dev/null 2>&1 || true;
+      fi;
+      mc anonymous set download \"local/$MINIO_BUCKET_ITINERARY\" >/dev/null 2>&1 || true;
+      echo 'minio init done';
+      "
+    networks:
+      - apps-shared-network
 
   # ==================== MONITORING STACK ====================
   prometheus:
@@ -175,7 +202,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     networks:
-      - teamventure-network
+      - apps-shared-network
 
   grafana:
     image: grafana/grafana:10.2.2
@@ -188,7 +215,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
-      - teamventure-network
+      - apps-shared-network
 
   node-exporter:
     image: prom/node-exporter:v1.7.0
@@ -206,7 +233,7 @@ services:
       - '--path.rootfs=/rootfs'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - teamventure-network
+      - apps-shared-network
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
@@ -219,19 +246,29 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     networks:
-      - teamventure-network
-  
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter:1.1.0
-    container_name: teamventure-nginx-exporter
+      - apps-shared-network
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.1
+    container_name: teamventure-mysql-exporter
     ports:
-      - "9113:9113"
+      - "9104:9104"
     environment:
-      - NGINX_SCRAPE_URI=http://nginx/stub_status
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123456}
+    command:
+      - '--mysqld.address=mysql-master:3306'
+      - '--mysqld.username=root'
+      - '--collect.info_schema.innodb_metrics'
+      - '--collect.info_schema.tables'
+      - '--collect.info_schema.processlist'
+      - '--collect.global_status'
+      - '--collect.global_variables'
+      - '--collect.slave_status'
     depends_on:
-      - nginx
+      mysql-master:
+        condition: service_healthy
     networks:
-      - teamventure-network
+      - apps-shared-network
 
 volumes:
   mysql-master-data:
@@ -242,11 +279,13 @@ volumes:
     driver: local
   rabbitmq-data:
     driver: local
+  minio-data:
+    driver: local
   prometheus-data:
     driver: local
   grafana-data:
     driver: local
 
 networks:
-  teamventure-network:
-    driver: bridge
+  apps-shared-network:
+    external: true

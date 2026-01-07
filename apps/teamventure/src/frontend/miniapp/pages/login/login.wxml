@@ -34,6 +34,11 @@
       <text class="wechat-icon">🔐</text>
       <text>微信一键登录</text>
     </button>
+    <!-- 游客入口 -->
+    <view class="guest-entry" bindtap="handleGuestMode">
+      <text class="guest-text">先逛逛</text>
+      <text class="guest-arrow">→</text>
+    </view>
   </view>
 
   <!-- 用户信息填写表单 -->
@@ -61,6 +66,7 @@
         type="nickname"
         placeholder="请输入昵称"
         value="{{nickname}}"
+        bindinput="onNicknameInput"
         bindblur="onNicknameBlur"
       />
     </view>

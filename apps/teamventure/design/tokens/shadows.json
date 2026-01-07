@@ -1,0 +1,37 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Shadows",
+  "description": "TeamVenture小程序阴影系统",
+  "version": "1.0.0",
+
+  "shadows": {
+    "none": "none",
+
+    "sm": {
+      "value": "0 2rpx 8rpx rgba(0, 0, 0, 0.06)",
+      "usage": "轻量卡片、列表项"
+    },
+
+    "base": {
+      "value": "0 2rpx 12rpx rgba(0, 0, 0, 0.05)",
+      "usage": "默认卡片阴影"
+    },
+
+    "md": {
+      "value": "0 4rpx 12rpx rgba(0, 0, 0, 0.08)",
+      "usage": "悬浮卡片、快捷操作卡片"
+    },
+
+    "lg": {
+      "value": "0 8rpx 24rpx rgba(0, 0, 0, 0.12)",
+      "usage": "弹窗、模态框"
+    },
+
+    "semantic": {
+      "card": "0 2rpx 12rpx rgba(0, 0, 0, 0.05)",
+      "cardHover": "0 4rpx 12rpx rgba(0, 0, 0, 0.08)",
+      "actionCard": "0 4rpx 12rpx rgba(0, 0, 0, 0.08)",
+      "modal": "0 8rpx 24rpx rgba(0, 0, 0, 0.12)"
+    }
+  }
+}

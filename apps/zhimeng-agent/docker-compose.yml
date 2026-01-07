@@ -1,0 +1,56 @@
+# zhimeng-agent Docker Compose
+# 基于 Obsidian 知识库的智能问答助手
+
+version: '3.8'
+
+services:
+  zhimeng-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zhimeng-agent
+    ports:
+      - "8001:8001"
+    volumes:
+      # ChromaDB 数据持久化
+      - ./data/chroma:/app/data/chroma
+      # Obsidian 知识库挂载（只读）
+      - ~/Documents/Obsidian Vault:/app/obsidian:ro
+    environment:
+      # LLM API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # 知识库路径（容器内路径）
+      - OBSIDIAN_VAULT_PATH=/app/obsidian
+      # ChromaDB 持久化路径
+      - CHROMA_PERSIST_DIR=/app/data/chroma
+      # LLM 配置
+      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
+      - LLM_MODEL=${LLM_MODEL:-claude-sonnet-4-20250514}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.3}
+      # Embedding 配置
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-small}
+      # 飞书配置
+      - FEISHU_APP_ID=${FEISHU_APP_ID}
+      - FEISHU_APP_SECRET=${FEISHU_APP_SECRET}
+      - FEISHU_VERIFICATION_TOKEN=${FEISHU_VERIFICATION_TOKEN}
+      - FEISHU_ENCRYPT_KEY=${FEISHU_ENCRYPT_KEY}
+      # 服务配置
+      - HOST=0.0.0.0
+      - PORT=8001
+      - DEBUG=${DEBUG:-false}
+    env_file:
+      - config/.env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - zhimeng-network
+
+networks:
+  zhimeng-network:
+    driver: bridge

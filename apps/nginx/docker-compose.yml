@@ -1,0 +1,40 @@
+# Apps Gateway - 统一 Nginx 服务
+# 连接所有应用服务的共享网关
+
+services:
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: apps-nginx
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - apps-shared-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/stub_status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Exporter (监控)
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: apps-nginx-exporter
+    ports:
+      - "9113:9113"
+    environment:
+      - NGINX_SCRAPE_URI=http://nginx/stub_status
+    depends_on:
+      - nginx
+    networks:
+      - apps-shared-network
+
+networks:
+  # 共享网络 - 所有应用服务都连接到这个网络
+  apps-shared-network:
+    name: apps-shared-network
+    driver: bridge

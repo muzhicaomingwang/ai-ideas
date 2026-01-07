@@ -5,6 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+/**
+ * 方案请求实体（plan_requests 表）
+ *
+ * 字段语义说明：
+ * - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
+ * - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+ *
+ * 前端显示格式："{departure_city} → {destination}"
+ * 示例：上海市 → 杭州千岛湖
+ */
 @TableName("plan_requests")
 public class PlanRequestPO {
     @TableId
@@ -15,7 +25,9 @@ public class PlanRequestPO {
     private BigDecimal budget_max;
     private String start_date;
     private String end_date;
+    /** 出发城市（团队从哪里出发，如公司所在地：上海市） */
     private String departure_city;
+    /** 目的地（团建活动举办地点，如：杭州千岛湖） */
     private String destination;
     private String preferences;
     private String status;

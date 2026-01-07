@@ -1,5 +1,18 @@
 <!--pages/myplans/myplans.wxml-->
 <view class="myplans-page">
+  <!-- Tab 筛选栏 -->
+  <view class="tabs-container">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{currentTab === item.key ? 'active' : ''}}"
+      bindtap="handleTabChange"
+      data-key="{{item.key}}"
+    >
+      {{item.name}}
+    </view>
+  </view>
+
   <!-- 加载状态 -->
   <view class="loading-state" wx:if="{{loading}}">
     <view class="loading-icon">⏳</view>

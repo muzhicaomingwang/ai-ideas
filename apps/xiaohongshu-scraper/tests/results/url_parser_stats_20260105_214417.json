@@ -1,0 +1,664 @@
+{
+  "total": 1000,
+  "correct": 897,
+  "incorrect": 103,
+  "by_type": {
+    "explore": {
+      "total": 400,
+      "correct": 400,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink_a": {
+      "total": 100,
+      "correct": 0,
+      "incorrect": 100,
+      "accuracy": 0.0
+    },
+    "invalid_domain": {
+      "total": 30,
+      "correct": 27,
+      "incorrect": 3,
+      "accuracy": 90.0
+    },
+    "invalid_format": {
+      "total": 30,
+      "correct": 30,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "explore_with_params": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "discovery": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "malformed": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "empty": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    }
+  },
+  "errors": [
+    {
+      "url": "http://xhslink.com/a/0pktDeAj",
+      "expected": "0pktDeAj",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/lDBaod08",
+      "expected": "lDBaod08",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/w2bjcWdP",
+      "expected": "w2bjcWdP",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/jiFRWixb",
+      "expected": "jiFRWixb",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/IDjsaHRw",
+      "expected": "IDjsaHRw",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/TXqSjaM4",
+      "expected": "TXqSjaM4",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/yU1MTAHx",
+      "expected": "yU1MTAHx",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/Ax7B4Agj",
+      "expected": "Ax7B4Agj",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/svkfPPFH",
+      "expected": "svkfPPFH",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/ZMmY41gj",
+      "expected": "ZMmY41gj",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/YdD2Dyun",
+      "expected": "YdD2Dyun",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/OhB9livE",
+      "expected": "OhB9livE",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/lTr4AQgk",
+      "expected": "lTr4AQgk",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/N3MVgzAT",
+      "expected": "N3MVgzAT",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/oqlIXLxu",
+      "expected": "oqlIXLxu",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/CUesupsO",
+      "expected": "CUesupsO",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/O0D58xg2",
+      "expected": "O0D58xg2",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/4r547djD",
+      "expected": "4r547djD",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/RkRXk2F1",
+      "expected": "RkRXk2F1",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/nk21nBPh",
+      "expected": "nk21nBPh",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/BZlyMMa2",
+      "expected": "BZlyMMa2",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/W3wyjAs8",
+      "expected": "W3wyjAs8",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/SSAi4aAN",
+      "expected": "SSAi4aAN",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/xJ0CszKA",
+      "expected": "xJ0CszKA",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/aR8jHwqj",
+      "expected": "aR8jHwqj",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/QBzayNcs",
+      "expected": "QBzayNcs",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/qxxZBPyT",
+      "expected": "qxxZBPyT",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/QOBQQtrK",
+      "expected": "QOBQQtrK",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/AMtwJnGi",
+      "expected": "AMtwJnGi",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/FXs5iXxL",
+      "expected": "FXs5iXxL",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/xQ2W5Lf3",
+      "expected": "xQ2W5Lf3",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/SdW4b78K",
+      "expected": "SdW4b78K",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/nXOroxjw",
+      "expected": "nXOroxjw",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/oMlvKBfR",
+      "expected": "oMlvKBfR",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/EkLX3PW6",
+      "expected": "EkLX3PW6",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/dvEIvqES",
+      "expected": "dvEIvqES",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/gTRt2E3q",
+      "expected": "gTRt2E3q",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/u3hAYcsq",
+      "expected": "u3hAYcsq",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/Rqw6GDuP",
+      "expected": "Rqw6GDuP",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/PQJphjrc",
+      "expected": "PQJphjrc",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/uN5dg2V7",
+      "expected": "uN5dg2V7",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/eU9T4Kzh",
+      "expected": "eU9T4Kzh",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/coIRf2Gy",
+      "expected": "coIRf2Gy",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/IZiyFD8Z",
+      "expected": "IZiyFD8Z",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/4iWwNaLP",
+      "expected": "4iWwNaLP",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/EHAbl7WD",
+      "expected": "EHAbl7WD",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/EcyKRNDA",
+      "expected": "EcyKRNDA",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/iIgP7SNV",
+      "expected": "iIgP7SNV",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/UkO2tMix",
+      "expected": "UkO2tMix",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/4seGWtNn",
+      "expected": "4seGWtNn",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/11JjEnbk",
+      "expected": "11JjEnbk",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/vRpr8L0I",
+      "expected": "vRpr8L0I",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/j6fKvu6u",
+      "expected": "j6fKvu6u",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/SSU1kHPh",
+      "expected": "SSU1kHPh",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/0eNKOmJU",
+      "expected": "0eNKOmJU",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/tz8LBuQ3",
+      "expected": "tz8LBuQ3",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/OA2oIew7",
+      "expected": "OA2oIew7",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/MY5AtoqB",
+      "expected": "MY5AtoqB",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/PAZktnRU",
+      "expected": "PAZktnRU",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/ah2S5meV",
+      "expected": "ah2S5meV",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/UuT5kFGq",
+      "expected": "UuT5kFGq",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/h9b896EX",
+      "expected": "h9b896EX",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/jppjIg27",
+      "expected": "jppjIg27",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/Zj46au0s",
+      "expected": "Zj46au0s",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/03kdBu7I",
+      "expected": "03kdBu7I",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/MssrECEI",
+      "expected": "MssrECEI",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/9a05dd0cc62834fd4dd4e179",
+      "expected": null,
+      "actual": "9a05dd0cc62834fd4dd4e179",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "http://xhslink.com/a/BhMfPzIk",
+      "expected": "BhMfPzIk",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/ASssrDK2",
+      "expected": "ASssrDK2",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/9Gs49hbr",
+      "expected": "9Gs49hbr",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/3VaKZlX1",
+      "expected": "3VaKZlX1",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/dvbbD4yc",
+      "expected": "dvbbD4yc",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/ZFJnEDrW",
+      "expected": "ZFJnEDrW",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/fsWHjhQl",
+      "expected": "fsWHjhQl",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/76BwNadf",
+      "expected": "76BwNadf",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/xxHNMVkU",
+      "expected": "xxHNMVkU",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/C9HlpXxw",
+      "expected": "C9HlpXxw",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/5clokHpV",
+      "expected": "5clokHpV",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/FOPhyxCo",
+      "expected": "FOPhyxCo",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/dlmKHRK8",
+      "expected": "dlmKHRK8",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/b06249d20514109e35f35f48",
+      "expected": null,
+      "actual": "b06249d20514109e35f35f48",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "http://xhslink.com/a/2oa7du7Y",
+      "expected": "2oa7du7Y",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/30G5SNMd",
+      "expected": "30G5SNMd",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/fGzhKZ2N",
+      "expected": "fGzhKZ2N",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/RvAWnAA9",
+      "expected": "RvAWnAA9",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/RKF7yfdd",
+      "expected": "RKF7yfdd",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/UGFwQW8z",
+      "expected": "UGFwQW8z",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/LbpdGg1o",
+      "expected": "LbpdGg1o",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/gKw3Ji3Z",
+      "expected": "gKw3Ji3Z",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/FJGMqU8i",
+      "expected": "FJGMqU8i",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/rN6OhLV8",
+      "expected": "rN6OhLV8",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/XaCxSn4F",
+      "expected": "XaCxSn4F",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/dMeodrmW",
+      "expected": "dMeodrmW",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/6NqJsJ7P",
+      "expected": "6NqJsJ7P",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/bd83ca9404fe0ee4402793b3",
+      "expected": null,
+      "actual": "bd83ca9404fe0ee4402793b3",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "http://xhslink.com/a/2FuNdUIc",
+      "expected": "2FuNdUIc",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/tCtjHrVO",
+      "expected": "tCtjHrVO",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/WZbVlym9",
+      "expected": "WZbVlym9",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/boKi2Jch",
+      "expected": "boKi2Jch",
+      "actual": "a",
+      "type": "xhslink_a"
+    },
+    {
+      "url": "http://xhslink.com/a/F6vwheYi",
+      "expected": "F6vwheYi",
+      "actual": "a",
+      "type": "xhslink_a"
+    }
+  ],
+  "accuracy": 89.7
+}

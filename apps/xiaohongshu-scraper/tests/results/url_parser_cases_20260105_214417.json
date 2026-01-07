@@ -1,0 +1,6002 @@
+[
+  {
+    "url": "https://www.xiaohongshu.com/explore/88005e3e2f437a19d9a4e363",
+    "expected_id": "88005e3e2f437a19d9a4e363",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4bf9408e3a5b1b18cecd9984",
+    "expected_id": "4bf9408e3a5b1b18cecd9984",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/0pktDeAj",
+    "expected_id": "0pktDeAj",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/lDBaod08",
+    "expected_id": "lDBaod08",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/68d606f22fa6b9f6cae43fba",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7319c1d0eac75d8c440257e7",
+    "expected_id": "7319c1d0eac75d8c440257e7",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/P3kES8ni",
+    "expected_id": "P3kES8ni",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/w2bjcWdP",
+    "expected_id": "w2bjcWdP",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/379de6c63cddca6a1d603277?xsec_token=ZbLkbw1Z0UirpDgsw8tmlEd2TNj8qF1O",
+    "expected_id": "379de6c63cddca6a1d603277",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/OXE3bvNR",
+    "expected_id": "OXE3bvNR",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/aCMPnuGd",
+    "expected_id": "aCMPnuGd",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/1963d033985edc08ae1baaf1",
+    "expected_id": "1963d033985edc08ae1baaf1",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/4kLsaxZ8",
+    "expected_id": "4kLsaxZ8",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/2XzAOiYb",
+    "expected_id": "2XzAOiYb",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5cf08ab5e800fb4bf16dc29d",
+    "expected_id": "5cf08ab5e800fb4bf16dc29d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/nhigi3FT",
+    "expected_id": "nhigi3FT",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e3468cc9b5090004993e4972",
+    "expected_id": "e3468cc9b5090004993e4972",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/jiFRWixb",
+    "expected_id": "jiFRWixb",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/6d429c790ecac4c6d66b5893",
+    "expected_id": "6d429c790ecac4c6d66b5893",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/53f1444d773939d3f494005f?xsec_token=YW4xv8ZApfE9j7p75vcDk5RhtKSdveNz",
+    "expected_id": "53f1444d773939d3f494005f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/YYIBzIps",
+    "expected_id": "YYIBzIps",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7e9b160349db12f911ff69ec?app_platform=ios&app_version=8.0.0",
+    "expected_id": "7e9b160349db12f911ff69ec",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e6491e9e7bc8443557aa1e9e",
+    "expected_id": "e6491e9e7bc8443557aa1e9e",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/",
+    "expected_id": null,
+    "url_type": "malformed",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8664abddda66853051257985",
+    "expected_id": "8664abddda66853051257985",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1cdb85b99f14c49e7a558f40",
+    "expected_id": "1cdb85b99f14c49e7a558f40",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/032a467c07bd40666c187bd7",
+    "expected_id": "032a467c07bd40666c187bd7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8e690b09fd8459edbb01e91b",
+    "expected_id": "8e690b09fd8459edbb01e91b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e8efd43ab2975328c72bc5fe",
+    "expected_id": "e8efd43ab2975328c72bc5fe",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/jOwez8B8",
+    "expected_id": "jOwez8B8",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/IDjsaHRw",
+    "expected_id": "IDjsaHRw",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/TXqSjaM4",
+    "expected_id": "TXqSjaM4",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/yU1MTAHx",
+    "expected_id": "yU1MTAHx",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c10d46afe71e5c15a7ef2f9c?source=webshare&xhsshare=pc",
+    "expected_id": "c10d46afe71e5c15a7ef2f9c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/abc123/extra/path",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/Ax7B4Agj",
+    "expected_id": "Ax7B4Agj",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/abc123/extra/path",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/EleTY6co",
+    "expected_id": "EleTY6co",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b5c99f2ec9007c2721dbbf2b",
+    "expected_id": "b5c99f2ec9007c2721dbbf2b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6123a874272d2b739c18b465?app_platform=ios&app_version=8.0.0",
+    "expected_id": "6123a874272d2b739c18b465",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://redbook.com/explore/1e235a7629b074ceee155d62",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/HUnASRPJ",
+    "expected_id": "HUnASRPJ",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/91bb7f0d3f8439163c81b15e",
+    "expected_id": "91bb7f0d3f8439163c81b15e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/svkfPPFH",
+    "expected_id": "svkfPPFH",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e4212b04751689be52b6949d",
+    "expected_id": "e4212b04751689be52b6949d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6bf5d9d64ccf92c451ee24c5",
+    "expected_id": "6bf5d9d64ccf92c451ee24c5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/62815e857f3714a58e6de62a",
+    "expected_id": "62815e857f3714a58e6de62a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/be7f259d61268be86b74e0b9",
+    "expected_id": "be7f259d61268be86b74e0b9",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8b588b66c6b9edb8543b626c",
+    "expected_id": "8b588b66c6b9edb8543b626c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1b0841b00759cdc4ff4cd46f",
+    "expected_id": "1b0841b00759cdc4ff4cd46f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f3311beef0b4d9eadaa9ff93",
+    "expected_id": "f3311beef0b4d9eadaa9ff93",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b942fee3cbab026a1a1d41d2",
+    "expected_id": "b942fee3cbab026a1a1d41d2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ff96aefb56780010d1c6e08f?xsec_token=5ORQtTexUhG8WjVaKXpwJnFQdGCjOUi0",
+    "expected_id": "ff96aefb56780010d1c6e08f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ac82c54418c6e24c9251c93b",
+    "expected_id": "ac82c54418c6e24c9251c93b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/cf3adb9d7717e79fd1e1186c",
+    "expected_id": "cf3adb9d7717e79fd1e1186c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/eac178359b0d278516e371cd",
+    "expected_id": "eac178359b0d278516e371cd",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fa58a03bb7a4368b1b2fee2c",
+    "expected_id": "fa58a03bb7a4368b1b2fee2c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e8709783e6e54d507c197467",
+    "expected_id": "e8709783e6e54d507c197467",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8ea10ef867cdc33d1c971553",
+    "expected_id": "8ea10ef867cdc33d1c971553",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bb8f854108d69d73661db1a4",
+    "expected_id": "bb8f854108d69d73661db1a4",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d17447e8f71f0bcd3a7e8864",
+    "expected_id": "d17447e8f71f0bcd3a7e8864",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/9WDYiBeF",
+    "expected_id": "9WDYiBeF",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0f8258e0316a41024da9e36c",
+    "expected_id": "0f8258e0316a41024da9e36c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4bf7cea8b34a5faac9b3d783",
+    "expected_id": "4bf7cea8b34a5faac9b3d783",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/ZMmY41gj",
+    "expected_id": "ZMmY41gj",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/46fdc0d099f1612384e1049a?app_platform=ios&app_version=8.0.0",
+    "expected_id": "46fdc0d099f1612384e1049a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/BDZNCu0r",
+    "expected_id": "BDZNCu0r",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f075440cd48b33294a763dc0",
+    "expected_id": "f075440cd48b33294a763dc0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ae96dabc69886834f8659b9f?app_platform=ios&app_version=8.0.0",
+    "expected_id": "ae96dabc69886834f8659b9f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/qy63DR8G",
+    "expected_id": "qy63DR8G",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a9ac2addf13b591b3be7763c?xsec_token=zw15Yf9ZSCiOvKfgJZtpVroqoR1tUktl",
+    "expected_id": "a9ac2addf13b591b3be7763c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/DeQ4UHFK",
+    "expected_id": "DeQ4UHFK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c07699ba654f41de3b3d4499?xsec_token=BFJjP9FQOMkRf65nvgAru45LRbeevJuR&source=pc",
+    "expected_id": "c07699ba654f41de3b3d4499",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/fqtGGiit",
+    "expected_id": "fqtGGiit",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2994a3ca9c894c2b54f81afc",
+    "expected_id": "2994a3ca9c894c2b54f81afc",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/YdD2Dyun",
+    "expected_id": "YdD2Dyun",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e9b3f5a6826ed210ee75c052",
+    "expected_id": "e9b3f5a6826ed210ee75c052",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3c612b72af8c2b4e60fca9ee",
+    "expected_id": "3c612b72af8c2b4e60fca9ee",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5b530713ece10c7a713f9bd2",
+    "expected_id": "5b530713ece10c7a713f9bd2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/274f5207fdddfa95d4d87189",
+    "expected_id": "274f5207fdddfa95d4d87189",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/1bbf932a9f8b8894ab17b174",
+    "expected_id": "1bbf932a9f8b8894ab17b174",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d43b615e902c125d901cbd63",
+    "expected_id": "d43b615e902c125d901cbd63",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/OhB9livE",
+    "expected_id": "OhB9livE",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/41b9d51565bc1c8997a54e25",
+    "expected_id": "41b9d51565bc1c8997a54e25",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/2d65f8bf3aae65c98cce6653",
+    "expected_id": "2d65f8bf3aae65c98cce6653",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/caffa1edcfc5396476c1aec9",
+    "expected_id": "caffa1edcfc5396476c1aec9",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/81akpGeM",
+    "expected_id": "81akpGeM",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/2249d32d93b520090c473aac",
+    "expected_id": "2249d32d93b520090c473aac",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f2045fd7d70064423aed45da",
+    "expected_id": "f2045fd7d70064423aed45da",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/lTr4AQgk",
+    "expected_id": "lTr4AQgk",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ca27e244ba730f623634b39a",
+    "expected_id": "ca27e244ba730f623634b39a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/N3MVgzAT",
+    "expected_id": "N3MVgzAT",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/667560d757907594f39e5cc9",
+    "expected_id": "667560d757907594f39e5cc9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e217607a9ec1a52288f65525",
+    "expected_id": "e217607a9ec1a52288f65525",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e41548e94aced1e9fc956a67",
+    "expected_id": "e41548e94aced1e9fc956a67",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/AqfyXNuV",
+    "expected_id": "AqfyXNuV",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/ecdx4CxT",
+    "expected_id": "ecdx4CxT",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/H6uPFlZ0",
+    "expected_id": "H6uPFlZ0",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b6fc2e4ad4a8aa7c06a875f6",
+    "expected_id": "b6fc2e4ad4a8aa7c06a875f6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/oqlIXLxu",
+    "expected_id": "oqlIXLxu",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bab0dc648a33ea3181ae3227",
+    "expected_id": "bab0dc648a33ea3181ae3227",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e1f14558982ef6c8e866a35f",
+    "expected_id": "e1f14558982ef6c8e866a35f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4e3f6bc9d7775619788327fd",
+    "expected_id": "4e3f6bc9d7775619788327fd",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dc910abca951fcd956354176",
+    "expected_id": "dc910abca951fcd956354176",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9fe382d355da692bb6854509",
+    "expected_id": "9fe382d355da692bb6854509",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/CUesupsO",
+    "expected_id": "CUesupsO",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/50a17b8124f3a88e3543bc84?xsec_token=vDJKQPpM2zMF3fyltofhDkFbJzcp3VvY&source=pc",
+    "expected_id": "50a17b8124f3a88e3543bc84",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/8fbf143efb6be1e694ebaf74",
+    "expected_id": "8fbf143efb6be1e694ebaf74",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/253707ba9aa3337c0760362b",
+    "expected_id": "253707ba9aa3337c0760362b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/daa8071e8e587befaac93f28",
+    "expected_id": "daa8071e8e587befaac93f28",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/325c2d9a90bb37cb93e9475c",
+    "expected_id": "325c2d9a90bb37cb93e9475c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6089600427f445a2b56455ca",
+    "expected_id": "6089600427f445a2b56455ca",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0d5db4cf5bbd9b44bafe9fae?xsec_token=CEEXCzGQsFIHxpg8Rqrh6cZ3DCiONERw",
+    "expected_id": "0d5db4cf5bbd9b44bafe9fae",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d384e6eb411b8c27f8005fd6",
+    "expected_id": "d384e6eb411b8c27f8005fd6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/O0D58xg2",
+    "expected_id": "O0D58xg2",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0150af61307b11c035d5dbc7?xsec_token=knaNuIgua04x6GljZSd0SOHQf3xHapEt&source=pc",
+    "expected_id": "0150af61307b11c035d5dbc7",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/cfd9c11ac248f4fa16b007a1",
+    "expected_id": "cfd9c11ac248f4fa16b007a1",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/354abbac5d71b92f661c53d2",
+    "expected_id": "354abbac5d71b92f661c53d2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8ef20255a8774f62a2bb9bf8",
+    "expected_id": "8ef20255a8774f62a2bb9bf8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/4r547djD",
+    "expected_id": "4r547djD",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d05e44233aaf296bb44ae8c1",
+    "expected_id": "d05e44233aaf296bb44ae8c1",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4544deb7e38093ddad026f4f",
+    "expected_id": "4544deb7e38093ddad026f4f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/45348e5b856c63703519b92d?source=webshare&xhsshare=pc",
+    "expected_id": "45348e5b856c63703519b92d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b31aa257152fb0b5417f182f",
+    "expected_id": "b31aa257152fb0b5417f182f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/VOWParLj",
+    "expected_id": "VOWParLj",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ed5b6994cd5779ace556232d",
+    "expected_id": "ed5b6994cd5779ace556232d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/07c4c77d14a9a7a67f8e7bc8",
+    "expected_id": "07c4c77d14a9a7a67f8e7bc8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e5c30d4d9eabdf750c8c498f?xsec_token=SG4YegJr4PHERnx0cD8v64KNFxZgh9O3",
+    "expected_id": "e5c30d4d9eabdf750c8c498f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b8645540590d7f87655ed583",
+    "expected_id": "b8645540590d7f87655ed583",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1f3194351ce47f156582efe6",
+    "expected_id": "1f3194351ce47f156582efe6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8c942ac346e581d5fdbcbf2b?app_platform=ios&app_version=8.0.0",
+    "expected_id": "8c942ac346e581d5fdbcbf2b",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1b5eae3d755232cbe35a11c5",
+    "expected_id": "1b5eae3d755232cbe35a11c5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/a29ba2b75e40894aa9eb5021",
+    "expected_id": "a29ba2b75e40894aa9eb5021",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/RkRXk2F1",
+    "expected_id": "RkRXk2F1",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0c6acb09d13db0f22ed66219",
+    "expected_id": "0c6acb09d13db0f22ed66219",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/nk21nBPh",
+    "expected_id": "nk21nBPh",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/3430d9cea8c30380fbf13d1a",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dbbb57b80905e42e9079e5cf",
+    "expected_id": "dbbb57b80905e42e9079e5cf",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "   ",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4d2f4dfc494799be3bb6f01c",
+    "expected_id": "4d2f4dfc494799be3bb6f01c",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/qFqGPbPf",
+    "expected_id": "qFqGPbPf",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/giwxmBDL",
+    "expected_id": "giwxmBDL",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/BZlyMMa2",
+    "expected_id": "BZlyMMa2",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Z9hzPViC",
+    "expected_id": "Z9hzPViC",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/UYcVRuZ0",
+    "expected_id": "UYcVRuZ0",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/29b4000eb27eac7b7776aa34",
+    "expected_id": "29b4000eb27eac7b7776aa34",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "\n\t",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/940b275311f35b5276aa84a8",
+    "expected_id": "940b275311f35b5276aa84a8",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8477f05c5c6d9d02cdd3838e",
+    "expected_id": "8477f05c5c6d9d02cdd3838e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/W3wyjAs8",
+    "expected_id": "W3wyjAs8",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b71fbcc29f9ec263b6289a68",
+    "expected_id": "b71fbcc29f9ec263b6289a68",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Pex5z1Wh",
+    "expected_id": "Pex5z1Wh",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/588f321d8a63cbd9c9fc459d",
+    "expected_id": "588f321d8a63cbd9c9fc459d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d528d8ec058f8ed81a65ebb1",
+    "expected_id": "d528d8ec058f8ed81a65ebb1",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/16193f98c89b4bb2a4694ea1?xsec_token=3t3VHTv9PPiBDfNaej1j8bhHOkt5EpSN",
+    "expected_id": "16193f98c89b4bb2a4694ea1",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fc2b5c699d389df33c374b85",
+    "expected_id": "fc2b5c699d389df33c374b85",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/SSAi4aAN",
+    "expected_id": "SSAi4aAN",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/33a842e7a830315d36516432",
+    "expected_id": "33a842e7a830315d36516432",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f70e227f8027891f73db5bb3?source=webshare&xhsshare=pc",
+    "expected_id": "f70e227f8027891f73db5bb3",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c69b86e130e758188bfc33ef",
+    "expected_id": "c69b86e130e758188bfc33ef",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2e0169b67b83c27192b2e0d8",
+    "expected_id": "2e0169b67b83c27192b2e0d8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fb980083a35e51f1209b080e",
+    "expected_id": "fb980083a35e51f1209b080e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b6c8ab090bb4264d6daa916a",
+    "expected_id": "b6c8ab090bb4264d6daa916a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/59a0bf35097c2f10778534bb",
+    "expected_id": "59a0bf35097c2f10778534bb",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c5cadd8c013f94ed0f9eff25",
+    "expected_id": "c5cadd8c013f94ed0f9eff25",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f5a08393958f329e76d41547",
+    "expected_id": "f5a08393958f329e76d41547",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/84619cd6f312f302fc05ae59",
+    "expected_id": "84619cd6f312f302fc05ae59",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/71d843a0da8f1d5c12389a56?xsec_token=uSFCYh4UX47wI3FCyFACoHvp1W6HMtdi",
+    "expected_id": "71d843a0da8f1d5c12389a56",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f9504f7522bb54bb4f476788",
+    "expected_id": "f9504f7522bb54bb4f476788",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/44d8abe6c6275016273ce4bb",
+    "expected_id": "44d8abe6c6275016273ce4bb",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/50e237ff875ed779aeeef595",
+    "expected_id": "50e237ff875ed779aeeef595",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/vtiTBid1",
+    "expected_id": "vtiTBid1",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://redbook.com/explore/9b011da799e224d576c50492",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9574fc96fda0107b88bc485f?xsec_token=u8E6kbBJObiox6sz88n3HPqH9QggC8ZI&source=pc",
+    "expected_id": "9574fc96fda0107b88bc485f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/98ec428029feb8ca2157a2bc",
+    "expected_id": "98ec428029feb8ca2157a2bc",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/43e3ac9f30e86983ba48694d",
+    "expected_id": "43e3ac9f30e86983ba48694d",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c166accc3253044877f49731",
+    "expected_id": "c166accc3253044877f49731",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/0JhvPx4r",
+    "expected_id": "0JhvPx4r",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a0b07f9d960591c3e4a8f3c8",
+    "expected_id": "a0b07f9d960591c3e4a8f3c8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9eda4acc1464db7403a13b37",
+    "expected_id": "9eda4acc1464db7403a13b37",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/df7f99b641a493f298fb183d",
+    "expected_id": "df7f99b641a493f298fb183d",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/VPq14cCJ",
+    "expected_id": "VPq14cCJ",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/928e11f2318113a2ecd13d71",
+    "expected_id": "928e11f2318113a2ecd13d71",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2422be0b0ad2dca78681818b",
+    "expected_id": "2422be0b0ad2dca78681818b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/f348a7ab3d1c9f011782dee8",
+    "expected_id": "f348a7ab3d1c9f011782dee8",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d60a8ac65cb55eb233be885f",
+    "expected_id": "d60a8ac65cb55eb233be885f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/aa5e2d236da30b937a85fba7?source=webshare&xhsshare=pc",
+    "expected_id": "aa5e2d236da30b937a85fba7",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/zuxP6ZhM",
+    "expected_id": "zuxP6ZhM",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/2d94AZSW",
+    "expected_id": "2d94AZSW",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f3fdf811ee0a2a9473ec592b",
+    "expected_id": "f3fdf811ee0a2a9473ec592b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2e3341e1a0a50cde9f4f7bbe",
+    "expected_id": "2e3341e1a0a50cde9f4f7bbe",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/GsjM50HW",
+    "expected_id": "GsjM50HW",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2bd7dd00996c03e5dc5df07f",
+    "expected_id": "2bd7dd00996c03e5dc5df07f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a12ce7e602ff484c44872da0",
+    "expected_id": "a12ce7e602ff484c44872da0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/92136058fc46ee430daa5ba3",
+    "expected_id": "92136058fc46ee430daa5ba3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f1a6631b2af327f59252ea18?xsec_token=vRpEsZZAPZQICS7MnE4o4pGxBPbnrW5o&source=pc",
+    "expected_id": "f1a6631b2af327f59252ea18",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e417b6a479113d051e5254b5",
+    "expected_id": "e417b6a479113d051e5254b5",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/vLek4WDK",
+    "expected_id": "vLek4WDK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/09537f7f12eb5ae79bd7c509",
+    "expected_id": "09537f7f12eb5ae79bd7c509",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/995130f7a8071352088b1b3d",
+    "expected_id": "995130f7a8071352088b1b3d",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/0Zl2bI20",
+    "expected_id": "0Zl2bI20",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5f816718afc757bbec6f64e6",
+    "expected_id": "5f816718afc757bbec6f64e6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f0ba384bc91b7d79c3ef5123",
+    "expected_id": "f0ba384bc91b7d79c3ef5123",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e4eca099a61d8af22c170ec9",
+    "expected_id": "e4eca099a61d8af22c170ec9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/JrFkY988",
+    "expected_id": "JrFkY988",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/xJ0CszKA",
+    "expected_id": "xJ0CszKA",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/aR8jHwqj",
+    "expected_id": "aR8jHwqj",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/0733c354de2699a783890cf8",
+    "expected_id": "0733c354de2699a783890cf8",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/pYRkJP6S",
+    "expected_id": "pYRkJP6S",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/xysLXomY",
+    "expected_id": "xysLXomY",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/QBzayNcs",
+    "expected_id": "QBzayNcs",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/EEMSKz5N",
+    "expected_id": "EEMSKz5N",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/360c5b2a23ea8036829ea632?source=webshare&xhsshare=pc",
+    "expected_id": "360c5b2a23ea8036829ea632",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dcb8a02c5b37fc1ce98dfc85",
+    "expected_id": "dcb8a02c5b37fc1ce98dfc85",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/1xZP8aOh",
+    "expected_id": "1xZP8aOh",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f76f78d7c2a44975dcab17f5",
+    "expected_id": "f76f78d7c2a44975dcab17f5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/186b22fe6b814a4c2229ccfe",
+    "expected_id": "186b22fe6b814a4c2229ccfe",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7921e76f6c363e9c21875c5a?xsec_token=fGVwOnLQAWnKPNPgVMvZhxcfUY9c8dKf&source=pc",
+    "expected_id": "7921e76f6c363e9c21875c5a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/24daabdaaab716d255c6c631",
+    "expected_id": "24daabdaaab716d255c6c631",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d6b2381af2e1b7bfa9c81a2a",
+    "expected_id": "d6b2381af2e1b7bfa9c81a2a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4a9a9cb02cf98b2776ce265e",
+    "expected_id": "4a9a9cb02cf98b2776ce265e",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/61472122e617ec75f985b029?xsec_token=PTGIRBF1V1HTYiYHH5lExqizrMKGkxIi&source=pc",
+    "expected_id": "61472122e617ec75f985b029",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/a08635f7465ace5315ba5260",
+    "expected_id": "a08635f7465ace5315ba5260",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2a6ed2d4df8432920d358b07",
+    "expected_id": "2a6ed2d4df8432920d358b07",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/qxxZBPyT",
+    "expected_id": "qxxZBPyT",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8f737678424b5b5d39edee48",
+    "expected_id": "8f737678424b5b5d39edee48",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/18e6a987756422bd27d32a0b",
+    "expected_id": "18e6a987756422bd27d32a0b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/3sRzXMML",
+    "expected_id": "3sRzXMML",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/user/profile/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "   ",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/48c4a07c51f2d0506c9f8a65",
+    "expected_id": "48c4a07c51f2d0506c9f8a65",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e779679dde44f25b9ab7160e",
+    "expected_id": "e779679dde44f25b9ab7160e",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/74e46fee9ccb1cd374e9448b",
+    "expected_id": "74e46fee9ccb1cd374e9448b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "not_a_url_at_all",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f13bbed0a6ed1593e045dbb0",
+    "expected_id": "f13bbed0a6ed1593e045dbb0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/11516e2f407a75500fafc89f",
+    "expected_id": "11516e2f407a75500fafc89f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fd7720bf626c6c4f09805bf0",
+    "expected_id": "fd7720bf626c6c4f09805bf0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/359e8c541f715e48dd526c3d",
+    "expected_id": "359e8c541f715e48dd526c3d",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8ebb962ffef829e0073c03af",
+    "expected_id": "8ebb962ffef829e0073c03af",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e1255f34a4eabcfde822959b",
+    "expected_id": "e1255f34a4eabcfde822959b",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/QOBQQtrK",
+    "expected_id": "QOBQQtrK",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e0fd86e89462f96dca799a41?xsec_token=wpwTvtCLsvl3toQ0yhm1bAY9w5Mq5wZS&source=pc",
+    "expected_id": "e0fd86e89462f96dca799a41",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0323650e06097c0243f9a36a?xsec_token=ZcDqaIbCwO8aypSqI97thRGzI90opVxo&source=pc",
+    "expected_id": "0323650e06097c0243f9a36a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/21c0c70ba969871f5ae98ab9",
+    "expected_id": "21c0c70ba969871f5ae98ab9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/3UjlEcyH",
+    "expected_id": "3UjlEcyH",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/289ba1b818a1888ffebea3dd?source=webshare&xhsshare=pc",
+    "expected_id": "289ba1b818a1888ffebea3dd",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5346773d5602c187a59a25bd",
+    "expected_id": "5346773d5602c187a59a25bd",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2305515a9c76ae7076010aa4",
+    "expected_id": "2305515a9c76ae7076010aa4",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/l96V7ju3",
+    "expected_id": "l96V7ju3",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/AMtwJnGi",
+    "expected_id": "AMtwJnGi",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/643c9f87477b4e6865f32210?app_platform=ios&app_version=8.0.0",
+    "expected_id": "643c9f87477b4e6865f32210",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d28124afbc6891f53e69cf74",
+    "expected_id": "d28124afbc6891f53e69cf74",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "\n\t",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fac167f989666e34fe223286",
+    "expected_id": "fac167f989666e34fe223286",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/vLaaxtkI",
+    "expected_id": "vLaaxtkI",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/ifuLCRQK",
+    "expected_id": "ifuLCRQK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/FXs5iXxL",
+    "expected_id": "FXs5iXxL",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/99914915a9ddcf32e31a181b",
+    "expected_id": "99914915a9ddcf32e31a181b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2ebaeffc93b46440c4dfa184?xsec_token=q0kBFcWvxlTA3dTHIcYBZsdwKMk6Vqfq&source=pc",
+    "expected_id": "2ebaeffc93b46440c4dfa184",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/87f1a4887737f88e57e2277f",
+    "expected_id": "87f1a4887737f88e57e2277f",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/n1xcFHdq",
+    "expected_id": "n1xcFHdq",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bdff2b51e8c27e14caf2e9a7?app_platform=ios&app_version=8.0.0",
+    "expected_id": "bdff2b51e8c27e14caf2e9a7",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/632ec4b1c9a0cdfd3c3f8362",
+    "expected_id": "632ec4b1c9a0cdfd3c3f8362",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/bbsVJPL3",
+    "expected_id": "bbsVJPL3",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7e9385f126108fd5c882993f",
+    "expected_id": "7e9385f126108fd5c882993f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/X933w5Hg",
+    "expected_id": "X933w5Hg",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c73c71420016d4cec614ce49",
+    "expected_id": "c73c71420016d4cec614ce49",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8c1d773226f791ec6a3f2b7c?source=webshare&xhsshare=pc",
+    "expected_id": "8c1d773226f791ec6a3f2b7c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/qumuAoq5",
+    "expected_id": "qumuAoq5",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/xQ2W5Lf3",
+    "expected_id": "xQ2W5Lf3",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e37a56e85b8b736527d61176",
+    "expected_id": "e37a56e85b8b736527d61176",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f58ed62252179b8a8d9700e0",
+    "expected_id": "f58ed62252179b8a8d9700e0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6361ed51bfb4a4234b98da88",
+    "expected_id": "6361ed51bfb4a4234b98da88",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b2344d6a66132283553168d8",
+    "expected_id": "b2344d6a66132283553168d8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/dXNNz0Ae",
+    "expected_id": "dXNNz0Ae",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4781cbc712007be5889dd7bc",
+    "expected_id": "4781cbc712007be5889dd7bc",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/39a71e04f9541bd1ca412a86",
+    "expected_id": "39a71e04f9541bd1ca412a86",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "//www.xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/board/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/SdW4b78K",
+    "expected_id": "SdW4b78K",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/DnzqblKj",
+    "expected_id": "DnzqblKj",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/MOFrHqU3",
+    "expected_id": "MOFrHqU3",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/113636ca540f86feb0b7f837?app_platform=ios&app_version=8.0.0",
+    "expected_id": "113636ca540f86feb0b7f837",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/xA1fQMwX",
+    "expected_id": "xA1fQMwX",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ed099f9621bf29ed4146eb3a",
+    "expected_id": "ed099f9621bf29ed4146eb3a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/mjDqvir1",
+    "expected_id": "mjDqvir1",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/IueSREmy",
+    "expected_id": "IueSREmy",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/gtkFXoQl",
+    "expected_id": "gtkFXoQl",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fcb85f9d0acde872f167c6f5",
+    "expected_id": "fcb85f9d0acde872f167c6f5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/nXOroxjw",
+    "expected_id": "nXOroxjw",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/emxPLZRJ",
+    "expected_id": "emxPLZRJ",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/92372d26f648b68e67aef146",
+    "expected_id": "92372d26f648b68e67aef146",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2b42576eb9a687438dfdd90c",
+    "expected_id": "2b42576eb9a687438dfdd90c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8cc3b11b4c09e8b321fb2359",
+    "expected_id": "8cc3b11b4c09e8b321fb2359",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/aaeaa805c7c6461d11b8326a",
+    "expected_id": "aaeaa805c7c6461d11b8326a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a0febda5b8c93f35f6abb7f0",
+    "expected_id": "a0febda5b8c93f35f6abb7f0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/d5b73387bb3e6b16686da6b2",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d0279f740b902b3ce8e7f655",
+    "expected_id": "d0279f740b902b3ce8e7f655",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/86b484a3fc1c0651e7698832",
+    "expected_id": "86b484a3fc1c0651e7698832",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/da57551b4d7352fbbb20dfa7",
+    "expected_id": "da57551b4d7352fbbb20dfa7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/oMlvKBfR",
+    "expected_id": "oMlvKBfR",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/miPSIc02",
+    "expected_id": "miPSIc02",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/EkLX3PW6",
+    "expected_id": "EkLX3PW6",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a7b817fe8af109b9d11575c3",
+    "expected_id": "a7b817fe8af109b9d11575c3",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/dvEIvqES",
+    "expected_id": "dvEIvqES",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3fc7a8c448f5b81b80a28c09",
+    "expected_id": "3fc7a8c448f5b81b80a28c09",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f57531b4b3cde2277fda85c7",
+    "expected_id": "f57531b4b3cde2277fda85c7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/27eb38224ee5ff8ec14aa550?app_platform=ios&app_version=8.0.0",
+    "expected_id": "27eb38224ee5ff8ec14aa550",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/gTRt2E3q",
+    "expected_id": "gTRt2E3q",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7b5c2731d1c0c32cdf823a48",
+    "expected_id": "7b5c2731d1c0c32cdf823a48",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4cee0df81301ffd8c37d1ff9",
+    "expected_id": "4cee0df81301ffd8c37d1ff9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0afc1443cd34031fa23275bc",
+    "expected_id": "0afc1443cd34031fa23275bc",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7fa79bb3988321b735faa960",
+    "expected_id": "7fa79bb3988321b735faa960",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5f74401e76069c3b3f1d9b19?xsec_token=7aC4oj0ZLkc0xkVNocAyphBLZLUA7w8T&source=pc",
+    "expected_id": "5f74401e76069c3b3f1d9b19",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/779aabd337e474f73bb7c449",
+    "expected_id": "779aabd337e474f73bb7c449",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/de80ae39d5d32de36091f8d6?app_platform=ios&app_version=8.0.0",
+    "expected_id": "de80ae39d5d32de36091f8d6",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a0f20975adc98fbe833dc510",
+    "expected_id": "a0f20975adc98fbe833dc510",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8d226e964c67def3151a53a4?app_platform=ios&app_version=8.0.0",
+    "expected_id": "8d226e964c67def3151a53a4",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fe9bd7210d972e53da70e9cd",
+    "expected_id": "fe9bd7210d972e53da70e9cd",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/u3hAYcsq",
+    "expected_id": "u3hAYcsq",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3bbbd2e5399892b7f46b02f3",
+    "expected_id": "3bbbd2e5399892b7f46b02f3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/Rqw6GDuP",
+    "expected_id": "Rqw6GDuP",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/5a551653ddf03a86ec4eb9bf",
+    "expected_id": "5a551653ddf03a86ec4eb9bf",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/0ec5dad2a019257eb23915f9",
+    "expected_id": "0ec5dad2a019257eb23915f9",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/68f285b8625455dcf5eda9e1",
+    "expected_id": "68f285b8625455dcf5eda9e1",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/PQJphjrc",
+    "expected_id": "PQJphjrc",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/6f74296a5f478f2a8cb838ee",
+    "expected_id": "6f74296a5f478f2a8cb838ee",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/8d336476f8f3b45239fb9f69",
+    "expected_id": "8d336476f8f3b45239fb9f69",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/udC517fc",
+    "expected_id": "udC517fc",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/H7XIMWBQ",
+    "expected_id": "H7XIMWBQ",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/PKUvHP1e",
+    "expected_id": "PKUvHP1e",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/a8d36815bc7741da98bb0318",
+    "expected_id": "a8d36815bc7741da98bb0318",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/6c68b29840b9b686bb5b6a32",
+    "expected_id": "6c68b29840b9b686bb5b6a32",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ee7adc994f28d5dd6fc1fc50",
+    "expected_id": "ee7adc994f28d5dd6fc1fc50",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/XvJeluBS",
+    "expected_id": "XvJeluBS",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a715ceb3437c01d1ead2c013",
+    "expected_id": "a715ceb3437c01d1ead2c013",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/df13a20372a3833508151617",
+    "expected_id": "df13a20372a3833508151617",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/1a7ab307c6f6d313a3798bc7",
+    "expected_id": "1a7ab307c6f6d313a3798bc7",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/uN5dg2V7",
+    "expected_id": "uN5dg2V7",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/i9bp8w92",
+    "expected_id": "i9bp8w92",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4fbb591908ccbdb07b691f80",
+    "expected_id": "4fbb591908ccbdb07b691f80",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/9Arqh1dR",
+    "expected_id": "9Arqh1dR",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/84cef84e67a26093e25936f4",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d73e3caed88a79417476263b",
+    "expected_id": "d73e3caed88a79417476263b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/efbQPDET",
+    "expected_id": "efbQPDET",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Tm28Y8nk",
+    "expected_id": "Tm28Y8nk",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7c54b5547ca222b055119702?source=webshare&xhsshare=pc",
+    "expected_id": "7c54b5547ca222b055119702",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9aa429683585279e3dc205f6?xsec_token=0OZV0Ty8dBGeqe5lV6wcCsrI5wnQ4AAz&source=pc",
+    "expected_id": "9aa429683585279e3dc205f6",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0828a3e3c306b3ae7af59f80",
+    "expected_id": "0828a3e3c306b3ae7af59f80",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2b8f63e2090394716bf1baae",
+    "expected_id": "2b8f63e2090394716bf1baae",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fd791f200c2b39c0aad15b0c",
+    "expected_id": "fd791f200c2b39c0aad15b0c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/693f652e0e0b5a7adb513d58",
+    "expected_id": "693f652e0e0b5a7adb513d58",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/eU9T4Kzh",
+    "expected_id": "eU9T4Kzh",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b357dedcf3dba9a072ae008c",
+    "expected_id": "b357dedcf3dba9a072ae008c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/5KaazLf8",
+    "expected_id": "5KaazLf8",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/45b28730bb4d92947a8dbe86",
+    "expected_id": "45b28730bb4d92947a8dbe86",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/126883239dbabfe243c957ad",
+    "expected_id": "126883239dbabfe243c957ad",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Se673Tu0",
+    "expected_id": "Se673Tu0",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b9081cc1c1c0ceb5da52e92a",
+    "expected_id": "b9081cc1c1c0ceb5da52e92a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/00fab6c1ac6a75a609f48f2d",
+    "expected_id": "00fab6c1ac6a75a609f48f2d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e2f9b24706b3ebc1b8d9acaf",
+    "expected_id": "e2f9b24706b3ebc1b8d9acaf",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/coIRf2Gy",
+    "expected_id": "coIRf2Gy",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/656d202948f7e32fa6b21091",
+    "expected_id": "656d202948f7e32fa6b21091",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/c4d68ee00bf514b2b0444dce",
+    "expected_id": "c4d68ee00bf514b2b0444dce",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e94df289049680c83a550cd2",
+    "expected_id": "e94df289049680c83a550cd2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/45b18404e57a44d922780186",
+    "expected_id": "45b18404e57a44d922780186",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8ab4f7d8602f709ce8c8e29f",
+    "expected_id": "8ab4f7d8602f709ce8c8e29f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3d8f99f0d0d69b297e9e5180?xsec_token=Jc2saKJrq0dqyDl11FRwOjoZs5aCRsB8",
+    "expected_id": "3d8f99f0d0d69b297e9e5180",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7c6883101db773068ea97ac7",
+    "expected_id": "7c6883101db773068ea97ac7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f81b2eb576c52d5b652e7a33?xsec_token=ddsKPo8REIgPPC5DlCYIIiVNihh2qZQb&source=pc",
+    "expected_id": "f81b2eb576c52d5b652e7a33",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ef60b266ac59578759e6fe19",
+    "expected_id": "ef60b266ac59578759e6fe19",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d4113d3799bea6dd5af71c28",
+    "expected_id": "d4113d3799bea6dd5af71c28",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/6a75a385ac2962b05c63effa",
+    "expected_id": "6a75a385ac2962b05c63effa",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/83e908283f9bbfa5342db1c6",
+    "expected_id": "83e908283f9bbfa5342db1c6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f2a8132f35791835676d6c02?source=webshare&xhsshare=pc",
+    "expected_id": "f2a8132f35791835676d6c02",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/53f32d39d485b4bcc8451b16?source=webshare&xhsshare=pc",
+    "expected_id": "53f32d39d485b4bcc8451b16",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7be2d99e45d6d62686d996aa",
+    "expected_id": "7be2d99e45d6d62686d996aa",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/74d517fbf13623cb7a71d37b",
+    "expected_id": "74d517fbf13623cb7a71d37b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/cab0d4be0f9e0dc06ae89dc2",
+    "expected_id": "cab0d4be0f9e0dc06ae89dc2",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f7caa4b9fc6c023249037a6a?xsec_token=o7rw440jAWIi3Q5MmkKPteug0wLGWrSt",
+    "expected_id": "f7caa4b9fc6c023249037a6a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/IZiyFD8Z",
+    "expected_id": "IZiyFD8Z",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/385211a9cce7d1f1d03afa3b",
+    "expected_id": "385211a9cce7d1f1d03afa3b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/910019310a3da821155da273",
+    "expected_id": "910019310a3da821155da273",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/445c9af4fbf58bbc166bbf23",
+    "expected_id": "445c9af4fbf58bbc166bbf23",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/813668f778977c6ca3b7bfb1",
+    "expected_id": "813668f778977c6ca3b7bfb1",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Q57EiufR",
+    "expected_id": "Q57EiufR",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/4iWwNaLP",
+    "expected_id": "4iWwNaLP",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/58a9f236e8626746b56b468c",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/s9wip0bo",
+    "expected_id": "s9wip0bo",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b20176b8d8941600835579c8",
+    "expected_id": "b20176b8d8941600835579c8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c730a20ce370c2cb590fdddb",
+    "expected_id": "c730a20ce370c2cb590fdddb",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4518af116a53b20c38d86f6d?xsec_token=TIo8dswPxFajM0GLOXw423UXsOD1vRsq&source=pc",
+    "expected_id": "4518af116a53b20c38d86f6d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/46be025757ecf5db851e29ce?xsec_token=A7femvwwNsMa1ws4VEfONLzlLwnv2H5e&source=pc",
+    "expected_id": "46be025757ecf5db851e29ce",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3494e9ec5b2d1488426b4265",
+    "expected_id": "3494e9ec5b2d1488426b4265",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/bd01833d9f2fa5e7fa00213b",
+    "expected_id": "bd01833d9f2fa5e7fa00213b",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/aa905bbba96912e7ce6cc105",
+    "expected_id": "aa905bbba96912e7ce6cc105",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e41541acdc70a33d4137c331?source=webshare&xhsshare=pc",
+    "expected_id": "e41541acdc70a33d4137c331",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/147cbe2bce4a9ab1e1257b89",
+    "expected_id": "147cbe2bce4a9ab1e1257b89",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/89b78bh8",
+    "expected_id": "89b78bh8",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/EHAbl7WD",
+    "expected_id": "EHAbl7WD",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/4d4a1ac3c07c2fbaea8f3f11",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/74e0ff5c3b0f496756efec37",
+    "expected_id": "74e0ff5c3b0f496756efec37",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://example.com/explore/9ee3926cfcbdbe1a0d7185a9",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/a198b2fbf1ec2f4435436db4",
+    "expected_id": "a198b2fbf1ec2f4435436db4",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/8SFAOLjP",
+    "expected_id": "8SFAOLjP",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/62fc8c83c449929955bc3c1f",
+    "expected_id": "62fc8c83c449929955bc3c1f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/cf0803d3bba89621d1b855f7",
+    "expected_id": "cf0803d3bba89621d1b855f7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/48e729844b478d5f4e9ea47e",
+    "expected_id": "48e729844b478d5f4e9ea47e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dc765c9603d9eeda0d32faef",
+    "expected_id": "dc765c9603d9eeda0d32faef",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e3b6ec7d12d25f2389403f76",
+    "expected_id": "e3b6ec7d12d25f2389403f76",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/EcyKRNDA",
+    "expected_id": "EcyKRNDA",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/iIgP7SNV",
+    "expected_id": "iIgP7SNV",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/10e3bfe8cb68135d388efcf8",
+    "expected_id": "10e3bfe8cb68135d388efcf8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fd90434c7ff32693f604eb8b",
+    "expected_id": "fd90434c7ff32693f604eb8b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/33fe9d64678c13d76b69e86d",
+    "expected_id": "33fe9d64678c13d76b69e86d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6ccbb1a90a7939ccfd6e0e75",
+    "expected_id": "6ccbb1a90a7939ccfd6e0e75",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8b7878e83d2862072f8ae442",
+    "expected_id": "8b7878e83d2862072f8ae442",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e9e8c8f00fca21cbe514cebb?xsec_token=EhbqYALNQX9ckNf6ap9q5eYNBQywojnJ&source=pc",
+    "expected_id": "e9e8c8f00fca21cbe514cebb",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/UkO2tMix",
+    "expected_id": "UkO2tMix",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4966159090ba6219d49ff281",
+    "expected_id": "4966159090ba6219d49ff281",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8ffc54350e85e501b91a767d",
+    "expected_id": "8ffc54350e85e501b91a767d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/56621a8256b7d0db97d20113",
+    "expected_id": "56621a8256b7d0db97d20113",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/15a076d044d515f405f4a6fe",
+    "expected_id": "15a076d044d515f405f4a6fe",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/949b30035939817083c47c42",
+    "expected_id": "949b30035939817083c47c42",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/515689e950b7022f60d51d93",
+    "expected_id": "515689e950b7022f60d51d93",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c3ec60a0a38c307d0b429bda?xsec_token=VCm72FV0AStoCuPXuTdqEW6ugTFAGy4k&source=pc",
+    "expected_id": "c3ec60a0a38c307d0b429bda",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b0d8c384f46da12b12f5719a",
+    "expected_id": "b0d8c384f46da12b12f5719a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b29b4931837be941410dae37",
+    "expected_id": "b29b4931837be941410dae37",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/sfk4W5nC",
+    "expected_id": "sfk4W5nC",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/4seGWtNn",
+    "expected_id": "4seGWtNn",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhs.com/explore/4019edeba183d474152694e9",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fffe928512f2b4a23e93e80d",
+    "expected_id": "fffe928512f2b4a23e93e80d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/11JjEnbk",
+    "expected_id": "11JjEnbk",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/050c7033e1b84f066ea1ffa5",
+    "expected_id": "050c7033e1b84f066ea1ffa5",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c8271cb2e4b7b9c25de67f3a",
+    "expected_id": "c8271cb2e4b7b9c25de67f3a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/vRpr8L0I",
+    "expected_id": "vRpr8L0I",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ac8b99d5af9b6ec64da83f28",
+    "expected_id": "ac8b99d5af9b6ec64da83f28",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/008a3dbf2cbce4c97f101eaf?xsec_token=DoF9a89iR5UMEQP9v4aDG77VMzugrmtj",
+    "expected_id": "008a3dbf2cbce4c97f101eaf",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6c15114bfd0435df631c472a",
+    "expected_id": "6c15114bfd0435df631c472a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/UaSS9I5p",
+    "expected_id": "UaSS9I5p",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/020a146e660cb62ae13b233d",
+    "expected_id": "020a146e660cb62ae13b233d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d8acab2f185a5f4931b52143",
+    "expected_id": "d8acab2f185a5f4931b52143",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5f9a69370c735342a94a2f65",
+    "expected_id": "5f9a69370c735342a94a2f65",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f4d6c56f11911b7e56ad6ee6",
+    "expected_id": "f4d6c56f11911b7e56ad6ee6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/j6fKvu6u",
+    "expected_id": "j6fKvu6u",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/89c0c8323939fdc74a71b36f",
+    "expected_id": "89c0c8323939fdc74a71b36f",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/aZh8DkOm",
+    "expected_id": "aZh8DkOm",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ee0dc8a13f11dfde286af07a",
+    "expected_id": "ee0dc8a13f11dfde286af07a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/SSU1kHPh",
+    "expected_id": "SSU1kHPh",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/LQNZ7QCD",
+    "expected_id": "LQNZ7QCD",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5848b7dfc9efdf8e67879389",
+    "expected_id": "5848b7dfc9efdf8e67879389",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/75f33e7feac9ace1d38f48dd?xsec_token=qTo0p0wKYWUI22ZWRbBYdWVvSWwKzD5w&source=pc",
+    "expected_id": "75f33e7feac9ace1d38f48dd",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/0eNKOmJU",
+    "expected_id": "0eNKOmJU",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c351bb1079b5a68842cf4138",
+    "expected_id": "c351bb1079b5a68842cf4138",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/eef446119c7cda297582eddc",
+    "expected_id": "eef446119c7cda297582eddc",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ba0b9f80589c3f83e8eb6449",
+    "expected_id": "ba0b9f80589c3f83e8eb6449",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e375e3761f2ac17f94104a5a?xsec_token=AoiiYdFQRl7Nov9oZfr4xYaJpIRH3fac",
+    "expected_id": "e375e3761f2ac17f94104a5a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a28aaee086eb6313c464de28",
+    "expected_id": "a28aaee086eb6313c464de28",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c0cb881bf26a8b40cad4df44",
+    "expected_id": "c0cb881bf26a8b40cad4df44",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/tz8LBuQ3",
+    "expected_id": "tz8LBuQ3",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/69b01f631b5ca2937bd1b30c",
+    "expected_id": "69b01f631b5ca2937bd1b30c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0b8bd4d9b5bed9c9e53b6d38",
+    "expected_id": "0b8bd4d9b5bed9c9e53b6d38",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1a9fe8b73d83dd7bf82ee849",
+    "expected_id": "1a9fe8b73d83dd7bf82ee849",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": null,
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4dbacf971d66a155286ab470",
+    "expected_id": "4dbacf971d66a155286ab470",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2c9bc3a5f92f2767f31a6c27?app_platform=ios&app_version=8.0.0",
+    "expected_id": "2c9bc3a5f92f2767f31a6c27",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ff0477b104c7d124dbd18db9",
+    "expected_id": "ff0477b104c7d124dbd18db9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/3edcacd1b98c2b132392a7be",
+    "expected_id": "3edcacd1b98c2b132392a7be",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/OA2oIew7",
+    "expected_id": "OA2oIew7",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/5XIjABbv",
+    "expected_id": "5XIjABbv",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "\n\t",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/efec9cf66e4b094ca399722f",
+    "expected_id": "efec9cf66e4b094ca399722f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/076fdd135247b0ec3cc3e837?app_platform=ios&app_version=8.0.0",
+    "expected_id": "076fdd135247b0ec3cc3e837",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/9db35f12f533db6f0326d34f",
+    "expected_id": "9db35f12f533db6f0326d34f",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/95808a56f7dfbf61e47aee34",
+    "expected_id": "95808a56f7dfbf61e47aee34",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7f1c40889af144c0aabf9adb",
+    "expected_id": "7f1c40889af144c0aabf9adb",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/833d5be112f48e46f0b3022e",
+    "expected_id": "833d5be112f48e46f0b3022e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/987c391c1a634aa8249d4659",
+    "expected_id": "987c391c1a634aa8249d4659",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/sV7ROrK8",
+    "expected_id": "sV7ROrK8",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5353b7900b600b679d520472",
+    "expected_id": "5353b7900b600b679d520472",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4effccf6cbf82434b93cb5cd",
+    "expected_id": "4effccf6cbf82434b93cb5cd",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/MY5AtoqB",
+    "expected_id": "MY5AtoqB",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bccc94293b78c2408f76fbc9",
+    "expected_id": "bccc94293b78c2408f76fbc9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/PAZktnRU",
+    "expected_id": "PAZktnRU",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/61018f60470dc3108694d30c",
+    "expected_id": "61018f60470dc3108694d30c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "not_a_url_at_all",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/93b78fa84558a9f06d49d3f0?xsec_token=ekG4K7L5MNG08ZC480dd3FqV5TewWI4P&source=pc",
+    "expected_id": "93b78fa84558a9f06d49d3f0",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/74a01c1324db382c05cb09b6",
+    "expected_id": "74a01c1324db382c05cb09b6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3bc66a7b2952c7e05d0e1377",
+    "expected_id": "3bc66a7b2952c7e05d0e1377",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/ah2S5meV",
+    "expected_id": "ah2S5meV",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6677d54eb79f4ce3f68ce8c3",
+    "expected_id": "6677d54eb79f4ce3f68ce8c3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/iTvJilJ2",
+    "expected_id": "iTvJilJ2",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/UuT5kFGq",
+    "expected_id": "UuT5kFGq",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/b13a6db57fb8b6e2f6d12769",
+    "expected_id": "b13a6db57fb8b6e2f6d12769",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/user/profile/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/820d434b728bf784db885fd7",
+    "expected_id": "820d434b728bf784db885fd7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/622c0045f95e38abfcaf55df",
+    "expected_id": "622c0045f95e38abfcaf55df",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a1cabd9317ece5238290da27",
+    "expected_id": "a1cabd9317ece5238290da27",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2f87becadc6908af2c982909",
+    "expected_id": "2f87becadc6908af2c982909",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/3KsL638D",
+    "expected_id": "3KsL638D",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/79bc6cb9355c1736e3dd150e?xsec_token=fzvYgFQbH9GF5RHTuZq2KaOq3JhD2zcL",
+    "expected_id": "79bc6cb9355c1736e3dd150e",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9c8d0d80b3783b4db988d63a",
+    "expected_id": "9c8d0d80b3783b4db988d63a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/50da227ebf398427db53a45a",
+    "expected_id": "50da227ebf398427db53a45a",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/8fa469ddf060481e4ff6e059",
+    "expected_id": "8fa469ddf060481e4ff6e059",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bce28936b9a812351da27714?xsec_token=wOUBoiktQTEBggZQaiDHrzOFf6rDkVRR",
+    "expected_id": "bce28936b9a812351da27714",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/802a82920314afbfd88a48bc",
+    "expected_id": "802a82920314afbfd88a48bc",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f77b7b5c98db40b09237a3df",
+    "expected_id": "f77b7b5c98db40b09237a3df",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3b88931c2221b3ce9fe811fa",
+    "expected_id": "3b88931c2221b3ce9fe811fa",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7729a6373f88ef6ba85b78cb?source=webshare&xhsshare=pc",
+    "expected_id": "7729a6373f88ef6ba85b78cb",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/m1L6pD13",
+    "expected_id": "m1L6pD13",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/53b2846c9c408886ea3ed28e",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/bff270af53744d6ce4408658",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f0cbf726d5f6d7806968ec6b",
+    "expected_id": "f0cbf726d5f6d7806968ec6b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/nNysQCY3",
+    "expected_id": "nNysQCY3",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/df34a4f672a5db5f5862afd2",
+    "expected_id": "df34a4f672a5db5f5862afd2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d0d06ac5d5077a83e37cc320",
+    "expected_id": "d0d06ac5d5077a83e37cc320",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/10b777dbedc810fddf591aad",
+    "expected_id": "10b777dbedc810fddf591aad",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/h9b896EX",
+    "expected_id": "h9b896EX",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/33a3a02cac5ea0d7be4b5cf9?app_platform=ios&app_version=8.0.0",
+    "expected_id": "33a3a02cac5ea0d7be4b5cf9",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a8cb9e8addb309f0aef83466",
+    "expected_id": "a8cb9e8addb309f0aef83466",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/wdCEWW2o",
+    "expected_id": "wdCEWW2o",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/36g0YIsk",
+    "expected_id": "36g0YIsk",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/a311c927e491459eb04a8add",
+    "expected_id": "a311c927e491459eb04a8add",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/rRtaYTkh",
+    "expected_id": "rRtaYTkh",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/eYWmOdA4",
+    "expected_id": "eYWmOdA4",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/jppjIg27",
+    "expected_id": "jppjIg27",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/46cc21af06af5aa077e260a9",
+    "expected_id": "46cc21af06af5aa077e260a9",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e05a0e0ac9db7dd140a4aa12?source=webshare&xhsshare=pc",
+    "expected_id": "e05a0e0ac9db7dd140a4aa12",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/f24e84c97c6814b21b679e3f",
+    "expected_id": "f24e84c97c6814b21b679e3f",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/q8IGXKR7",
+    "expected_id": "q8IGXKR7",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a7b7604df24261c4abf6a8a0",
+    "expected_id": "a7b7604df24261c4abf6a8a0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/086d0c305c148ebbbad38790?xsec_token=QRQ8qbd6sUavT3pSRVOqtHv9uv1h4dXv",
+    "expected_id": "086d0c305c148ebbbad38790",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/136712beccaa812bcbfb0675",
+    "expected_id": "136712beccaa812bcbfb0675",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/Zj46au0s",
+    "expected_id": "Zj46au0s",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f870e2dbda913f21d39b2985",
+    "expected_id": "f870e2dbda913f21d39b2985",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/fa1be8738e7fd9306a1f6e09",
+    "expected_id": "fa1be8738e7fd9306a1f6e09",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/UO947plN",
+    "expected_id": "UO947plN",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/5be4fb6ff410e630759a1bfe",
+    "expected_id": "5be4fb6ff410e630759a1bfe",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/6xLUsP03",
+    "expected_id": "6xLUsP03",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/345d54ed83b2e3df490f1537",
+    "expected_id": "345d54ed83b2e3df490f1537",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/6ad64cb4e2bf637a72326599",
+    "expected_id": "6ad64cb4e2bf637a72326599",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/81a87c0cca5a3f52bb623843",
+    "expected_id": "81a87c0cca5a3f52bb623843",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "//www.xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/02f91c4f0da0f2a1392526d9",
+    "expected_id": "02f91c4f0da0f2a1392526d9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/5qrIEyXl",
+    "expected_id": "5qrIEyXl",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/03kdBu7I",
+    "expected_id": "03kdBu7I",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/922dfd17d6f91fcdfd2c5e2d",
+    "expected_id": "922dfd17d6f91fcdfd2c5e2d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/board/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3f7d395512ace9346aecb5ef",
+    "expected_id": "3f7d395512ace9346aecb5ef",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4eaabe4825467d21a872667a",
+    "expected_id": "4eaabe4825467d21a872667a",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e9e73691e5f3b2ee3cc11b57",
+    "expected_id": "e9e73691e5f3b2ee3cc11b57",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/eef57040a9bdc8114b56b8c8",
+    "expected_id": "eef57040a9bdc8114b56b8c8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a600eb5c9530e25b72b53090",
+    "expected_id": "a600eb5c9530e25b72b53090",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/MssrECEI",
+    "expected_id": "MssrECEI",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9fb348106c52cb611f9eb61c",
+    "expected_id": "9fb348106c52cb611f9eb61c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://fake-xiaohongshu.com/explore/9a05dd0cc62834fd4dd4e179",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://example.com/explore/d34d2e40ac6e0b3798fab807",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/aftxnj8j",
+    "expected_id": "aftxnj8j",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/U3LBi5oC",
+    "expected_id": "U3LBi5oC",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/88ce7aa3751e75fbf806a16f",
+    "expected_id": "88ce7aa3751e75fbf806a16f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ee46dc2e670d0d0b44ced329",
+    "expected_id": "ee46dc2e670d0d0b44ced329",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9c2ad61c72bf733b1592f50c",
+    "expected_id": "9c2ad61c72bf733b1592f50c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/7fxW9eaG",
+    "expected_id": "7fxW9eaG",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/db29a29d0fc4957c0ec09773",
+    "expected_id": "db29a29d0fc4957c0ec09773",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/BhMfPzIk",
+    "expected_id": "BhMfPzIk",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/WpfftM2s",
+    "expected_id": "WpfftM2s",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d3ef44d46f0e77acdfc0083a?xsec_token=ogAKuAtVbaMOjOSAMafofDUZ3EltnUKj",
+    "expected_id": "d3ef44d46f0e77acdfc0083a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/18255cbb4573ad10ff7724ce",
+    "expected_id": "18255cbb4573ad10ff7724ce",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4f5dfcda451b00ad49da7eea",
+    "expected_id": "4f5dfcda451b00ad49da7eea",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ec15d24012a142a5fea6b176",
+    "expected_id": "ec15d24012a142a5fea6b176",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/cd504fc611aefcf6fd48f9f3",
+    "expected_id": "cd504fc611aefcf6fd48f9f3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7bc2131a2d62963c973dedf4",
+    "expected_id": "7bc2131a2d62963c973dedf4",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dd52eeeb56e619bf96cbf2af",
+    "expected_id": "dd52eeeb56e619bf96cbf2af",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/40085249ca2c846578ab1543",
+    "expected_id": "40085249ca2c846578ab1543",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8094908b81a674a9a001a7c3?source=webshare&xhsshare=pc",
+    "expected_id": "8094908b81a674a9a001a7c3",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7e198d950f5b0b2545802a4d",
+    "expected_id": "7e198d950f5b0b2545802a4d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/317fa0e828f8e410bc59ab7e?xsec_token=H5bQmrlRc06fINOX48rGMNIHt8MgDvRP&source=pc",
+    "expected_id": "317fa0e828f8e410bc59ab7e",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6eda19f4d8fa8f5ff1e11ac7",
+    "expected_id": "6eda19f4d8fa8f5ff1e11ac7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/05c235f72b226d3fabb932ab?source=webshare&xhsshare=pc",
+    "expected_id": "05c235f72b226d3fabb932ab",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/adbe3f4555d30f1e8f0928a9",
+    "expected_id": "adbe3f4555d30f1e8f0928a9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/207596d89d1c4c0e78aba7ee?source=webshare&xhsshare=pc",
+    "expected_id": "207596d89d1c4c0e78aba7ee",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/ASssrDK2",
+    "expected_id": "ASssrDK2",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/016076b04b1da7cb78020ba4",
+    "expected_id": "016076b04b1da7cb78020ba4",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "//www.xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3c4b57f497bd196529b70630",
+    "expected_id": "3c4b57f497bd196529b70630",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e16b752b7b5acc4579f9a12a?app_platform=ios&app_version=8.0.0",
+    "expected_id": "e16b752b7b5acc4579f9a12a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8911d71e935ffeb371d4cac7",
+    "expected_id": "8911d71e935ffeb371d4cac7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/8yoRGJVM",
+    "expected_id": "8yoRGJVM",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/9Gs49hbr",
+    "expected_id": "9Gs49hbr",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/tQZxy4dd",
+    "expected_id": "tQZxy4dd",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3ac7547666e29755f0eaae61",
+    "expected_id": "3ac7547666e29755f0eaae61",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c1b485d7fa925f20052548da",
+    "expected_id": "c1b485d7fa925f20052548da",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/490c421b2c51de2eb07190f5",
+    "expected_id": "490c421b2c51de2eb07190f5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/3VaKZlX1",
+    "expected_id": "3VaKZlX1",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b8f91a1d7290679cc48aca9b?xsec_token=aeuW1SpD3USBSRSwDIrzWaz1s6f2KhOf&source=pc",
+    "expected_id": "b8f91a1d7290679cc48aca9b",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1f073bad09c40d30ce3aecd7",
+    "expected_id": "1f073bad09c40d30ce3aecd7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/VVCjmi7u",
+    "expected_id": "VVCjmi7u",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/abc123/extra/path",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b0ccdb964378928c254fff5f",
+    "expected_id": "b0ccdb964378928c254fff5f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/OxJDrMVE",
+    "expected_id": "OxJDrMVE",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5fec25168c8a76e48710959a?xsec_token=vKGeQMuhUHV9GFCscD1PnhXJj2OQ6shR&source=pc",
+    "expected_id": "5fec25168c8a76e48710959a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7f9d6ba0ad3fd6c4dca4c534",
+    "expected_id": "7f9d6ba0ad3fd6c4dca4c534",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/348fedc07d235fb7c3bd571e",
+    "expected_id": "348fedc07d235fb7c3bd571e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/790ebc755a3dc5110f1529b7",
+    "expected_id": "790ebc755a3dc5110f1529b7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/dvbbD4yc",
+    "expected_id": "dvbbD4yc",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/gPZzLKmK",
+    "expected_id": "gPZzLKmK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/ZFJnEDrW",
+    "expected_id": "ZFJnEDrW",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/9af27947cf5a35c9d74a0fa7",
+    "expected_id": "9af27947cf5a35c9d74a0fa7",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/IU5iBlHj",
+    "expected_id": "IU5iBlHj",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2c91f9fae7ed2f4aeefac1a3",
+    "expected_id": "2c91f9fae7ed2f4aeefac1a3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/fsWHjhQl",
+    "expected_id": "fsWHjhQl",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/18c7ee389ee00433e2bdf488",
+    "expected_id": "18c7ee389ee00433e2bdf488",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7f88c235b41f9c3f0271b187?source=webshare&xhsshare=pc",
+    "expected_id": "7f88c235b41f9c3f0271b187",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/98e5a67de0cc9cdffb879b46",
+    "expected_id": "98e5a67de0cc9cdffb879b46",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/28fdadefcd4e3d1d9348cf3d?xsec_token=FQY7FYekrJJjbj8yrasOIIjsvOWoxb68&source=pc",
+    "expected_id": "28fdadefcd4e3d1d9348cf3d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/60d79e9b9430a2a110d2e77f",
+    "expected_id": "60d79e9b9430a2a110d2e77f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/570a265746b3c148b2e70782",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/7fb8469bbdc1eadaacc74c20",
+    "expected_id": "7fb8469bbdc1eadaacc74c20",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b7e48cded70699ac7be7e4b9",
+    "expected_id": "b7e48cded70699ac7be7e4b9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c654dbe3e94ff0d467e6e35d",
+    "expected_id": "c654dbe3e94ff0d467e6e35d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/76BwNadf",
+    "expected_id": "76BwNadf",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/e0f3bba779e784d46ff5515b",
+    "expected_id": "e0f3bba779e784d46ff5515b",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ffa3fe0a352bf43c6fbaa233",
+    "expected_id": "ffa3fe0a352bf43c6fbaa233",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/rbx8BxtX",
+    "expected_id": "rbx8BxtX",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/8RftnwWZ",
+    "expected_id": "8RftnwWZ",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2ef780c2713908e8dbf474ab?xsec_token=tzoeSUMJWHvcy6NKLHsory3vm5IBR3oE",
+    "expected_id": "2ef780c2713908e8dbf474ab",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore",
+    "expected_id": null,
+    "url_type": "malformed",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/08b4fab21151e774760af7f0?source=webshare&xhsshare=pc",
+    "expected_id": "08b4fab21151e774760af7f0",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/j1Fy95mL",
+    "expected_id": "j1Fy95mL",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8c785cbc1a3ca0beccb63117",
+    "expected_id": "8c785cbc1a3ca0beccb63117",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9e8222a721da9414dddf0532",
+    "expected_id": "9e8222a721da9414dddf0532",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/32848377fc0883f1aa2497af?xsec_token=skp04TICTdROR1bElkkiKheGlfwfbdhM&source=pc",
+    "expected_id": "32848377fc0883f1aa2497af",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c99c1def568d9418c25e9598",
+    "expected_id": "c99c1def568d9418c25e9598",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b735ebf1aaf51044143f2667?xsec_token=fUJDW5O0M7n68kFsm6sbrHRE2kGyunwf&source=pc",
+    "expected_id": "b735ebf1aaf51044143f2667",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://redbook.com/explore/f1fd46cb12ae6f28870af979",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c861faf0d55c43305df27387",
+    "expected_id": "c861faf0d55c43305df27387",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/01907bc4c6c01ac1a8f05e5e",
+    "expected_id": "01907bc4c6c01ac1a8f05e5e",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/83q2b9jt",
+    "expected_id": "83q2b9jt",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/xxHNMVkU",
+    "expected_id": "xxHNMVkU",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3afc76e5d17eb7ac287360a4",
+    "expected_id": "3afc76e5d17eb7ac287360a4",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/e38d6cd6522ecc3f0bf1059f",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f746a51bfab1b91825fd97ff",
+    "expected_id": "f746a51bfab1b91825fd97ff",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b21ab8a44a331d113683ee89",
+    "expected_id": "b21ab8a44a331d113683ee89",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/55c50e7fe1bebac24f902f05",
+    "expected_id": "55c50e7fe1bebac24f902f05",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a0fc552515cf0fd8c14c0eac",
+    "expected_id": "a0fc552515cf0fd8c14c0eac",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bd708ccbdd0e502a228c8179",
+    "expected_id": "bd708ccbdd0e502a228c8179",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8f54cbf8ba03fc63a28c930b",
+    "expected_id": "8f54cbf8ba03fc63a28c930b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "//www.xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1463a622d81544fce27e28ac",
+    "expected_id": "1463a622d81544fce27e28ac",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4ef8e699b31f2d3a1aaad6cd",
+    "expected_id": "4ef8e699b31f2d3a1aaad6cd",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/8d5964ccc1d10c4916101385",
+    "expected_id": "8d5964ccc1d10c4916101385",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/66dbe2b4c813ff2d0c2e2786",
+    "expected_id": "66dbe2b4c813ff2d0c2e2786",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/3ffb20975f5d7044debf235a",
+    "expected_id": "3ffb20975f5d7044debf235a",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3d31babaeb22f44ba7a9e35f?source=webshare&xhsshare=pc",
+    "expected_id": "3d31babaeb22f44ba7a9e35f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/12f1184c1637fce2199327ac?app_platform=ios&app_version=8.0.0",
+    "expected_id": "12f1184c1637fce2199327ac",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6effbd9f401b0fc818a73bb6",
+    "expected_id": "6effbd9f401b0fc818a73bb6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2d9354202404d39a36fa65ea",
+    "expected_id": "2d9354202404d39a36fa65ea",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/4SlGsoKU",
+    "expected_id": "4SlGsoKU",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c8993a56c455052f2337e226?xsec_token=LV7vjFJu1lpfyRajzu3M7JISDLdAG7ZA",
+    "expected_id": "c8993a56c455052f2337e226",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f3f8e2d12b6a281d6a7f9fa1",
+    "expected_id": "f3f8e2d12b6a281d6a7f9fa1",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6de850fd853a4e0e813a3a4f",
+    "expected_id": "6de850fd853a4e0e813a3a4f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d136370b92cd30e0ba9b4c5d?app_platform=ios&app_version=8.0.0",
+    "expected_id": "d136370b92cd30e0ba9b4c5d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/board/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/AeObJ9Fb",
+    "expected_id": "AeObJ9Fb",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7c66adb2af38b74197c6bc8b",
+    "expected_id": "7c66adb2af38b74197c6bc8b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a4e083393531ed4d2c2e8ffb",
+    "expected_id": "a4e083393531ed4d2c2e8ffb",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d740a53938d1a9587216cd24",
+    "expected_id": "d740a53938d1a9587216cd24",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2982cf0ce1696fb11bb3133f",
+    "expected_id": "2982cf0ce1696fb11bb3133f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d403aa0e68caaffb69d37799?xsec_token=fPtMb1KbdJhgoKnaeIsE8qcrVBhr77I1&source=pc",
+    "expected_id": "d403aa0e68caaffb69d37799",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/39e0b00d75d8264bc83d9a27",
+    "expected_id": "39e0b00d75d8264bc83d9a27",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a731e3081a38d053ad5526cb",
+    "expected_id": "a731e3081a38d053ad5526cb",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/67ae9e4f7cc17f5d47c21770",
+    "expected_id": "67ae9e4f7cc17f5d47c21770",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2d919bfce10d041e43be6716",
+    "expected_id": "2d919bfce10d041e43be6716",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/board/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/C9HlpXxw",
+    "expected_id": "C9HlpXxw",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dea0398ac179d5c8405a1939?xsec_token=njdl3TDFVZhUwm1IWw9edcGNFI7Dyl15&source=pc",
+    "expected_id": "dea0398ac179d5c8405a1939",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3e67489a322ad39478f10572",
+    "expected_id": "3e67489a322ad39478f10572",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/5clokHpV",
+    "expected_id": "5clokHpV",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8a46b74fe84f756ae75eda42",
+    "expected_id": "8a46b74fe84f756ae75eda42",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a8bdce45a5beb57aeab8a2bb?xsec_token=F4VGUB7mahjC8luIfysXnfY3MIjsoDA6&source=pc",
+    "expected_id": "a8bdce45a5beb57aeab8a2bb",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/eabQeae0",
+    "expected_id": "eabQeae0",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/ebcbaa945163a0670b38e91f",
+    "expected_id": "ebcbaa945163a0670b38e91f",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/93546f9cea1c15acc2ee2182",
+    "expected_id": "93546f9cea1c15acc2ee2182",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/FOPhyxCo",
+    "expected_id": "FOPhyxCo",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/37ebd9d2c4ee64d293943e4f?xsec_token=MLoXeS3aDs98PcXe8DizHog5RfavH8wa&source=pc",
+    "expected_id": "37ebd9d2c4ee64d293943e4f",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/dlmKHRK8",
+    "expected_id": "dlmKHRK8",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://fake-xiaohongshu.com/explore/b06249d20514109e35f35f48",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e4ed444d666393e5d660ade3",
+    "expected_id": "e4ed444d666393e5d660ade3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a905e65dc37f3c391775807a",
+    "expected_id": "a905e65dc37f3c391775807a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4fa97d9222e8998fae76c4e7?xsec_token=90KF7fYNEuQv9mzhjRV3LzFekswq2TbQ&source=pc",
+    "expected_id": "4fa97d9222e8998fae76c4e7",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8fac73b334a14b834c316d90",
+    "expected_id": "8fac73b334a14b834c316d90",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6315a1825f4b2d7bafcc28c4",
+    "expected_id": "6315a1825f4b2d7bafcc28c4",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/938aac70f22c558c41a781af?app_platform=ios&app_version=8.0.0",
+    "expected_id": "938aac70f22c558c41a781af",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/bce10094b77b78d5e1e16463",
+    "expected_id": "bce10094b77b78d5e1e16463",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/kxSJvDyP",
+    "expected_id": "kxSJvDyP",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/83447d2e2a264a31d7650f9a?app_platform=ios&app_version=8.0.0",
+    "expected_id": "83447d2e2a264a31d7650f9a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/b93ca8ba07f915533388b2d9",
+    "expected_id": "b93ca8ba07f915533388b2d9",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9351b6cbc6e0f13ad36dd624",
+    "expected_id": "9351b6cbc6e0f13ad36dd624",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5778ffed0291abc1687b777d",
+    "expected_id": "5778ffed0291abc1687b777d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/lT9ZVmzk",
+    "expected_id": "lT9ZVmzk",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/18f0cd29caa126b4ba8d7ea8",
+    "expected_id": "18f0cd29caa126b4ba8d7ea8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": null,
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/de70e0ee6d328e3a8f905159?xsec_token=TgzPcc44PSRRL4Ywww7fKeDwtVDFV3ih",
+    "expected_id": "de70e0ee6d328e3a8f905159",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/RLoFKNAs",
+    "expected_id": "RLoFKNAs",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d2beb24b98789e7b4fb7c508?xsec_token=JnQaZg6BZZV2onB2peNkoJbslheMoTDf&source=pc",
+    "expected_id": "d2beb24b98789e7b4fb7c508",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore",
+    "expected_id": null,
+    "url_type": "malformed",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/1d4a22c4fad3efd6cf78217a",
+    "expected_id": "1d4a22c4fad3efd6cf78217a",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/ea430a8f78dd49cb5d4904b9",
+    "expected_id": "ea430a8f78dd49cb5d4904b9",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5c69f119f0e418f99b815d20?xsec_token=IBYhsrCqZs33l6On7f3eSY0DuQ0XNvBA",
+    "expected_id": "5c69f119f0e418f99b815d20",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/rig8NcIv",
+    "expected_id": "rig8NcIv",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4ca0c32d69ef2dc5b3bc24f0",
+    "expected_id": "4ca0c32d69ef2dc5b3bc24f0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7d4112cd289efa25cb6ad96e",
+    "expected_id": "7d4112cd289efa25cb6ad96e",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c15b9bbde6fa3721e6f75e8a",
+    "expected_id": "c15b9bbde6fa3721e6f75e8a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d20a9a9304892a0bd21ec920",
+    "expected_id": "d20a9a9304892a0bd21ec920",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ec8b0ff854c4e1b1cade7400?app_platform=ios&app_version=8.0.0",
+    "expected_id": "ec8b0ff854c4e1b1cade7400",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/87ba37799db756389e00208f",
+    "expected_id": "87ba37799db756389e00208f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/DMbb8O0G",
+    "expected_id": "DMbb8O0G",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/956f8e6550a1d1670a1ba418",
+    "expected_id": "956f8e6550a1d1670a1ba418",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9068db635d658c0e1dbf509e?app_platform=ios&app_version=8.0.0",
+    "expected_id": "9068db635d658c0e1dbf509e",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a81da7f6353dcbbefb8be6c0",
+    "expected_id": "a81da7f6353dcbbefb8be6c0",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f2603e37cd6835354947f884",
+    "expected_id": "f2603e37cd6835354947f884",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/2oa7du7Y",
+    "expected_id": "2oa7du7Y",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ea476679a0339af64f36bed7",
+    "expected_id": "ea476679a0339af64f36bed7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/30G5SNMd",
+    "expected_id": "30G5SNMd",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b47a7f220b6ee0836abc6e0c?source=webshare&xhsshare=pc",
+    "expected_id": "b47a7f220b6ee0836abc6e0c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/YZCJ8Mj0",
+    "expected_id": "YZCJ8Mj0",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bf7b9ba2548119b647bf4995?source=webshare&xhsshare=pc",
+    "expected_id": "bf7b9ba2548119b647bf4995",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2a77e8f7d3f11f86d9e7cd72",
+    "expected_id": "2a77e8f7d3f11f86d9e7cd72",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0cb15ef60e2c1fe054f04e00",
+    "expected_id": "0cb15ef60e2c1fe054f04e00",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/d706829a72c482f3deff797c",
+    "expected_id": "d706829a72c482f3deff797c",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e4ef7e8c902ab9a0fb4120a2",
+    "expected_id": "e4ef7e8c902ab9a0fb4120a2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/fGzhKZ2N",
+    "expected_id": "fGzhKZ2N",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9411bd557f1e4292acc2cbaa?xsec_token=5YyHUHz590dYikfDlhUx4GPQJlN4A40L",
+    "expected_id": "9411bd557f1e4292acc2cbaa",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/BEgnoOTe",
+    "expected_id": "BEgnoOTe",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/090ac3817354899b30a878c1?source=webshare&xhsshare=pc",
+    "expected_id": "090ac3817354899b30a878c1",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/dbd43958d2398058589a935f",
+    "expected_id": "dbd43958d2398058589a935f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1628566005680ae36e2b675c",
+    "expected_id": "1628566005680ae36e2b675c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/oeuQ0tgs",
+    "expected_id": "oeuQ0tgs",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/RvAWnAA9",
+    "expected_id": "RvAWnAA9",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/RKF7yfdd",
+    "expected_id": "RKF7yfdd",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ea4c098722d66c80f04348fa",
+    "expected_id": "ea4c098722d66c80f04348fa",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://redbook.com/explore/f1f3da10495bc67590b7abad",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "   ",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0cf8563c5952cbc33888e059?xsec_token=KDudafWA5c5C3Pxu3T2iENQQKPWtoI8A&source=pc",
+    "expected_id": "0cf8563c5952cbc33888e059",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/UGFwQW8z",
+    "expected_id": "UGFwQW8z",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/LbpdGg1o",
+    "expected_id": "LbpdGg1o",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/12ccf1572c37180af9ae7d21",
+    "expected_id": "12ccf1572c37180af9ae7d21",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/37bfcf328cdc51e6683e0fdd",
+    "expected_id": "37bfcf328cdc51e6683e0fdd",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/cba95887a1a4e3fa666b1782",
+    "expected_id": "cba95887a1a4e3fa666b1782",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/1NBPWwRK",
+    "expected_id": "1NBPWwRK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/2d3ca39681a7e6500839b839",
+    "expected_id": "2d3ca39681a7e6500839b839",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7a2bb487e5de915c340e1377",
+    "expected_id": "7a2bb487e5de915c340e1377",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2d61d9d22d1716d66a10e7e8",
+    "expected_id": "2d61d9d22d1716d66a10e7e8",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c23067ce71c9d85523285b2f",
+    "expected_id": "c23067ce71c9d85523285b2f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/D9zRGg4q",
+    "expected_id": "D9zRGg4q",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/55ce717c76afa5a0148e9563",
+    "expected_id": "55ce717c76afa5a0148e9563",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6be11b16c227a27c475aa00d?source=webshare&xhsshare=pc",
+    "expected_id": "6be11b16c227a27c475aa00d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1fe410e44927007d6220fd33",
+    "expected_id": "1fe410e44927007d6220fd33",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a796b00db0eb7633dfbd04c1?xsec_token=5KEAhzLL87XMLOYOvXev8IzS1nquOdK2",
+    "expected_id": "a796b00db0eb7633dfbd04c1",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/UzN2KSJF",
+    "expected_id": "UzN2KSJF",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9eff48afb7ba513e447b99d5",
+    "expected_id": "9eff48afb7ba513e447b99d5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b7ab30e374431ecce81c5ff7",
+    "expected_id": "b7ab30e374431ecce81c5ff7",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/gKw3Ji3Z",
+    "expected_id": "gKw3Ji3Z",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/c95b02f95e583a1af4044c9a",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/05c40b2b4963f03de9285477",
+    "expected_id": "05c40b2b4963f03de9285477",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4896d5bda83688fffa8c96b5",
+    "expected_id": "4896d5bda83688fffa8c96b5",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/FJGMqU8i",
+    "expected_id": "FJGMqU8i",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/059ab071ca22e88f87e135f0",
+    "expected_id": "059ab071ca22e88f87e135f0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/U1GswhgA",
+    "expected_id": "U1GswhgA",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/",
+    "expected_id": null,
+    "url_type": "malformed",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/rN6OhLV8",
+    "expected_id": "rN6OhLV8",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e8ed7f97a40b7c451c053a16",
+    "expected_id": "e8ed7f97a40b7c451c053a16",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/XaCxSn4F",
+    "expected_id": "XaCxSn4F",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/search?keyword=test",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a90c972b3609ccbd7a8b4113",
+    "expected_id": "a90c972b3609ccbd7a8b4113",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/wFjlUBzM",
+    "expected_id": "wFjlUBzM",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/739e57d8a8f7a5806fc091f3?xsec_token=YVf9zKoVAjySK3whI2vRH34Q7r6VVdao&source=pc",
+    "expected_id": "739e57d8a8f7a5806fc091f3",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/3bfb52775e2b98c4a6f96fbb",
+    "expected_id": "3bfb52775e2b98c4a6f96fbb",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/bc692d9ec4f52ecc57cf22ce?source=webshare&xhsshare=pc",
+    "expected_id": "bc692d9ec4f52ecc57cf22ce",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ed103b5ba6928cbcb856abe4",
+    "expected_id": "ed103b5ba6928cbcb856abe4",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/299ea5e40c6a49192d19bde1",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/dMeodrmW",
+    "expected_id": "dMeodrmW",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/WAoL6M33",
+    "expected_id": "WAoL6M33",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/3626cb67d6d05208105040ce",
+    "expected_id": "3626cb67d6d05208105040ce",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/yozPAMmG",
+    "expected_id": "yozPAMmG",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1cbded781b952fc79fd773fa?source=webshare&xhsshare=pc",
+    "expected_id": "1cbded781b952fc79fd773fa",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5855774beb6921e8afdd7e91",
+    "expected_id": "5855774beb6921e8afdd7e91",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/6e65e75d822a38c030fab181",
+    "expected_id": "6e65e75d822a38c030fab181",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "javascript:alert(1)",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/67f2b592e8d90ceda56a5e40",
+    "expected_id": "67f2b592e8d90ceda56a5e40",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "   ",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/3a1e32b3714b39f7d18cbb8c",
+    "expected_id": "3a1e32b3714b39f7d18cbb8c",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/board/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/xY1vbqzi",
+    "expected_id": "xY1vbqzi",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0916ce1a9c32cb5a910341f4?xsec_token=cx9twoaARkcQK4OfnXrveHNWgduyy5hU&source=pc",
+    "expected_id": "0916ce1a9c32cb5a910341f4",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/z6JCfgs2",
+    "expected_id": "z6JCfgs2",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/6NqJsJ7P",
+    "expected_id": "6NqJsJ7P",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/DMZqf1QY",
+    "expected_id": "DMZqf1QY",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhs.com/explore/8628eacebd7da9a139d93017",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/862830c16ed157efb0803c1c",
+    "expected_id": "862830c16ed157efb0803c1c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/084d6a5d7c632f75b481d6a2?xsec_token=h3pcYSV3ZsFLF8BQZjtTEMv9NLJLnpxU",
+    "expected_id": "084d6a5d7c632f75b481d6a2",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/GgP2tmDv",
+    "expected_id": "GgP2tmDv",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/1r3wlamK",
+    "expected_id": "1r3wlamK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/247ba4c8f1fd7db372683b19?source=webshare&xhsshare=pc",
+    "expected_id": "247ba4c8f1fd7db372683b19",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8b5356ee33f30d6f3867069b?xsec_token=WVn9kY4pnjzblQyUYaA12hfKVOtf4KAA",
+    "expected_id": "8b5356ee33f30d6f3867069b",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/75e8ff1e066c670eaf2fde34",
+    "expected_id": "75e8ff1e066c670eaf2fde34",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a4e47660f40474c527f611e9",
+    "expected_id": "a4e47660f40474c527f611e9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2dfefec0b9d4c40c19d96b9b",
+    "expected_id": "2dfefec0b9d4c40c19d96b9b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b6939a62031d53fab7758724",
+    "expected_id": "b6939a62031d53fab7758724",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://fake-xiaohongshu.com/explore/bd83ca9404fe0ee4402793b3",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/944d588b5e65f8d11a7d18f8",
+    "expected_id": "944d588b5e65f8d11a7d18f8",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9cc46de76c9355352910a15a",
+    "expected_id": "9cc46de76c9355352910a15a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/2FuNdUIc",
+    "expected_id": "2FuNdUIc",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/217805beae00611f49b23747",
+    "expected_id": "217805beae00611f49b23747",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8b5c886adfe2a5153b18f32f",
+    "expected_id": "8b5c886adfe2a5153b18f32f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/envEaHIh",
+    "expected_id": "envEaHIh",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "   ",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/cd0cab3dbf2911b423323301",
+    "expected_id": "cd0cab3dbf2911b423323301",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/154b6e1e02922a75a0e068a0",
+    "expected_id": "154b6e1e02922a75a0e068a0",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/mf8wgItj",
+    "expected_id": "mf8wgItj",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/78f0f108af9d06bff521ce71",
+    "expected_id": "78f0f108af9d06bff521ce71",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/fZu6ktts",
+    "expected_id": "fZu6ktts",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/HBKvx9lA",
+    "expected_id": "HBKvx9lA",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/4fUYJDa9",
+    "expected_id": "4fUYJDa9",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/db8ab5e55556bb215b44217a",
+    "expected_id": "db8ab5e55556bb215b44217a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6de8d765463ec2ed1da86543",
+    "expected_id": "6de8d765463ec2ed1da86543",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e44cb9a3a68774bcece29ff6?xsec_token=mg9O5k9t4DDO9s7PcIh65s1uFkPnCJlI&source=pc",
+    "expected_id": "e44cb9a3a68774bcece29ff6",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c10a41822d0088a968b7e920",
+    "expected_id": "c10a41822d0088a968b7e920",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f05b366c43099f98468e1b15",
+    "expected_id": "f05b366c43099f98468e1b15",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0f5be232e8b1bfababfb607b",
+    "expected_id": "0f5be232e8b1bfababfb607b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1192fe964e4780491a64abb1",
+    "expected_id": "1192fe964e4780491a64abb1",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/a03fa9bc612de9237c42f981",
+    "expected_id": "a03fa9bc612de9237c42f981",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/052d27c03f71ad1e44ed7773",
+    "expected_id": "052d27c03f71ad1e44ed7773",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/0523458ae5edf2ea12f9ee5d",
+    "expected_id": "0523458ae5edf2ea12f9ee5d",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6f12703347e5b00dc02668a3",
+    "expected_id": "6f12703347e5b00dc02668a3",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/0ub3qmkX",
+    "expected_id": "0ub3qmkX",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/ERUVNikh",
+    "expected_id": "ERUVNikh",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/6db1a0d050a48c8c85b9462a",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/b4ab1d27dde3073c758b3470",
+    "expected_id": "b4ab1d27dde3073c758b3470",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8508a035e58367b4db6e8196",
+    "expected_id": "8508a035e58367b4db6e8196",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/XPvDEfFK",
+    "expected_id": "XPvDEfFK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/QzOlNXPz",
+    "expected_id": "QzOlNXPz",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/",
+    "expected_id": null,
+    "url_type": "malformed",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c3ca8509e0e202a46055be59?xsec_token=2NGdoEUn9HoLcWfyhhSKFn6C2IVGEbem&source=pc",
+    "expected_id": "c3ca8509e0e202a46055be59",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8dea2383c93c15e68a75606e",
+    "expected_id": "8dea2383c93c15e68a75606e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2cee1ffbbad7fb5e1afdda32",
+    "expected_id": "2cee1ffbbad7fb5e1afdda32",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/20f9941d7bfbc30b057046fe",
+    "expected_id": "20f9941d7bfbc30b057046fe",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/tCtjHrVO",
+    "expected_id": "tCtjHrVO",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/m5s7WFIs",
+    "expected_id": "m5s7WFIs",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6bbde93fc6951923c8b3b70b",
+    "expected_id": "6bbde93fc6951923c8b3b70b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2797ebbc40d67b0d9964ebc8?source=webshare&xhsshare=pc",
+    "expected_id": "2797ebbc40d67b0d9964ebc8",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/q96pnAoX",
+    "expected_id": "q96pnAoX",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/WZbVlym9",
+    "expected_id": "WZbVlym9",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/boKi2Jch",
+    "expected_id": "boKi2Jch",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/F6vwheYi",
+    "expected_id": "F6vwheYi",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/59a513c07a3ef9478766de85",
+    "expected_id": "59a513c07a3ef9478766de85",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/c3392d06249aab1eb0768237?xsec_token=xYZ6FRcFFihRaCVigih8IWh1SSbUblvd",
+    "expected_id": "c3392d06249aab1eb0768237",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/hODE5xSE",
+    "expected_id": "hODE5xSE",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2cdb8a730f43f6be60d8328a",
+    "expected_id": "2cdb8a730f43f6be60d8328a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f8ddef76f5e41d56fe241d92",
+    "expected_id": "f8ddef76f5e41d56fe241d92",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4abac480c2087c6238e8cb07?xsec_token=6G3e4fj9Kyd2lYgA4PLNOBBq3WEQHcZV",
+    "expected_id": "4abac480c2087c6238e8cb07",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/wiMqadz5",
+    "expected_id": "wiMqadz5",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/58e8d4e9997c1e5eceaff4c6",
+    "expected_id": "58e8d4e9997c1e5eceaff4c6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0f24d18d974546135556b537",
+    "expected_id": "0f24d18d974546135556b537",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a243a29f2ee39a343f9dc480",
+    "expected_id": "a243a29f2ee39a343f9dc480",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/553951b8e5779daa210bddb0",
+    "expected_id": "553951b8e5779daa210bddb0",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Fm4m23by",
+    "expected_id": "Fm4m23by",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/857294fbbeecd82365920c2c?xsec_token=6A4IzBwGQ64IGUZlcP0V3pm6FNws62k2&source=pc",
+    "expected_id": "857294fbbeecd82365920c2c",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/59877f225eda498ed2d6e28c",
+    "expected_id": "59877f225eda498ed2d6e28c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/cddc688e69cb4bfa2fe778fd",
+    "expected_id": "cddc688e69cb4bfa2fe778fd",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4d4a636ecf3d83a5e746fe22",
+    "expected_id": "4d4a636ecf3d83a5e746fe22",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/40ce470c3f16223da0b9a28c",
+    "expected_id": "40ce470c3f16223da0b9a28c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f8fb5d6fdac1ed9ca5b9f4e8",
+    "expected_id": "f8fb5d6fdac1ed9ca5b9f4e8",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4f54ced1b635a77fc450298b",
+    "expected_id": "4f54ced1b635a77fc450298b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5e2e05d9aad1625fa27f2a4e",
+    "expected_id": "5e2e05d9aad1625fa27f2a4e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/628d1ba6369c3b278378e30c",
+    "expected_id": "628d1ba6369c3b278378e30c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "\n\t",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0ecdf1574858890e25c9e073",
+    "expected_id": "0ecdf1574858890e25c9e073",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/96a486d57740531ad9f98a99",
+    "expected_id": "96a486d57740531ad9f98a99",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/48383da63b05109d483c5851",
+    "expected_id": "48383da63b05109d483c5851",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d90e40a8b5cacb7507c70f27",
+    "expected_id": "d90e40a8b5cacb7507c70f27",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2353738d02793cd044ced7e7",
+    "expected_id": "2353738d02793cd044ced7e7",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/278c27ce45d2259b554bd286",
+    "expected_id": "278c27ce45d2259b554bd286",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/7066a95819e8586df8ad0633",
+    "expected_id": "7066a95819e8586df8ad0633",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0885f12ca0a6550a9f3551c9",
+    "expected_id": "0885f12ca0a6550a9f3551c9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ca363bd0263236e5e5471c58?xsec_token=DqI982im8JHEh4gJemvH5yAMbQp5oYvE&source=pc",
+    "expected_id": "ca363bd0263236e5e5471c58",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/91adcdcf7776199c91310965?xsec_token=GqnKOsDmwAdScCgjWjcgVyuTAxv2Ka9c&source=pc",
+    "expected_id": "91adcdcf7776199c91310965",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2fcbb9dd8a0816e8ca883162?xsec_token=4KE5I5fhtpJRZmXLViJIA196xi6247lb&source=pc",
+    "expected_id": "2fcbb9dd8a0816e8ca883162",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/19bf72c78a56c0a7c974a00d",
+    "expected_id": "19bf72c78a56c0a7c974a00d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ff2b320079ef01acd2e0b81e",
+    "expected_id": "ff2b320079ef01acd2e0b81e",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "\n\t",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "http://xhslink.com/a/ffqqS50x",
+    "expected_id": "ffqqS50x",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/ff0089962d17cad074438c0b",
+    "expected_id": "ff0089962d17cad074438c0b",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f193324525281a8aef0d2a1a?app_platform=ios&app_version=8.0.0",
+    "expected_id": "f193324525281a8aef0d2a1a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/z5LiD8Jq",
+    "expected_id": "z5LiD8Jq",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/user/profile/123",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4d73ecb5c34eb1d8847101f5",
+    "expected_id": "4d73ecb5c34eb1d8847101f5",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/924c1b7cac44fb73b5aa467b?app_platform=ios&app_version=8.0.0",
+    "expected_id": "924c1b7cac44fb73b5aa467b",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8a39b0433586fcf5f81044f2",
+    "expected_id": "8a39b0433586fcf5f81044f2",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/38rBm6Y5",
+    "expected_id": "38rBm6Y5",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9a2b223961df7fe608a35007",
+    "expected_id": "9a2b223961df7fe608a35007",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://redbook.com/explore/0948869250d7c086ed520524",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/49508dba8762589196318226",
+    "expected_id": "49508dba8762589196318226",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/f207b5b43039c3071c24ea9c",
+    "expected_id": "f207b5b43039c3071c24ea9c",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/f6742b96d5af5289c7379824",
+    "expected_id": "f6742b96d5af5289c7379824",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/4a1bbca208e0e1ebeb2c0bb8",
+    "expected_id": "4a1bbca208e0e1ebeb2c0bb8",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "//www.xiaohongshu.com/explore/abc123",
+    "expected_id": "abc123",
+    "url_type": "malformed",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/b48ae18bd0d433fd9edb5323",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a92a3def79e6a9f9d6717ea9",
+    "expected_id": "a92a3def79e6a9f9d6717ea9",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0daf5d18c8ad08b244641d86",
+    "expected_id": "0daf5d18c8ad08b244641d86",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2d624750997eceff40a9bc88",
+    "expected_id": "2d624750997eceff40a9bc88",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4d966dee7a1ac63355d01a45",
+    "expected_id": "4d966dee7a1ac63355d01a45",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/9FG02hq2",
+    "expected_id": "9FG02hq2",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Vs7gj9ch",
+    "expected_id": "Vs7gj9ch",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/4aad125b19d929c9056a162a",
+    "expected_id": "4aad125b19d929c9056a162a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/6a3602264bf2c0838177bb99",
+    "expected_id": "6a3602264bf2c0838177bb99",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5661fafb210f394a0e99ef78",
+    "expected_id": "5661fafb210f394a0e99ef78",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/04cdd6ce20cddc6c2fbfbfc0",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/f942455104998d6796274cb6",
+    "expected_id": "f942455104998d6796274cb6",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Ww8epKAO",
+    "expected_id": "Ww8epKAO",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://example.com/explore/c9534d6f8353ed918ac18c91",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ae370b4169800ef701208463",
+    "expected_id": "ae370b4169800ef701208463",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7b3b5848abfab8f022e71b3d?xsec_token=Nm2FfLqcsZDUbY3uIQ78WfryHwnrOwoX&source=pc",
+    "expected_id": "7b3b5848abfab8f022e71b3d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/28c26863cdcc96ff6d9c7cdb",
+    "expected_id": "28c26863cdcc96ff6d9c7cdb",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/7fd3a791f2b85ceb55010294",
+    "expected_id": "7fd3a791f2b85ceb55010294",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/",
+    "expected_id": null,
+    "url_type": "invalid_format",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/702d35f9e928c1ae1a2d54aa",
+    "expected_id": "702d35f9e928c1ae1a2d54aa",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/6SYjNOTz",
+    "expected_id": "6SYjNOTz",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/87561406507f8dae04705132?app_platform=ios&app_version=8.0.0",
+    "expected_id": "87561406507f8dae04705132",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1afb6493c9ffb4f9ca7ed63e",
+    "expected_id": "1afb6493c9ffb4f9ca7ed63e",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9e11d8138d3e6649c6572775",
+    "expected_id": "9e11d8138d3e6649c6572775",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2e425787bc4d3d267d439c7c",
+    "expected_id": "2e425787bc4d3d267d439c7c",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/9e4f490717471ae21824eaf4?xsec_token=pPFY679aNPNIUgqaaxC3NsylMqOBVKUf",
+    "expected_id": "9e4f490717471ae21824eaf4",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/415bdb4fe6c7bcc7271ccf7a?xsec_token=XYEfQu25BzwumHvq97cP1JlrmpSTIQEe&source=pc",
+    "expected_id": "415bdb4fe6c7bcc7271ccf7a",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/024cc494b2b9fd0066c0045a",
+    "expected_id": "024cc494b2b9fd0066c0045a",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/67a1d9251b59bcd04a13f803",
+    "expected_id": "67a1d9251b59bcd04a13f803",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d7ba64dd019caa621a2ef1b1",
+    "expected_id": "d7ba64dd019caa621a2ef1b1",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/fsIwNAtK",
+    "expected_id": "fsIwNAtK",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/btLM4jK1",
+    "expected_id": "btLM4jK1",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1356902863d92f6d1c8eeb0d",
+    "expected_id": "1356902863d92f6d1c8eeb0d",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2dbfeb7af07f3202328c6270",
+    "expected_id": "2dbfeb7af07f3202328c6270",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/zFVVqHSz",
+    "expected_id": "zFVVqHSz",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/1076545ba37402dff46a17f6",
+    "expected_id": "1076545ba37402dff46a17f6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "",
+    "expected_id": null,
+    "url_type": "empty",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/98f96f75edbed262d8bf44e6",
+    "expected_id": "98f96f75edbed262d8bf44e6",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/3d885a60bfeef6e8db73709f",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/d235f26c1ff3187e36dae690",
+    "expected_id": "d235f26c1ff3187e36dae690",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xiaohongshu.cn/explore/ee79573e628efab5f578e36d",
+    "expected_id": null,
+    "url_type": "invalid_domain",
+    "should_parse": false
+  },
+  {
+    "url": "https://xhslink.com/XS15PBVS",
+    "expected_id": "XS15PBVS",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/Nt1mYBf5",
+    "expected_id": "Nt1mYBf5",
+    "url_type": "xhslink",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/535f3881c7d634994f0a0ddf",
+    "expected_id": "535f3881c7d634994f0a0ddf",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/0af7ff9eef9f5e2b8037d78f",
+    "expected_id": "0af7ff9eef9f5e2b8037d78f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/7f233d55093da85552bd0a18?xsec_token=bETEKWSK8ODEMUHMHeR83sAkYTthhdRx&source=pc",
+    "expected_id": "7f233d55093da85552bd0a18",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/e30125287e511798c12b2e75",
+    "expected_id": "e30125287e511798c12b2e75",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/09c176d850e5df5cac0d595b",
+    "expected_id": "09c176d850e5df5cac0d595b",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/96cf612d4ebff99cdc57434d?xsec_token=yfJtuZC45yFPj66SwPV7AQWzb9f4Qf0K&source=pc",
+    "expected_id": "96cf612d4ebff99cdc57434d",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/5e9698aae072313119eb9c53",
+    "expected_id": "5e9698aae072313119eb9c53",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/2552080bb1a8a29af1a99d4f",
+    "expected_id": "2552080bb1a8a29af1a99d4f",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "http://xhslink.com/a/NAVVScmM",
+    "expected_id": "NAVVScmM",
+    "url_type": "xhslink_a",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/da2ba8c75c7c9b907c820c25",
+    "expected_id": "da2ba8c75c7c9b907c820c25",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/08193da37ebce79205e45936",
+    "expected_id": "08193da37ebce79205e45936",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/a8122e6887077728df0d7f48",
+    "expected_id": "a8122e6887077728df0d7f48",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/cb1f6eb5c56e23d97043ec67",
+    "expected_id": "cb1f6eb5c56e23d97043ec67",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/ddb9c1da07fe5bdb2d656fc5?source=webshare&xhsshare=pc",
+    "expected_id": "ddb9c1da07fe5bdb2d656fc5",
+    "url_type": "explore_with_params",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/fe490ef874f9140a1609e676",
+    "expected_id": "fe490ef874f9140a1609e676",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/discovery/item/696a510abba4127cc6f08bad",
+    "expected_id": "696a510abba4127cc6f08bad",
+    "url_type": "discovery",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/411d7f0db0dcc2e0e22d2df1",
+    "expected_id": "411d7f0db0dcc2e0e22d2df1",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/8266eeaed0564d5efb524bea",
+    "expected_id": "8266eeaed0564d5efb524bea",
+    "url_type": "explore",
+    "should_parse": true
+  },
+  {
+    "url": "https://xhslink.com/dA0mPdxz",
+    "expected_id": "dA0mPdxz",
+    "url_type": "xhslink",
+    "should_parse": true
+  }
+]

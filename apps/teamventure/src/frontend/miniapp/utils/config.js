@@ -4,23 +4,52 @@
 export const USE_MOCK_DATA = false
 
 // 环境配置
-const ENV = 'local' // local | dev | beta | prod
+// - develop: 本地联调（local）
+// - trial:  测试环境（beta）
+// - release: 生产环境（prod）
+//
+// 可通过本地存储覆盖：wx.setStorageSync('apiEnv', 'dev'|'beta'|'prod'|'local')
+const DEFAULT_ENV = 'local' // local | dev | beta | prod
+
+function detectEnv() {
+  try {
+    const baseUrlOverride = wx.getStorageSync('apiBaseUrl')
+    if (baseUrlOverride) return 'local'
+
+    const override = wx.getStorageSync('apiEnv')
+    if (override) return override
+
+    const info = wx.getAccountInfoSync?.()
+    const envVersion = info?.miniProgram?.envVersion
+
+    if (envVersion === 'release') return 'prod'
+    if (envVersion === 'trial') return 'beta'
+    if (envVersion === 'develop') return 'local'
+  } catch (e) {
+    // ignore
+  }
+  return DEFAULT_ENV
+}
+
+const ENV = detectEnv()
 
 // API 基础地址配置
 const API_BASE_URLS = {
-  local: 'https://api.teamventure.com/api/v1',     // 本地开发环境（/etc/hosts绑定 + HTTPS）
+  local: 'http://localhost:8080/api/v1',           // 本地开发环境（直连本机 Java 服务 8080；开发者工具下用 HTTP 避免证书问题）
   dev: 'https://dev-api.teamventure.com/api/v1',   // 开发环境
   beta: 'https://beta-api.teamventure.com/api/v1', // 测试环境
   prod: 'https://api.teamventure.com/api/v1'       // 生产环境
 }
 
 // 当前环境的 API 基础地址
-export const API_BASE_URL = API_BASE_URLS[ENV]
+export const API_BASE_URL = wx.getStorageSync('apiBaseUrl') || API_BASE_URLS[ENV]
+export const CURRENT_ENV = ENV
 
 // API 端点
 export const API_ENDPOINTS = {
   // 用户相关
   USER_LOGIN: '/auth/wechat/login',
+  USER_REFRESH: '/auth/wechat/refresh',
   USER_REGISTER: '/users/register',
   USER_INFO: '/users/info',
 
@@ -30,6 +59,9 @@ export const API_ENDPOINTS = {
   PLAN_DETAIL: '/plans/:id',
   PLAN_EXPORT: '/plans/:id/export',
   PLAN_CONFIRM: '/plans/:id/confirm',
+  PLAN_SUBMIT_REVIEW: '/plans/:id/submit-review',
+  PLAN_REVERT_REVIEW: '/plans/:id/revert-review',
+  PLAN_ARCHIVE: '/plans/:id/archive',
 
   // 供应商相关
   SUPPLIER_SEARCH: '/suppliers/search',
@@ -62,18 +94,24 @@ export const PLAN_TYPE_NAMES = {
   [PLAN_TYPES.PREMIUM]: '品质型'
 }
 
-// 方案状态
+// 方案状态（与后端 api-design.md v1.5 保持一致，共 6 种状态）
 export const PLAN_STATUS = {
+  GENERATING: 'generating',
+  FAILED: 'failed',
   DRAFT: 'draft',
+  REVIEWING: 'reviewing',
   CONFIRMED: 'confirmed',
-  CANCELLED: 'cancelled'
+  ARCHIVED: 'archived'
 }
 
-// 方案状态名称映射
+// 方案状态名称映射（与后端 api-design.md v1.5 保持一致）
 export const PLAN_STATUS_NAMES = {
-  [PLAN_STATUS.DRAFT]: '草稿',
+  [PLAN_STATUS.GENERATING]: '生成中',
+  [PLAN_STATUS.FAILED]: '生成失败',
+  [PLAN_STATUS.DRAFT]: '制定完成',
+  [PLAN_STATUS.REVIEWING]: '通晒中',
   [PLAN_STATUS.CONFIRMED]: '已确认',
-  [PLAN_STATUS.CANCELLED]: '已取消'
+  [PLAN_STATUS.ARCHIVED]: '已归档'
 }
 
 // 活动类型
@@ -111,7 +149,7 @@ export const ERROR_CODES = {
 
 // 错误消息映射
 export const ERROR_MESSAGES = {
-  [ERROR_CODES.NETWORK_ERROR]: '网络连接失败，请检查网络设置',
+  [ERROR_CODES.NETWORK_ERROR]: '网络连接失败，请检查网络设置或后端服务是否已启动',
   [ERROR_CODES.TIMEOUT]: '请求超时，请稍后重试',
   [ERROR_CODES.UNAUTHORIZED]: '登录已过期，请重新登录',
   [ERROR_CODES.BUDGET_TOO_LOW]: '预算不足，请调整预算或缩减需求',

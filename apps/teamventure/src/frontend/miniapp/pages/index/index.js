@@ -5,19 +5,33 @@ import { formatDate, calculateDays, formatDuration, formatMoney, formatPerPerson
 
 const app = getApp()
 
+/**
+ * 方案生成页面
+ *
+ * 字段语义说明：
+ * - departureLocation（前端） → departure_city（API）：出发城市，团队从哪里出发（如公司所在地：上海市）
+ * - destination（前端） → destination（API）：目的地，团建活动举办地点（如：杭州千岛湖）
+ *
+ * 显示格式："{departure_city} → {destination}"
+ * 示例：上海市 → 杭州千岛湖
+ */
 Page({
   data: {
     currentStep: 1,
 
-    // 表单数据
+    /**
+     * 表单数据
+     * - departureLocation: 出发城市（团队从哪里出发，如公司所在地：上海市）
+     * - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
+     */
     formData: {
       peopleCount: 50,
       budgetMin: '',
       budgetMax: '',
       startDate: '',
       endDate: '',
-      departureLocation: '',
-      destination: '', // 目的地（可选）
+      departureLocation: '',  // 出发城市（映射到API的departure_city）
+      destination: '',        // 目的地（团建活动地点）
       preferences: {
         activityTypes: [],
         accommodationLevel: 'standard',
@@ -329,15 +343,20 @@ Page({
         mask: true
       })
 
-      // 构建请求数据
+      /**
+       * 构建请求数据
+       * 字段映射：
+       * - departure_city: 出发城市（团队从哪里出发，如：上海市）
+       * - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
+       */
       const requestData = {
         people_count: formData.peopleCount,
         budget_min: parseFloat(formData.budgetMin),
         budget_max: parseFloat(formData.budgetMax),
         start_date: formData.startDate,
         end_date: formData.endDate,
-        departure_city: formData.departureLocation, // 后端字段名为 departure_city
-        destination: formData.destination || '', // 目的地（可选）
+        departure_city: formData.departureLocation, // 出发城市（团队从哪里出发）
+        destination: formData.destination || '',    // 目的地（团建活动举办地点，可选）
         preferences: {
           activity_types: formData.preferences.activityTypes,
           accommodation_level: formData.preferences.accommodationLevel,
@@ -348,7 +367,7 @@ Page({
 
       console.log('生成方案请求:', requestData)
 
-      // 调用 API
+      // 调用 API - 这是异步的，只返回 plan_request_id
       const result = await post(API_ENDPOINTS.PLAN_GENERATE, requestData, {
         showLoading: false,
         timeout: 120000 // 2分钟超时
@@ -356,15 +375,27 @@ Page({
 
       wx.hideLoading()
 
+      console.log('生成方案响应:', result)
+
       // 保存当前请求
       this.saveCurrentRequest()
 
       // 清除草稿（生成成功后不需要保留草稿）
       this.clearDraft()
 
-      // 跳转到对比页
-      wx.navigateTo({
-        url: `/pages/comparison/comparison?plans=${encodeURIComponent(JSON.stringify(result.plans))}`
+      // 方案生成是异步的，result 包含 { plan_request_id, status: "generating" }
+      // 提示用户并跳转到我的方案页等待
+      wx.showModal({
+        title: '提交成功',
+        content: 'AI正在为您生成方案，预计需要1-2分钟。请在"我的方案"中查看结果。',
+        showCancel: false,
+        confirmText: '去查看',
+        success: () => {
+          // 跳转到我的方案页
+          wx.switchTab({
+            url: '/pages/myplans/myplans'
+          })
+        }
       })
 
     } catch (error) {

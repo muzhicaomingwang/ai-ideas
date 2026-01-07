@@ -29,7 +29,7 @@ Page({
   },
 
   // 检查登录状态
-  checkLoginStatus() {
+  async checkLoginStatus() {
     const token = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN);
     const userInfo = wx.getStorageSync(STORAGE_KEYS.USER_INFO);
 
@@ -40,6 +40,17 @@ Page({
         isLoggedIn: true,
         userInfo: userInfo
       });
+      // 刷新一次用户信息（用于获取头像可访问URL等）
+      try {
+        const me = await get('/users/me', {}, { showLoading: false, showError: false })
+        if (me) {
+          wx.setStorageSync(STORAGE_KEYS.USER_INFO, me)
+          this.setData({ userInfo: me })
+          app.login(me)
+        }
+      } catch (e) {
+        // ignore
+      }
       this.loadUserStats();
     } else {
       this.setData({

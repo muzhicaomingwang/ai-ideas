@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.zhimeng.desktop-organizer</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/qitmac001395/Library/Caches/pypoetry/virtualenvs/zhimeng-agent-ORFMGT-6-py3.12/bin/python</string>
+        <string>-m</string>
+        <string>tasks.desktop_organizer.main</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PYTHONPATH</key>
+        <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent</string>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>4</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/logs/desktop-organizer.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/logs/desktop-organizer.error.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

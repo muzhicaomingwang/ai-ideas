@@ -1,0 +1,85 @@
+# 新闻源配置
+# 支持 RSS、API 两种类型
+
+sources:
+  # RSS 新闻源
+  rss:
+    - name: "36氪"
+      url: "https://36kr.com/feed"
+      category: "科技"
+      enabled: true
+
+    - name: "少数派"
+      url: "https://sspai.com/feed"
+      category: "科技"
+      enabled: true
+
+    - name: "虎嗅"
+      url: "https://www.huxiu.com/rss/0.xml"
+      category: "商业"
+      enabled: true
+
+    - name: "知乎每日精选"
+      url: "https://www.zhihu.com/rss"
+      category: "综合"
+      enabled: false  # 需要登录
+
+    - name: "澎湃新闻"
+      url: "https://www.thepaper.cn/rss_newsDetail.jsp"
+      category: "时事"
+      enabled: true
+
+  # API 新闻源（需要配置 API Key）
+  api:
+    - name: "NewsAPI"
+      endpoint: "https://newsapi.org/v2/top-headlines"
+      api_key_env: "NEWSAPI_KEY"
+      params:
+        country: "cn"
+        category: "technology"
+      enabled: false
+
+    - name: "聚合数据-新闻"
+      endpoint: "https://v.juhe.cn/toutiao/index"
+      api_key_env: "JUHE_NEWS_KEY"
+      params:
+        type: "keji"  # 科技类
+      enabled: false
+
+# 内容过滤配置
+filters:
+  # 关键词白名单（包含任一则保留）
+  include_keywords:
+    - "AI"
+    - "人工智能"
+    - "大模型"
+    - "科技"
+    - "创业"
+    - "融资"
+    - "产品"
+
+  # 关键词黑名单（包含任一则排除）
+  exclude_keywords:
+    - "广告"
+    - "推广"
+    - "sponsored"
+
+  # 每个源最多获取的文章数
+  max_articles_per_source: 10
+
+  # 总共最多处理的文章数
+  max_total_articles: 20
+
+# 获取配置
+fetch:
+  # 请求超时（秒）
+  timeout: 30
+
+  # 请求间隔（秒），避免被封
+  request_interval: 2
+
+  # 用户代理
+  user_agent: "DailyPodcastAI/1.0 (RSS Reader)"
+
+  # 重试次数
+  max_retries: 3

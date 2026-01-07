@@ -1,0 +1,92 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "TeamVenture Typography",
+  "description": "TeamVenture小程序字体排版系统",
+  "version": "1.0.0",
+
+  "typography": {
+    "fontFamily": {
+      "default": "-apple-system-font, 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    },
+
+    "fontSize": {
+      "description": "字号（rpx单位）",
+      "xs": "24rpx",
+      "sm": "26rpx",
+      "base": "28rpx",
+      "md": "32rpx",
+      "lg": "36rpx",
+      "xl": "40rpx",
+      "xxl": "48rpx",
+
+      "_px": {
+        "description": "对应px值（用于设计稿标注）",
+        "xs": "12px",
+        "sm": "13px",
+        "base": "14px",
+        "md": "16px",
+        "lg": "18px",
+        "xl": "20px",
+        "xxl": "24px"
+      }
+    },
+
+    "fontWeight": {
+      "normal": "400",
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700"
+    },
+
+    "lineHeight": {
+      "tight": "1.4",
+      "normal": "1.6",
+      "relaxed": "1.8"
+    },
+
+    "textStyles": {
+      "titleLarge": {
+        "fontSize": "40rpx",
+        "fontWeight": "600",
+        "lineHeight": "1.4",
+        "color": "#333333"
+      },
+      "titleMedium": {
+        "fontSize": "36rpx",
+        "fontWeight": "500",
+        "lineHeight": "1.4",
+        "color": "#333333"
+      },
+      "titleSmall": {
+        "fontSize": "32rpx",
+        "fontWeight": "500",
+        "lineHeight": "1.4",
+        "color": "#333333"
+      },
+      "body": {
+        "fontSize": "28rpx",
+        "fontWeight": "400",
+        "lineHeight": "1.6",
+        "color": "#333333"
+      },
+      "bodySecondary": {
+        "fontSize": "28rpx",
+        "fontWeight": "400",
+        "lineHeight": "1.6",
+        "color": "#666666"
+      },
+      "caption": {
+        "fontSize": "24rpx",
+        "fontWeight": "400",
+        "lineHeight": "1.6",
+        "color": "#999999"
+      },
+      "label": {
+        "fontSize": "32rpx",
+        "fontWeight": "500",
+        "lineHeight": "1.4",
+        "color": "#333333"
+      }
+    }
+  }
+}

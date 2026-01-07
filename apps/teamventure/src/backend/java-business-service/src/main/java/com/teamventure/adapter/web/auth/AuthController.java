@@ -21,6 +21,16 @@ public class AuthController {
         return ApiResponse.success(authService.loginWithWeChat(req.code, req.nickname, req.avatarUrl));
     }
 
+    @PostMapping("/refresh")
+    public ApiResponse<LoginResponse> refresh(@RequestHeader("Authorization") String authorization) {
+        LoginResponse response = authService.refreshTokenIfNeeded(authorization);
+        if (response == null) {
+            // Token still valid, no refresh needed
+            return ApiResponse.success(null);
+        }
+        return ApiResponse.success(response);
+    }
+
     public static class LoginRequest {
         @NotBlank public String code;
         public String nickname;     // 可选：用户昵称

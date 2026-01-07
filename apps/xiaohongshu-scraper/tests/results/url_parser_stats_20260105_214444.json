@@ -1,0 +1,106 @@
+{
+  "total": 1000,
+  "correct": 993,
+  "incorrect": 7,
+  "by_type": {
+    "discovery": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "explore": {
+      "total": 400,
+      "correct": 400,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink_a": {
+      "total": 100,
+      "correct": 100,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "xhslink": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "explore_with_params": {
+      "total": 150,
+      "correct": 150,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "invalid_domain": {
+      "total": 30,
+      "correct": 23,
+      "incorrect": 7,
+      "accuracy": 76.66666666666667
+    },
+    "empty": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "malformed": {
+      "total": 20,
+      "correct": 20,
+      "incorrect": 0,
+      "accuracy": 100.0
+    },
+    "invalid_format": {
+      "total": 30,
+      "correct": 30,
+      "incorrect": 0,
+      "accuracy": 100.0
+    }
+  },
+  "errors": [
+    {
+      "url": "https://fake-xiaohongshu.com/explore/ccd86fb407e2ef5dd1c8330b",
+      "expected": null,
+      "actual": "ccd86fb407e2ef5dd1c8330b",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/03c2f373888c18356d7c3e43",
+      "expected": null,
+      "actual": "03c2f373888c18356d7c3e43",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/a954302bbfccc5edb34d5c84",
+      "expected": null,
+      "actual": "a954302bbfccc5edb34d5c84",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/16408c9b67184a215de3f9d5",
+      "expected": null,
+      "actual": "16408c9b67184a215de3f9d5",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/dae9345eea022d875af40273",
+      "expected": null,
+      "actual": "dae9345eea022d875af40273",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/46ba4be7ba92d731e5e5b6bb",
+      "expected": null,
+      "actual": "46ba4be7ba92d731e5e5b6bb",
+      "type": "invalid_domain"
+    },
+    {
+      "url": "https://fake-xiaohongshu.com/explore/5f859d8461b95f5f1cec5a1e",
+      "expected": null,
+      "actual": "5f859d8461b95f5f1cec5a1e",
+      "type": "invalid_domain"
+    }
+  ],
+  "accuracy": 99.3
+}

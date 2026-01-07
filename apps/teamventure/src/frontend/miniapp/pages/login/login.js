@@ -1,5 +1,5 @@
 // pages/login/login.js
-import { post } from '../../utils/request.js'
+import { post, put, get, uploadFile } from '../../utils/request.js'
 import { API_ENDPOINTS, STORAGE_KEYS } from '../../utils/config.js'
 
 const app = getApp()
@@ -83,14 +83,28 @@ Page({
   },
 
   /**
-   * 昵称输入
+   * 昵称输入（实时更新，包括微信自动填充）
    */
-  onNicknameBlur(e) {
+  onNicknameInput(e) {
     const nickname = e.detail.value
-    console.log('输入昵称:', nickname)
+    console.log('昵称输入:', nickname)
     this.setData({
       nickname: nickname
     })
+  },
+
+  /**
+   * 昵称失焦
+   */
+  onNicknameBlur(e) {
+    const nickname = e.detail.value
+    console.log('昵称失焦:', nickname)
+    // 确保失焦时也更新（兼容处理）
+    if (nickname !== this.data.nickname) {
+      this.setData({
+        nickname: nickname
+      })
+    }
   },
 
   /**
@@ -115,7 +129,7 @@ Page({
       const loginData = await this.backendLogin({
         code: loginCode,
         nickname: nickname.trim(),
-        avatarUrl: avatarUrl
+        avatarUrl: '' // 头像走 OSS 上传后再绑定
       })
 
       // 保存登录信息
@@ -124,6 +138,24 @@ Page({
 
       // 更新全局状态
       app.login(loginData.userInfo)
+
+      // 如果选择了头像，登录后上传并绑定
+      if (avatarUrl) {
+        try {
+          const uploadRes = await uploadFile('/media/upload?category=avatar', avatarUrl, {
+            showLoading: false
+          })
+          const payload = uploadRes?.data || uploadRes
+          if (uploadRes?.success && payload?.key) {
+            await put('/users/me/avatar', { avatarKey: payload.key }, { showLoading: false, showError: false })
+            const me = await get('/users/me', {}, { showLoading: false, showError: false })
+            wx.setStorageSync(STORAGE_KEYS.USER_INFO, me)
+            app.login(me)
+          }
+        } catch (e) {
+          console.warn('头像上传/绑定失败，已忽略:', e)
+        }
+      }
 
       wx.hideLoading()
 
@@ -218,5 +250,27 @@ Page({
       content: '此处应显示完整的协议内容',
       showCancel: false
     })
+  },
+
+  /**
+   * 游客模式入口
+   */
+  handleGuestMode() {
+    // 设置游客模式标记
+    app.globalData.isGuestMode = true
+    app.globalData.isLogin = false
+
+    wx.showToast({
+      title: '游客模式',
+      icon: 'none',
+      duration: 1500
+    })
+
+    // 跳转到首页，部分功能受限
+    setTimeout(() => {
+      wx.switchTab({
+        url: '/pages/index/index'
+      })
+    }, 800)
   }
 })

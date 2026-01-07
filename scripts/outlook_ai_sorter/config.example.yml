@@ -1,0 +1,36 @@
+review_parent: inbox
+review_root: AI_Review
+
+# If set, phase1 only processes messages older than this many days.
+older_than_days: 365
+
+# Stop after processing this many messages (safety).
+max_messages: 2000
+
+# First-match wins. A rule matches when all specified match-keys match (AND),
+# and each list is treated as "any-of" (OR).
+rules:
+  - name: Subscriptions
+    folder: Subscriptions
+    match:
+      header_exists: ["List-Unsubscribe"]
+  - name: NoReply
+    folder: Notifications/NoReply
+    match:
+      from_contains: ["noreply", "no-reply"]
+  - name: GitHub
+    folder: Notifications/GitHub
+    match:
+      from_domains: ["github.com"]
+  - name: Jira
+    folder: Notifications/Jira
+    match:
+      subject_contains: ["JIRA", "[JIRA]"]
+
+default_folder: Other
+
+# Phase2 rule generation knobs
+rulegen:
+  min_count: 10
+  min_precision: 0.95
+  allow_domain_rules: false

@@ -112,8 +112,22 @@ formData.destination        →  API: destination     // 目的地
 
 | 状态值 | 中文名 | 说明 | 后续动作 |
 |--------|--------|------|----------|
-| `draft` | 草稿 | 方案已生成，待用户确认 | 可确认、可删除 |
-| `confirmed` | 已确认 | 用户已采纳此方案 | 纳入北极星指标 |
+| `generating` | 生成中 | AI正在生成方案 | 等待完成 |
+| `failed` | 生成失败 | AI生成过程出错 | 重新生成 |
+| `draft` | 制定完成 | 方案已生成，待用户通晒 | 可通晒、可删除 |
+| `reviewing` | 通晒中 | 方案已提交通晒，团队审阅中 | 可确认、可撤回 |
+| `confirmed` | 已确认 | 用户已采纳此方案 | 纳入北极星指标、可归档 |
+| `archived` | 已归档 | 方案已归档，不再展示 | 可恢复 |
+
+**状态流转图**:
+```
+generating → failed (生成出错)
+generating → draft (生成完成)
+draft → reviewing (通晒此方案)
+reviewing → draft (撤回通晒)
+reviewing → confirmed (确认此方案)
+confirmed → archived (归档)
+```
 
 ### 3.4 请求状态 (Request Status)
 
@@ -150,7 +164,8 @@ formData.destination        →  API: destination     // 目的地
 |-------------|---------|-----------|---------|---------|
 | 团建方案 | Plan | `plans` 表 | `plan` | "方案" |
 | 方案类型（经济/平衡/品质） | PlanType | `plan_type` | `plan_type` | "经济型"/"平衡型"/"品质型" |
-| 确认方案 | ConfirmPlan | `status='confirmed'` | `POST /plans/{id}/confirm` | "确认此方案" |
+| **通晒方案** | **SubmitReview** | `status='reviewing'` | `PUT /plans/{id}/submit-review` | **"通晒此方案"** |
+| 确认方案 | ConfirmPlan | `status='confirmed'` | `PUT /plans/{id}/confirm` | "确认此方案" |
 | 供应商快照 | SupplierSnapshot | `supplier_snapshots` | `supplier_snapshots` | "供应商信息" |
 | 生成时间 | GenerationDuration | `generation_time_ms` | `generation_time_ms` | "已为您生成方案（耗时45秒）" |
 | 出发城市 | DepartureCity | `departure_city` | `departure_city` | "出发地点" |
@@ -164,6 +179,7 @@ formData.destination        →  API: destination     // 目的地
 |---------|--------|---------|-------------|
 | `PlanRequestCreated` | PlanRequest | 用户提交生成需求后 | `{plan_request_id}` |
 | `PlanGenerated` | Plan | AI服务回调生成方案后 | `{plan_id}` |
+| `PlanSubmittedForReview` | Plan | 用户通晒方案后 | `{plan_id}` |
 | `PlanConfirmed` | Plan | 用户确认方案后 | `{plan_id}` |
 | `SupplierContacted` | SupplierContactLog | 用户联系供应商后 | `{plan_id, supplier_id, channel}` |
 
@@ -186,3 +202,4 @@ formData.destination        →  API: destination     // 目的地
 | 版本 | 日期 | 变更内容 |
 |------|------|----------|
 | v1.0 | 2026-01-06 | 初始版本，整合全链路字段定义 |
+| v1.1 | 2026-01-07 | 补充"通晒"工作流：Section 4.3 添加"通晒方案"术语映射，Section 5 添加 `PlanSubmittedForReview` 领域事件 |

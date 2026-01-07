@@ -96,7 +96,7 @@
             <text class="category-name">{{item.category}}</text>
             <text class="category-subtotal">¥{{item.subtotal}}</text>
           </view>
-          <view class="category-items">
+          <view class="category-items" wx:if="{{item.items && item.items.length > 0}}">
             <view
               wx:for="{{item.items}}"
               wx:for-item="budgetItem"
@@ -188,11 +188,17 @@
   <view class="bottom-actions">
     <button
       class="btn-confirm"
-      bindtap="handleConfirmPlan"
+      bindtap="handleSubmitReview"
       wx:if="{{plan.status === 'draft'}}"
     >
-      确认此方案
+      通晒此方案
     </button>
+    <!-- 通晒中状态：显示3个操作按钮 -->
+    <view class="reviewing-actions" wx:if="{{plan.status === 'reviewing'}}">
+      <button class="btn-confirm" bindtap="handleConfirmPlan">方案确认</button>
+      <button class="btn-cancel" bindtap="handleCancelPlan">方案取消</button>
+      <button class="btn-archive" bindtap="handleArchivePlan">方案归档</button>
+    </view>
     <button
       class="btn-confirmed"
       disabled

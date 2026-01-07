@@ -129,6 +129,30 @@
   color: #fff;
 }
 
+/* 游客入口 */
+.guest-entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32rpx;
+  padding: 16rpx 0;
+}
+
+.guest-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.guest-arrow {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 8rpx;
+}
+
+.guest-entry:active {
+  opacity: 0.7;
+}
+
 /* 用户协议 */
 .agreement {
   text-align: center;
