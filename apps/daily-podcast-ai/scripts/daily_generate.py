@@ -14,9 +14,48 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
 from dotenv import load_dotenv
+from news_sources.rss_fetcher import Article
 
 # 加载环境变量
 load_dotenv(project_root / ".env")
+
+
+def load_articles_from_cache(date_str: str) -> list:
+    """
+    从缓存加载新闻
+
+    Args:
+        date_str: 日期字符串 (YYYY-MM-DD)
+
+    Returns:
+        Article 对象列表
+    """
+    import json
+
+    cache_path = project_root / "cache" / f"{date_str}-news.json"
+
+    if not cache_path.exists():
+        print(f"  ⚠️ 缓存文件不存在: {cache_path}")
+        return []
+
+    with open(cache_path, "r", encoding="utf-8") as f:
+        news_list = json.load(f)
+
+    # 转换为 Article 对象
+    articles = []
+    for news in news_list:
+        article = Article(
+            title=news["title"],
+            summary=news["summary"],
+            link=news["link"],
+            source=news["source"],
+            category=news["category"],
+            published=datetime.fromisoformat(news["published"]) if news.get("published") else None
+        )
+        articles.append(article)
+
+    print(f"  📂 从缓存加载 {len(articles)} 篇新闻")
+    return articles
 
 
 def main():
@@ -131,6 +170,12 @@ def main():
         help="演示模式，不实际生成文件"
     )
 
+    parser.add_argument(
+        "--from-cache",
+        action="store_true",
+        help="从缓存读取新闻并使用 AI 优选（每小时收集模式）"
+    )
+
     args = parser.parse_args()
 
     # 解析日期
@@ -167,7 +212,8 @@ def main():
             group_by_category=args.group_by_category,
             voice_id=args.voice_id,
             verbose=args.verbose,
-            dry_run=args.dry_run
+            dry_run=args.dry_run,
+            from_cache=args.from_cache
         )
 
         if result:
@@ -237,7 +283,8 @@ def generate_podcast(
     group_by_category: bool = False,
     voice_id: str = None,
     verbose: bool = False,
-    dry_run: bool = False
+    dry_run: bool = False,
+    from_cache: bool = False
 ) -> dict:
     """
     生成播客的主流程
@@ -282,16 +329,38 @@ def generate_podcast(
     print("📰 步骤 1/5: 获取新闻")
     print("-" * 40)
 
-    fetcher = RSSFetcher()
-    articles = fetcher.fetch_all()
+    if from_cache:
+        # 从缓存读取全天收集的新闻
+        articles = load_articles_from_cache(date_str)
+        if not articles:
+            print("⚠️ 缓存为空，回退到实时获取")
+            from_cache = False  # 回退
 
-    if not articles:
-        print("❌ 没有获取到任何文章")
-        return None
+    if not from_cache:
+        # 实时获取新闻
+        fetcher = RSSFetcher()
+        raw_articles = fetcher.fetch_all()
 
-    # 限制文章数量
-    articles = articles[:max_articles]
-    print(f"✅ 获取到 {len(articles)} 篇文章")
+        if not raw_articles:
+            print("❌ 没有获取到任何文章")
+            return None
+
+        articles = raw_articles
+
+    print(f"📊 候选新闻: {len(articles)} 篇")
+
+    # 使用 AI 优选
+    if from_cache and len(articles) > max_articles:
+        print(f"🤖 步骤 1.5: AI 优选新闻 (从 {len(articles)} 篇中选出 {max_articles} 篇)")
+        print("-" * 40)
+        from processors.news_ranker import NewsRanker
+        ranker = NewsRanker()
+        articles = ranker.rank_articles(articles, max_count=max_articles)
+    else:
+        # 简单截取
+        articles = articles[:max_articles]
+
+    print(f"✅ 最终选定 {len(articles)} 篇文章")
 
     if dry_run:
         for i, article in enumerate(articles, 1):

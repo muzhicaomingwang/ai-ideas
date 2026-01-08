@@ -48,10 +48,10 @@ OUTPUT_DIR="$PROJECT_DIR/output/$TODAY"
 echo "📅 生成日期: $TODAY" >> "$LOG_FILE"
 echo "📁 输出目录: $OUTPUT_DIR" >> "$LOG_FILE"
 
-# 步骤1: 生成播客（讲稿+音频）
+# 步骤1: 生成播客（讲稿+音频）- 使用全天收集的新闻缓存
 echo "" >> "$LOG_FILE"
-echo "🎙️ 步骤1: 生成播客讲稿和音频..." >> "$LOG_FILE"
-$PYTHON scripts/daily_generate.py --date "$TODAY" >> "$LOG_FILE" 2>&1
+echo "🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）..." >> "$LOG_FILE"
+$PYTHON scripts/daily_generate.py --date "$TODAY" --from-cache >> "$LOG_FILE" 2>&1
 
 if [ $? -eq 0 ]; then
     echo "✅ 播客生成完成" >> "$LOG_FILE"

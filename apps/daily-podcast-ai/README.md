@@ -109,18 +109,23 @@ daily-podcast-ai/
 │   │   └── api_fetcher.py
 │   ├── processors/           # 内容处理模块
 │   │   ├── summarizer.py     # 新闻摘要
-│   │   └── script_writer.py  # 播客脚本生成
+│   │   ├── script_writer.py  # 播客脚本生成
+│   │   └── news_ranker.py    # AI新闻优选（GPT-4o-mini）
 │   └── generators/           # 音频生成模块
 │       ├── tts_generator.py  # TTS 生成
 │       └── audio_mixer.py    # 音频合成
 ├── scripts/
 │   ├── setup_voice.py        # 声音克隆设置
-│   ├── daily_generate.py     # 每日生成脚本（生成讲稿+音频）
+│   ├── daily_generate.py     # 每日生成脚本（支持 --from-cache 优选）
+│   ├── hourly_collect.py     # 每小时新闻收集脚本
 │   ├── generate_cover.py     # 封面图片生成（PIL，1400x1400px）
 │   ├── run_daily.sh          # 定时任务执行脚本（venv + .env）
-│   └── com.daily-podcast-ai.plist  # macOS launchd 定时任务配置
+│   ├── com.daily-podcast-ai.plist        # launchd: 每天7点生成播客
+│   └── com.daily-podcast-ai-hourly.plist # launchd: 每小时收集新闻
 ├── logo/
 │   └── 王植萌漫画形象.png     # 播客封面 logo（350px）
+├── cache/                    # 新闻缓存目录
+│   └── YYYY-MM-DD-news.json  # 每小时收集的新闻缓存
 ├── docs/
 │   └── workflow.md           # 工作流文档
 ├── output/                   # 生成的播客文件
@@ -128,6 +133,10 @@ daily-podcast-ai/
 │       ├── script-YYYY-MM-DD.md      # 播客讲稿
 │       ├── cover-YYYY-MM-DD.png      # 封面图片
 │       └── daily-podcast-YYYY-MM-DD.mp3  # 音频文件
+├── logs/                     # 日志目录
+│   ├── daily-YYYY-MM-DD.log  # 每日生成日志
+│   ├── hourly-stdout.log     # 每小时收集日志
+│   └── launchd-*.log         # launchd 系统日志
 └── venv/                     # Python 虚拟环境
 ```
 
@@ -135,33 +144,58 @@ daily-podcast-ai/
 
 ## 工作流设计
 
+### 两级自动化流程
+
 ```
+┌─────────────────────────────────────────────────────────────┐
+│                   阶段1: 每小时收集（0:00-6:00）              │
+└─────────────────────────────────────────────────────────────┘
+         │
+         │  每小时执行一次
+         ▼
 ┌─────────────────┐
-│   新闻源获取     │  RSS / API / 网页爬取
+│  RSS 源获取      │  从配置的新闻源获取最新文章
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│   内容筛选       │  按关键词/分类过滤
+│  去重 & 追加     │  自动去重，追加到缓存文件
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│   AI 摘要        │  Claude 生成简明摘要
+│  缓存存储        │  cache/YYYY-MM-DD-news.json
+└─────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                   阶段2: 早上7点优选生成                      │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│  读取缓存        │  加载全天收集的新闻（可能几十篇）
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│   脚本生成       │  生成播客脚本（含过渡语）
+│  AI 优选         │  GPT-4o-mini 评估质量，选出 Top 10
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│   语音合成       │  ElevenLabs TTS（你的声音）
+│  AI 摘要         │  Claude 生成简明摘要
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│   音频后处理     │  添加背景音乐、标准化
+│  脚本生成        │  生成播客脚本（含过渡语）
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│   输出 MP3       │  最终播客文件
+│  语音合成        │  ElevenLabs TTS（你的声音）
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│  封面生成        │  PIL 生成封面图片（含logo）
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│  输出文件        │  讲稿 + 封面 + MP3
 └─────────────────┘
 ```
 
@@ -205,29 +239,31 @@ python scripts/daily_generate.py
 
 ## 自动化每日执行
 
-使用 macOS launchd 实现每天早上 7:00 自动生成播客。
+使用 macOS launchd 实现**两级自动化**：
+1. **每小时收集**（0:00-6:00）- 持续收集新闻到缓存
+2. **早上7点优选**（7:00）- 从全天新闻中 AI 挑选最优质的内容生成播客
 
 ### 配置步骤
 
 #### 1. 创建 .env 文件
 
-在项目根目录创建 `.env` 文件，配置 ElevenLabs API Key：
+在项目根目录创建 `.env` 文件，配置 API Keys：
 
 ```bash
-ELEVENLABS_API_KEY=your_api_key_here
+ELEVENLABS_API_KEY=your_elevenlabs_key_here
+OPENAI_API_KEY=your_openai_key_here
 ```
 
-#### 2. 安装 launchd 任务
+#### 2. 安装 launchd 任务（两个）
 
 ```bash
-# 复制配置文件到 LaunchAgents
+# 任务1: 每小时收集新闻（0:00-6:00）
+cp scripts/com.daily-podcast-ai-hourly.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.daily-podcast-ai-hourly.plist
+
+# 任务2: 早上7点生成播客
 cp scripts/com.daily-podcast-ai.plist ~/Library/LaunchAgents/
-
-# 加载任务（立即生效）
 launchctl load ~/Library/LaunchAgents/com.daily-podcast-ai.plist
-
-# 启动任务
-launchctl start com.daily-podcast-ai
 ```
 
 #### 3. 管理定时任务
@@ -236,46 +272,75 @@ launchctl start com.daily-podcast-ai
 # 查看任务状态
 launchctl list | grep daily-podcast-ai
 
+# 查看每小时收集任务
+launchctl list | grep daily-podcast-ai-hourly
+
 # 停止任务
 launchctl stop com.daily-podcast-ai
+launchctl stop com.daily-podcast-ai-hourly
 
 # 卸载任务
 launchctl unload ~/Library/LaunchAgents/com.daily-podcast-ai.plist
+launchctl unload ~/Library/LaunchAgents/com.daily-podcast-ai-hourly.plist
 
 # 重新加载任务（修改配置后）
+launchctl unload ~/Library/LaunchAgents/com.daily-podcast-ai-hourly.plist
+launchctl load ~/Library/LaunchAgents/com.daily-podcast-ai-hourly.plist
+
 launchctl unload ~/Library/LaunchAgents/com.daily-podcast-ai.plist
 launchctl load ~/Library/LaunchAgents/com.daily-podcast-ai.plist
 ```
 
 ### 执行流程
 
-每天早上 7:00，自动执行以下步骤：
+#### 阶段1: 每小时收集（0:00 - 6:00）
 
-1. **生成播客讲稿和音频** (`scripts/daily_generate.py`)
-   - 从新闻源获取当天新闻
+每小时整点执行 `scripts/hourly_collect.py`：
+- 从 RSS 源获取最新新闻
+- 追加到缓存文件 `cache/YYYY-MM-DD-news.json`
+- 自动去重（基于 URL 和标题）
+- 累积全天候选新闻
+
+#### 阶段2: 早上7点优选生成
+
+执行 `scripts/run_daily.sh`，包含以下步骤：
+
+1. **AI 优选新闻** (`scripts/daily_generate.py --from-cache`)
+   - 从缓存读取全天收集的新闻（可能有几十篇）
+   - 使用 OpenAI GPT-4o-mini 评估新闻质量
+   - 按重要性、新颖性、可理解性、时效性打分
+   - 选出 Top 10 条最优质新闻
+
+2. **生成播客讲稿和音频**
    - 使用 AI 生成播客脚本
    - 调用 ElevenLabs TTS API 生成音频（voice_id: `SKlxpKXGwoM0E8XpnxNs`）
 
-2. **生成封面图片** (`scripts/generate_cover.py`)
+3. **生成封面图片** (`scripts/generate_cover.py`)
    - 使用 PIL 生成 1400x1400px 封面
    - 包含日期、新闻数量、logo（350px）
 
-3. **输出文件**
+4. **输出文件**
    - `output/YYYY-MM-DD/script-YYYY-MM-DD.md` - 播客讲稿
    - `output/YYYY-MM-DD/cover-YYYY-MM-DD.png` - 封面图片
    - `output/YYYY-MM-DD/daily-podcast-YYYY-MM-DD.mp3` - 音频文件
+   - `cache/YYYY-MM-DD-news.json` - 全天收集的新闻缓存
 
 ### 日志查看
 
 ```bash
-# 查看执行日志
+# 查看每日生成日志
 cat logs/daily-$(date +%Y-%m-%d).log
 
-# 查看 launchd 标准输出
-cat logs/launchd-stdout.log
+# 查看每小时收集日志
+cat logs/hourly-stdout.log
 
-# 查看 launchd 错误输出
-cat logs/launchd-stderr.log
+# 查看 launchd 日志
+cat logs/launchd-stdout.log      # 7点任务标准输出
+cat logs/launchd-stderr.log      # 7点任务错误输出
+cat logs/hourly-stderr.log       # 每小时任务错误输出
+
+# 查看当天收集的新闻缓存
+cat cache/$(date +%Y-%m-%d)-news.json | python -m json.tool
 ```
 
 ---
