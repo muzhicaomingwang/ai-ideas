@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
-    private static final long EXPIRES_SECONDS = 86400L;
-    private static final long REFRESH_THRESHOLD_SECONDS = 3600L; // Refresh when < 1 hour remaining
+    private static final long EXPIRES_SECONDS = 604800L; // 7 days
+    private static final long REFRESH_THRESHOLD_SECONDS = 43200L; // Refresh when < 12 hours remaining
 
     private final UserMapper userMapper;
     private final StringRedisTemplate redis;
