@@ -2,6 +2,10 @@
 .claude/*
 !.claude/skills/
 
+# Google OAuth credentials (敏感信息)
+token.json
+credentials.json
+
 # macOS
 .DS_Store
 
@@ -27,3 +31,4 @@ venv/
 scripts/outlook_ai_sorter/.outlook_token_cache.bin
 scripts/outlook_ai_sorter/.outlook_ai_sorter_state.json
 scripts/outlook_ai_sorter/rule_proposals.json
+scripts/outlook_ai_sorter/offline_sender_summary.csv
