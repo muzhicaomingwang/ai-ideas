@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.adapter.web.auth</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.teamventure.adapter.web.auth;
+
+import com.teamventure.adapter.web.common.ApiResponse;
+import com.teamventure.app.service.AuthService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/v1/auth/wechat&quot;)
+public class AuthController {
+
+    private final AuthService authService;
+
+<span class="nc" id="L15">    public AuthController(AuthService authService) {</span>
+<span class="nc" id="L16">        this.authService = authService;</span>
+<span class="nc" id="L17">    }</span>
+
+    /**
+     * 微信登录 API
+     * Endpoint: POST /api/v1/auth/wechat/login
+     * 参考文档: docs/design/api-design.md Section 2.2
+     */
+    @PostMapping(&quot;/login&quot;)
+    public ApiResponse&lt;LoginResponse&gt; login(@Valid @RequestBody LoginRequest req) {
+<span class="nc" id="L26">        return ApiResponse.success(authService.loginWithWeChat(req.code, req.nickname, req.avatarUrl));</span>
+    }
+
+    /**
+     * 刷新Token API (Token Refresh)
+     * Endpoint: POST /api/v1/auth/wechat/refresh
+     * 用途: 当token剩余有效期 &lt; 12小时时自动刷新，实现无感续期
+     * 参考文档: docs/design/api-design.md Section 2.4
+     *
+     * @return 如果token仍有效无需刷新，返回null；否则返回新token和用户信息
+     */
+    @PostMapping(&quot;/refresh&quot;)
+    public ApiResponse&lt;LoginResponse&gt; refresh(@RequestHeader(&quot;Authorization&quot;) String authorization) {
+<span class="nc" id="L39">        LoginResponse response = authService.refreshTokenIfNeeded(authorization);</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (response == null) {</span>
+            // Token仍然有效，无需刷新 (Token still valid, no refresh needed)
+<span class="nc" id="L42">            return ApiResponse.success(null);</span>
+        }
+<span class="nc" id="L44">        return ApiResponse.success(response);</span>
+    }
+
+<span class="nc" id="L47">    public static class LoginRequest {</span>
+        @NotBlank public String code;
+        public String nickname;     // 可选：用户昵称
+        public String avatarUrl;    // 可选：用户头像URL
+    }
+
+    public static class LoginResponse {
+        public String sessionToken;
+        public UserInfo userInfo;
+
+<span class="nc" id="L57">        public LoginResponse(String sessionToken, UserInfo userInfo) {</span>
+<span class="nc" id="L58">            this.sessionToken = sessionToken;</span>
+<span class="nc" id="L59">            this.userInfo = userInfo;</span>
+<span class="nc" id="L60">        }</span>
+
+        public static class UserInfo {
+            public String user_id;
+            public String nickname;
+            public String avatar;
+            public String phone;
+            public String company;
+            public String role;
+
+<span class="nc" id="L70">            public UserInfo(String userId, String nickname, String avatar, String phone, String company, String role) {</span>
+<span class="nc" id="L71">                this.user_id = userId;</span>
+<span class="nc" id="L72">                this.nickname = nickname;</span>
+<span class="nc" id="L73">                this.avatar = avatar;</span>
+<span class="nc" id="L74">                this.phone = phone;</span>
+<span class="nc" id="L75">                this.company = company;</span>
+<span class="nc" id="L76">                this.role = role;</span>
+<span class="nc" id="L77">            }</span>
+        }
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

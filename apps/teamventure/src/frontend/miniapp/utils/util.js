@@ -184,7 +184,7 @@ export function deepClone(obj) {
 
   const cloned = {}
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       cloned[key] = deepClone(obj[key])
     }
   }
@@ -274,7 +274,7 @@ export function copyToClipboard(text, successMsg = '复制成功') {
  */
 export function previewImage(current, urls = []) {
   wx.previewImage({
-    current: current,
+    current,
     urls: urls.length ? urls : [current]
   })
 }
@@ -286,7 +286,7 @@ export function previewImage(current, urls = []) {
 export function saveImageToPhotosAlbum(url) {
   // 先下载图片
   wx.downloadFile({
-    url: url,
+    url,
     success: (res) => {
       // 保存到相册
       wx.saveImageToPhotosAlbum({

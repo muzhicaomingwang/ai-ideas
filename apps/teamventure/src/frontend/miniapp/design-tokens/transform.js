@@ -6,62 +6,62 @@
  * 使用方法: node transform.js
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
 // 读取 tokens
-const tokensPath = path.join(__dirname, 'tokens.json');
-const tokens = JSON.parse(fs.readFileSync(tokensPath, 'utf8'));
+const tokensPath = path.join(__dirname, 'tokens.json')
+const tokens = JSON.parse(fs.readFileSync(tokensPath, 'utf8'))
 
 // 解析 Token 引用 (如 {global.colors.primary})
 function resolveReference(value, allTokens) {
-  if (typeof value !== 'string') return value;
+  if (typeof value !== 'string') return value
 
-  const refMatch = value.match(/^\{(.+)\}$/);
-  if (!refMatch) return value;
+  const refMatch = value.match(/^\{(.+)\}$/)
+  if (!refMatch) return value
 
-  const refPath = refMatch[1].split('.');
-  let resolved = allTokens;
+  const refPath = refMatch[1].split('.')
+  let resolved = allTokens
 
   for (const key of refPath) {
     if (resolved && resolved[key]) {
-      resolved = resolved[key];
+      resolved = resolved[key]
     } else {
-      return value; // 无法解析，返回原值
+      return value // 无法解析，返回原值
     }
   }
 
-  return resolved.value || resolved;
+  return resolved.value || resolved
 }
 
 // 将 Token 路径转换为 CSS 变量名
 function tokenToCssVar(path) {
-  return '--' + path.join('-').toLowerCase();
+  return '--' + path.join('-').toLowerCase()
 }
 
 // 递归遍历 tokens 生成变量
 function flattenTokens(obj, parentPath = [], result = {}, allTokens = tokens) {
   for (const [key, value] of Object.entries(obj)) {
     // 跳过元数据字段
-    if (key.startsWith('$')) continue;
+    if (key.startsWith('$')) continue
 
-    const currentPath = [...parentPath, key];
+    const currentPath = [...parentPath, key]
 
     if (value && typeof value === 'object' && 'value' in value) {
       // 这是一个 token
-      const cssVarName = tokenToCssVar(currentPath);
-      const resolvedValue = resolveReference(value.value, allTokens);
+      const cssVarName = tokenToCssVar(currentPath)
+      const resolvedValue = resolveReference(value.value, allTokens)
       result[cssVarName] = {
         value: resolvedValue,
         description: value.description || ''
-      };
+      }
     } else if (value && typeof value === 'object') {
       // 继续递归
-      flattenTokens(value, currentPath, result, allTokens);
+      flattenTokens(value, currentPath, result, allTokens)
     }
   }
 
-  return result;
+  return result
 }
 
 // 生成 WXSS 内容
@@ -76,7 +76,7 @@ function generateWXSS(flatTokens) {
  */
 
 page {
-`;
+`
 
   // 按类别分组
   const categories = {
@@ -86,27 +86,27 @@ page {
     'global-spacing': [],
     'global-borderradius': [],
     'global-shadows': [],
-    'components': [],
-    'pages': []
-  };
+    components: [],
+    pages: []
+  }
 
   for (const [varName, data] of Object.entries(flatTokens)) {
     if (varName.startsWith('--global-colors')) {
-      categories['global-colors'].push({ varName, ...data });
+      categories['global-colors'].push({ varName, ...data })
     } else if (varName.startsWith('--global-neutrals')) {
-      categories['global-neutrals'].push({ varName, ...data });
+      categories['global-neutrals'].push({ varName, ...data })
     } else if (varName.startsWith('--global-typography')) {
-      categories['global-typography'].push({ varName, ...data });
+      categories['global-typography'].push({ varName, ...data })
     } else if (varName.startsWith('--global-spacing')) {
-      categories['global-spacing'].push({ varName, ...data });
+      categories['global-spacing'].push({ varName, ...data })
     } else if (varName.startsWith('--global-borderradius')) {
-      categories['global-borderradius'].push({ varName, ...data });
+      categories['global-borderradius'].push({ varName, ...data })
     } else if (varName.startsWith('--global-shadows')) {
-      categories['global-shadows'].push({ varName, ...data });
+      categories['global-shadows'].push({ varName, ...data })
     } else if (varName.startsWith('--components')) {
-      categories['components'].push({ varName, ...data });
+      categories.components.push({ varName, ...data })
     } else if (varName.startsWith('--pages')) {
-      categories['pages'].push({ varName, ...data });
+      categories.pages.push({ varName, ...data })
     }
   }
 
@@ -118,20 +118,20 @@ page {
     'global-spacing': '间距',
     'global-borderradius': '圆角',
     'global-shadows': '阴影',
-    'components': '组件',
-    'pages': '页面'
-  };
+    components: '组件',
+    pages: '页面'
+  }
 
   for (const [category, items] of Object.entries(categories)) {
-    if (items.length === 0) continue;
+    if (items.length === 0) continue
 
-    wxss += `\n  /* ========== ${categoryLabels[category]} ========== */\n`;
+    wxss += `\n  /* ========== ${categoryLabels[category]} ========== */\n`
 
     for (const { varName, value, description } of items) {
       if (description) {
-        wxss += `  /* ${description} */\n`;
+        wxss += `  /* ${description} */\n`
       }
-      wxss += `  ${varName}: ${value};\n`;
+      wxss += `  ${varName}: ${value};\n`
     }
   }
 
@@ -184,9 +184,9 @@ page {
   background-color: var(--global-colors-danger-light);
   color: var(--global-colors-danger);
 }
-`;
+`
 
-  return wxss;
+  return wxss
 }
 
 // 生成 JS 常量文件（用于 JS 中引用）
@@ -198,49 +198,49 @@ function generateJS(flatTokens) {
  */
 
 const DESIGN_TOKENS = {
-`;
+`
 
   for (const [varName, data] of Object.entries(flatTokens)) {
     const jsKey = varName
       .replace(/^--/, '')
-      .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+      .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
 
-    js += `  ${jsKey}: '${data.value}',\n`;
+    js += `  ${jsKey}: '${data.value}',\n`
   }
 
   js += `};
 
 module.exports = DESIGN_TOKENS;
-`;
+`
 
-  return js;
+  return js
 }
 
 // 主函数
 function main() {
-  console.log('🎨 Design Tokens Transform');
-  console.log('==========================\n');
+  console.log('🎨 Design Tokens Transform')
+  console.log('==========================\n')
 
   // 展平 tokens
-  const flatTokens = flattenTokens(tokens);
-  console.log(`✓ 解析了 ${Object.keys(flatTokens).length} 个 Token\n`);
+  const flatTokens = flattenTokens(tokens)
+  console.log(`✓ 解析了 ${Object.keys(flatTokens).length} 个 Token\n`)
 
   // 生成 WXSS
-  const wxss = generateWXSS(flatTokens);
-  const wxssPath = path.join(__dirname, 'variables.wxss');
-  fs.writeFileSync(wxssPath, wxss);
-  console.log(`✓ 生成 WXSS: ${wxssPath}`);
+  const wxss = generateWXSS(flatTokens)
+  const wxssPath = path.join(__dirname, 'variables.wxss')
+  fs.writeFileSync(wxssPath, wxss)
+  console.log(`✓ 生成 WXSS: ${wxssPath}`)
 
   // 生成 JS
-  const js = generateJS(flatTokens);
-  const jsPath = path.join(__dirname, 'tokens.js');
-  fs.writeFileSync(jsPath, js);
-  console.log(`✓ 生成 JS:   ${jsPath}`);
+  const js = generateJS(flatTokens)
+  const jsPath = path.join(__dirname, 'tokens.js')
+  fs.writeFileSync(jsPath, js)
+  console.log(`✓ 生成 JS:   ${jsPath}`)
 
-  console.log('\n🎉 完成！');
-  console.log('\n使用方法:');
-  console.log('  WXSS: @import \'./design-tokens/variables.wxss\';');
-  console.log('  JS:   const tokens = require(\'./design-tokens/tokens.js\');');
+  console.log('\n🎉 完成！')
+  console.log('\n使用方法:')
+  console.log('  WXSS: @import \'./design-tokens/variables.wxss\';')
+  console.log('  JS:   const tokens = require(\'./design-tokens/tokens.js\');')
 }
 
-main();
+main()

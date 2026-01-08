@@ -1,0 +1,4 @@
+com/teamventure/app/service/AuthServiceIntegrationTest.class
+com/teamventure/TestApplication.class
+com/teamventure/app/service/AuthServiceTest.class
+com/teamventure/app/support/JwtSupportTest.class

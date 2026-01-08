@@ -134,8 +134,9 @@ Page({
       return labels[style[0]] || '特色餐'
     }
 
-    return labels[style] || plan.plan_type === 'budget' ? '农家菜' :
-           plan.plan_type === 'premium' ? '精品餐厅' : '特色餐'
+    return labels[style] || plan.plan_type === 'budget'
+      ? '农家菜'
+      : plan.plan_type === 'premium' ? '精品餐厅' : '特色餐'
   },
 
   /**

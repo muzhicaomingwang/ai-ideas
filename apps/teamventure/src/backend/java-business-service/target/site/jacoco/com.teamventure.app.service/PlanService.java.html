@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">PlanService.java</span></div><h1>PlanService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.teamventure.adapter.web.plans.PlanController.GenerateRequest;
+import com.teamventure.adapter.web.plans.PlanController.GenerateResponse;
+import com.teamventure.adapter.web.plans.PlanController.SupplierContactRequest;
+import com.teamventure.app.support.BizException;
+import com.teamventure.app.support.IdGenerator;
+import com.teamventure.infrastructure.persistence.mapper.DomainEventMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanRequestMapper;
+import com.teamventure.infrastructure.persistence.mapper.SupplierContactLogMapper;
+import com.teamventure.infrastructure.persistence.po.DomainEventPO;
+import com.teamventure.infrastructure.persistence.po.PlanPO;
+import com.teamventure.infrastructure.persistence.po.PlanRequestPO;
+import com.teamventure.infrastructure.persistence.po.SupplierContactLogPO;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PlanService {
+    private final PlanRequestMapper planRequestMapper;
+    private final PlanMapper planMapper;
+    private final SupplierContactLogMapper contactLogMapper;
+    private final DomainEventMapper eventMapper;
+    private final RabbitTemplate rabbitTemplate;
+    private final String exchange;
+    private final String routingKey;
+
+    public PlanService(
+            PlanRequestMapper planRequestMapper,
+            PlanMapper planMapper,
+            SupplierContactLogMapper contactLogMapper,
+            DomainEventMapper eventMapper,
+            RabbitTemplate rabbitTemplate,
+            @Value(&quot;${teamventure.mq.exchange.plan-generation}&quot;) String exchange,
+            @Value(&quot;${teamventure.mq.routing-key.plan-request}&quot;) String routingKey
+<span class="nc" id="L47">    ) {</span>
+<span class="nc" id="L48">        this.planRequestMapper = planRequestMapper;</span>
+<span class="nc" id="L49">        this.planMapper = planMapper;</span>
+<span class="nc" id="L50">        this.contactLogMapper = contactLogMapper;</span>
+<span class="nc" id="L51">        this.eventMapper = eventMapper;</span>
+<span class="nc" id="L52">        this.rabbitTemplate = rabbitTemplate;</span>
+<span class="nc" id="L53">        this.exchange = exchange;</span>
+<span class="nc" id="L54">        this.routingKey = routingKey;</span>
+<span class="nc" id="L55">    }</span>
+
+    public GenerateResponse createPlanRequestAndPublish(String userId, GenerateRequest req) {
+<span class="nc" id="L58">        String planRequestId = IdGenerator.newId(&quot;plan_req&quot;);</span>
+<span class="nc" id="L59">        PlanRequestPO po = new PlanRequestPO();</span>
+<span class="nc" id="L60">        po.setPlanRequestId(planRequestId);</span>
+<span class="nc" id="L61">        po.setUserId(userId);</span>
+<span class="nc" id="L62">        po.setPeopleCount(req.people_count);</span>
+<span class="nc" id="L63">        po.setBudgetMin(req.budget_min);</span>
+<span class="nc" id="L64">        po.setBudgetMax(req.budget_max);</span>
+<span class="nc" id="L65">        po.setStartDate(req.start_date);</span>
+<span class="nc" id="L66">        po.setEndDate(req.end_date);</span>
+<span class="nc" id="L67">        po.setDepartureCity(req.departure_city);</span>
+<span class="nc" id="L68">        po.setDestination(req.destination);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        po.setPreferencesJson(req.preferences == null ? &quot;{}&quot; : Jsons.toJson(req.preferences));</span>
+<span class="nc" id="L70">        po.setStatus(&quot;GENERATING&quot;);</span>
+<span class="nc" id="L71">        po.setGenerationStartedAt(Instant.now());</span>
+<span class="nc" id="L72">        planRequestMapper.insert(po);</span>
+
+<span class="nc" id="L74">        recordEvent(&quot;PlanRequestCreated&quot;, &quot;PlanRequest&quot;, planRequestId, userId, Map.of(&quot;plan_request_id&quot;, planRequestId));</span>
+
+<span class="nc" id="L76">        Map&lt;String, Object&gt; mq = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L77">        mq.put(&quot;plan_request_id&quot;, planRequestId);</span>
+<span class="nc" id="L78">        mq.put(&quot;user_id&quot;, userId);</span>
+<span class="nc" id="L79">        mq.put(&quot;people_count&quot;, req.people_count);</span>
+<span class="nc" id="L80">        mq.put(&quot;budget_min&quot;, req.budget_min);</span>
+<span class="nc" id="L81">        mq.put(&quot;budget_max&quot;, req.budget_max);</span>
+<span class="nc" id="L82">        mq.put(&quot;start_date&quot;, req.start_date);</span>
+<span class="nc" id="L83">        mq.put(&quot;end_date&quot;, req.end_date);</span>
+<span class="nc" id="L84">        mq.put(&quot;departure_city&quot;, req.departure_city);</span>
+<span class="nc" id="L85">        mq.put(&quot;destination&quot;, req.destination);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        mq.put(&quot;preferences&quot;, req.preferences == null ? Map.of() : req.preferences);</span>
+<span class="nc" id="L87">        mq.put(&quot;trace_id&quot;, IdGenerator.newId(&quot;trace&quot;));</span>
+
+<span class="nc" id="L89">        rabbitTemplate.convertAndSend(exchange, routingKey, Jsons.toJson(mq));</span>
+<span class="nc" id="L90">        return new GenerateResponse(planRequestId, &quot;generating&quot;);</span>
+    }
+
+    private static final int GENERATION_TIMEOUT_MINUTES = 5;
+
+    /**
+     * 查询方案列表，支持按状态筛选
+     *
+     * @param userId   用户ID
+     * @param page     页码
+     * @param pageSize 每页大小
+     * @param status   状态筛选：draft/confirmed/generating/failed，null表示全部
+     * @return 分页结果
+     */
+    public Map&lt;String, Object&gt; listPlans(String userId, int page, int pageSize, String status) {
+<span class="nc" id="L105">        List&lt;Map&lt;String, Object&gt;&gt; mergedList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L106">        long totalPending = 0;</span>
+
+        // 1. 处理 generating/failed 状态（来自 plan_requests 表）
+<span class="nc bnc" id="L109" title="All 6 branches missed.">        boolean needPendingRequests = status == null || &quot;generating&quot;.equalsIgnoreCase(status) || &quot;failed&quot;.equalsIgnoreCase(status);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (needPendingRequests) {</span>
+<span class="nc" id="L111">            QueryWrapper&lt;PlanRequestPO&gt; pendingQuery = new QueryWrapper&lt;PlanRequestPO&gt;()</span>
+<span class="nc" id="L112">                    .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L113">                    .isNull(&quot;deleted_at&quot;)</span>
+<span class="nc" id="L114">                    .orderByDesc(&quot;create_time&quot;);</span>
+
+            // 根据 status 筛选
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (&quot;generating&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L118">                pendingQuery.eq(&quot;status&quot;, &quot;GENERATING&quot;);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            } else if (&quot;failed&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L120">                pendingQuery.eq(&quot;status&quot;, &quot;FAILED&quot;);</span>
+            } else {
+                // 全部：包含 GENERATING 和 FAILED
+<span class="nc" id="L123">                pendingQuery.in(&quot;status&quot;, List.of(&quot;GENERATING&quot;, &quot;FAILED&quot;));</span>
+            }
+
+<span class="nc" id="L126">            List&lt;PlanRequestPO&gt; pendingRequests = planRequestMapper.selectList(pendingQuery);</span>
+
+            // 自动标记超时的 GENERATING 请求为 FAILED
+<span class="nc" id="L129">            Instant timeoutThreshold = Instant.now().minusSeconds(GENERATION_TIMEOUT_MINUTES * 60);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            for (PlanRequestPO req : pendingRequests) {</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">                if (&quot;GENERATING&quot;.equals(req.getStatus()) &amp;&amp; req.getGenerationStartedAt() != null</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                        &amp;&amp; req.getGenerationStartedAt().isBefore(timeoutThreshold)) {</span>
+<span class="nc" id="L133">                    req.setStatus(&quot;FAILED&quot;);</span>
+<span class="nc" id="L134">                    req.setErrorCode(&quot;GENERATION_TIMEOUT&quot;);</span>
+<span class="nc" id="L135">                    req.setErrorMessage(&quot;方案生成超时，请重新提交&quot;);</span>
+<span class="nc" id="L136">                    planRequestMapper.updateById(req);</span>
+                }
+<span class="nc" id="L138">            }</span>
+
+            // 转换为统一格式
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            for (PlanRequestPO req : pendingRequests) {</span>
+<span class="nc" id="L142">                Map&lt;String, Object&gt; item = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L143">                item.put(&quot;plan_id&quot;, req.getPlanRequestId());</span>
+<span class="nc" id="L144">                item.put(&quot;plan_request_id&quot;, req.getPlanRequestId());</span>
+<span class="nc" id="L145">                boolean isGenerating = &quot;GENERATING&quot;.equals(req.getStatus());</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                item.put(&quot;plan_name&quot;, isGenerating ? &quot;方案生成中...&quot; : &quot;生成失败&quot;);</span>
+<span class="nc" id="L147">                item.put(&quot;status&quot;, req.getStatus().toLowerCase());</span>
+<span class="nc" id="L148">                item.put(&quot;people_count&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L149">                item.put(&quot;budget_total&quot;, req.getBudgetMax());</span>
+<span class="nc" id="L150">                item.put(&quot;start_date&quot;, req.getStartDate());</span>
+<span class="nc" id="L151">                item.put(&quot;end_date&quot;, req.getEndDate());</span>
+<span class="nc" id="L152">                item.put(&quot;departure_city&quot;, req.getDepartureCity());</span>
+<span class="nc" id="L153">                item.put(&quot;destination&quot;, req.getDestination());</span>
+<span class="nc" id="L154">                item.put(&quot;created_at&quot;, req.getGenerationStartedAt());</span>
+<span class="nc" id="L155">                item.put(&quot;is_generating&quot;, isGenerating);</span>
+<span class="nc" id="L156">                mergedList.add(item);</span>
+<span class="nc" id="L157">            }</span>
+<span class="nc" id="L158">            totalPending = pendingRequests.size();</span>
+        }
+
+        // 2. 处理 draft/reviewing/confirmed 状态（来自 plans 表）
+<span class="nc bnc" id="L162" title="All 4 branches missed.">        boolean needPlans = status == null || &quot;draft&quot;.equalsIgnoreCase(status)</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">                || &quot;reviewing&quot;.equalsIgnoreCase(status) || &quot;confirmed&quot;.equalsIgnoreCase(status);</span>
+<span class="nc" id="L164">        Page&lt;PlanPO&gt; plansPage = new Page&lt;&gt;(page, pageSize);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (needPlans) {</span>
+<span class="nc" id="L166">            QueryWrapper&lt;PlanPO&gt; planQuery = new QueryWrapper&lt;PlanPO&gt;()</span>
+<span class="nc" id="L167">                    .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L168">                    .isNull(&quot;deleted_at&quot;)</span>
+<span class="nc" id="L169">                    .isNull(&quot;archived_at&quot;);</span>
+
+            // 根据 status 筛选
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (&quot;draft&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L173">                planQuery.eq(&quot;status&quot;, &quot;draft&quot;);</span>
+<span class="nc" id="L174">                planQuery.orderByDesc(&quot;create_time&quot;);</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            } else if (&quot;reviewing&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L176">                planQuery.eq(&quot;status&quot;, &quot;reviewing&quot;);</span>
+<span class="nc" id="L177">                planQuery.orderByDesc(&quot;review_started_at&quot;);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            } else if (&quot;confirmed&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L179">                planQuery.eq(&quot;status&quot;, &quot;confirmed&quot;);</span>
+<span class="nc" id="L180">                planQuery.orderByDesc(&quot;confirmed_time&quot;);</span>
+            } else {
+                // 全部：confirmed 置顶，reviewing 次之，然后按 create_time 倒序
+                // 注意：MyBatis-Plus 的 orderByAsc/orderByDesc 仅支持列名；传入表达式可能触发 SQL 注入校验或生成非法 SQL，导致 500。
+                // 这里用 last() 追加固定的 ORDER BY 片段（无用户输入），保证“全部”列表也稳定可用。
+<span class="nc" id="L185">                planQuery.last(&quot;ORDER BY CASE WHEN status = 'confirmed' THEN 0 WHEN status = 'reviewing' THEN 1 ELSE 2 END ASC, create_time DESC&quot;);</span>
+            }
+
+<span class="nc" id="L188">            plansPage = planMapper.selectPage(new Page&lt;&gt;(page, pageSize), planQuery);</span>
+
+            // 批量查询关联的 plan_request 信息
+<span class="nc" id="L191">            List&lt;String&gt; planRequestIds = plansPage.getRecords().stream()</span>
+<span class="nc" id="L192">                    .map(PlanPO::getPlanRequestId)</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                    .filter(id -&gt; id != null)</span>
+<span class="nc" id="L194">                    .toList();</span>
+<span class="nc" id="L195">            Map&lt;String, PlanRequestPO&gt; requestMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            if (!planRequestIds.isEmpty()) {</span>
+<span class="nc" id="L197">                List&lt;PlanRequestPO&gt; requests = planRequestMapper.selectList(</span>
+<span class="nc" id="L198">                        new QueryWrapper&lt;PlanRequestPO&gt;().in(&quot;plan_request_id&quot;, planRequestIds)</span>
+                );
+<span class="nc bnc" id="L200" title="All 2 branches missed.">                for (PlanRequestPO req : requests) {</span>
+<span class="nc" id="L201">                    requestMap.put(req.getPlanRequestId(), req);</span>
+<span class="nc" id="L202">                }</span>
+            }
+
+            // 转换为统一格式
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            for (PlanPO plan : plansPage.getRecords()) {</span>
+<span class="nc" id="L207">                Map&lt;String, Object&gt; item = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L208">                item.put(&quot;plan_id&quot;, plan.getPlanId());</span>
+<span class="nc" id="L209">                item.put(&quot;plan_request_id&quot;, plan.getPlanRequestId());</span>
+<span class="nc" id="L210">                item.put(&quot;plan_name&quot;, plan.getPlanName());</span>
+<span class="nc" id="L211">                item.put(&quot;status&quot;, plan.getStatus());</span>
+<span class="nc" id="L212">                item.put(&quot;plan_type&quot;, plan.getPlanType());</span>
+<span class="nc" id="L213">                item.put(&quot;budget_total&quot;, plan.getBudgetTotal());</span>
+<span class="nc" id="L214">                item.put(&quot;duration_days&quot;, plan.getDurationDays());</span>
+<span class="nc" id="L215">                item.put(&quot;departure_city&quot;, plan.getDepartureCity());</span>
+<span class="nc" id="L216">                item.put(&quot;destination&quot;, plan.getDestination());</span>
+<span class="nc" id="L217">                item.put(&quot;confirmed_time&quot;, plan.getConfirmedTime());</span>
+<span class="nc" id="L218">                item.put(&quot;review_started_at&quot;, plan.getReviewStartedAt());</span>
+<span class="nc" id="L219">                item.put(&quot;create_time&quot;, plan.getCreateTime());</span>
+                // 从 plan_request 获取额外信息
+<span class="nc" id="L221">                PlanRequestPO req = requestMap.get(plan.getPlanRequestId());</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">                if (req != null) {</span>
+<span class="nc" id="L223">                    item.put(&quot;people_count&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L224">                    item.put(&quot;start_date&quot;, req.getStartDate());</span>
+<span class="nc" id="L225">                    item.put(&quot;end_date&quot;, req.getEndDate());</span>
+                } else {
+<span class="nc" id="L227">                    item.put(&quot;people_count&quot;, null);</span>
+                }
+<span class="nc" id="L229">                item.put(&quot;is_generating&quot;, false);</span>
+<span class="nc" id="L230">                mergedList.add(item);</span>
+<span class="nc" id="L231">            }</span>
+        }
+
+        // 3. 返回结果
+<span class="nc" id="L235">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L236">        result.put(&quot;plans&quot;, mergedList);</span>
+<span class="nc" id="L237">        result.put(&quot;total&quot;, plansPage.getTotal() + totalPending);</span>
+<span class="nc" id="L238">        result.put(&quot;page&quot;, page);</span>
+<span class="nc" id="L239">        result.put(&quot;pageSize&quot;, pageSize);</span>
+<span class="nc" id="L240">        result.put(&quot;hasMore&quot;, plansPage.hasNext());</span>
+<span class="nc" id="L241">        return result;</span>
+    }
+
+    public Object getPlanDetail(String userId, String planId) {
+        // 先尝试查询 plans 表
+<span class="nc" id="L246">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        if (plan != null) {</span>
+            // 检查是否已删除
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L250">                throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+            }
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (!userId.equals(plan.getUserId())) {</span>
+<span class="nc" id="L253">                throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+            }
+            // 转换为 Map 并解析 JSON 字段，供前端使用
+<span class="nc" id="L256">            return convertPlanToDetailMap(plan);</span>
+        }
+
+        // 如果 plans 表没找到，查询 plan_requests 表（可能是生成中的）
+<span class="nc" id="L260">        PlanRequestPO req = planRequestMapper.selectById(planId);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (req != null) {</span>
+            // 检查是否已删除
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (req.getDeletedAt() != null) {</span>
+<span class="nc" id="L264">                throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+            }
+<span class="nc bnc" id="L266" title="All 2 branches missed.">            if (!userId.equals(req.getUserId())) {</span>
+<span class="nc" id="L267">                throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+            }
+            // 返回生成中/失败的状态信息
+<span class="nc" id="L270">            boolean isGenerating = &quot;GENERATING&quot;.equals(req.getStatus());</span>
+<span class="nc" id="L271">            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L272">            result.put(&quot;plan_id&quot;, req.getPlanRequestId());</span>
+<span class="nc" id="L273">            result.put(&quot;plan_request_id&quot;, req.getPlanRequestId());</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">            result.put(&quot;plan_name&quot;, isGenerating ? &quot;方案生成中...&quot; : &quot;生成失败&quot;);</span>
+<span class="nc" id="L275">            result.put(&quot;status&quot;, req.getStatus().toLowerCase());</span>
+<span class="nc" id="L276">            result.put(&quot;people_count&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L277">            result.put(&quot;budget_min&quot;, req.getBudgetMin());</span>
+<span class="nc" id="L278">            result.put(&quot;budget_max&quot;, req.getBudgetMax());</span>
+<span class="nc" id="L279">            result.put(&quot;start_date&quot;, req.getStartDate());</span>
+<span class="nc" id="L280">            result.put(&quot;end_date&quot;, req.getEndDate());</span>
+<span class="nc" id="L281">            result.put(&quot;departure_city&quot;, req.getDepartureCity());</span>
+<span class="nc" id="L282">            result.put(&quot;created_at&quot;, req.getGenerationStartedAt());</span>
+<span class="nc" id="L283">            result.put(&quot;is_generating&quot;, isGenerating);</span>
+<span class="nc" id="L284">            return result;</span>
+        }
+
+<span class="nc" id="L287">        throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+    }
+
+    /**
+     * 确认方案：reviewing → confirmed
+     * 只允许从&quot;通晒中&quot;状态确认方案
+     */
+    public void confirmPlan(String userId, String planId) {
+<span class="nc" id="L295">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L297">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L299" title="All 2 branches missed.">        if (!userId.equals(plan.getUserId())) {</span>
+<span class="nc" id="L300">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+        }
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L303">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L305" title="All 2 branches missed.">        if (&quot;confirmed&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L306">            return; // 幂等：已确认则直接返回</span>
+        }
+<span class="nc bnc" id="L308" title="All 2 branches missed.">        if (!&quot;reviewing&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L309">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有通晒中状态的方案才能确认&quot;);</span>
+        }
+<span class="nc" id="L311">        plan.setStatus(&quot;confirmed&quot;);</span>
+<span class="nc" id="L312">        plan.setConfirmedTime(Instant.now());</span>
+<span class="nc" id="L313">        planMapper.updateById(plan);</span>
+<span class="nc" id="L314">        recordEvent(&quot;PlanConfirmed&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L315">    }</span>
+
+    public void logSupplierContact(String userId, String planId, SupplierContactRequest req) {
+<span class="nc" id="L318">        SupplierContactLogPO po = new SupplierContactLogPO();</span>
+<span class="nc" id="L319">        po.setContactId(IdGenerator.newId(&quot;contact&quot;));</span>
+<span class="nc" id="L320">        po.setPlanId(planId);</span>
+<span class="nc" id="L321">        po.setSupplierId(req.supplier_id);</span>
+<span class="nc" id="L322">        po.setUserId(userId);</span>
+<span class="nc" id="L323">        po.setChannel(req.channel);</span>
+<span class="nc" id="L324">        po.setNotes(req.notes);</span>
+<span class="nc" id="L325">        contactLogMapper.insert(po);</span>
+<span class="nc" id="L326">        recordEvent(</span>
+                &quot;SupplierContacted&quot;,
+                &quot;SupplierContactLog&quot;,
+<span class="nc" id="L329">                po.getContactId(),</span>
+                userId,
+<span class="nc" id="L331">                Map.of(&quot;plan_id&quot;, planId, &quot;supplier_id&quot;, req.supplier_id, &quot;channel&quot;, req.channel)</span>
+        );
+<span class="nc" id="L333">    }</span>
+
+    /**
+     * 删除方案（软删除）
+     * 支持删除已生成的方案和生成中/失败的请求
+     */
+    public void deletePlan(String userId, String planId) {
+        // 1. 先查 plans 表
+<span class="nc" id="L341">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">        if (plan != null) {</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">            if (!userId.equals(plan.getUserId())) {</span>
+<span class="nc" id="L344">                throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+            }
+<span class="nc bnc" id="L346" title="All 2 branches missed.">            if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L347">                return; // 幂等：已删除则直接返回</span>
+            }
+<span class="nc" id="L349">            plan.setDeletedAt(Instant.now());</span>
+<span class="nc" id="L350">            planMapper.updateById(plan);</span>
+<span class="nc" id="L351">            recordEvent(&quot;PlanDeleted&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L352">            return;</span>
+        }
+
+        // 2. 再查 plan_requests 表（处理生成中/失败的）
+<span class="nc" id="L356">        PlanRequestPO req = planRequestMapper.selectById(planId);</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        if (req != null) {</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">            if (!userId.equals(req.getUserId())) {</span>
+<span class="nc" id="L359">                throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+            }
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            if (req.getDeletedAt() != null) {</span>
+<span class="nc" id="L362">                return; // 幂等：已删除则直接返回</span>
+            }
+<span class="nc" id="L364">            req.setDeletedAt(Instant.now());</span>
+<span class="nc" id="L365">            planRequestMapper.updateById(req);</span>
+<span class="nc" id="L366">            recordEvent(&quot;PlanRequestDeleted&quot;, &quot;PlanRequest&quot;, planId, userId, Map.of(&quot;plan_request_id&quot;, planId));</span>
+<span class="nc" id="L367">            return;</span>
+        }
+
+<span class="nc" id="L370">        throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+    }
+
+    /**
+     * 归档方案：confirmed → archived
+     * 只有已确认的方案才能归档
+     */
+    public void archivePlan(String userId, String planId) {
+<span class="nc" id="L378">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L380">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L382" title="All 2 branches missed.">        if (!userId.equals(plan.getUserId())) {</span>
+<span class="nc" id="L383">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+        }
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L386">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L388" title="All 2 branches missed.">        if (plan.getArchivedAt() != null) {</span>
+<span class="nc" id="L389">            return; // 幂等：已归档则直接返回</span>
+        }
+<span class="nc bnc" id="L391" title="All 2 branches missed.">        if (!&quot;confirmed&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L392">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有已确认状态的方案才能归档&quot;);</span>
+        }
+<span class="nc" id="L394">        plan.setArchivedAt(Instant.now());</span>
+<span class="nc" id="L395">        plan.setStatus(&quot;archived&quot;);</span>
+<span class="nc" id="L396">        planMapper.updateById(plan);</span>
+<span class="nc" id="L397">        recordEvent(&quot;PlanArchived&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L398">    }</span>
+
+    /**
+     * 提交通晒：draft → reviewing
+     * 将方案从&quot;制定完成&quot;状态提交到&quot;通晒中&quot;状态
+     */
+    public void submitReview(String userId, String planId) {
+<span class="nc" id="L405">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L407">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        if (!userId.equals(plan.getUserId())) {</span>
+<span class="nc" id="L410">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+        }
+<span class="nc bnc" id="L412" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L413">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        if (!&quot;draft&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L416">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有制定完成状态的方案才能提交通晒&quot;);</span>
+        }
+<span class="nc" id="L418">        plan.setStatus(&quot;reviewing&quot;);</span>
+<span class="nc" id="L419">        plan.setReviewStartedAt(Instant.now());</span>
+<span class="nc" id="L420">        planMapper.updateById(plan);</span>
+<span class="nc" id="L421">        recordEvent(&quot;PlanSubmittedForReview&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L422">    }</span>
+
+    /**
+     * 回退通晒：confirmed → reviewing
+     * 将已确认的方案回退到通晒中状态（允许重新修改）
+     */
+    public void revertReview(String userId, String planId) {
+<span class="nc" id="L429">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L431">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L433" title="All 2 branches missed.">        if (!userId.equals(plan.getUserId())) {</span>
+<span class="nc" id="L434">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+        }
+<span class="nc bnc" id="L436" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L437">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L439" title="All 2 branches missed.">        if (!&quot;confirmed&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L440">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有已确认状态的方案才能回退通晒&quot;);</span>
+        }
+        // 使用 UpdateWrapper 显式将 confirmed_time 设为 null
+<span class="nc" id="L443">        UpdateWrapper&lt;PlanPO&gt; updateWrapper = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L444">        updateWrapper.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L445">                .set(&quot;status&quot;, &quot;reviewing&quot;)</span>
+<span class="nc" id="L446">                .set(&quot;confirmed_time&quot;, null);</span>
+<span class="nc" id="L447">        planMapper.update(null, updateWrapper);</span>
+<span class="nc" id="L448">        recordEvent(&quot;PlanRevertedToReview&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L449">    }</span>
+
+    /**
+     * 将 PlanPO 转换为详情 Map，解析 JSON 字符串字段
+     */
+    private Map&lt;String, Object&gt; convertPlanToDetailMap(PlanPO plan) {
+<span class="nc" id="L455">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L456">        result.put(&quot;plan_id&quot;, plan.getPlanId());</span>
+<span class="nc" id="L457">        result.put(&quot;plan_request_id&quot;, plan.getPlanRequestId());</span>
+<span class="nc" id="L458">        result.put(&quot;user_id&quot;, plan.getUserId());</span>
+<span class="nc" id="L459">        result.put(&quot;plan_type&quot;, plan.getPlanType());</span>
+<span class="nc" id="L460">        result.put(&quot;plan_name&quot;, plan.getPlanName());</span>
+<span class="nc" id="L461">        result.put(&quot;summary&quot;, plan.getSummary());</span>
+<span class="nc" id="L462">        result.put(&quot;status&quot;, plan.getStatus());</span>
+<span class="nc" id="L463">        result.put(&quot;budget_total&quot;, plan.getBudgetTotal());</span>
+<span class="nc" id="L464">        result.put(&quot;budget_per_person&quot;, plan.getBudgetPerPerson());</span>
+<span class="nc" id="L465">        result.put(&quot;duration_days&quot;, plan.getDurationDays());</span>
+<span class="nc" id="L466">        result.put(&quot;departure_city&quot;, plan.getDepartureCity());</span>
+<span class="nc" id="L467">        result.put(&quot;destination&quot;, plan.getDestination());</span>
+<span class="nc" id="L468">        result.put(&quot;confirmed_time&quot;, plan.getConfirmedTime());</span>
+<span class="nc" id="L469">        result.put(&quot;review_started_at&quot;, plan.getReviewStartedAt());</span>
+
+        // 解析 JSON 字符串字段
+<span class="nc" id="L472">        result.put(&quot;highlights&quot;, Jsons.toStringList(plan.getHighlights())); // highlights 是字符串数组</span>
+<span class="nc" id="L473">        result.put(&quot;itinerary&quot;, Jsons.toMap(plan.getItinerary()));</span>
+<span class="nc" id="L474">        result.put(&quot;budget_breakdown&quot;, Jsons.toMap(plan.getBudgetBreakdown()));</span>
+        // 前端期望 suppliers 而不是 supplier_snapshots
+<span class="nc" id="L476">        result.put(&quot;suppliers&quot;, Jsons.toList(plan.getSupplierSnapshots()));</span>
+
+<span class="nc" id="L478">        result.put(&quot;is_generating&quot;, false);</span>
+<span class="nc" id="L479">        return result;</span>
+    }
+
+    private void recordEvent(String eventType, String aggregateType, String aggregateId, String userId, Map&lt;String, Object&gt; payload) {
+<span class="nc" id="L483">        DomainEventPO evt = new DomainEventPO();</span>
+<span class="nc" id="L484">        evt.setEventId(IdGenerator.newId(&quot;evt&quot;));</span>
+<span class="nc" id="L485">        evt.setEventType(eventType);</span>
+<span class="nc" id="L486">        evt.setAggregateType(aggregateType);</span>
+<span class="nc" id="L487">        evt.setAggregateId(aggregateId);</span>
+<span class="nc" id="L488">        evt.setUserId(userId);</span>
+<span class="nc" id="L489">        evt.setPayloadJson(Jsons.toJson(payload));</span>
+<span class="nc" id="L490">        evt.setOccurredAt(Instant.now());</span>
+<span class="nc" id="L491">        evt.setProcessed(false);</span>
+<span class="nc" id="L492">        eventMapper.insert(evt);</span>
+<span class="nc" id="L493">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -7,7 +7,26 @@ let tokenRefreshInProgress = null // Promise for ongoing refresh, prevents concu
 
 /**
  * 刷新 Token（如果即将过期）
- * 后端会判断是否需要刷新，返回新 token 或 null
+ * Token Refresh: 自动检测token即将过期并刷新，实现无感续期
+ *
+ * 术语对照（ubiquitous-language-glossary.md Section 4.4）:
+ *   - Token刷新 = Token Refresh = refreshTokenIfNeeded
+ *   - 会话令牌 = Session Token = STORAGE_KEYS.SESSION_TOKEN
+ *
+ * 触发条件:
+ *   - 每次API请求前自动调用（除登录和刷新接口本身）
+ *   - 后端判断token剩余有效期 < 12小时时返回新token
+ *
+ * 并发控制:
+ *   - 使用 tokenRefreshInProgress Promise 防止多个请求同时触发刷新
+ *
+ * 返回值:
+ *   - true: 刷新成功或无需刷新
+ *   - false: 刷新失败，需要重新登录
+ *
+ * 参考:
+ *   - API设计: api-design.md Section 2.4
+ *   - 后端实现: AuthService.refreshTokenIfNeeded
  */
 async function refreshTokenIfNeeded() {
   const sessionToken = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN)
@@ -28,7 +47,7 @@ async function refreshTokenIfNeeded() {
       method: 'POST',
       header: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${sessionToken}`
+        Authorization: `Bearer ${sessionToken}`
       },
       timeout: 10000,
       success: (res) => {
@@ -109,7 +128,7 @@ async function request(url, method = 'GET', data = {}, options = {}) {
 
     // 添加 token
     if (sessionToken) {
-      header['Authorization'] = `Bearer ${sessionToken}`
+      header.Authorization = `Bearer ${sessionToken}`
     }
 
     // 显示加载提示
@@ -122,9 +141,9 @@ async function request(url, method = 'GET', data = {}, options = {}) {
 
     wx.request({
       url: fullUrl,
-      method: method,
-      data: data,
-      header: header,
+      method,
+      data,
+      header,
       timeout: options.timeout || REQUEST_TIMEOUT,
       success: (res) => {
         // 隐藏加载提示
@@ -217,24 +236,21 @@ function handleMockRequest(url, method, data, options, resolve, reject) {
           request_id: 'mock_req_' + Date.now()
         }
         console.log('[MOCK] 返回 3 个模拟方案')
-      }
+      } else if (url === API_ENDPOINTS.PLAN_LIST) {
       // 方案列表
-      else if (url === API_ENDPOINTS.PLAN_LIST) {
         mockResponse = {
           plans: mockPlans,
           total: mockPlans.length
         }
         console.log('[MOCK] 返回方案列表')
-      }
+      } else if (url.startsWith('/plans/')) {
       // 方案详情
-      else if (url.startsWith('/plans/')) {
         const planId = url.split('/')[2]
         const plan = mockPlans.find(p => p.plan_id === planId)
         mockResponse = plan || mockPlans[0]
         console.log('[MOCK] 返回方案详情:', planId)
-      }
+      } else if (url === API_ENDPOINTS.USER_LOGIN) {
       // 用户登录
-      else if (url === API_ENDPOINTS.USER_LOGIN) {
         // 如果登录时提供了头像和昵称，则使用提供的值
         const nickname = data.nickname || '测试用户'
         const avatar = data.avatarUrl || ''
@@ -243,22 +259,20 @@ function handleMockRequest(url, method, data, options, resolve, reject) {
           sessionToken: 'mock_token_' + Date.now(),
           userInfo: {
             user_id: 'mock_user_001',
-            nickname: nickname,
-            avatar: avatar
+            nickname,
+            avatar
           }
         }
         console.log('[MOCK] 返回登录信息:', mockResponse.userInfo)
-      }
+      } else if (url.includes('/confirm')) {
       // 确认方案
-      else if (url.includes('/confirm')) {
         mockResponse = {
           success: true,
           confirmed_at: new Date().toISOString()
         }
         console.log('[MOCK] 确认方案成功')
-      }
+      } else {
       // 默认响应
-      else {
         mockResponse = {
           success: true,
           message: 'Mock response'
@@ -268,7 +282,6 @@ function handleMockRequest(url, method, data, options, resolve, reject) {
 
       // 成功返回
       resolve(mockResponse)
-
     } catch (error) {
       console.error('[MOCK] 处理失败:', error)
       reject({
@@ -370,10 +383,10 @@ export function uploadFile(url, filePath, options = {}) {
 
     wx.uploadFile({
       url: fullUrl,
-      filePath: filePath,
+      filePath,
       name: options.name || 'file',
       header: {
-        'Authorization': sessionToken ? `Bearer ${sessionToken}` : ''
+        Authorization: sessionToken ? `Bearer ${sessionToken}` : ''
       },
       formData: options.formData || {},
       success: (res) => {

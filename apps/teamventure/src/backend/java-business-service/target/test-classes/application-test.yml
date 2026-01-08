@@ -1,0 +1,45 @@
+# Test Profile Configuration
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  redis:
+    host: localhost
+    port: 6379
+    password: redis123456
+    database: 15  # 使用专用测试库
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123456
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+teamventure:
+  jwt:
+    secret: test-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
+  ai:
+    callback-url: http://localhost:8080/api/v1/internal/plans/batch
+    callback-secret: test-callback-secret
+  oss:
+    endpoint: http://localhost:9000
+    bucket: teamventure-test
+    access-key: minioadmin
+    secret-key: minioadmin
+
+logging:
+  level:
+    com.teamventure: DEBUG
+    org.springframework: WARN

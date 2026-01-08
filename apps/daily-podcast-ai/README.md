@@ -353,7 +353,76 @@ cat cache/$(date +%Y-%m-%d)-news.json | python -m json.tool
 - [x] 实现语音克隆流程
 - [x] 配置每日自动化任务（launchd，每天 7:00）
 - [x] 添加封面图片生成功能
+- [x] **新增：漫画短剧生成功能** 🎬
+  - [x] 集成 Nano Banana (Google Gemini) 图像生成
+  - [x] 实现视频合成和字幕渲染
+  - [x] 创建狼人杀复盘剧本库（4个剧本）
+  - [x] 创建通用题材剧本库（4个剧本）
 - [ ] 添加背景音乐支持
+
+---
+
+## 🎬 新功能：漫画短剧生成
+
+**2026年1月更新**：本项目现已支持AI漫画短剧生成！
+
+### 核心能力
+
+- **图像生成**：Google Nano Banana（支持文字渲染、角色一致性）
+- **多角色配音**：ElevenLabs（每个角色独立语音）
+- **视频合成**：自动字幕 + 音画同步
+- **成本低廉**：¥2.6/分钟（比传统制作便宜100倍）
+
+### 特色内容
+
+🐺 **狼人杀复盘系列**（4个内置剧本）
+- classic_win: 预女猎翻盘局
+- wolf_betrayal: 狼队内讧惨案
+- epic_comeback: 史诗翻盘局
+- perfect_wolf: 狼队教科书级胜利
+
+### 快速开始
+
+```bash
+# 1. 安装依赖
+pip install -r requirements.txt
+
+# 2. 配置 Google AI API Key
+# 获取: https://aistudio.google.com/apikey
+echo "GOOGLE_API_KEY=你的key" >> .env
+
+# 3. 生成第一个狼人杀复盘视频
+python scripts/generate_werewolf_drama.py
+
+# 4. 查看结果
+open output/werewolf-drama/classic_win/2026-01-08/*.mp4
+```
+
+### 详细文档
+
+- **3分钟快速上手**：[QUICKSTART_WEREWOLF.md](QUICKSTART_WEREWOLF.md)
+- **详细功能指南**：[docs/WEREWOLF_DRAMA_GUIDE.md](docs/WEREWOLF_DRAMA_GUIDE.md)
+- **15个使用示例**：[USAGE_EXAMPLES.md](USAGE_EXAMPLES.md)
+- **通用短剧指南**：[docs/COMIC_DRAMA_QUICKSTART.md](docs/COMIC_DRAMA_QUICKSTART.md)
+
+### 技术栈
+
+| 组件 | 工具 | 用途 |
+|------|------|------|
+| 图像生成 | Nano Banana (Gemini) | 生成漫画场景 |
+| 语音合成 | ElevenLabs | 多角色配音 |
+| 视频合成 | MoviePy + FFmpeg | 视频拼接和字幕 |
+| 图像处理 | Pillow | 字幕渲染 |
+
+### 查看所有功能
+
+```bash
+# 命令行查看
+./scripts/show_all_features.sh
+
+# Python查看（含成本分析）
+python scripts/show_all_features.py
+```
 
 ---
 
@@ -362,3 +431,5 @@ cat cache/$(date +%Y-%m-%d)-news.json | python -m json.tool
 - [ElevenLabs 官方文档](https://elevenlabs.io/docs)
 - [ElevenLabs MCP GitHub](https://github.com/elevenlabs/elevenlabs-mcp)
 - [Model Context Protocol](https://modelcontextprotocol.io)
+- [Nano Banana 官方文档](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Gemini API 图像生成指南](https://ai.google.dev/gemini-api/docs/nanobanana)

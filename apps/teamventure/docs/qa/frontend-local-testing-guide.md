@@ -467,6 +467,9 @@ docker-compose restart mysql-master
 
 ### 5.2 登录功能检查
 
+**术语对照**: 参考 ubiquitous-language-glossary.md Section 2.1, 4.4, 7.1
+
+#### 首次登录流程
 - [ ] wx.login() 成功获取 code
 - [ ] 头像选择器正常弹出并返回临时路径
 - [ ] 昵称输入框支持输入
@@ -477,8 +480,40 @@ docker-compose restart mysql-master
 - [ ] MySQL users 表创建新记录
 - [ ] Redis 存储 session
 - [ ] 登录成功后跳转首页
+
+#### 继续使用（Token验证）
+**术语**: `继续使用 = Continue = handleContinue`
+**参考**: api-design.md Section 2.3
+
+- [ ] 已登录状态下显示"继续使用"按钮
+- [ ] 点击按钮显示"验证中..."加载提示
+- [ ] 发送 GET /users/me 请求验证token
+- [ ] Token有效：隐藏加载，跳转首页
+- [ ] Token无效：显示"请重新登录"提示，清除登录状态
+
+**测试Token验证失败场景**:
+```bash
+# 手动删除 Redis session 模拟token失效
+docker exec teamventure-redis redis-cli -a redis123456 DEL "session:{{token}}"
+# 然后点击"继续使用"，应提示重新登录
+```
+
+#### 切换账号功能
+**术语**: `切换账号 = Switch Account = handleReLogin`
+**参考**: ubiquitous-language-glossary.md Section 4.4
+
+- [ ] 已登录状态下显示"切换账号"入口
+- [ ] 点击后显示"请重新登录"提示
+- [ ] 清除本地 sessionToken
+- [ ] 清除本地 userInfo
+- [ ] 清除全局 app.globalData.isLogin 和 userInfo
+- [ ] 页面状态重置为未登录（显示微信登录按钮）
+
+#### 退出登录（从其他页面）
 - [ ] "我的"页面显示用户头像和昵称
+- [ ] 首页导航栏显示用户头像和昵称
 - [ ] 退出登录清除所有本地数据
+- [ ] 退出后再次进入登录页显示未登录状态
 
 ### 5.3 方案生成检查
 
@@ -503,12 +538,42 @@ docker-compose restart mysql-master
 
 ### 5.5 首页功能检查
 
-- [ ] Banner 正确显示
-- [ ] 快捷操作按钮正常跳转
+**术语对照**: 参考 ubiquitous-language-glossary.md Section 4.4, 7.3
+
+#### 自定义导航栏（Custom Navigation Bar）
+**参考**: miniapp-ux-ui-specification.md Section 4.6 "自定义导航栏设计"
+
+**未登录状态**:
+- [ ] 导航栏显示"首页"标题（居中）
+- [ ] 右上角显示"登录"按钮（半透明边框样式）
+- [ ] 点击登录按钮跳转到登录页
+- [ ] 状态栏高度自动适配（不同机型）
+- [ ] Banner不被导航栏遮挡（padding-top动态计算）
+
+**已登录状态**:
+- [ ] 导航栏显示"首页"标题（居中）
+- [ ] 右上角显示用户信息胶囊（User Info Capsule）
+  - [ ] 头像显示正确（圆形，带边框）
+  - [ ] 昵称显示正确（最多显示6个字符，超出省略）
+  - [ ] 胶囊背景为半透明白色
+- [ ] 点击用户信息胶囊弹出ActionSheet
+  - [ ] 显示"个人中心"和"退出登录"选项
+  - [ ] 点击"个人中心"显示"功能开发中"提示
+  - [ ] 点击"退出登录"弹出确认对话框
+  - [ ] 确认退出后清除登录状态
+
+**头像占位符测试**:
+- [ ] 用户未上传头像时显示 emoji 👤
+- [ ] 头像占位符居中显示
+- [ ] 占位符颜色为灰色（#999）
+
+#### 页面内容
+- [ ] Banner 正确显示（TeamVenture + 副标题）
+- [ ] 快捷操作按钮正常跳转（生成方案、我的方案）
 - [ ] 热门目的地横向滚动流畅
 - [ ] 点击目的地正确预填到生成方案页
 - [ ] 推荐方案列表正确显示
-- [ ] 活动类型网格正确显示
+- [ ] 活动类型网格正确显示（3列×2行）
 
 ### 5.6 我的页面检查
 

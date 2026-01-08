@@ -145,6 +145,65 @@ docker ps --filter name=teamventure- --format 'table {{.Names}}\t{{.Status}}\t{{
 失败处理：
 - 若放行：记 BUG（安全/鉴权）
 
+### 2.4 获取当前用户信息（Token验证）
+**术语对照**: `获取当前用户信息 API` = `Get Current User` = `GET /users/me`
+**参考文档**: api-design.md Section 2.3, ubiquitous-language-glossary.md Section 2.1
+
+步骤（Postman）：
+1) 运行 `Auth/Users - Get Me`（使用有效token）
+期望：
+- HTTP 200；`success=true`
+- `data.user_id` 非空（前缀 `user_`）
+- `data.nickname` 与登录时的昵称一致
+- `data.avatar` 为完整URL或空字符串
+失败处理：
+- 若 401：检查 token 是否有效（可能已过期）
+- 若 500：记 BUG（模块 users）
+
+**用途场景**:
+- 登录页"继续使用"按钮点击时验证token有效性
+- 前端页面初始化时验证登录状态
+- 获取最新用户信息（如昵称、头像变更）
+
+### 2.5 Token刷新（自动续期）
+**术语对照**: `刷新Token API` = `Token Refresh` = `POST /auth/wechat/refresh`
+**参考文档**: api-design.md Section 2.4, ubiquitous-language-glossary.md Section 4.4
+
+步骤（Postman）：
+1) 运行 `Auth/Auth - Refresh Token`（使用有效token）
+期望：
+- HTTP 200；`success=true`
+- 如果token剩余有效期 > 12小时：`data=null`（无需刷新）
+- 如果token剩余有效期 < 12小时：返回新的 `sessionToken` 和 `userInfo`
+失败处理：
+- 若 401：token已失效，需重新登录
+- 若 500：记 BUG（模块 auth）
+
+**测试场景**:
+```bash
+# 场景1：使用刚登录的token（有效期7天，不应刷新）
+TOKEN="eyJhbGciOiJIUzI1NiJ9..."  # 刚登录获得的token
+curl -X POST http://api.teamventure.com/api/v1/auth/wechat/refresh \
+  -H "Authorization: Bearer $TOKEN"
+# 期望: {"success":true,"data":null}
+
+# 场景2：使用即将过期的token（剩余 < 12小时，应刷新）
+# 需要等待token接近过期，或修改 AuthService.REFRESH_THRESHOLD_SECONDS 为更小值测试
+```
+
+**并发控制验证**:
+- 前端实现了并发控制（request.js:tokenRefreshInProgress）
+- 测试方法：同时发起多个需要token的请求，观察是否只触发一次刷新
+
+### 2.6 Token过期后访问
+步骤：
+1) 使用已过期的token（或伪造的token）调用 `GET /users/me`
+期望：
+- HTTP 401；`error.code=UNAUTHENTICATED`
+- `error.message` 包含 "invalid token"
+失败处理：
+- 若返回 200：严重安全漏洞，立即记录并通知开发
+
 ---
 
 ## 3. 子域：Suppliers（供应商）

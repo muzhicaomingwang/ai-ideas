@@ -1907,6 +1907,152 @@ const activityTypes = [
 </scroll-view>
 ```
 
+#### 自定义导航栏设计（Custom Navigation Bar）
+
+**设计目标**:
+- 在右上角显示用户登录状态（头像+昵称 或 登录按钮）
+- 填补原生导航栏右侧空白区域
+- 与页面整体视觉风格统一（渐变背景）
+
+**布局结构**:
+```
+┌─────────────────────────────────┐
+│ [状态栏占位 - 20~44px]           │  ← 动态适配机型
+├─────────────────────────────────┤
+│ 【首页】        [👤 张三] │  ← 44px 导航栏
+│  居中标题          右侧用户胶囊   │
+├─────────────────────────────────┤
+│ TeamVenture                     │
+│ AI 驱动的智能团建方案生成平台    │  ← Banner（渐变背景）
+│ ...                             │
+└─────────────────────────────────┘
+```
+
+**视觉规范**:
+```css
+/* 自定义导航栏 */
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 1000;
+}
+
+.navbar-content {
+  height: 44px;  /* 标准导航栏高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32rpx;
+}
+
+.navbar-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: white;
+}
+
+/* 用户信息胶囊（已登录） */
+.user-info-mini {
+  position: absolute;
+  right: 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8rpx 20rpx 8rpx 8rpx;
+  border-radius: 40rpx;
+}
+
+.user-avatar-mini {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.user-nickname-mini {
+  font-size: 28rpx;
+  color: white;
+  font-weight: 500;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 登录按钮（未登录） */
+.login-btn-mini {
+  position: absolute;
+  right: 32rpx;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12rpx 32rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  color: white;
+  font-weight: 500;
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+}
+```
+
+**交互行为**:
+
+| 状态 | 显示内容 | 点击行为 |
+|------|---------|---------|
+| **未登录** | "登录"按钮 | 跳转登录页 (`wx.navigateTo`) |
+| **已登录** | 头像+昵称胶囊 | 弹出菜单（个人中心/退出登录） |
+
+**点击菜单实现**:
+```javascript
+// 已登录时点击头像
+handleUserAvatar() {
+  if (this.data.isLogin) {
+    wx.showActionSheet({
+      itemList: ['个人中心', '退出登录'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          // 跳转个人中心
+          wx.showToast({ title: '功能开发中', icon: 'none' })
+        } else if (res.tapIndex === 1) {
+          // 退出登录
+          this.handleLogout()
+        }
+      }
+    })
+  } else {
+    // 未登录：跳转登录页
+    wx.navigateTo({ url: '/pages/login/login' })
+  }
+}
+```
+
+**状态栏高度适配**:
+```javascript
+onLoad() {
+  const systemInfo = wx.getSystemInfoSync()
+  this.setData({
+    statusBarHeight: systemInfo.statusBarHeight || 20
+  })
+}
+```
+
+**Banner间距调整**（避免被导航栏遮挡）:
+```xml
+<!-- 动态计算 padding-top = statusBarHeight + 44px(导航栏) + 40px(间距) -->
+<view class="banner" style="padding-top: {{statusBarHeight + 44 + 40}}px;">
+  ...
+</view>
+```
+
+**术语对照**（参考 ubiquitous-language-glossary.md Section 4.4）:
+- 自定义导航栏 = Custom Navigation Bar = `custom-navbar`
+- 用户状态显示 = User Status Display = `navbar-user`
+- 用户信息胶囊 = User Info Capsule = `user-info-mini`
+- 登录入口按钮 = Login Entry Button = `login-btn-mini`
+
 ---
 
 ### 4.7 我的页面（Profile Page）
@@ -2644,6 +2790,60 @@ graph LR
 ---
 
 ## 更新日志（Changelog）
+
+### v1.2 (2026-01-08)
+
+#### 首页自定义导航栏（Custom Navigation Bar）
+**新增功能**: 替代系统默认导航栏，在右上角显示用户登录状态
+
+**UI组件**:
+- **自定义导航栏** (`custom-navbar`): 固定在顶部，渐变背景与页面统一
+- **状态栏占位** (`status-bar`): 动态适配不同机型高度（20~44px）
+- **导航栏内容** (`navbar-content`): 高度44px，居中标题
+- **用户状态显示** (`navbar-user`): 右上角显示登录状态
+
+**已登录状态**:
+- **用户信息胶囊** (`user-info-mini`):
+  - 头像（56rpx圆形）+ 昵称（最多6字符）
+  - 半透明白色背景（rgba(255,255,255,0.15)）
+  - 胶囊圆角（40rpx）
+- 点击弹出ActionSheet：个人中心 / 退出登录
+
+**未登录状态**:
+- **登录入口按钮** (`login-btn-mini`):
+  - 显示"登录"文字
+  - 半透明边框样式（border: 2rpx solid rgba(255,255,255,0.5)）
+- 点击跳转登录页
+
+**技术实现**:
+- `home.json`: 添加 `"navigationStyle": "custom"`
+- `home.js`: 新增 `loadUserInfo()`, `handleUserAvatar()`, `handleLogout()` 方法
+- `home.wxml`: 新增自定义导航栏结构
+- `home.wxss`: 新增导航栏样式，Banner动态padding-top
+
+**术语对照**: ubiquitous-language-glossary.md Section 4.4
+
+#### 登录页安全增强
+**新增功能**:
+- **Token验证**: "继续使用"按钮点击时先调用 `GET /users/me` 验证token
+- **切换账号**: 新增"切换账号"入口，清除登录状态
+
+**UI组件**:
+- **继续使用按钮** (`btn-continue`): 触发 `handleContinue()` 异步验证
+- **切换账号入口** (`relogin-entry`): 半透明文字链接样式
+
+**代码变更**:
+- `login.js`: `handleContinue()` 改为async，添加 `handleReLogin()` 方法
+- `login.wxml`: 已登录区域添加"切换账号"入口
+- `login.wxss`: 新增 `.relogin-entry` 样式
+
+#### 头像占位符优化
+**问题修复**: 修复默认头像文件不存在导致的加载错误
+**解决方案**: 使用emoji 👤 作为占位符，无需图片资源
+- `login.wxml`: 条件渲染头像或占位符
+- `login.wxss`: 新增 `.avatar-placeholder` 样式
+
+**参考**: api-design.md Section 2.3, 2.4
 
 ### v1.1 (2026-01-02)
 

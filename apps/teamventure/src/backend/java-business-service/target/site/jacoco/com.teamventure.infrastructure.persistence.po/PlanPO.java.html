@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanPO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.persistence.po</a> &gt; <span class="el_source">PlanPO.java</span></div><h1>PlanPO.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.persistence.po;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.teamventure.app.support.BizException;
+import com.teamventure.app.support.IdGenerator;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Map;
+
+/**
+ * 方案实体（plans 表）
+ *
+ * 字段语义说明：
+ * - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
+ * - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+ *
+ * 前端显示格式：&quot;{departure_city} → {destination}&quot;
+ * 示例：上海市 → 杭州千岛湖
+ */
+@TableName(&quot;plans&quot;)
+<span class="nc" id="L22">public class PlanPO {</span>
+    @TableId
+    private String plan_id;
+    private String plan_request_id;
+    private String user_id;
+    private String plan_type;
+    private String plan_name;
+    private String summary;
+    private String highlights;
+    private String itinerary;
+    private String budget_breakdown;
+    private String supplier_snapshots;
+    private BigDecimal budget_total;
+    private BigDecimal budget_per_person;
+    private Integer duration_days;
+    /** 出发城市（团队从哪里出发，如公司所在地：上海市） */
+    private String departure_city;
+    /** 目的地（团建活动举办地点，如：杭州千岛湖） */
+    private String destination;
+    private String status;
+    private Instant create_time;
+    private Instant confirmed_time;
+    private Instant deleted_at;
+    private Instant archived_at;
+    /** 通晒开始时间（draft → reviewing 时设置） */
+    private Instant review_started_at;
+
+    public static PlanPO fromMap(Map&lt;String, Object&gt; m) {
+<span class="nc" id="L50">        PlanPO po = new PlanPO();</span>
+<span class="nc" id="L51">        po.plan_id = (String) m.getOrDefault(&quot;plan_id&quot;, IdGenerator.newId(&quot;plan&quot;));</span>
+<span class="nc" id="L52">        po.plan_type = (String) m.getOrDefault(&quot;plan_type&quot;, &quot;standard&quot;);</span>
+<span class="nc" id="L53">        po.plan_name = (String) m.getOrDefault(&quot;plan_name&quot;, &quot;&quot;);</span>
+<span class="nc" id="L54">        po.summary = (String) m.getOrDefault(&quot;summary&quot;, &quot;&quot;);</span>
+<span class="nc" id="L55">        po.highlights = JsonHelper.safeJson(m.get(&quot;highlights&quot;));</span>
+<span class="nc" id="L56">        po.itinerary = JsonHelper.safeJson(m.get(&quot;itinerary&quot;));</span>
+<span class="nc" id="L57">        po.budget_breakdown = JsonHelper.safeJson(m.get(&quot;budget_breakdown&quot;));</span>
+<span class="nc" id="L58">        po.supplier_snapshots = JsonHelper.safeJson(m.get(&quot;supplier_snapshots&quot;));</span>
+<span class="nc" id="L59">        po.budget_total = JsonHelper.safeDecimal(m.get(&quot;budget_total&quot;));</span>
+<span class="nc" id="L60">        po.budget_per_person = JsonHelper.safeDecimal(m.get(&quot;budget_per_person&quot;));</span>
+<span class="nc" id="L61">        po.duration_days = JsonHelper.safeInt(m.get(&quot;duration_days&quot;));</span>
+<span class="nc" id="L62">        po.departure_city = (String) m.getOrDefault(&quot;departure_city&quot;, &quot;&quot;);</span>
+<span class="nc" id="L63">        po.destination = (String) m.getOrDefault(&quot;destination&quot;, &quot;&quot;);</span>
+<span class="nc" id="L64">        po.status = (String) m.getOrDefault(&quot;status&quot;, &quot;draft&quot;);</span>
+<span class="nc" id="L65">        return po;</span>
+    }
+
+<span class="nc" id="L68">    public String getPlanId() { return plan_id; }</span>
+<span class="nc" id="L69">    public void setPlanId(String v) { this.plan_id = v; }</span>
+<span class="nc" id="L70">    public String getPlanRequestId() { return plan_request_id; }</span>
+<span class="nc" id="L71">    public void setPlanRequestId(String v) { this.plan_request_id = v; }</span>
+<span class="nc" id="L72">    public String getUserId() { return user_id; }</span>
+<span class="nc" id="L73">    public void setUserId(String v) { this.user_id = v; }</span>
+<span class="nc" id="L74">    public String getPlanName() { return plan_name; }</span>
+<span class="nc" id="L75">    public void setPlanName(String v) { this.plan_name = v; }</span>
+<span class="nc" id="L76">    public String getPlanType() { return plan_type; }</span>
+<span class="nc" id="L77">    public void setPlanType(String v) { this.plan_type = v; }</span>
+<span class="nc" id="L78">    public String getStatus() { return status; }</span>
+<span class="nc" id="L79">    public void setStatus(String v) { this.status = v; }</span>
+<span class="nc" id="L80">    public Instant getCreateTime() { return create_time; }</span>
+<span class="nc" id="L81">    public void setCreateTime(Instant v) { this.create_time = v; }</span>
+<span class="nc" id="L82">    public Instant getConfirmedTime() { return confirmed_time; }</span>
+<span class="nc" id="L83">    public void setConfirmedTime(Instant v) { this.confirmed_time = v; }</span>
+<span class="nc" id="L84">    public java.math.BigDecimal getBudgetTotal() { return budget_total; }</span>
+<span class="nc" id="L85">    public void setBudgetTotal(java.math.BigDecimal v) { this.budget_total = v; }</span>
+<span class="nc" id="L86">    public Integer getDurationDays() { return duration_days; }</span>
+<span class="nc" id="L87">    public void setDurationDays(Integer v) { this.duration_days = v; }</span>
+
+    // 以下是详情页所需的完整字段 getter/setter
+<span class="nc" id="L90">    public String getSummary() { return summary; }</span>
+<span class="nc" id="L91">    public void setSummary(String v) { this.summary = v; }</span>
+
+<span class="nc" id="L93">    public String getHighlights() { return highlights; }</span>
+<span class="nc" id="L94">    public void setHighlights(String v) { this.highlights = v; }</span>
+
+<span class="nc" id="L96">    public String getItinerary() { return itinerary; }</span>
+<span class="nc" id="L97">    public void setItinerary(String v) { this.itinerary = v; }</span>
+
+<span class="nc" id="L99">    public String getBudgetBreakdown() { return budget_breakdown; }</span>
+<span class="nc" id="L100">    public void setBudgetBreakdown(String v) { this.budget_breakdown = v; }</span>
+
+<span class="nc" id="L102">    public String getSupplierSnapshots() { return supplier_snapshots; }</span>
+<span class="nc" id="L103">    public void setSupplierSnapshots(String v) { this.supplier_snapshots = v; }</span>
+
+<span class="nc" id="L105">    public BigDecimal getBudgetPerPerson() { return budget_per_person; }</span>
+<span class="nc" id="L106">    public void setBudgetPerPerson(BigDecimal v) { this.budget_per_person = v; }</span>
+
+<span class="nc" id="L108">    public String getDepartureCity() { return departure_city; }</span>
+<span class="nc" id="L109">    public void setDepartureCity(String v) { this.departure_city = v; }</span>
+
+<span class="nc" id="L111">    public String getDestination() { return destination; }</span>
+<span class="nc" id="L112">    public void setDestination(String v) { this.destination = v; }</span>
+
+<span class="nc" id="L114">    public Instant getDeletedAt() { return deleted_at; }</span>
+<span class="nc" id="L115">    public void setDeletedAt(Instant v) { this.deleted_at = v; }</span>
+
+<span class="nc" id="L117">    public Instant getArchivedAt() { return archived_at; }</span>
+<span class="nc" id="L118">    public void setArchivedAt(Instant v) { this.archived_at = v; }</span>
+
+<span class="nc" id="L120">    public Instant getReviewStartedAt() { return review_started_at; }</span>
+<span class="nc" id="L121">    public void setReviewStartedAt(Instant v) { this.review_started_at = v; }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

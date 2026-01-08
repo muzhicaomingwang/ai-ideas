@@ -4,7 +4,7 @@ App({
     console.log('TeamVenture 小程序启动', options)
 
     // 版本检查，清除旧数据
-    const APP_VERSION = '1.0.1'  // 更新版本号
+    const APP_VERSION = '1.0.1' // 更新版本号
     const storedVersion = wx.getStorageSync('appVersion')
 
     if (storedVersion !== APP_VERSION) {

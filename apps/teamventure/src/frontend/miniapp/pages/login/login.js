@@ -59,7 +59,6 @@ Page({
         loginCode: loginRes.code,
         showUserForm: true
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('微信登录失败', error)
@@ -78,7 +77,7 @@ Page({
     const { avatarUrl } = e.detail
     console.log('选择头像:', avatarUrl)
     this.setData({
-      avatarUrl: avatarUrl
+      avatarUrl
     })
   },
 
@@ -89,7 +88,7 @@ Page({
     const nickname = e.detail.value
     console.log('昵称输入:', nickname)
     this.setData({
-      nickname: nickname
+      nickname
     })
   },
 
@@ -102,7 +101,7 @@ Page({
     // 确保失焦时也更新（兼容处理）
     if (nickname !== this.data.nickname) {
       this.setData({
-        nickname: nickname
+        nickname
       })
     }
   },
@@ -172,7 +171,6 @@ Page({
           url: '/pages/home/home'
         })
       }, 1500)
-
     } catch (error) {
       wx.hideLoading()
       console.error('登录失败', error)
@@ -208,23 +206,61 @@ Page({
    * 后端登录
    */
   async backendLogin(data) {
+    const result = await post(API_ENDPOINTS.USER_LOGIN, data, {
+      showLoading: false
+    })
+    return result
+  },
+
+  /**
+   * 继续使用（已登录）- 验证 token 有效性
+   * Continue: 用户已登录时点击"继续使用"按钮
+   *
+   * 术语对照（ubiquitous-language-glossary.md Section 4.4）:
+   *   - 继续使用 = Continue = handleContinue
+   *   - Token验证 = Token Verification via GET /users/me
+   *
+   * 流程:
+   *   1. 调用 GET /users/me 验证token有效性
+   *   2. 验证成功 → 跳转首页
+   *   3. 验证失败 → 触发重新登录流程（handleReLogin）
+   *
+   * 参考: api-design.md Section 2.3
+   */
+  async handleContinue() {
     try {
-      const result = await post(API_ENDPOINTS.USER_LOGIN, data, {
-        showLoading: false
-      })
-      return result
+      wx.showLoading({ title: '验证中...', mask: true })
+      await get('/users/me', {}, { showLoading: false, showError: false })
+      wx.hideLoading()
+      wx.switchTab({ url: '/pages/home/home' })
     } catch (error) {
-      throw error
+      wx.hideLoading()
+      console.error('Token 验证失败', error)
+      this.handleReLogin()
     }
   },
 
   /**
-   * 继续使用（已登录）
+   * 切换账号（清除登录状态）
+   * Switch Account: 用户主动切换账号或token验证失败时触发
+   *
+   * 术语对照（ubiquitous-language-glossary.md Section 4.4）:
+   *   - 切换账号 = Switch Account = handleReLogin
+   *   - 登录状态 = Login Status = isLogin
+   *   - 用户信息 = User Info = userInfo
+   *
+   * 清理内容:
+   *   - Storage: SESSION_TOKEN, USER_INFO
+   *   - Global State: app.globalData.isLogin, app.globalData.userInfo
+   *   - Page State: this.data.isLogin, this.data.showUserForm
    */
-  handleContinue() {
-    wx.switchTab({
-      url: '/pages/home/home'
-    })
+  handleReLogin() {
+    wx.removeStorageSync(STORAGE_KEYS.SESSION_TOKEN)
+    wx.removeStorageSync(STORAGE_KEYS.USER_INFO)
+    app.globalData.isLogin = false
+    app.globalData.userInfo = null
+    this.setData({ isLogin: false, showUserForm: false })
+    wx.showToast({ title: '请重新登录', icon: 'none' })
   },
 
   /**
@@ -246,7 +282,7 @@ Page({
 
     // TODO: 跳转到协议页面或使用 web-view 显示
     wx.showModal({
-      title: title,
+      title,
       content: '此处应显示完整的协议内容',
       showCancel: false
     })

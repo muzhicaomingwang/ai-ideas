@@ -9,10 +9,10 @@ Page({
   data: {
     // Tab 筛选相关
     tabs: [
-      { key: '',           name: '全部' },
-      { key: 'draft',      name: '制定完成' },
-      { key: 'reviewing',  name: '通晒中' },
-      { key: 'confirmed',  name: '已确认' },
+      { key: '', name: '全部' },
+      { key: 'draft', name: '制定完成' },
+      { key: 'reviewing', name: '通晒中' },
+      { key: 'confirmed', name: '已确认' },
       { key: 'generating', name: '生成中' }
     ],
     currentTab: 'draft', // 默认选中"制定完成"
@@ -85,8 +85,8 @@ Page({
 
       // 构建请求参数
       const params = {
-        page: page,
-        pageSize: pageSize
+        page,
+        pageSize
       }
       // 如果有 Tab 筛选，添加 status 参数
       if (currentTab) {
@@ -105,7 +105,6 @@ Page({
         loading: false,
         loadingMore: false
       })
-
     } catch (error) {
       console.error('加载方案列表失败:', error)
 
@@ -127,8 +126,9 @@ Page({
   processPlans(plans) {
     return plans.map(plan => {
       const days = plan.duration_days ||
-                   (plan.start_date && plan.end_date ?
-                    calculateDays(plan.start_date, plan.end_date) : 2)
+                   (plan.start_date && plan.end_date
+                     ? calculateDays(plan.start_date, plan.end_date)
+                     : 2)
 
       return {
         ...plan,
@@ -217,7 +217,6 @@ Page({
           icon: 'none'
         })
       }
-
     } catch (error) {
       console.error('刷新方案状态失败:', error)
 
@@ -302,9 +301,8 @@ Page({
         this.setData({
           [`plans[${index}].translateX`]: translateX
         })
-      }
+      } else if (deltaX > 10) {
       // 右滑（恢复）
-      else if (deltaX > 10) {
         this.setData({
           [`plans[${index}].translateX`]: 0
         })
@@ -374,7 +372,6 @@ Page({
         title: '删除成功',
         icon: 'success'
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('删除方案失败:', error)
@@ -433,7 +430,6 @@ Page({
         title: '归档成功',
         icon: 'success'
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('归档方案失败:', error)
@@ -457,9 +453,9 @@ Page({
   showConfirmModal(title, content, confirmColor = '#f5222d') {
     return new Promise((resolve) => {
       wx.showModal({
-        title: title,
-        content: content,
-        confirmColor: confirmColor,
+        title,
+        content,
+        confirmColor,
         success: (res) => {
           resolve(res.confirm)
         },

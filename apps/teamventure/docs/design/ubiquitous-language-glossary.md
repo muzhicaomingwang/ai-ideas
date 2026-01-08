@@ -28,7 +28,10 @@
 | 微信OpenID | WeChat OpenID | `wechat_openid` | `wechatOpenid` | `openid` | - | 不暴露给前端 |
 | 昵称 | Nickname | `nickname` | `nickname` | `nickname` | `nickname` | |
 | 头像URL | Avatar URL | `avatar_url` | `avatarUrl` | `avatar` | `avatarUrl` | API简化为avatar |
+| 头像占位符 | Avatar Placeholder | - | - | - | `avatarPlaceholder` | 未上传头像时显示emoji 👤 |
 | 会话令牌 | Session Token | `session_token` | `sessionToken` | `sessionToken` | `token` | JWT格式 |
+| 登录状态 | Login Status | - | - | - | `isLogin` | Boolean，全局状态 |
+| 用户信息 | User Info | - | `UserInfo` | `userInfo` | `userInfo` | 聚合对象（userId+nickname+avatar等） |
 
 ### 2.2 方案请求 (Plan Request)
 
@@ -173,6 +176,21 @@ confirmed → archived (归档)
 
 ---
 
+## 4.4 UI组件与交互术语
+
+| 中文术语 | 英文术语 | 组件名 | 事件处理 | 说明 |
+|---------|---------|--------|----------|------|
+| 自定义导航栏 | Custom Navigation Bar | `custom-navbar` | - | 替代系统默认导航栏，支持自定义右侧内容 |
+| 状态栏占位 | Status Bar Placeholder | `status-bar` | - | 适配不同机型的状态栏高度 |
+| 用户状态显示 | User Status Display | `navbar-user` | `handleUserAvatar` | 导航栏右上角显示登录状态 |
+| 用户信息胶囊 | User Info Capsule | `user-info-mini` | - | 已登录时显示头像+昵称的胶囊组件 |
+| 登录入口按钮 | Login Entry Button | `login-btn-mini` | - | 未登录时显示的"登录"按钮 |
+| 切换账号 | Switch Account | `relogin-entry` | `handleReLogin` | 登录页清除当前登录状态的入口 |
+| 继续使用 | Continue | `btn-continue` | `handleContinue` | 已登录时验证token后进入主功能 |
+| Token刷新 | Token Refresh | - | `refreshTokenIfNeeded` | 自动检测token即将过期并刷新 |
+
+---
+
 ## 5. 领域事件命名
 
 | 事件类型 | 聚合根 | 触发时机 | Payload字段 |
@@ -197,9 +215,38 @@ confirmed → archived (归档)
 
 ---
 
-## 7. 版本历史
+## 7. 前端UI状态管理
+
+### 7.1 全局状态 (app.globalData)
+
+| 状态字段 | 类型 | 初始值 | 说明 |
+|---------|------|--------|------|
+| `isLogin` | Boolean | `false` | 用户是否已登录 |
+| `userInfo` | Object/null | `null` | 用户信息（userId, nickname, avatar等） |
+| `isGuestMode` | Boolean | `false` | 是否游客模式 |
+
+### 7.2 本地存储 (Storage Keys)
+
+| 存储键 | 值类型 | 说明 |
+|--------|--------|------|
+| `STORAGE_KEYS.SESSION_TOKEN` | String | JWT会话令牌 |
+| `STORAGE_KEYS.USER_INFO` | Object | 用户信息JSON |
+
+### 7.3 页面导航与路由
+
+| 页面路径 | 页面名称 | 导航栏类型 | 说明 |
+|---------|---------|-----------|------|
+| `/pages/login/login` | 登录页 | 系统默认 | 微信登录入口 |
+| `/pages/home/home` | 首页 | 自定义 | 发现页，显示热门目的地和推荐方案 |
+| `/pages/index/index` | 生成方案页 | 系统默认 | AI方案生成主流程 |
+| `/pages/myplans/myplans` | 我的方案 | 系统默认 | 历史方案列表 |
+
+---
+
+## 8. 版本历史
 
 | 版本 | 日期 | 变更内容 |
 |------|------|----------|
 | v1.0 | 2026-01-06 | 初始版本，整合全链路字段定义 |
 | v1.1 | 2026-01-07 | 补充"通晒"工作流：Section 4.3 添加"通晒方案"术语映射，Section 5 添加 `PlanSubmittedForReview` 领域事件 |
+| v1.2 | 2026-01-08 | 补充UI组件术语：添加Section 4.4（自定义导航栏、用户状态显示等），添加Section 7（前端状态管理、路由） |

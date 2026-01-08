@@ -1,0 +1,23 @@
+{
+  "name": "teamventure-miniapp",
+  "version": "1.0.0",
+  "description": "TeamVenture 小程序前端",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

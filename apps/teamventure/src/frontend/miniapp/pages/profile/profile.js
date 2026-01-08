@@ -20,26 +20,26 @@ Page({
   },
 
   onLoad() {
-    this.checkLoginStatus();
+    this.checkLoginStatus()
   },
 
   onShow() {
     // 每次显示页面时重新检查登录状态
-    this.checkLoginStatus();
+    this.checkLoginStatus()
   },
 
   // 检查登录状态
   async checkLoginStatus() {
-    const token = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN);
-    const userInfo = wx.getStorageSync(STORAGE_KEYS.USER_INFO);
+    const token = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN)
+    const userInfo = wx.getStorageSync(STORAGE_KEYS.USER_INFO)
 
-    console.log('检查登录状态:', { token, userInfo });
+    console.log('检查登录状态:', { token, userInfo })
 
     if (token && userInfo) {
       this.setData({
         isLoggedIn: true,
-        userInfo: userInfo
-      });
+        userInfo
+      })
       // 刷新一次用户信息（用于获取头像可访问URL等）
       try {
         const me = await get('/users/me', {}, { showLoading: false, showError: false })
@@ -51,7 +51,7 @@ Page({
       } catch (e) {
         // ignore
       }
-      this.loadUserStats();
+      this.loadUserStats()
     } else {
       this.setData({
         isLoggedIn: false,
@@ -60,7 +60,7 @@ Page({
           nickName: '',
           avatarUrl: ''
         }
-      });
+      })
     }
   },
 
@@ -78,9 +78,9 @@ Page({
           favoritePlans: 5,
           completedPlans: 3
         }
-      });
+      })
     } catch (error) {
-      console.error('加载统计数据失败:', error);
+      console.error('加载统计数据失败:', error)
     }
   },
 
@@ -88,7 +88,7 @@ Page({
   handleLogin() {
     wx.navigateTo({
       url: '/pages/login/login'
-    });
+    })
   },
 
   // 退出登录
@@ -99,11 +99,11 @@ Page({
       success: (res) => {
         if (res.confirm) {
           // 清除本地存储
-          wx.removeStorageSync(STORAGE_KEYS.SESSION_TOKEN);
-          wx.removeStorageSync(STORAGE_KEYS.USER_INFO);
+          wx.removeStorageSync(STORAGE_KEYS.SESSION_TOKEN)
+          wx.removeStorageSync(STORAGE_KEYS.USER_INFO)
 
           // 清除全局状态
-          app.logout();
+          app.logout()
 
           // 重置页面数据
           this.setData({
@@ -118,46 +118,46 @@ Page({
               favoritePlans: 0,
               completedPlans: 0
             }
-          });
+          })
 
           wx.showToast({
             title: '已退出登录',
             icon: 'success'
-          });
+          })
         }
       }
-    });
+    })
   },
 
   // 我的方案
   handleGoMyPlans() {
     wx.switchTab({
       url: '/pages/myplans/myplans'
-    });
+    })
   },
 
   // 我的收藏
   handleGoFavorites() {
     if (!this.data.isLoggedIn) {
-      this.showLoginTip();
-      return;
+      this.showLoginTip()
+      return
     }
     wx.showToast({
       title: '功能开发中',
       icon: 'none'
-    });
+    })
   },
 
   // 浏览历史
   handleGoHistory() {
     if (!this.data.isLoggedIn) {
-      this.showLoginTip();
-      return;
+      this.showLoginTip()
+      return
     }
     wx.showToast({
       title: '功能开发中',
       icon: 'none'
-    });
+    })
   },
 
   // 设置
@@ -165,7 +165,7 @@ Page({
     wx.showToast({
       title: '功能开发中',
       icon: 'none'
-    });
+    })
   },
 
   // 帮助与反馈
@@ -173,7 +173,7 @@ Page({
     wx.showToast({
       title: '功能开发中',
       icon: 'none'
-    });
+    })
   },
 
   // 关于我们
@@ -182,7 +182,7 @@ Page({
       title: '关于 TeamVenture',
       content: 'TeamVenture 是一个 AI 驱动的智能团建方案生成平台，致力于为企业提供高质量的团建活动方案。\n\n版本：1.0.0',
       showCancel: false
-    });
+    })
   },
 
   // 显示登录提示
@@ -193,9 +193,9 @@ Page({
       confirmText: '去登录',
       success: (res) => {
         if (res.confirm) {
-          this.handleLogin();
+          this.handleLogin()
         }
       }
-    });
+    })
   }
-});
+})

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.adapter.web.common</a> &gt; <span class="el_source">ApiResponse.java</span></div><h1>ApiResponse.java</h1><pre class="source lang-java linenums">package com.teamventure.adapter.web.common;
+
+<span class="nc" id="L3">public class ApiResponse&lt;T&gt; {</span>
+    private boolean success;
+    private T data;
+    private ApiError error;
+
+    public static &lt;T&gt; ApiResponse&lt;T&gt; success(T data) {
+<span class="nc" id="L9">        ApiResponse&lt;T&gt; resp = new ApiResponse&lt;&gt;();</span>
+<span class="nc" id="L10">        resp.success = true;</span>
+<span class="nc" id="L11">        resp.data = data;</span>
+<span class="nc" id="L12">        return resp;</span>
+    }
+
+    public static ApiResponse&lt;Void&gt; success() {
+<span class="nc" id="L16">        return success(null);</span>
+    }
+
+    public static ApiResponse&lt;Void&gt; failure(String code, String message) {
+<span class="nc" id="L20">        ApiResponse&lt;Void&gt; resp = new ApiResponse&lt;&gt;();</span>
+<span class="nc" id="L21">        resp.success = false;</span>
+<span class="nc" id="L22">        resp.error = new ApiError(code, message);</span>
+<span class="nc" id="L23">        return resp;</span>
+    }
+
+    public boolean isSuccess() {
+<span class="nc" id="L27">        return success;</span>
+    }
+
+    public T getData() {
+<span class="nc" id="L31">        return data;</span>
+    }
+
+    public ApiError getError() {
+<span class="nc" id="L35">        return error;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

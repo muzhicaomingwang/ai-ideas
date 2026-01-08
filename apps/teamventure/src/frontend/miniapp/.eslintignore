@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.miniprogram/
+miniprogram_npm/
+*.min.js
+design-tokens/

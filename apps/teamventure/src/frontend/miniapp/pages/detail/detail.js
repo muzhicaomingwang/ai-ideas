@@ -7,7 +7,7 @@ Page({
   data: {
     plan: null,
     sections: {
-      itinerary: true,   // 默认展开行程
+      itinerary: true, // 默认展开行程
       budget: false,
       suppliers: false
     }
@@ -59,7 +59,6 @@ Page({
 
       wx.hideLoading()
       this.processPlanData(plan)
-
     } catch (error) {
       wx.hideLoading()
       console.error('获取方案详情失败:', error)
@@ -78,8 +77,9 @@ Page({
 
     // 计算天数
     const days = plan.duration_days ||
-                 (plan.start_date && plan.end_date ?
-                  calculateDays(plan.start_date, plan.end_date) : 2)
+                 (plan.start_date && plan.end_date
+                   ? calculateDays(plan.start_date, plan.end_date)
+                   : 2)
 
     // 处理亮点（后端返回 highlights 数组，前端显示为单个字符串）
     let highlight = ''
@@ -100,7 +100,7 @@ Page({
         ? formatMoney(plan.budget_per_person) + ' 人均'
         : formatPerPerson(plan.budget_total, plan.people_count),
       duration: formatDuration(days),
-      highlight: highlight,
+      highlight,
 
       // 处理行程数据
       itinerary: this.processItinerary(plan.itinerary),
@@ -147,10 +147,12 @@ Page({
         ...cat,
         subtotal: this.formatNumber(cat.subtotal),
         // items 可能不存在，做空值保护
-        items: Array.isArray(cat.items) ? cat.items.map(item => ({
-          ...item,
-          total: this.formatNumber(item.total)
-        })) : []
+        items: Array.isArray(cat.items)
+          ? cat.items.map(item => ({
+            ...item,
+            total: this.formatNumber(item.total)
+          }))
+          : []
       })),
       total: this.formatNumber(budget.total)
     }
@@ -175,9 +177,9 @@ Page({
     return suppliers.map(supplier => ({
       ...supplier,
       category_label: categoryLabels[supplier.category] || supplier.category,
-      price: supplier.price_range_min && supplier.price_range_max ?
-             `¥${supplier.price_range_min}-${supplier.price_range_max}` :
-             supplier.price || ''
+      price: supplier.price_range_min && supplier.price_range_max
+        ? `¥${supplier.price_range_min}-${supplier.price_range_max}`
+        : supplier.price || ''
     }))
   },
 
@@ -297,7 +299,6 @@ Page({
         budget_total: plan.budget_total,
         timestamp: new Date().toISOString()
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('提交通晒失败:', error)
@@ -351,7 +352,6 @@ Page({
         plan_id: plan.plan_id,
         timestamp: new Date().toISOString()
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('确认方案失败:', error)
@@ -405,7 +405,6 @@ Page({
         plan_id: plan.plan_id,
         timestamp: new Date().toISOString()
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('取消方案失败:', error)
@@ -464,7 +463,6 @@ Page({
       setTimeout(() => {
         wx.navigateBack()
       }, 1500)
-
     } catch (error) {
       wx.hideLoading()
       console.error('归档方案失败:', error)
@@ -483,8 +481,8 @@ Page({
   showConfirmModal(title, content) {
     return new Promise((resolve) => {
       wx.showModal({
-        title: title,
-        content: content,
+        title,
+        content,
         success: (res) => {
           resolve(res.confirm)
         },

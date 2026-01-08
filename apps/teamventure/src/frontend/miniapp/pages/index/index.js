@@ -30,8 +30,8 @@ Page({
       budgetMax: '',
       startDate: '',
       endDate: '',
-      departureLocation: '',  // 出发城市（映射到API的departure_city）
-      destination: '',        // 目的地（团建活动地点）
+      departureLocation: '', // 出发城市（映射到API的departure_city）
+      destination: '', // 目的地（团建活动地点）
       preferences: {
         activityTypes: [],
         accommodationLevel: 'standard',
@@ -356,7 +356,7 @@ Page({
         start_date: formData.startDate,
         end_date: formData.endDate,
         departure_city: formData.departureLocation, // 出发城市（团队从哪里出发）
-        destination: formData.destination || '',    // 目的地（团建活动举办地点，可选）
+        destination: formData.destination || '', // 目的地（团建活动举办地点，可选）
         preferences: {
           activity_types: formData.preferences.activityTypes,
           accommodation_level: formData.preferences.accommodationLevel,
@@ -397,7 +397,6 @@ Page({
           })
         }
       })
-
     } catch (error) {
       wx.hideLoading()
       console.error('生成方案失败:', error)
@@ -530,7 +529,6 @@ Page({
       if (isCurrentFormEmpty) {
         this.showDraftRecoveryDialog(draft)
       }
-
     } catch (error) {
       console.error('检查草稿失败:', error)
     }

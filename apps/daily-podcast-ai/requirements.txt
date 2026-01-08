@@ -13,6 +13,18 @@ pydub>=0.25.1
 # ElevenLabs API
 elevenlabs>=1.0.0
 
+# Google Gemini API (Nano Banana 图像生成)
+google-genai>=1.52.0
+
+# 图像处理
+Pillow>=10.0.0
+
+# 视频合成
+moviepy>=1.0.3
+
+# OpenAI API (用于剧本生成)
+openai>=1.0.0
+
 # 异步支持
 aiohttp>=3.9.0
 asyncio-throttle>=1.0.2

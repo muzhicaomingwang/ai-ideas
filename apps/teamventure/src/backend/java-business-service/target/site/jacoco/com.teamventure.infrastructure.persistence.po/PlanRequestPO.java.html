@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanRequestPO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.persistence.po</a> &gt; <span class="el_source">PlanRequestPO.java</span></div><h1>PlanRequestPO.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.persistence.po;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.math.BigDecimal;
+import java.time.Instant;
+
+/**
+ * 方案请求实体（plan_requests 表）
+ *
+ * 字段语义说明：
+ * - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
+ * - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+ *
+ * 前端显示格式：&quot;{departure_city} → {destination}&quot;
+ * 示例：上海市 → 杭州千岛湖
+ */
+@TableName(&quot;plan_requests&quot;)
+<span class="nc" id="L19">public class PlanRequestPO {</span>
+    @TableId
+    private String plan_request_id;
+    private String user_id;
+    private Integer people_count;
+    private BigDecimal budget_min;
+    private BigDecimal budget_max;
+    private String start_date;
+    private String end_date;
+    /** 出发城市（团队从哪里出发，如公司所在地：上海市） */
+    private String departure_city;
+    /** 目的地（团建活动举办地点，如：杭州千岛湖） */
+    private String destination;
+    private String preferences;
+    private String status;
+    private Instant generation_started_at;
+    private Instant generation_completed_at;
+    private String error_code;
+    private String error_message;
+    private Instant deleted_at;
+
+<span class="nc" id="L40">    public String getPlanRequestId() { return plan_request_id; }</span>
+<span class="nc" id="L41">    public void setPlanRequestId(String v) { this.plan_request_id = v; }</span>
+<span class="nc" id="L42">    public String getUserId() { return user_id; }</span>
+<span class="nc" id="L43">    public void setUserId(String v) { this.user_id = v; }</span>
+<span class="nc" id="L44">    public Integer getPeopleCount() { return people_count; }</span>
+<span class="nc" id="L45">    public void setPeopleCount(Integer v) { this.people_count = v; }</span>
+<span class="nc" id="L46">    public BigDecimal getBudgetMin() { return budget_min; }</span>
+<span class="nc" id="L47">    public void setBudgetMin(BigDecimal v) { this.budget_min = v; }</span>
+<span class="nc" id="L48">    public BigDecimal getBudgetMax() { return budget_max; }</span>
+<span class="nc" id="L49">    public void setBudgetMax(BigDecimal v) { this.budget_max = v; }</span>
+<span class="nc" id="L50">    public String getStartDate() { return start_date; }</span>
+<span class="nc" id="L51">    public void setStartDate(String v) { this.start_date = v; }</span>
+<span class="nc" id="L52">    public String getEndDate() { return end_date; }</span>
+<span class="nc" id="L53">    public void setEndDate(String v) { this.end_date = v; }</span>
+<span class="nc" id="L54">    public String getDepartureCity() { return departure_city; }</span>
+<span class="nc" id="L55">    public void setDepartureCity(String v) { this.departure_city = v; }</span>
+<span class="nc" id="L56">    public String getDestination() { return destination; }</span>
+<span class="nc" id="L57">    public void setDestination(String v) { this.destination = v; }</span>
+<span class="nc" id="L58">    public String getPreferencesJson() { return preferences; }</span>
+<span class="nc" id="L59">    public void setPreferencesJson(String v) { this.preferences = v; }</span>
+<span class="nc" id="L60">    public String getStatus() { return status; }</span>
+<span class="nc" id="L61">    public void setStatus(String v) { this.status = v; }</span>
+<span class="nc" id="L62">    public Instant getGenerationStartedAt() { return generation_started_at; }</span>
+<span class="nc" id="L63">    public void setGenerationStartedAt(Instant v) { this.generation_started_at = v; }</span>
+<span class="nc" id="L64">    public Instant getGenerationCompletedAt() { return generation_completed_at; }</span>
+<span class="nc" id="L65">    public void setGenerationCompletedAt(Instant v) { this.generation_completed_at = v; }</span>
+<span class="nc" id="L66">    public String getErrorCode() { return error_code; }</span>
+<span class="nc" id="L67">    public void setErrorCode(String v) { this.error_code = v; }</span>
+<span class="nc" id="L68">    public String getErrorMessage() { return error_message; }</span>
+<span class="nc" id="L69">    public void setErrorMessage(String v) { this.error_message = v; }</span>
+<span class="nc" id="L70">    public Instant getDeletedAt() { return deleted_at; }</span>
+<span class="nc" id="L71">    public void setDeletedAt(Instant v) { this.deleted_at = v; }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

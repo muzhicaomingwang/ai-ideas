@@ -192,6 +192,175 @@ curl -X POST http://localhost/api/v1/auth/wechat/login \
 }
 ```
 
+### 2.3 获取当前用户信息 API
+
+#### Endpoint
+```
+GET /api/v1/users/me
+```
+
+#### 用途
+- **Token验证**: 在用户"继续使用"时验证token有效性
+- **数据刷新**: 获取最新的用户信息（如昵称、头像变更）
+- **登录状态检查**: 前端页面初始化时验证登录状态
+
+#### 请求头
+```
+Authorization: Bearer <session_token>
+```
+
+#### 成功响应
+
+**HTTP 200**:
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": "user_01ke3abc123",
+    "nickname": "张三",
+    "avatar": "https://cdn.example.com/avatars/user_01ke3abc123.jpg",
+    "phone": "138****8888",
+    "company": "某科技公司",
+    "role": "HR"
+  },
+  "error": null
+}
+```
+
+#### 错误响应
+
+**HTTP 401 - Token无效或已过期**:
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "UNAUTHENTICATED",
+    "message": "invalid token"
+  }
+}
+```
+
+**前端处理逻辑**（参考 pages/login/login.js:handleContinue）:
+```javascript
+async handleContinue() {
+  try {
+    wx.showLoading({ title: '验证中...', mask: true })
+    await get('/users/me', {}, { showLoading: false, showError: false })
+    wx.hideLoading()
+    wx.switchTab({ url: '/pages/home/home' })
+  } catch (error) {
+    wx.hideLoading()
+    console.error('Token 验证失败', error)
+    this.handleReLogin()  // 清除登录状态，提示重新登录
+  }
+}
+```
+
+### 2.4 刷新Token API
+
+#### Endpoint
+```
+POST /api/v1/users/refresh
+```
+
+#### 用途
+- **自动刷新**: 当token剩余有效期 < 12小时时自动刷新
+- **无感续期**: 用户无需重新登录即可获得新token
+- **防止中断**: 避免用户在操作过程中突然掉线
+
+#### 请求头
+```
+Authorization: Bearer <session_token>
+```
+
+#### 请求参数
+无需请求体
+
+#### 成功响应
+
+**HTTP 200 - Token需要刷新**:
+```json
+{
+  "success": true,
+  "data": {
+    "sessionToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",  // 新token
+    "userInfo": {
+      "user_id": "user_01ke3abc123",
+      "nickname": "张三",
+      "avatar": "https://cdn.example.com/avatars/user_01ke3abc123.jpg",
+      "phone": "138****8888",
+      "company": "某科技公司",
+      "role": "HR"
+    }
+  },
+  "error": null
+}
+```
+
+**HTTP 200 - Token仍然有效，无需刷新**:
+```json
+{
+  "success": true,
+  "data": null,  // 注意：返回 null 表示无需刷新
+  "error": null
+}
+```
+
+#### 错误响应
+
+**HTTP 401 - Token无效**:
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "UNAUTHENTICATED",
+    "message": "invalid token"
+  }
+}
+```
+
+**刷新策略**（参考 utils/request.js:refreshTokenIfNeeded）:
+- **触发时机**: 每次API请求前检查（除登录和刷新接口本身）
+- **阈值设置**: JWT剩余有效期 < 12小时
+- **并发控制**: 使用Promise防止多个请求同时触发刷新
+- **失败处理**: 刷新失败时清除登录状态，跳转登录页
+
+```javascript
+async function refreshTokenIfNeeded() {
+  const sessionToken = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN)
+  if (!sessionToken) return false
+
+  // 防止并发刷新
+  if (tokenRefreshInProgress) {
+    return tokenRefreshInProgress
+  }
+
+  tokenRefreshInProgress = new Promise((resolve) => {
+    wx.request({
+      url: `${API_BASE_URL}/users/refresh`,
+      method: 'POST',
+      header: { 'Authorization': `Bearer ${sessionToken}` },
+      success: (res) => {
+        if (res.statusCode === 200 && res.data?.data?.sessionToken) {
+          // 更新token和用户信息
+          wx.setStorageSync(STORAGE_KEYS.SESSION_TOKEN, res.data.data.sessionToken)
+          wx.setStorageSync(STORAGE_KEYS.USER_INFO, res.data.data.userInfo)
+          resolve(true)
+        } else {
+          resolve(true)  // data为null表示无需刷新
+        }
+      },
+      fail: () => resolve(true),  // 网络错误不阻止后续请求
+      complete: () => { tokenRefreshInProgress = null }
+    })
+  })
+
+  return tokenRefreshInProgress
+}
+```
+
 ---
 
 ## 3. Planning API（方案管理）

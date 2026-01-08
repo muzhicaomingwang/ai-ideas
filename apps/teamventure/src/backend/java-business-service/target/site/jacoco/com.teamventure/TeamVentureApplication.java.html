@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TeamVentureApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure</a> &gt; <span class="el_source">TeamVentureApplication.java</span></div><h1>TeamVentureApplication.java</h1><pre class="source lang-java linenums">package com.teamventure;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * TeamVenture 团建助手主应用
+ *
+ * &lt;p&gt;技术架构：
+ * &lt;ul&gt;
+ *   &lt;li&gt;SpringBoot 3.2+&lt;/li&gt;
+ *   &lt;li&gt;COLA 4层架构（写操作）&lt;/li&gt;
+ *   &lt;li&gt;传统3层架构（读操作）&lt;/li&gt;
+ *   &lt;li&gt;MySQL 8.0 主从分离&lt;/li&gt;
+ *   &lt;li&gt;Redis 缓存与Session管理&lt;/li&gt;
+ *   &lt;li&gt;RabbitMQ 异步通信&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author TeamVenture Team
+ * @version 1.0.0
+ * @since 2025-12-30
+ */
+@SpringBootApplication
+@MapperScan(&quot;com.teamventure.infrastructure.persistence.mapper&quot;)
+<span class="nc" id="L26">public class TeamVentureApplication {</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L29">        SpringApplication.run(TeamVentureApplication.class, args);</span>
+<span class="nc" id="L30">        System.out.println(&quot;&quot;&quot;</span>
+
+            ========================================
+            🎉 TeamVenture Business Service Started
+            ========================================
+            📚 API Docs: http://localhost:8080/doc.html
+            💚 Health Check: http://localhost:8080/actuator/health
+            📊 Metrics: http://localhost:8080/actuator/metrics
+            ========================================
+            &quot;&quot;&quot;);
+<span class="nc" id="L40">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

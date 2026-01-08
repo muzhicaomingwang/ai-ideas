@@ -1,7 +1,30 @@
 <!--pages/home/home.wxml-->
 <view class="home-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <!-- 状态栏占位 -->
+    <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+    <!-- 导航栏内容 -->
+    <view class="navbar-content">
+      <view class="navbar-title">首页</view>
+      <!-- 右侧用户信息 -->
+      <view class="navbar-user" bindtap="handleUserAvatar">
+        <view wx:if="{{isLogin && userInfo}}" class="user-info-mini">
+          <image wx:if="{{userInfo.avatar}}" class="user-avatar-mini" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+          <view wx:else class="user-avatar-mini user-avatar-placeholder">
+            <text class="avatar-emoji">👤</text>
+          </view>
+          <text class="user-nickname-mini">{{userInfo.nickname || '用户'}}</text>
+        </view>
+        <view wx:else class="login-btn-mini">
+          <text>登录</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- Banner 区域 -->
-  <view class="banner">
+  <view class="banner" style="padding-top: {{statusBarHeight + 44 + 40}}px;">
     <view class="banner-content">
       <view class="banner-title">TeamVenture</view>
       <view class="banner-subtitle">AI 驱动的智能团建方案生成平台</view>

@@ -5,11 +5,97 @@
   padding-bottom: 20rpx;
 }
 
+/* 自定义导航栏 */
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 1000;
+}
+
+.status-bar {
+  width: 100%;
+}
+
+.navbar-content {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0 32rpx;
+}
+
+.navbar-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: white;
+}
+
+.navbar-user {
+  position: absolute;
+  right: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 已登录用户信息 */
+.user-info-mini {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8rpx 20rpx 8rpx 8rpx;
+  border-radius: 40rpx;
+}
+
+.user-avatar-mini {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.user-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-emoji {
+  font-size: 32rpx;
+}
+
+.user-nickname-mini {
+  font-size: 28rpx;
+  color: white;
+  font-weight: 500;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 未登录按钮 */
+.login-btn-mini {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12rpx 32rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  color: white;
+  font-weight: 500;
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+}
+
 /* Banner */
 .banner {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 80rpx 40rpx 60rpx;
+  padding: 40rpx 40rpx 60rpx;
   color: white;
+  /* padding-top 由内联样式动态设置 */
 }
 
 .banner-title {

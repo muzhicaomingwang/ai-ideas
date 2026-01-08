@@ -23,6 +23,16 @@ public class UserController {
         this.ossService = ossService;
     }
 
+    /**
+     * 获取当前用户信息 API (Get Current User)
+     * Endpoint: GET /api/v1/users/me
+     * 用途:
+     *   - Token验证：在用户"继续使用"时验证token有效性
+     *   - 数据刷新：获取最新的用户信息（如昵称、头像变更）
+     *   - 登录状态检查：前端页面初始化时验证登录状态
+     * 参考文档: docs/design/api-design.md Section 2.3
+     * 术语对照: 参考 ubiquitous-language-glossary.md Section 2.1
+     */
     @GetMapping("/me")
     public ApiResponse<UserInfo> me(@RequestHeader(value = "Authorization", required = false) String authorization) {
         String userId = authService.getUserIdFromAuthorization(authorization);

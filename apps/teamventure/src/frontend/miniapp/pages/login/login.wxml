@@ -53,7 +53,10 @@
         open-type="chooseAvatar"
         bindchooseavatar="onChooseAvatar"
       >
-        <image class="avatar" src="{{avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="avatar avatar-placeholder">
+          <text class="avatar-placeholder-text">👤</text>
+        </view>
         <view class="avatar-tip">点击选择头像</view>
       </button>
     </view>
@@ -85,6 +88,9 @@
     >
       继续使用
     </button>
+    <view class="relogin-entry" bindtap="handleReLogin">
+      <text class="relogin-text">切换账号</text>
+    </view>
   </view>
 
   <!-- 用户协议 -->

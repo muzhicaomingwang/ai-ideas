@@ -35,10 +35,10 @@ const ENV = detectEnv()
 
 // API 基础地址配置
 const API_BASE_URLS = {
-  local: 'http://localhost:8080/api/v1',           // 本地开发环境（直连本机 Java 服务 8080；开发者工具下用 HTTP 避免证书问题）
-  dev: 'https://dev-api.teamventure.com/api/v1',   // 开发环境
+  local: 'http://localhost:8080/api/v1', // 本地开发环境（直连本机 Java 服务 8080；开发者工具下用 HTTP 避免证书问题）
+  dev: 'https://dev-api.teamventure.com/api/v1', // 开发环境
   beta: 'https://beta-api.teamventure.com/api/v1', // 测试环境
-  prod: 'https://api.teamventure.com/api/v1'       // 生产环境
+  prod: 'https://api.teamventure.com/api/v1' // 生产环境
 }
 
 // 当前环境的 API 基础地址
@@ -77,7 +77,7 @@ export const STORAGE_KEYS = {
   SESSION_TOKEN: 'sessionToken',
   USER_INFO: 'userInfo',
   LATEST_REQUEST: 'latestRequest',
-  DRAFT_REQUEST: 'draftRequest'  // 草稿数据（自动保存）
+  DRAFT_REQUEST: 'draftRequest' // 草稿数据（自动保存）
 }
 
 // 方案类型

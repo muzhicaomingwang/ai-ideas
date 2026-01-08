@@ -16,16 +16,29 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * 微信登录 API
+     * Endpoint: POST /api/v1/auth/wechat/login
+     * 参考文档: docs/design/api-design.md Section 2.2
+     */
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest req) {
         return ApiResponse.success(authService.loginWithWeChat(req.code, req.nickname, req.avatarUrl));
     }
 
+    /**
+     * 刷新Token API (Token Refresh)
+     * Endpoint: POST /api/v1/auth/wechat/refresh
+     * 用途: 当token剩余有效期 < 12小时时自动刷新，实现无感续期
+     * 参考文档: docs/design/api-design.md Section 2.4
+     *
+     * @return 如果token仍有效无需刷新，返回null；否则返回新token和用户信息
+     */
     @PostMapping("/refresh")
     public ApiResponse<LoginResponse> refresh(@RequestHeader("Authorization") String authorization) {
         LoginResponse response = authService.refreshTokenIfNeeded(authorization);
         if (response == null) {
-            // Token still valid, no refresh needed
+            // Token仍然有效，无需刷新 (Token still valid, no refresh needed)
             return ApiResponse.success(null);
         }
         return ApiResponse.success(response);

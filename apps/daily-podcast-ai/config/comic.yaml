@@ -1,0 +1,63 @@
+# 漫画短剧生成配置
+
+# ========== 图像生成配置 (Nano Banana) ==========
+image_generation:
+  # 模型选择
+  # - gemini-2.5-flash-image: Nano Banana (免费，快速)
+  # - gemini-3-pro-image-preview: Nano Banana Pro (高质量，支持4K)
+  model: "gemini-2.5-flash-image"
+
+  # 图像参数
+  aspect_ratio: "16:9"  # 可选: "1:1", "9:16", "4:3", "3:4"
+  person_generation: "allow_adult"  # 允许生成成人图像
+  output_format: "png"
+
+  # 风格预设
+  style: "comic"  # comic/anime/realistic/manga/watercolor/oil_painting
+
+  # 高级参数（仅 Nano Banana Pro 支持）
+  enable_4k: false  # 是否生成4K分辨率（需要 Pro 版本）
+  safety_filter_level: "block_medium_and_above"  # 安全过滤级别
+
+# ========== 视频合成配置 ==========
+video:
+  # 视频参数
+  fps: 24  # 帧率
+  codec: "libx264"  # 视频编码
+  bitrate: "5000k"  # 比特率
+  resolution: "1920x1080"  # 分辨率
+
+  # 字幕样式
+  subtitle:
+    # 字体配置（需要下载中文字体到 fonts/ 目录）
+    font_path: ""  # 留空则使用系统默认字体
+    font_size: 48
+    font_color: [255, 255, 255]  # 白色 RGB
+    bg_color: [0, 0, 0, 180]  # 半透明黑色 RGBA
+    position: "bottom"  # bottom/top/middle
+    margin: 60  # 边距（像素）
+
+# ========== 成本控制 ==========
+budget:
+  max_frames_per_drama: 50  # 每个短剧最多生成50帧
+  use_pro_model: false  # 默认使用普通版 Nano Banana（更便宜）
+  max_retries: 3  # API调用失败最大重试次数
+  timeout_seconds: 60  # API调用超时时间
+
+# ========== 角色配置示例 ==========
+# 在这里预定义常用角色的语音ID和风格
+characters:
+  AI助手:
+    voice_id: "21m00Tcm4TlvDq8ikWAM"  # 替换为实际的 ElevenLabs 语音ID
+    description: "可爱的蓝色机器人，友善热情"
+    visual_style: "cute robot with blue color scheme, friendly appearance"
+
+  用户小王:
+    voice_id: "pNInz6obpgDQGcFmaJgB"  # 替换为实际的 ElevenLabs 语音ID
+    description: "年轻人，好奇热情"
+    visual_style: "young person, casual clothing, enthusiastic expression"
+
+  旁白:
+    voice_id: "EXAVITQu4vr4xnSDxMaL"  # 替换为实际的 ElevenLabs 语音ID
+    description: "专业播音员"
+    visual_style: ""  # 旁白不需要视觉风格
