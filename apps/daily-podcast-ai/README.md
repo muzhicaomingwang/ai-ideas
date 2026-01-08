@@ -102,7 +102,7 @@ daily-podcast-ai/
 ├── README.md                 # 项目文档（本文件）
 ├── config/
 │   ├── sources.yaml          # 新闻源配置
-│   └── voice.yaml            # 语音配置
+│   └── voice.yaml            # 语音配置（ElevenLabs voice_id: SKlxpKXGwoM0E8XpnxNs）
 ├── src/
 │   ├── news_sources/         # 新闻获取模块
 │   │   ├── rss_fetcher.py
@@ -115,10 +115,20 @@ daily-podcast-ai/
 │       └── audio_mixer.py    # 音频合成
 ├── scripts/
 │   ├── setup_voice.py        # 声音克隆设置
-│   └── daily_generate.py     # 每日生成脚本
+│   ├── daily_generate.py     # 每日生成脚本（生成讲稿+音频）
+│   ├── generate_cover.py     # 封面图片生成（PIL，1400x1400px）
+│   ├── run_daily.sh          # 定时任务执行脚本（venv + .env）
+│   └── com.daily-podcast-ai.plist  # macOS launchd 定时任务配置
+├── logo/
+│   └── 王植萌漫画形象.png     # 播客封面 logo（350px）
 ├── docs/
 │   └── workflow.md           # 工作流文档
-└── output/                   # 生成的播客文件
+├── output/                   # 生成的播客文件
+│   └── YYYY-MM-DD/           # 按日期组织
+│       ├── script-YYYY-MM-DD.md      # 播客讲稿
+│       ├── cover-YYYY-MM-DD.png      # 封面图片
+│       └── daily-podcast-YYYY-MM-DD.mp3  # 音频文件
+└── venv/                     # Python 虚拟环境
 ```
 
 ---
@@ -187,20 +197,98 @@ uvx elevenlabs-mcp
 ### 4. 生成播客
 
 ```bash
-# 每日运行（可配置 cron）
+# 手动运行
 python scripts/daily_generate.py
+```
+
+---
+
+## 自动化每日执行
+
+使用 macOS launchd 实现每天早上 7:00 自动生成播客。
+
+### 配置步骤
+
+#### 1. 创建 .env 文件
+
+在项目根目录创建 `.env` 文件，配置 ElevenLabs API Key：
+
+```bash
+ELEVENLABS_API_KEY=your_api_key_here
+```
+
+#### 2. 安装 launchd 任务
+
+```bash
+# 复制配置文件到 LaunchAgents
+cp scripts/com.daily-podcast-ai.plist ~/Library/LaunchAgents/
+
+# 加载任务（立即生效）
+launchctl load ~/Library/LaunchAgents/com.daily-podcast-ai.plist
+
+# 启动任务
+launchctl start com.daily-podcast-ai
+```
+
+#### 3. 管理定时任务
+
+```bash
+# 查看任务状态
+launchctl list | grep daily-podcast-ai
+
+# 停止任务
+launchctl stop com.daily-podcast-ai
+
+# 卸载任务
+launchctl unload ~/Library/LaunchAgents/com.daily-podcast-ai.plist
+
+# 重新加载任务（修改配置后）
+launchctl unload ~/Library/LaunchAgents/com.daily-podcast-ai.plist
+launchctl load ~/Library/LaunchAgents/com.daily-podcast-ai.plist
+```
+
+### 执行流程
+
+每天早上 7:00，自动执行以下步骤：
+
+1. **生成播客讲稿和音频** (`scripts/daily_generate.py`)
+   - 从新闻源获取当天新闻
+   - 使用 AI 生成播客脚本
+   - 调用 ElevenLabs TTS API 生成音频（voice_id: `SKlxpKXGwoM0E8XpnxNs`）
+
+2. **生成封面图片** (`scripts/generate_cover.py`)
+   - 使用 PIL 生成 1400x1400px 封面
+   - 包含日期、新闻数量、logo（350px）
+
+3. **输出文件**
+   - `output/YYYY-MM-DD/script-YYYY-MM-DD.md` - 播客讲稿
+   - `output/YYYY-MM-DD/cover-YYYY-MM-DD.png` - 封面图片
+   - `output/YYYY-MM-DD/daily-podcast-YYYY-MM-DD.mp3` - 音频文件
+
+### 日志查看
+
+```bash
+# 查看执行日志
+cat logs/daily-$(date +%Y-%m-%d).log
+
+# 查看 launchd 标准输出
+cat logs/launchd-stdout.log
+
+# 查看 launchd 错误输出
+cat logs/launchd-stderr.log
 ```
 
 ---
 
 ## 待办事项
 
-- [ ] 实现新闻源获取模块
-- [ ] 集成 ElevenLabs MCP
-- [ ] 设计播客脚本模板
-- [ ] 实现语音克隆流程
+- [x] 实现新闻源获取模块
+- [x] 集成 ElevenLabs MCP
+- [x] 设计播客脚本模板
+- [x] 实现语音克隆流程
+- [x] 配置每日自动化任务（launchd，每天 7:00）
+- [x] 添加封面图片生成功能
 - [ ] 添加背景音乐支持
-- [ ] 配置每日自动化任务
 
 ---
 
