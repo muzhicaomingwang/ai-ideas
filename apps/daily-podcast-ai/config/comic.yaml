@@ -48,16 +48,16 @@ budget:
 # 在这里预定义常用角色的语音ID和风格
 characters:
   AI助手:
-    voice_id: "21m00Tcm4TlvDq8ikWAM"  # 替换为实际的 ElevenLabs 语音ID
+    voice_id: "ByhETIclHirOlWnWKhHc"  # 小雅 (Standard Mandarin Female)
     description: "可爱的蓝色机器人，友善热情"
     visual_style: "cute robot with blue color scheme, friendly appearance"
 
   用户小王:
-    voice_id: "pNInz6obpgDQGcFmaJgB"  # 替换为实际的 ElevenLabs 语音ID
+    voice_id: "SKlxpKXGwoM0E8XpnxNs"  # 植萌 (User's Voice)
     description: "年轻人，好奇热情"
     visual_style: "young person, casual clothing, enthusiastic expression"
 
   旁白:
-    voice_id: "EXAVITQu4vr4xnSDxMaL"  # 替换为实际的 ElevenLabs 语音ID
+    voice_id: "ByhETIclHirOlWnWKhHc"  # 小雅 (Standard Mandarin Female)
     description: "专业播音员"
     visual_style: ""  # 旁白不需要视觉风格

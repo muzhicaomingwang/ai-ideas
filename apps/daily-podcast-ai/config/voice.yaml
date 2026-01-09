@@ -7,7 +7,7 @@ bgm:
 elevenlabs:
   api_key_env: ELEVENLABS_API_KEY
   default_voice: Josh
-  model_id: eleven_multilingual_v3
+  model_id: eleven_multilingual_v2
   voice_id: ''
   voice_settings:
     similarity_boost: 0.75
@@ -36,7 +36,18 @@ script:
   - 下面是另一条值得关注的新闻。
   - 接着来看这条新闻。
 tts:
-  voice_id: SKlxpKXGwoM0E8XpnxNs
+  voice_id: SKlxpKXGwoM0E8XpnxNs # 默认声音 (Host A)
+hosts:
+  host_a:
+    name: "植萌"
+    role: "主理人 (Main Host)"
+    voice_id: "SKlxpKXGwoM0E8XpnxNs" # 您的克隆声音
+    style: "natural, friendly"
+  host_b:
+    name: "小雅"
+    role: "搭档 (Co-host)"
+    voice_id: "ByhETIclHirOlWnWKhHc" # ElevenLabs 'ShanShan' (标准普通话女声)
+    style: "lively, clear"
 voice_cloning:
   mode: instant
   sample_files:

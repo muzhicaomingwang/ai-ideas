@@ -257,6 +257,91 @@ class TTSGenerator:
 
         return segments
 
+    def generate_dialogue_audio(
+        self,
+        dialogue_script,  # DialogueScript object
+        output_dir: str = "output/dialogue_audio",
+        show_progress: bool = True
+    ) -> list[AudioSegment]:
+        """
+        生成双人对话音频
+        
+        Args:
+            dialogue_script: DialogueScript 对象 (来自 dialogue_writer.py)
+            output_dir: 输出目录
+            show_progress: 是否显示进度
+            
+        Returns:
+            AudioSegment 列表
+        """
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        segments = []
+        
+        # 获取主持人配置
+        host_config = self.config.get("hosts", {})
+        voice_map = {
+            "Host A": host_config.get("host_a", {}).get("voice_id", self.voice_id),
+            "Host B": host_config.get("host_b", {}).get("voice_id", "")
+        }
+        
+        # 如果没有配置 Host B，使用默认列表中的备选或 fallback
+        if not voice_map["Host B"]:
+            print("⚠️ 未配置 Host B 声音 ID，尝试使用默认备选 'Adam'...")
+            voice_map["Host B"] = "pNInz6obpgDQGcFmaJgB" # Default Adam
+            
+        rate_limit_delay = self.tts_config.get("rate_limit_delay", 0.5)
+        
+        if show_progress:
+            print(f"\n🎙️ 开始生成双人对话音频，共 {len(dialogue_script.lines)} 句对话")
+            print(f"   Host A Voice: {voice_map['Host A']}")
+            print(f"   Host B Voice: {voice_map['Host B']}")
+            print("-" * 40)
+            
+        for i, line in enumerate(dialogue_script.lines):
+            speaker = line.speaker
+            text = line.text
+            voice_id = voice_map.get(speaker, voice_map["Host A"])
+            
+            # 简单的表情处理 (可以通过 stability 调整，暂未深度实现)
+            # emotion = line.emotion 
+            
+            filename = f"{dialogue_script.date}_line_{i:03d}_{speaker.replace(' ', '')}.mp3"
+            filepath = output_path / filename
+            
+            if show_progress:
+                speaker_icon = "🗣️" if speaker == "Host A" else "🤖"
+                print(f"  [{i+1}/{len(dialogue_script.lines)}] {speaker_icon} {speaker}: {text[:20]}...")
+            
+            # 检查文件是否已存在 (避免重复生成节省 Credit)
+            if filepath.exists():
+                if show_progress:
+                    print("    ⏩ 跳过 (已存在)")
+                segments.append(AudioSegment(
+                    filepath=str(filepath),
+                    duration_seconds=0, # 需重新计算，或读取文件元数据
+                    text=text,
+                    segment_index=i
+                ))
+                continue
+
+            result = self.generate_audio(text, str(filepath), voice_id=voice_id)
+            
+            if result:
+                segments.append(AudioSegment(
+                    filepath=result,
+                    duration_seconds=len(text)/3.5, # 估算
+                    text=text,
+                    segment_index=i
+                ))
+            else:
+                print(f"    ❌ 生成失败")
+                
+            time.sleep(rate_limit_delay)
+            
+        return segments
+
 
 def main():
     """测试入口"""
