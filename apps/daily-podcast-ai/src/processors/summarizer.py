@@ -23,7 +23,7 @@ class SummarizedArticle:
 class ArticleSummarizer:
     """文章摘要生成器"""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o"):
         """
         初始化摘要生成器
 

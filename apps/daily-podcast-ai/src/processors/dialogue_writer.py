@@ -1,6 +1,7 @@
-"对话式脚本生成器 (NotebookLM Style)
+"""
+对话式脚本生成器 (NotebookLM Style)
 使用 Gemini Pro 将新闻转化为双人对谈脚本
-"
+"""
 
 import json
 import os
@@ -61,7 +62,7 @@ class DialogueScript:
 class DialogueWriter:
     """基于 Gemini Pro 的对话生成器"""
 
-    def __init__(self, model_name: str = "gemini-1.5-pro"):
+    def __init__(self, model_name: str = "gemini-2.5-pro"):
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("需要设置 GOOGLE_API_KEY 环境变量")

@@ -176,6 +176,12 @@ def main():
         help="从缓存读取新闻并使用 AI 优选（每小时收集模式）"
     )
 
+    parser.add_argument(
+        "--classic",
+        action="store_true",
+        help="使用经典单人播报模式 (禁用 Deep Dive 双人对话)"
+    )
+
     args = parser.parse_args()
 
     # 解析日期
@@ -213,7 +219,8 @@ def main():
             voice_id=args.voice_id,
             verbose=args.verbose,
             dry_run=args.dry_run,
-            from_cache=args.from_cache
+            from_cache=args.from_cache,
+            deep_dive=not args.classic
         )
 
         if result:
@@ -284,7 +291,8 @@ def generate_podcast(
     voice_id: str = None,
     verbose: bool = False,
     dry_run: bool = False,
-    from_cache: bool = False
+    from_cache: bool = False,
+    deep_dive: bool = True
 ) -> dict:
     """
     生成播客的主流程
@@ -303,6 +311,7 @@ def generate_podcast(
         voice_id: 语音ID
         verbose: 详细输出
         dry_run: 演示模式
+        deep_dive: 是否使用深度对话模式 (Deep Dive)
 
     Returns:
         结果字典
@@ -310,10 +319,43 @@ def generate_podcast(
     from news_sources import RSSFetcher
     from processors.summarizer import ArticleSummarizer, SimpleSummarizer
     from processors.script_writer import ScriptWriter
+    from processors.dialogue_writer import DialogueWriter
     from generators import TTSGenerator, AudioMixer
+    import yaml
 
     date_str = target_date.strftime("%Y-%m-%d")
-    output_path = Path(output_dir)
+    
+    # 加载配置以获取主持人名称
+    config_path = project_root / "config" / "voice.yaml"
+    host_a_slug = "host_a"
+    host_b_slug = "host_b"
+    
+    if config_path.exists():
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+            hosts = config.get("hosts", {})
+            
+            # 简单的中文名转拼音映射 (针对特定需求)
+            name_map = {
+                "植萌": "zhimeng",
+                "小雅": "xiaoya",
+                "Alex": "alex",
+                "Jamie": "jamie"
+            }
+            
+            h_a = hosts.get("host_a", {}).get("name", "HostA")
+            h_b = hosts.get("host_b", {}).get("name", "HostB")
+            
+            host_a_slug = name_map.get(h_a, h_a.lower())
+            host_b_slug = name_map.get(h_b, h_b.lower())
+
+    # 构建新的输出路径结构: output/{date}/dailytechnews/
+    base_output_path = Path(output_dir)
+    if deep_dive:
+        output_path = base_output_path / date_str / "dailytechnews"
+    else:
+        output_path = base_output_path
+        
     output_path.mkdir(parents=True, exist_ok=True)
 
     result = {
@@ -389,30 +431,29 @@ def generate_podcast(
     print(f"✅ 处理完成 {len(summarized)} 篇文章")
 
     # ========== 步骤 3: 生成脚本 ==========
-    print("\n📜 步骤 3/5: 生成脚本")
+    print(f"\n📜 步骤 3/5: 生成脚本 ({'Deep Dive 对话模式' if deep_dive else '单人播报模式'})")
     print("-" * 40)
 
-    writer = ScriptWriter()
-    script = writer.generate_script(
-        summarized,
-        date=target_date,
-        group_by_category=group_by_category
-    )
+    if deep_dive:
+        writer = DialogueWriter()
+        script = writer.generate_dialogue(summarized, date=target_date)
+        # Deep Dive 模式下 script 是 DialogueScript 对象
+        result["article_count"] = len(summarized)
+    else:
+        writer = ScriptWriter()
+        script = writer.generate_script(
+            summarized,
+            date=target_date,
+            group_by_category=group_by_category
+        )
+        result["article_count"] = script.total_articles
+        result["categories"] = script.categories
 
     # 保存脚本
     script_path = script.save_to_file(str(output_path))
     result["script_path"] = script_path
-    result["article_count"] = script.total_articles
-    result["categories"] = script.categories
-
+    
     print(f"✅ 脚本已保存: {script_path}")
-
-    if verbose:
-        print("\n--- 脚本预览 ---")
-        full_text = script.to_full_text()
-        preview = full_text[:500] + "..." if len(full_text) > 500 else full_text
-        print(preview)
-        print("--- 预览结束 ---\n")
 
     if script_only:
         print("\n⏭️ 跳过音频生成（--script-only 模式）")
@@ -445,20 +486,30 @@ def generate_podcast(
     else:
         try:
             tts = TTSGenerator()
-            if voice_id:
-                tts.voice_id = voice_id
+            
+            if deep_dive:
+                # Deep Dive 双人对话模式
+                audio_segments = tts.generate_dialogue_audio(
+                    script,
+                    output_dir=str(audio_dir),
+                    show_progress=True
+                )
+            else:
+                # 单人播报模式
+                if voice_id:
+                    tts.voice_id = voice_id
 
-            if not tts.voice_id:
-                print("  ❌ 未配置 voice_id，请先运行 setup_voice.py 设置语音")
-                print("     或使用 --voice-id 参数指定")
-                return result
+                if not tts.voice_id:
+                    print("  ❌ 未配置 voice_id，请先运行 setup_voice.py 设置语音")
+                    print("     或使用 --voice-id 参数指定")
+                    return result
 
-            print(f"  🎤 使用语音 ID: {tts.voice_id[:16]}...")
-            audio_segments = tts.generate_podcast_audio(
-                script,
-                output_dir=str(audio_dir),
-                show_progress=True
-            )
+                print(f"  🎤 使用语音 ID: {tts.voice_id[:16]}...")
+                audio_segments = tts.generate_podcast_audio(
+                    script,
+                    output_dir=str(audio_dir),
+                    show_progress=True
+                )
 
             if not audio_segments:
                 print("  ❌ 音频生成失败")
@@ -475,7 +526,14 @@ def generate_podcast(
     print("-" * 40)
 
     mixer = AudioMixer()
-    final_audio_path = str(output_path / f"podcast-{date_str}.mp3")
+    
+    # 构造文件名: podcast-{date}-{host_a}-{host_b}.mp3
+    if deep_dive:
+        filename = f"podcast-{date_str}-{host_a_slug}-{host_b_slug}.mp3"
+    else:
+        filename = f"podcast-{date_str}.mp3"
+        
+    final_audio_path = str(output_path / filename)
 
     final = mixer.create_final_podcast(
         audio_segments,
@@ -492,6 +550,41 @@ def generate_podcast(
         print(f"✅ 播客音频生成完成: {final.filepath}")
     else:
         print("  ❌ 音频后处理失败")
+
+    # ========== 步骤 6: 封面生成 ==========
+    print("\n🎨 步骤 6/6: 封面生成")
+    print("-" * 40)
+    
+    try:
+        from generators.nano_banana_generator import NanoBananaGenerator
+        cover_gen = NanoBananaGenerator()
+        
+        cover_filename = f"cover-{date_str}.png"
+        cover_path = str(output_path / cover_filename)
+        
+        # 使用 NanoBananaGenerator (Gemini) 生成封面
+        # title 可以在这里动态设置，比如加上 "Deep Dive"
+        podcast_title = "今日科技早报"
+        if deep_dive:
+            podcast_title += " Deep Dive"
+            
+        generated_cover = cover_gen.generate_cover(
+            date=date_str,
+            title=podcast_title,
+            output_path=cover_path
+        )
+        
+        if generated_cover:
+            print(f"✅ 封面生成完成: {generated_cover}")
+            result["cover_path"] = generated_cover
+        else:
+            print("❌ 封面生成失败")
+            
+    except Exception as e:
+        print(f"❌ 封面生成出错: {e}")
+        if verbose:
+            import traceback
+            traceback.print_exc()
 
     return result
 

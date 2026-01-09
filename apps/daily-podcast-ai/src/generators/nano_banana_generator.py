@@ -201,6 +201,57 @@ class NanoBananaGenerator:
 
         return frames
 
+    def generate_cover(
+        self,
+        date: str,
+        title: str = "今日科技早报",
+        subtitle: str = "AI 驱动 · 每日更新",
+        output_path: str = "output/cover.png"
+    ) -> Optional[str]:
+        """
+        生成播客封面
+
+        Args:
+            date: 日期字符串
+            title: 标题
+            subtitle: 副标题
+            output_path: 输出路径
+
+        Returns:
+            生成的图片路径
+        """
+        prompt = f"""
+        Create a professional, high-quality podcast cover image.
+        
+        Title: "{title}"
+        Date: "{date}"
+        Subtitle: "{subtitle}"
+        
+        Style: Modern Tech, Minimalist, 3D Abstract, High Contrast.
+        Colors: Deep Blue, Electric Blue, White text.
+        
+        Composition:
+        - Square aspect ratio (1:1).
+        - Center the main title "{title}" in large, bold, futuristic Chinese typography.
+        - Place the date "{date}" clearly below the title.
+        - Use abstract 3D geometric shapes (spheres, cubes, flowing lines) in the background representing AI and data.
+        - The overall look should be premium, suitable for Apple Podcasts.
+        - Ensure text is legible and correctly spelled (Chinese characters).
+        
+        Do not include any other text.
+        """
+        
+        print(f"🎨 Generating cover with prompt: {title} - {date}")
+        
+        # Override model if needed, or rely on default
+        # For cover, we might want to ensure 'gemini-2.5-flash-image' or better
+        
+        return self.generate_frame(
+            description=prompt,
+            output_path=output_path,
+            character_consistency=False # No character needed
+        )
+
     def edit_frame(
         self,
         original_image_path: str,
