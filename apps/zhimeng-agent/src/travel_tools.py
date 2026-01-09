@@ -8,6 +8,7 @@
 
 import json
 import logging
+import os
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -190,10 +191,10 @@ class AmapMaps:
     """高德地图 MCP 客户端 (SSE)"""
 
     BASE_URL = "https://mcp.amap.com/sse"
-    API_KEY = "edcaca0566e93723168335af37ada68e"
 
     def __init__(self):
         self.client = httpx.Client(timeout=30.0)
+        self.api_key = os.getenv("AMAP_API_KEY") or os.getenv("GAODE_API_KEY") or ""
 
     def search_poi(self, keywords: str, city: str = "") -> dict:
         """搜索 POI (地点)
@@ -205,13 +206,15 @@ class AmapMaps:
         Returns:
             POI 搜索结果
         """
+        if not self.api_key:
+            return {"error": "missing AMAP_API_KEY (or GAODE_API_KEY) env var"}
         try:
-            params = {"key": self.API_KEY, "keywords": keywords}
+            params = {"key": self.api_key, "keywords": keywords}
             if city:
                 params["city"] = city
 
             # 高德 MCP 使用 SSE，这里简化调用
-            url = f"{self.BASE_URL}?key={self.API_KEY}"
+            url = f"{self.BASE_URL}?key={self.api_key}"
             # 实际调用需要通过 SSE 协议
             # 这里使用 REST API 作为替代
             rest_url = "https://restapi.amap.com/v3/place/text"
