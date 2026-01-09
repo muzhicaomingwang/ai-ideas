@@ -5,6 +5,14 @@ import { mockPlans } from './mock-data.js'
 let unauthorizedRedirectInProgress = false
 let tokenRefreshInProgress = null // Promise for ongoing refresh, prevents concurrent refreshes
 
+function isMockEnabledByStorage() {
+  try {
+    return wx.getStorageSync('useMockData') === true
+  } catch (e) {
+    return false
+  }
+}
+
 /**
  * 刷新 Token（如果即将过期）
  * Token Refresh: 自动检测token即将过期并刷新，实现无感续期
@@ -97,7 +105,7 @@ async function refreshTokenIfNeeded() {
  */
 async function request(url, method = 'GET', data = {}, options = {}) {
   // 🧪 测试模式：使用模拟数据
-  if (USE_MOCK_DATA) {
+  if (USE_MOCK_DATA || isMockEnabledByStorage()) {
     return new Promise((resolve, reject) => {
       handleMockRequest(url, method, data, options, resolve, reject)
     })
@@ -169,10 +177,20 @@ async function request(url, method = 'GET', data = {}, options = {}) {
           handleUnauthorized()
           reject({ code: ERROR_CODES.UNAUTHORIZED, message: ERROR_MESSAGES[ERROR_CODES.UNAUTHORIZED] })
         } else {
-          // HTTP 错误
-          const errorMsg = `请求失败 (${res.statusCode})`
-          handleError(errorMsg, null, options)
-          reject({ message: errorMsg })
+          // HTTP 错误（尽量透传后端业务错误与附带数据，例如 CAS 冲突）
+          if (res.data && res.data.error) {
+            const errorMsg = res.data?.error?.message || `请求失败 (${res.statusCode})`
+            handleError(errorMsg, res.data?.error?.code, options)
+            reject({
+              ...res.data.error,
+              statusCode: res.statusCode,
+              data: res.data.data
+            })
+          } else {
+            const errorMsg = `请求失败 (${res.statusCode})`
+            handleError(errorMsg, null, options)
+            reject({ message: errorMsg, statusCode: res.statusCode })
+          }
         }
       },
       fail: (error) => {
@@ -187,8 +205,18 @@ async function request(url, method = 'GET', data = {}, options = {}) {
         let errorCode = ERROR_CODES.NETWORK_ERROR
         let errorMsg = ERROR_MESSAGES[ERROR_CODES.NETWORK_ERROR]
 
-        const rawErrMsg = error?.errMsg || ''
-        if (/ECONNREFUSED|ERR_CONNECTION_REFUSED/i.test(rawErrMsg)) {
+        const rawErrMsg = String(error?.errMsg || '')
+        const errno = typeof error?.errno === 'number' ? error.errno : null
+
+        // 微信小程序在不同平台/开发者工具下对“连接被拒绝”的错误信息不一致：
+        // - devtools: net::ERR_CONNECTION_REFUSED（不一定出现在 errMsg）
+        // - iOS/Android: request:fail (errno -102)
+        const isConnRefused =
+          /ECONNREFUSED|ERR_CONNECTION_REFUSED|CONNECTION_REFUSED/i.test(rawErrMsg) ||
+          /\berrno\s*-102\b/i.test(rawErrMsg) ||
+          errno === -102
+
+        if (isConnRefused) {
           errorMsg = `连接被拒绝：后端服务未启动或端口不可达（${API_BASE_URL}）`
         }
 
@@ -244,11 +272,35 @@ function handleMockRequest(url, method, data, options, resolve, reject) {
         }
         console.log('[MOCK] 返回方案列表')
       } else if (url.startsWith('/plans/')) {
-      // 方案详情
+      // 方案相关
         const planId = url.split('/')[2]
-        const plan = mockPlans.find(p => p.plan_id === planId)
-        mockResponse = plan || mockPlans[0]
-        console.log('[MOCK] 返回方案详情:', planId)
+        const plan = mockPlans.find(p => p.plan_id === planId) || mockPlans[0]
+
+        if (url.endsWith('/itinerary') && method === 'PUT') {
+          const baseVersion = Number(data?.base_version || 1)
+          const currentVersion = Number(plan.itinerary_version || 1)
+          if (baseVersion !== currentVersion) {
+            reject({
+              code: 'CAS_CONFLICT',
+              message: '行程已被更新，请刷新后重试',
+              data: {
+                itinerary_version: currentVersion,
+                itinerary: plan.itinerary
+              }
+            })
+            return
+          }
+          plan.itinerary = data.itinerary
+          plan.itinerary_version = currentVersion + 1
+          mockResponse = {
+            itinerary_version: plan.itinerary_version,
+            itinerary: plan.itinerary
+          }
+          console.log('[MOCK] 行程变更成功:', { planId, itinerary_version: plan.itinerary_version })
+        } else {
+          mockResponse = plan
+          console.log('[MOCK] 返回方案详情:', planId)
+        }
       } else if (url === API_ENDPOINTS.USER_LOGIN) {
       // 用户登录
         // 如果登录时提供了头像和昵称，则使用提供的值

@@ -164,7 +164,7 @@ print_header "测试 1: 新用户首次登录"
 
 TEST_CODE_1="E2E_NEW_USER_$(date +%s)"
 TEST_NICKNAME_1="E2E测试用户"
-TEST_AVATAR_1="https://example.com/avatar-new.jpg"
+TEST_AVATAR_1=""
 
 print_test "发送登录请求 (新用户)"
 LOGIN_RESPONSE_1=$(curl -s -X POST "$API_BASE_URL/auth/wechat/login" \
@@ -204,7 +204,7 @@ verify_redis_session "$SESSION_TOKEN_1" "$USER_ID_1" || true
 print_header "测试 2: 现有用户重复登录并更新信息"
 
 TEST_NICKNAME_2="E2E更新昵称"
-TEST_AVATAR_2="https://example.com/avatar-updated.jpg"
+TEST_AVATAR_2=""
 
 print_test "发送登录请求 (相同 code，不同昵称和头像)"
 LOGIN_RESPONSE_2=$(curl -s -X POST "$API_BASE_URL/auth/wechat/login" \
@@ -268,7 +268,7 @@ for i in {1..10}; do
     CONCURRENT_CODES+=("$CODE")
     curl -s -X POST "$API_BASE_URL/auth/wechat/login" \
         -H "Content-Type: application/json" \
-        -d "{\"code\":\"$CODE\",\"nickname\":\"并发用户$i\",\"avatarUrl\":\"https://example.com/avatar$i.jpg\"}" \
+        -d "{\"code\":\"$CODE\",\"nickname\":\"并发用户$i\",\"avatarUrl\":\"\"}" \
         > /tmp/concurrent_$i.json &
 done
 
@@ -337,7 +337,7 @@ print_header "测试 6: 特殊字符和边界情况"
 
 TEST_CODE_6="E2E_SPECIAL_$(date +%s)"
 SPECIAL_NICKNAME="测试<>\"'&用户"
-SPECIAL_AVATAR="https://example.com/avatar?param=value&other=123"
+SPECIAL_AVATAR=""
 
 print_test "发送包含特殊字符的登录请求"
 LOGIN_RESPONSE_6=$(curl -s -X POST "$API_BASE_URL/auth/wechat/login" \
@@ -369,7 +369,7 @@ EXPECTED_TRIMMED="TrimTest"
 print_test "发送包含前后空格的昵称"
 LOGIN_RESPONSE_7=$(curl -s -X POST "$API_BASE_URL/auth/wechat/login" \
     -H "Content-Type: application/json" \
-    -d "{\"code\":\"$TEST_CODE_7\",\"nickname\":\"$TRIMMED_NICKNAME\",\"avatarUrl\":\"https://example.com/avatar.jpg\"}")
+    -d "{\"code\":\"$TEST_CODE_7\",\"nickname\":\"$TRIMMED_NICKNAME\",\"avatarUrl\":\"\"}")
 
 ACTUAL_NICKNAME=$(json_get "$LOGIN_RESPONSE_7" "['data']['userInfo']['nickname']")
 

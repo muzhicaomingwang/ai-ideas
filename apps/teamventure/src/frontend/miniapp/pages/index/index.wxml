@@ -203,25 +203,6 @@
       </view>
     </view>
 
-    <!-- 餐饮偏好 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">餐饮偏好</text>
-        <text class="hint-text">（可多选）</text>
-      </view>
-      <view class="chips-group">
-        <view
-          wx:for="{{diningPreferences}}"
-          wx:key="value"
-          class="chip {{formData.preferences.diningStyle.includes(item.value) ? 'selected' : ''}}"
-          bindtap="handleDiningStyleToggle"
-          data-value="{{item.value}}"
-        >
-          {{item.label}}
-        </view>
-      </view>
-    </view>
-
     <!-- 特殊需求 -->
     <view class="form-item">
       <view class="form-label">

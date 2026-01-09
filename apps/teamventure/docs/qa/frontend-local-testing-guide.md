@@ -648,7 +648,7 @@ Content-Type: application/json
 {
   "code": "TEST_CODE",
   "nickname": "测试用户",
-  "avatarUrl": "https://example.com/avatar.jpg"
+  "avatarUrl": ""
 }
 ```
 

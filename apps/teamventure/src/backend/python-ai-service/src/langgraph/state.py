@@ -8,7 +8,5 @@ class GenerationState(TypedDict, total=False):
     user_id: str
     user_inputs: dict[str, Any]
     parsed_requirements: dict[str, Any]
-    matched_suppliers: list[dict[str, Any]]
     generated_plans: list[dict[str, Any]]
     error: Optional[str]
-

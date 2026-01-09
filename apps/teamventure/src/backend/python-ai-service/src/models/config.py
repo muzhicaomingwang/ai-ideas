@@ -54,6 +54,15 @@ class Settings(BaseSettings):
     java_callback_url: str = "http://localhost:8080/internal/plans/batch"
     java_internal_secret: str = "change-this-in-production"
 
+    # Amap (高德地图) WebService enrichment
+    amap_enabled: bool = False
+    amap_api_key: str = ""
+    amap_base_url: str = "https://restapi.amap.com"
+    amap_timeout_seconds: float = 5.0
+    amap_cache_ttl_seconds: int = 3600
+    amap_cache_max_size: int = 256
+    amap_max_pois_per_category: int = 6
+
     # 日志配置
     log_level: str = "INFO"
 

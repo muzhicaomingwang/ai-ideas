@@ -1,0 +1,34 @@
+<!-- pages/itinerary-change/itinerary-change.wxml -->
+<view class="change-page">
+  <scroll-view class="content" scroll-y enhanced>
+    <view class="meta card">
+      <view class="meta-row">
+        <text class="meta-label">当前版本</text>
+        <text class="meta-value">v{{latestVersion}}</text>
+      </view>
+      <view class="meta-row" wx:if="{{baseVersion !== latestVersion}}">
+        <text class="meta-label">提交基准</text>
+        <text class="meta-value">v{{baseVersion}}</text>
+      </view>
+      <view class="meta-hint">
+        <text>格式提示：使用「## Day N（日期）」作为分隔；行项目使用「- HH:MM - HH:MM | 活动 | 地点 | 备注」</text>
+      </view>
+    </view>
+
+    <view class="editor card">
+      <textarea
+        class="markdown-editor"
+        value="{{markdown}}"
+        bindinput="onMarkdownInput"
+        maxlength="-1"
+        placeholder="请输入Markdown行程内容..."
+      />
+    </view>
+  </scroll-view>
+
+  <view class="bottom-actions">
+    <button class="btn btn-ghost" bindtap="handleRestoreAndBack">恢复初始状态</button>
+    <button class="btn btn-secondary" bindtap="handleValidate">校验格式是否合规</button>
+    <button class="btn btn-primary" bindtap="handleSubmit">提交变更</button>
+  </view>
+</view>

@@ -216,7 +216,8 @@ public class PlanService {
                 item.put("destination", plan.getDestination());
                 item.put("confirmed_time", plan.getConfirmedTime());
                 item.put("review_started_at", plan.getReviewStartedAt());
-                item.put("create_time", plan.getCreateTime());
+                // API 统一输出 created_at（前端列表使用该字段）；create_time 为数据库字段命名
+                item.put("created_at", plan.getCreateTime());
                 // 从 plan_request 获取额外信息
                 PlanRequestPO req = requestMap.get(plan.getPlanRequestId());
                 if (req != null) {
@@ -467,16 +468,62 @@ public class PlanService {
         result.put("destination", plan.getDestination());
         result.put("confirmed_time", plan.getConfirmedTime());
         result.put("review_started_at", plan.getReviewStartedAt());
+        result.put("itinerary_version", plan.getItineraryVersion() == null ? 1 : plan.getItineraryVersion());
 
         // 解析 JSON 字符串字段
         result.put("highlights", Jsons.toStringList(plan.getHighlights())); // highlights 是字符串数组
         result.put("itinerary", Jsons.toMap(plan.getItinerary()));
-        result.put("budget_breakdown", Jsons.toMap(plan.getBudgetBreakdown()));
-        // 前端期望 suppliers 而不是 supplier_snapshots
-        result.put("suppliers", Jsons.toList(plan.getSupplierSnapshots()));
 
         result.put("is_generating", false);
         return result;
+    }
+
+    public Map<String, Object> updateItineraryWithCas(String userId, String planId, int baseVersion, Map<String, Object> itinerary) {
+        if (baseVersion < 1) {
+            throw new BizException("BAD_REQUEST", "invalid base_version");
+        }
+
+        PlanPO plan = planMapper.selectById(planId);
+        if (plan == null || plan.getDeletedAt() != null) {
+            throw new BizException("NOT_FOUND", "plan not found");
+        }
+        if (!userId.equals(plan.getUserId())) {
+            throw new BizException("UNAUTHORIZED", "not owner");
+        }
+
+        // 兼容历史数据：早期记录可能 itinerary_version 为空，导致 CAS 永远冲突
+        if (plan.getItineraryVersion() == null) {
+            UpdateWrapper<PlanPO> initVersion = new UpdateWrapper<>();
+            initVersion.eq("plan_id", planId)
+                    .eq("user_id", userId)
+                    .isNull("itinerary_version")
+                    .set("itinerary_version", 1);
+            planMapper.update(null, initVersion);
+        }
+
+        UpdateWrapper<PlanPO> uw = new UpdateWrapper<>();
+        uw.eq("plan_id", planId)
+          .eq("user_id", userId)
+          .eq("itinerary_version", baseVersion)
+          .set("itinerary", Jsons.toJson(itinerary))
+          .set("itinerary_version", baseVersion + 1);
+
+        int rows = planMapper.update(null, uw);
+        if (rows == 0) {
+            PlanPO latest = planMapper.selectById(planId);
+            int latestVersion = latest == null || latest.getItineraryVersion() == null ? 1 : latest.getItineraryVersion();
+            return Map.of(
+                    "conflict", true,
+                    "itinerary_version", latestVersion,
+                    "itinerary", latest == null ? Map.of("days", List.of()) : Jsons.toMap(latest.getItinerary())
+            );
+        }
+
+        return Map.of(
+                "conflict", false,
+                "itinerary_version", baseVersion + 1,
+                "itinerary", itinerary
+        );
     }
 
     private void recordEvent(String eventType, String aggregateType, String aggregateId, String userId, Map<String, Object> payload) {

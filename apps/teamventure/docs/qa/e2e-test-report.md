@@ -51,7 +51,7 @@
   {
     "code": "E2E_NEW_USER_xxx",
     "nickname": "E2E测试用户",
-    "avatarUrl": "https://example.com/avatar-new.jpg"
+    "avatarUrl": ""
   }
   ```
 - **响应验证**:
@@ -59,7 +59,7 @@
   - ✅ `sessionToken`: JWT 格式
   - ✅ `userInfo.user_id`: 正确生成
   - ✅ `userInfo.nickname`: "E2E测试用户"
-  - ✅ `userInfo.avatar`: "https://example.com/avatar-new.jpg"
+  - ✅ `userInfo.avatar`: ""
   - ✅ `userInfo.role`: "HR"
 
 - **数据库验证**:
@@ -77,7 +77,7 @@
   {
     "code": "E2E_NEW_USER_xxx",  // 相同 code
     "nickname": "E2E更新昵称",
-    "avatarUrl": "https://example.com/avatar-updated.jpg"
+    "avatarUrl": ""
   }
   ```
 - **验证点**:
@@ -111,7 +111,7 @@
   {
     "code": "E2E_TRIM_xxx",
     "nickname": "  TrimTest  ",
-    "avatarUrl": "https://example.com/avatar.jpg"
+    "avatarUrl": ""
   }
   ```
 - **验证点**:
@@ -242,7 +242,7 @@ WHERE user_id = 'user_01ke2aw2y0x1ct256d89b2xsqa';
 -- 结果:
 user_id: user_01ke2aw2y0x1ct256d89b2xsqa
 nickname: E2E更新昵称  (已更新)
-avatar_url: https://example.com/avatar-updated.jpg  (已更新)
+avatar_url: （空字符串或 MinIO URL）
 role: HR
 status: ACTIVE
 ```

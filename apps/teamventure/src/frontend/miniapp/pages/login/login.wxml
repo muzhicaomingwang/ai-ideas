@@ -21,7 +21,7 @@
     </view>
     <view class="feature-item">
       <view class="feature-icon">🎯</view>
-      <view class="feature-text">智能供应商匹配</view>
+      <view class="feature-text">行程支持变更</view>
     </view>
   </view>
 

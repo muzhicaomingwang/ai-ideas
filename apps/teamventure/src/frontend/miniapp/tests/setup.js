@@ -6,6 +6,8 @@
  *   - 设置测试用全局变量
  */
 
+import { jest } from '@jest/globals'
+
 // Mock wx全局对象
 global.wx = {
   // 网络请求

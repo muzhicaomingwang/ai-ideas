@@ -100,7 +100,7 @@ Page({
       const newPlans = this.processPlans(result.plans || [])
 
       this.setData({
-        plans: [...plans, ...newPlans],
+        plans: (plans || []).concat(newPlans || []),
         hasMore: result.hasMore !== false,
         loading: false,
         loadingMore: false

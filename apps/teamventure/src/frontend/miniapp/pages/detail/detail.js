@@ -1,15 +1,14 @@
 // pages/detail/detail.js
 import { get, put, post } from '../../utils/request.js'
 import { API_ENDPOINTS, PLAN_STATUS, PLAN_STATUS_NAMES } from '../../utils/config.js'
-import { formatMoney, formatPerPerson, formatDuration, calculateDays, makePhoneCall, copyToClipboard } from '../../utils/util.js'
+import { formatMoney, formatPerPerson, formatDuration, calculateDays } from '../../utils/util.js'
 
 Page({
   data: {
     plan: null,
+    planId: '',
     sections: {
-      itinerary: true, // 默认展开行程
-      budget: false,
-      suppliers: false
+      itinerary: true // 默认展开行程
     }
   },
 
@@ -20,6 +19,7 @@ Page({
     if (options.plan) {
       try {
         const plan = JSON.parse(decodeURIComponent(options.plan))
+        this.setData({ planId: plan?.plan_id || '' })
         this.processPlanData(plan)
       } catch (error) {
         console.error('解析方案数据失败:', error)
@@ -27,6 +27,7 @@ Page({
       }
     } else if (options.planId) {
       // 如果只有 planId，从服务器获取
+      this.setData({ planId: options.planId })
       this.fetchPlanDetail(options.planId)
     } else {
       this.showErrorAndBack('缺少方案信息')
@@ -94,6 +95,7 @@ Page({
       ...plan,
       status: plan.status || PLAN_STATUS.DRAFT,
       status_label: PLAN_STATUS_NAMES[plan.status] || PLAN_STATUS_NAMES[PLAN_STATUS.DRAFT],
+      itinerary_version: plan.itinerary_version || 1,
       budget_total: this.formatNumber(plan.budget_total),
       // 优先使用后端返回的人均费用，否则计算
       budget_per_person: plan.budget_per_person
@@ -104,15 +106,44 @@ Page({
 
       // 处理行程数据
       itinerary: this.processItinerary(plan.itinerary),
-
-      // 处理预算明细
-      budget_breakdown: this.processBudget(plan.budget_breakdown),
-
-      // 处理供应商信息
-      suppliers: this.processSuppliers(plan.suppliers)
     }
 
     this.setData({ plan: processedPlan })
+  },
+
+  /**
+   * 跳转到行程变更页（Markdown 编辑）
+   */
+  goItineraryChange() {
+    const planId = this.data.plan?.plan_id || this.data.planId
+    if (!planId) {
+      wx.showToast({ title: '缺少方案ID', icon: 'none' })
+      return
+    }
+
+    wx.navigateTo({
+      url: `/pages/itinerary-change/itinerary-change?planId=${encodeURIComponent(planId)}`,
+      events: {
+        itineraryUpdated: (payload) => {
+          if (!payload?.itinerary) return
+          this.applyItineraryUpdate(payload.itinerary, payload.itinerary_version)
+        }
+      },
+      success: (res) => {
+        res.eventChannel?.emit?.('init', {
+          itinerary: this.data.plan?.itinerary,
+          itinerary_version: this.data.plan?.itinerary_version || 1
+        })
+      }
+    })
+  },
+
+  applyItineraryUpdate(itinerary, itineraryVersion) {
+    const processed = this.processItinerary(itinerary)
+    this.setData({
+      'plan.itinerary': processed,
+      'plan.itinerary_version': itineraryVersion || (this.data.plan?.itinerary_version || 1) + 1
+    })
   },
 
   /**
@@ -132,58 +163,6 @@ Page({
   },
 
   /**
-   * 处理预算数据
-   */
-  processBudget(budget) {
-    if (!budget || !budget.categories) {
-      return {
-        categories: [],
-        total: 0
-      }
-    }
-
-    return {
-      categories: budget.categories.map(cat => ({
-        ...cat,
-        subtotal: this.formatNumber(cat.subtotal),
-        // items 可能不存在，做空值保护
-        items: Array.isArray(cat.items)
-          ? cat.items.map(item => ({
-            ...item,
-            total: this.formatNumber(item.total)
-          }))
-          : []
-      })),
-      total: this.formatNumber(budget.total)
-    }
-  },
-
-  /**
-   * 处理供应商数据
-   */
-  processSuppliers(suppliers) {
-    if (!suppliers || !Array.isArray(suppliers)) {
-      return []
-    }
-
-    const categoryLabels = {
-      venue: '场地',
-      activity: '活动',
-      dining: '餐饮',
-      accommodation: '住宿',
-      transportation: '交通'
-    }
-
-    return suppliers.map(supplier => ({
-      ...supplier,
-      category_label: categoryLabels[supplier.category] || supplier.category,
-      price: supplier.price_range_min && supplier.price_range_max
-        ? `¥${supplier.price_range_min}-${supplier.price_range_max}`
-        : supplier.price || ''
-    }))
-  },
-
-  /**
    * 格式化数字
    */
   formatNumber(num) {
@@ -199,55 +178,6 @@ Page({
     const key = `sections.${section}`
     this.setData({
       [key]: !this.data.sections[section]
-    })
-  },
-
-  /**
-   * 拨打电话
-   */
-  handleCallPhone(e) {
-    const phone = e.currentTarget.dataset.phone
-    const supplierId = e.currentTarget.dataset.supplierId
-
-    if (!phone) {
-      wx.showToast({ title: '无联系电话', icon: 'none' })
-      return
-    }
-
-    makePhoneCall(phone)
-
-    // 上报埋点
-    this.trackSupplierContact(supplierId, 'phone')
-  },
-
-  /**
-   * 复制微信号
-   */
-  handleCopyWechat(e) {
-    const wechat = e.currentTarget.dataset.wechat
-    const supplierId = e.currentTarget.dataset.supplierId
-
-    if (!wechat) {
-      wx.showToast({ title: '无微信号', icon: 'none' })
-      return
-    }
-
-    copyToClipboard(wechat, '微信号已复制')
-
-    // 上报埋点
-    this.trackSupplierContact(supplierId, 'wechat')
-  },
-
-  /**
-   * 上报供应商联系埋点
-   */
-  trackSupplierContact(supplierId, method) {
-    // TODO: 调用埋点 API
-    console.log('供应商联系埋点:', {
-      plan_id: this.data.plan?.plan_id,
-      supplier_id: supplierId,
-      contact_method: method,
-      timestamp: new Date().toISOString()
     })
   },
 

@@ -6,7 +6,8 @@
     "pages/profile/profile",
     "pages/login/login",
     "pages/comparison/comparison",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/itinerary-change/itinerary-change"
   ],
   "window": {
     "navigationBarTitleText": "TeamVenture",

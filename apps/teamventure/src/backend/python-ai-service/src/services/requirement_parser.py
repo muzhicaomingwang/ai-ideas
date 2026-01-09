@@ -18,7 +18,11 @@ def parse_requirements(message: dict[str, Any]) -> dict[str, Any]:
     budget_per_person_min = budget_min / max(people_count, 1)
     budget_per_person_max = budget_max / max(people_count, 1)
 
-    preferences = message.get("preferences") or {}
+    preferences = dict(message.get("preferences") or {})
+    # Normalize preference keys to the ubiquitous language used in API contract.
+    # Keep backward-compat with older clients/scripts.
+    if "accommodation_level" not in preferences and "accommodation" in preferences:
+        preferences["accommodation_level"] = preferences.get("accommodation")
     return {
         "people_count": people_count,
         "budget_min": budget_min,
@@ -28,6 +32,8 @@ def parse_requirements(message: dict[str, Any]) -> dict[str, Any]:
         "end_date": end_date.isoformat(),
         "duration_days": duration_days,
         "departure_city": message.get("departure_city", ""),
+        # Keep destination from upstream (miniapp/Java) so generated plans reflect real user input.
+        # When empty, downstream may choose to recommend a destination; do not hardcode placeholder here.
+        "destination": message.get("destination", "") or "",
         "preferences": preferences,
     }
-

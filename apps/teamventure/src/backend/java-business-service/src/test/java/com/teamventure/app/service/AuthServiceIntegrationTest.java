@@ -53,7 +53,7 @@ class AuthServiceIntegrationTest {
         when(ossService.resolveAvatarUrl(anyString(), anyString())).thenAnswer(
             invocation -> {
                 String avatarUrl = invocation.getArgument(1);
-                return avatarUrl.isEmpty() ? "" : "https://cdn.example.com/test.jpg";
+                return avatarUrl.isEmpty() ? "" : "http://api.teamventure.com/avatars/users/test/avatars/obj_test.jpg";
             }
         );
     }

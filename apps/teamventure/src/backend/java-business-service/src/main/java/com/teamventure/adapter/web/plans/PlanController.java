@@ -7,7 +7,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -92,6 +95,29 @@ public class PlanController {
         return ApiResponse.success();
     }
 
+    @PutMapping("/{planId}/itinerary")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateItinerary(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable String planId,
+            @Valid @RequestBody UpdateItineraryRequest req
+    ) {
+        String userId = authService.getUserIdFromAuthorization(authorization);
+        Map<String, Object> result = planService.updateItineraryWithCas(userId, planId, req.base_version, req.itinerary);
+
+        if (Boolean.TRUE.equals(result.get("conflict"))) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("itinerary_version", result.get("itinerary_version"));
+            payload.put("itinerary", result.get("itinerary"));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.failure("CAS_CONFLICT", "itinerary has changed", payload));
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("itinerary_version", result.get("itinerary_version"));
+        payload.put("itinerary", result.get("itinerary"));
+        return ResponseEntity.ok(ApiResponse.success(payload));
+    }
+
     /**
      * 方案生成请求 DTO
      *
@@ -135,5 +161,10 @@ public class PlanController {
         @NotBlank public String supplier_id;
         @NotBlank public String channel; // PHONE/WECHAT/EMAIL
         public String notes;
+    }
+
+    public static class UpdateItineraryRequest {
+        @NotNull public Map<String, Object> itinerary;
+        @NotNull public Integer base_version;
     }
 }

@@ -62,6 +62,7 @@ export const API_ENDPOINTS = {
   PLAN_SUBMIT_REVIEW: '/plans/:id/submit-review',
   PLAN_REVERT_REVIEW: '/plans/:id/revert-review',
   PLAN_ARCHIVE: '/plans/:id/archive',
+  PLAN_UPDATE_ITINERARY: '/plans/:id/itinerary',
 
   // 供应商相关
   SUPPLIER_SEARCH: '/suppliers/search',
@@ -129,19 +130,12 @@ export const ACCOMMODATION_LEVELS = [
   { value: 'premium', label: '品质型' }
 ]
 
-// 餐饮偏好
-export const DINING_PREFERENCES = [
-  { value: 'local', label: '农家菜' },
-  { value: 'bbq', label: '烧烤' },
-  { value: 'hotpot', label: '火锅' },
-  { value: 'western', label: '西餐' }
-]
-
 // 错误码
 export const ERROR_CODES = {
   NETWORK_ERROR: 'NETWORK_ERROR',
   TIMEOUT: 'TIMEOUT',
   UNAUTHORIZED: 'UNAUTHORIZED',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
   BUDGET_TOO_LOW: 'BUDGET_TOO_LOW',
   NO_SUPPLIERS: 'NO_SUPPLIERS',
   GENERATION_FAILED: 'GENERATION_FAILED'
@@ -152,6 +146,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.NETWORK_ERROR]: '网络连接失败，请检查网络设置或后端服务是否已启动',
   [ERROR_CODES.TIMEOUT]: '请求超时，请稍后重试',
   [ERROR_CODES.UNAUTHORIZED]: '登录已过期，请重新登录',
+  [ERROR_CODES.VALIDATION_ERROR]: '参数校验失败，请检查输入内容',
   [ERROR_CODES.BUDGET_TOO_LOW]: '预算不足，请调整预算或缩减需求',
   [ERROR_CODES.NO_SUPPLIERS]: '未找到符合条件的供应商',
   [ERROR_CODES.GENERATION_FAILED]: '方案生成失败，请稍后重试'

@@ -218,7 +218,7 @@ Authorization: Bearer <session_token>
   "data": {
     "user_id": "user_01ke3abc123",
     "nickname": "张三",
-    "avatar": "https://cdn.example.com/avatars/user_01ke3abc123.jpg",
+    "avatar": "http://api.teamventure.com/avatars/users/user_01ke3abc123/avatars/obj_01ke3abc123.jpg",
     "phone": "138****8888",
     "company": "某科技公司",
     "role": "HR"
@@ -288,7 +288,7 @@ Authorization: Bearer <session_token>
     "userInfo": {
       "user_id": "user_01ke3abc123",
       "nickname": "张三",
-      "avatar": "https://cdn.example.com/avatars/user_01ke3abc123.jpg",
+      "avatar": "http://api.teamventure.com/avatars/users/user_01ke3abc123/avatars/obj_01ke3abc123.jpg",
       "phone": "138****8888",
       "company": "某科技公司",
       "role": "HR"
@@ -1309,4 +1309,3 @@ curl -X GET "http://localhost/api/v1/plans?page=2&pageSize=10" \
 **文档版本**: v1.0
 **最后更新**: 2026-01-04
 **维护者**: TeamVenture开发团队
-

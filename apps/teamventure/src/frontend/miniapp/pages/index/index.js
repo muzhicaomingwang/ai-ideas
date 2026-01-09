@@ -1,6 +1,6 @@
 // pages/index/index.js
 import { post } from '../../utils/request.js'
-import { API_ENDPOINTS, ACTIVITY_TYPES, ACCOMMODATION_LEVELS, DINING_PREFERENCES, STORAGE_KEYS } from '../../utils/config.js'
+import { API_ENDPOINTS, ACTIVITY_TYPES, ACCOMMODATION_LEVELS, STORAGE_KEYS } from '../../utils/config.js'
 import { formatDate, calculateDays, formatDuration, formatMoney, formatPerPerson } from '../../utils/util.js'
 
 const app = getApp()
@@ -35,7 +35,6 @@ Page({
       preferences: {
         activityTypes: [],
         accommodationLevel: 'standard',
-        diningStyle: [],
         specialRequirements: ''
       }
     },
@@ -43,7 +42,6 @@ Page({
     // 选项数据
     activityTypes: ACTIVITY_TYPES,
     accommodationLevels: ACCOMMODATION_LEVELS,
-    diningPreferences: DINING_PREFERENCES,
 
     // 计算字段
     budgetPerPerson: '',
@@ -97,12 +95,15 @@ Page({
     try {
       const lastRequest = wx.getStorageSync(STORAGE_KEYS.LATEST_REQUEST)
       if (lastRequest) {
-        this.setData({
-          formData: {
-            ...this.data.formData,
-            ...lastRequest
+        const merged = {
+          ...this.data.formData,
+          ...lastRequest,
+          preferences: {
+            ...(this.data.formData.preferences || {}),
+            ...(lastRequest.preferences || {})
           }
-        })
+        }
+        this.setData({ formData: this.normalizeFormData(merged) })
         this.updateCalculatedFields()
       }
     } catch (error) {
@@ -210,7 +211,8 @@ Page({
   // 活动类型切换
   handleActivityTypeToggle(e) {
     const value = e.currentTarget.dataset.value
-    const activityTypes = [...this.data.formData.preferences.activityTypes]
+    const current = this.data.formData?.preferences?.activityTypes
+    const activityTypes = Array.isArray(current) ? current.slice() : []
     const index = activityTypes.indexOf(value)
 
     if (index > -1) {
@@ -230,29 +232,6 @@ Page({
     const value = e.currentTarget.dataset.value
     this.setData({
       'formData.preferences.accommodationLevel': value
-    })
-    this.markFormModified()
-  },
-
-  // 餐饮偏好切换
-  handleDiningStyleToggle(e) {
-    console.log('🍽️ 餐饮偏好被点击', e)
-    const value = e.currentTarget.dataset.value
-    console.log('选择的餐饮类型:', value)
-    const diningStyle = [...this.data.formData.preferences.diningStyle]
-    const index = diningStyle.indexOf(value)
-
-    if (index > -1) {
-      diningStyle.splice(index, 1)
-      console.log('取消选择:', value)
-    } else {
-      diningStyle.push(value)
-      console.log('添加选择:', value)
-    }
-
-    console.log('更新后的餐饮偏好:', diningStyle)
-    this.setData({
-      'formData.preferences.diningStyle': diningStyle
     })
     this.markFormModified()
   },
@@ -360,7 +339,6 @@ Page({
         preferences: {
           activity_types: formData.preferences.activityTypes,
           accommodation_level: formData.preferences.accommodationLevel,
-          dining_style: formData.preferences.diningStyle,
           special_requirements: formData.preferences.specialRequirements
         }
       }
@@ -538,7 +516,7 @@ Page({
    * 检查表单是否为空（初始状态）
    */
   isFormEmpty() {
-    const { formData } = this.data
+    const formData = this.normalizeFormData(this.data.formData)
     return !formData.budgetMin &&
            !formData.budgetMax &&
            !formData.startDate &&
@@ -578,7 +556,7 @@ Page({
    */
   recoverDraft(draft) {
     this.setData({
-      formData: draft.formData,
+      formData: this.normalizeFormData(draft.formData),
       currentStep: draft.currentStep || 1
     })
 
@@ -617,5 +595,24 @@ Page({
 
     const daysAgo = Math.floor(hoursAgo / 24)
     return `${daysAgo}天前`
+  },
+
+  normalizeFormData(raw) {
+    const formData = raw && typeof raw === 'object' ? raw : {}
+    const preferences = this.normalizePreferences(formData.preferences)
+    return {
+      ...this.data.formData,
+      ...formData,
+      preferences
+    }
+  },
+
+  normalizePreferences(raw) {
+    const p = raw && typeof raw === 'object' ? raw : {}
+    return {
+      activityTypes: Array.isArray(p.activityTypes) ? p.activityTypes : [],
+      accommodationLevel: typeof p.accommodationLevel === 'string' && p.accommodationLevel ? p.accommodationLevel : 'standard',
+      specialRequirements: typeof p.specialRequirements === 'string' ? p.specialRequirements : ''
+    }
   }
 })

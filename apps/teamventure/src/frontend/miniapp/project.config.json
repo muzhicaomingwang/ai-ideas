@@ -35,7 +35,10 @@
     "minifyWXML": true,
     "babelSetting": {
       "ignore": [],
-      "disablePlugins": [],
+      "disablePlugins": [
+        "transform-runtime",
+        "@babel/plugin-transform-runtime"
+      ],
       "outputPath": ""
     },
     "condition": false,

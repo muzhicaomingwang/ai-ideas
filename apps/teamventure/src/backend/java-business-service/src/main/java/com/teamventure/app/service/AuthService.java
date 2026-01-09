@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,7 @@ public class AuthService {
             user.setWechatOpenid(openid);
             // 使用传入的nickname，如果为空则使用默认值
             user.setNickname(hasText(nickname) ? nickname.trim() : "微信用户");
-            user.setAvatarUrl(hasText(avatarUrl) ? avatarUrl : "");
+            user.setAvatarUrl(hasText(avatarUrl) && !isExampleDotComAvatar(avatarUrl) ? avatarUrl : "");
             user.setRole("HR");
             user.setStatus("ACTIVE");
             userMapper.insert(user);
@@ -64,8 +65,14 @@ public class AuthService {
                 needUpdate = true;
             }
 
-            if (hasText(avatarUrl) && !avatarUrl.equals(user.getAvatarUrl())) {
-                user.setAvatarUrl(avatarUrl);
+            if (hasText(avatarUrl)) {
+                if (!isExampleDotComAvatar(avatarUrl) && !avatarUrl.equals(user.getAvatarUrl())) {
+                    user.setAvatarUrl(avatarUrl);
+                    needUpdate = true;
+                }
+            } else if (isExampleDotComAvatar(user.getAvatarUrl())) {
+                // 自动清理历史测试数据里遗留的 example.com 外链头像，避免前端持续 404
+                user.setAvatarUrl("");
                 needUpdate = true;
             }
 
@@ -99,6 +106,12 @@ public class AuthService {
     // 辅助方法：检查字符串是否有内容
     private boolean hasText(String str) {
         return str != null && !str.trim().isEmpty();
+    }
+
+    private boolean isExampleDotComAvatar(String avatarUrl) {
+        if (avatarUrl == null) return false;
+        String s = avatarUrl.trim().toLowerCase(Locale.ROOT);
+        return s.startsWith("http://example.com/") || s.startsWith("https://example.com/");
     }
 
     public String getUserIdFromAuthorization(String authorization) {

@@ -60,7 +60,7 @@ class AuthServiceTest {
             invocation -> {
                 String userId = invocation.getArgument(0);
                 String avatarUrl = invocation.getArgument(1);
-                return avatarUrl.isEmpty() ? "" : "https://cdn.example.com/avatars/" + userId + ".jpg";
+                return avatarUrl.isEmpty() ? "" : "http://api.teamventure.com/avatars/users/" + userId + "/avatars/obj_test.jpg";
             }
         );
 

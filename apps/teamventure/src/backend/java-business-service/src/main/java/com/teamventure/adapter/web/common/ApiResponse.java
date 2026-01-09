@@ -23,6 +23,14 @@ public class ApiResponse<T> {
         return resp;
     }
 
+    public static <T> ApiResponse<T> failure(String code, String message, T data) {
+        ApiResponse<T> resp = new ApiResponse<>();
+        resp.success = false;
+        resp.error = new ApiError(code, message);
+        resp.data = data;
+        return resp;
+    }
+
     public boolean isSuccess() {
         return success;
     }
@@ -35,4 +43,3 @@ public class ApiResponse<T> {
         return error;
     }
 }
-

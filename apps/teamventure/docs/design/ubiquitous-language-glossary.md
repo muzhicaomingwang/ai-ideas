@@ -48,6 +48,14 @@
 | 偏好设置 | Preferences | `preferences` | `preferencesJson` | `preferences` | `preferences` | JSON对象 |
 | 请求状态 | Status | `status` | `status` | `status` | `status` | CREATING/GENERATING/COMPLETED/FAILED |
 
+#### 2.2.1 偏好设置字段 (Preferences)
+
+| 中文术语 | API字段（统一） | 常见误用/旧字段 | 说明 |
+|---------|----------------|----------------|------|
+| 活动类型 | `activity_types` | `activityTypes` | 数组，多选 |
+| 住宿标准 | `accommodation_level` | `accommodation` | 单选：budget/standard/premium |
+| 特殊需求 | `special_requirements` | - | 字符串（可为空） |
+
 ### 2.3 方案 (Plan)
 
 | 中文术语 | 英文术语 | 数据库字段 | Java字段 | API字段 | 前端字段 | 说明 |
@@ -58,8 +66,8 @@
 | 方案摘要 | Summary | `summary` | `summary` | `summary` | `summary` | |
 | 亮点 | Highlights | `highlights` | `highlights` | `highlights` | `highlights` | JSON数组 |
 | 行程安排 | Itinerary | `itinerary` | `itinerary` | `itinerary` | `itinerary` | JSON对象 |
-| 预算明细 | Budget Breakdown | `budget_breakdown` | `budgetBreakdown` | `budget_breakdown` | `budgetBreakdown` | JSON对象 |
-| **供应商快照** | **Supplier Snapshots** | `supplier_snapshots` | `supplierSnapshots` | `supplier_snapshots` | `supplierSnapshots` | ✅ 统一使用复数形式 |
+| 预算明细（非MVP） | Budget Breakdown | `budget_breakdown` | `budgetBreakdown` | `budget_breakdown` | - | DB 保留字段，MVP 不对外输出 |
+| **供应商快照（非MVP）** | **Supplier Snapshots** | `supplier_snapshots` | `supplierSnapshots` | `supplier_snapshots` | - | DB 保留字段，MVP 不对外输出 |
 | 总预算 | Budget Total | `budget_total` | `budgetTotal` | `budget_total` | `budgetTotal` | 冗余字段 |
 | 人均预算 | Budget Per Person | `budget_per_person` | `budgetPerPerson` | `budget_per_person` | `budgetPerPerson` | 冗余字段 |
 | 天数 | Duration Days | `duration_days` | `durationDays` | `duration_days` | `durationDays` | |
@@ -67,8 +75,9 @@
 | **目的地** | **Destination** | `destination` | `destination` | `destination` | `destination` | 从请求继承 |
 | 方案状态 | Status | `status` | `status` | `status` | `status` | draft/confirmed |
 | 确认时间 | Confirmed Time | `confirmed_time` | `confirmedTime` | `confirmed_time` | `confirmedTime` | |
+| 创建时间 | Created At | `create_time` | `createTime` | `created_at` | `created_at` | API 统一 `created_at`（前端列表使用） |
 
-### 2.4 供应商 (Supplier)
+### 2.4 供应商 (Supplier, 非MVP)
 
 | 中文术语 | 英文术语 | 数据库字段 | Java字段 | API字段 | 前端字段 | 说明 |
 |---------|---------|-----------|----------|--------|---------|------|
@@ -91,7 +100,7 @@
 | 字段 | 中文名 | 语义说明 | 示例值 | 使用场景 |
 |------|--------|----------|--------|----------|
 | `departure_city` | 出发城市 | 团队从哪里出发，通常是公司所在城市 | 上海市 | 行程规划起点、交通费用计算 |
-| `destination` | 目的地 | 团建活动举办地点，团队前往的地方 | 杭州千岛湖 | 活动安排、供应商匹配、住宿费用计算 |
+| `destination` | 目的地 | 团建活动举办地点，团队前往的地方 | 杭州千岛湖 | 活动安排、住宿费用计算 |
 
 **前端显示格式**: `{departure_city} → {destination}`
 **示例**: 上海市 → 杭州千岛湖
@@ -152,14 +161,16 @@ confirmed → archived (归档)
 | `departure_city` | ✅ | 数据库/Java/Python/API 全链路一致 |
 | `destination` | ✅ | 数据库/Java/Python/API 全链路一致 |
 | `plan_name` | ✅ | 数据库/Java/Python/API 全链路一致（非 title） |
-| `supplier_snapshots` | ✅ | 数据库/Java/Python/API 全链路一致 |
-| `budget_breakdown` | ✅ | 数据库/Java/Python/API 全链路一致 |
+| `supplier_snapshots` | ✅ | DB/Java/Python 一致（MVP 不对外输出） |
+| `budget_breakdown` | ✅ | DB/Java/Python 一致（MVP 不对外输出） |
 
 ### 4.2 ⚠️ 需注意的映射
 
 | 前端字段 | API字段 | 说明 |
 |----------|---------|------|
 | `departureLocation` | `departure_city` | 前端使用更通用的"出发地点"，API使用精确的"出发城市" |
+| `create_time` | `created_at` | DB字段为 `create_time`，API 列表统一输出 `created_at` |
+| `accommodation` | `preferences.accommodation_level` | 旧字段名，需迁移/兼容 |
 
 ### 4.3 📋 跨团队术语映射
 
@@ -169,7 +180,7 @@ confirmed → archived (归档)
 | 方案类型（经济/平衡/品质） | PlanType | `plan_type` | `plan_type` | "经济型"/"平衡型"/"品质型" |
 | **通晒方案** | **SubmitReview** | `status='reviewing'` | `PUT /plans/{id}/submit-review` | **"通晒此方案"** |
 | 确认方案 | ConfirmPlan | `status='confirmed'` | `PUT /plans/{id}/confirm` | "确认此方案" |
-| 供应商快照 | SupplierSnapshot | `supplier_snapshots` | `supplier_snapshots` | "供应商信息" |
+| 供应商快照（非MVP） | SupplierSnapshot | `supplier_snapshots` | `supplier_snapshots` | - |
 | 生成时间 | GenerationDuration | `generation_time_ms` | `generation_time_ms` | "已为您生成方案（耗时45秒）" |
 | 出发城市 | DepartureCity | `departure_city` | `departure_city` | "出发地点" |
 | 目的地 | Destination | `destination` | `destination` | "目的地" |
@@ -199,7 +210,7 @@ confirmed → archived (归档)
 | `PlanGenerated` | Plan | AI服务回调生成方案后 | `{plan_id}` |
 | `PlanSubmittedForReview` | Plan | 用户通晒方案后 | `{plan_id}` |
 | `PlanConfirmed` | Plan | 用户确认方案后 | `{plan_id}` |
-| `SupplierContacted` | SupplierContactLog | 用户联系供应商后 | `{plan_id, supplier_id, channel}` |
+| `SupplierContacted`（非MVP） | SupplierContactLog | 用户联系供应商后 | `{plan_id, supplier_id, channel}` |
 
 ---
 
@@ -211,7 +222,7 @@ confirmed → archived (归档)
 | "预订" | Confirm（确认） | 确认≠预订 |
 | "出发地" | departure_city（出发城市） | 统一术语 |
 | "title" | plan_name（方案名称） | 代码已统一使用 plan_name |
-| "suppliers" (单数形式) | supplier_snapshots（供应商快照） | 强调是快照而非引用 |
+| "suppliers" (单数形式) | supplier_snapshots（供应商快照） | 非MVP：如保留该字段，也应强调是快照而非引用 |
 
 ---
 

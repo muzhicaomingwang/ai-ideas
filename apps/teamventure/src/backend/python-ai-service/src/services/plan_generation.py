@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import Any
 
 from src.integrations.openai_client import OpenAIClient
+from src.integrations.amap_client import AmapClient
 from src.services.id_generator import new_prefixed_id
 
 logger = logging.getLogger(__name__)
@@ -28,13 +29,6 @@ ACTIVITY_TYPE_NAMES = {
     "leisure": "休闲度假",
     "culture": "文化体验",
     "sports": "运动挑战",
-}
-
-DINING_PREFERENCE_NAMES = {
-    "local": "农家菜",
-    "bbq": "烧烤",
-    "hotpot": "火锅",
-    "western": "西餐",
 }
 
 ACCOMMODATION_LEVEL_NAMES = {
@@ -103,11 +97,6 @@ def _translate_activity_types(types: list[str]) -> list[str]:
     return [ACTIVITY_TYPE_NAMES.get(t, t) for t in types]
 
 
-def _translate_dining_preferences(prefs: list[str]) -> list[str]:
-    """翻译餐饮偏好"""
-    return [DINING_PREFERENCE_NAMES.get(p, p) for p in prefs]
-
-
 def _translate_accommodation_level(level: str) -> str:
     """翻译住宿标准"""
     return ACCOMMODATION_LEVEL_NAMES.get(level, "舒适型酒店")
@@ -158,7 +147,8 @@ def _normalize_generated_plans(
                 "highlights": plan.get("highlights", []),
                 "itinerary": plan.get("itinerary", {}),
                 "budget_breakdown": plan.get("budget_breakdown", {}),
-                "supplier_snapshots": plan.get("supplier_snapshots", []),
+                # MVP 不输出供应商信息，但数据库字段仍为 NOT NULL，统一写空数组
+                "supplier_snapshots": [],
                 "budget_total": float(plan.get("budget_total", 0.0) or 0.0),
                 "budget_per_person": float(plan.get("budget_per_person", 0.0) or 0.0),
                 "duration_days": duration_days,
@@ -307,7 +297,6 @@ async def _generate_three_plans_stub(
     plan_request_id: str,
     user_id: str,
     inputs: dict[str, Any],
-    matched_suppliers: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """
     确定性方案生成回退（无 LLM 凭证时使用）
@@ -326,7 +315,6 @@ async def _generate_three_plans_stub(
     def make_plan(plan_type: str, budget_total: float) -> dict[str, Any]:
         plan_id = new_prefixed_id("plan")
         per_person = round(budget_total / max(people, 1), 2)
-        supplier_snapshots = matched_suppliers[:]
         return {
             "plan_id": plan_id,
             "plan_request_id": plan_request_id,
@@ -357,7 +345,7 @@ async def _generate_three_plans_stub(
                     {"category": "活动", "subtotal": round(budget_total * 0.15, 2)},
                 ],
             },
-            "supplier_snapshots": supplier_snapshots,
+            "supplier_snapshots": [],
             "budget_total": round(budget_total, 2),
             "budget_per_person": per_person,
             "duration_days": duration_days,
@@ -377,7 +365,6 @@ async def generate_three_plans(
     plan_request_id: str,
     user_id: str,
     inputs: dict[str, Any],
-    matched_suppliers: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """
     通过 LLM 生成3套方案（优先），或使用确定性回退
@@ -400,25 +387,32 @@ async def generate_three_plans(
             plan_request_id=plan_request_id,
             user_id=user_id,
             inputs=inputs,
-            matched_suppliers=matched_suppliers,
         )
 
     # 提取用户偏好
-    preferences = inputs.get("preferences", {})
+    preferences = inputs.get("preferences", {}) or {}
     activity_types = preferences.get("activity_types", [])
     accommodation_level = preferences.get("accommodation_level", "standard")
-    dining_preferences = preferences.get("dining_preferences", [])
+    special_requirements = preferences.get("special_requirements", "")
     start_date = inputs.get("start_date", "")
     end_date = inputs.get("end_date", "")
 
     # 季节适配（基于目的地而非出发城市）
     season_info = _get_season_info(start_date, destination)
 
+    destination_context = None
+    amap = AmapClient()
+    if amap.is_enabled():
+        destination_context = await amap.enrich_destination(
+            destination=destination,
+            activity_types=activity_types if isinstance(activity_types, list) else [],
+            accommodation_level=str(accommodation_level),
+        )
+
     prompt_payload = {
         "plan_request_id": plan_request_id,
         "user_id": user_id,
         "inputs": inputs,
-        "matched_suppliers": matched_suppliers,
         "constraints": {
             "people_count": people,
             "duration_days": duration_days,
@@ -429,9 +423,10 @@ async def generate_three_plans(
         "user_preferences": {
             "activity_types": activity_types,
             "accommodation_level": accommodation_level,
-            "dining_preferences": dining_preferences,
+            "special_requirements": special_requirements,
         },
         "season_context": season_info,
+        "destination_context": destination_context,
         "output_contract": {
             "plans_length": 3,
             "plan_types": ["budget", "standard", "premium"],
@@ -440,8 +435,20 @@ async def generate_three_plans(
 
     # 构建偏好约束描述
     activity_desc = "、".join(_translate_activity_types(activity_types)) if activity_types else "团队拓展活动"
-    dining_desc = "、".join(_translate_dining_preferences(dining_preferences)) if dining_preferences else "当地特色餐饮"
     accommodation_desc = _translate_accommodation_level(accommodation_level)
+
+    destination_hint = ""
+    if destination_context and isinstance(destination_context, dict):
+        destination_hint = (
+            "\n=== 目的地真实信息（尽量引用）===\n"
+            "- destination_context 已提供高德 POI 列表（按类别），请在行程中尽量使用其中的真实地点名称。\n"
+            "- 每天至少包含 2 个带具体地点名的活动/用餐点（例如：某景区/某农家乐/某拓展基地）。\n"
+        )
+
+    extra_constraints = ""
+    if special_requirements:
+        extra_constraints += f"- 特殊需求（必须考虑）：{special_requirements}\n"
+    extra_constraints += destination_hint
 
     prompt = (
         "Generate exactly 3 corporate team-building plans in Chinese.\n"
@@ -455,7 +462,6 @@ async def generate_three_plans(
         '      "highlights": ["string"],\n'
         '      "itinerary": {"days": [{"day": 1, "items": [{"time_start":"HH:MM","time_end":"HH:MM","activity":"string"}]}]},\n'
         '      "budget_breakdown": {"total": number, "per_person": number, "categories": [{"category":"string","subtotal": number}]},\n'
-        '      "supplier_snapshots": [{"supplier_id":"string","name":"string","type":"string","price_range":"string"}],\n'
         '      "budget_total": number,\n'
         '      "budget_per_person": number\n'
         "    }\n"
@@ -464,9 +470,8 @@ async def generate_three_plans(
         "\n"
         "=== 严格约束（必须遵守）===\n"
         f"1. 活动类型必须包含: {activity_desc}\n"
-        f"2. 餐饮必须安排: {dining_desc}（禁止安排用户未选择的餐饮类型）\n"
-        f"3. 住宿标准: {accommodation_desc}\n"
-        f"4. 季节注意: {season_info['description']}，禁止安排: {', '.join(season_info['forbidden_activities'])}\n"
+        f"2. 住宿标准: {accommodation_desc}\n"
+        f"3. 季节注意: {season_info['description']}，禁止安排: {', '.join(season_info['forbidden_activities'])}\n"
         "\n"
         "=== 预算约束 ===\n"
         "- plans must match plan_types budget/standard/premium in order.\n"
@@ -482,6 +487,7 @@ async def generate_three_plans(
         f"- 出发城市: {departure_city}（团队从这里出发）\n"
         f"- 目的地: {destination}（团建活动举办地点）\n"
         f"- 活动应在{destination}或周边（车程2小时内）\n"
+        f"{extra_constraints}"
         "\n"
         "Input JSON:\n"
         f"{json.dumps(prompt_payload, ensure_ascii=False)}"

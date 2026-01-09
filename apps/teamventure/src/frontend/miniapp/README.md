@@ -10,7 +10,7 @@ TeamVenture 是一款基于 AI 的团建策划助手小程序，帮助企业 HR 
 
 - 🤖 **AI 智能生成** - 15分钟生成 3 套完整方案
 - 💰 **成本透明** - 明码标价，智能比价
-- 🎯 **供应商匹配** - 自动匹配优质供应商
+- 🎯 **行程可编辑** - 支持行程变更与校验
 - 📊 **方案对比** - 可视化对比，快速决策
 
 ---
@@ -76,7 +76,7 @@ miniapp/
 
 3. **配置后端地址**
 
-   编辑 `utils/config.js`，修改 API 地址：
+   编辑 `utils/config.js`，修改 API 地址（本地联调需要先启动后端 `java-business-service` 并确认 `8080` 端口可用）：
    ```javascript
    const API_BASE_URLS = {
      dev: 'http://localhost:8080/api/v1',        // 本地开发
@@ -84,6 +84,7 @@ miniapp/
      prod: 'https://api.teamventure.com/api/v1'
    }
    ```
+   开发者工具里也可临时覆盖（Console 执行）：`wx.setStorageSync('apiBaseUrl', 'http://127.0.0.1:8080/api/v1')`（真机调试请改为你的电脑局域网 IP）。
 
 4. **准备图片资源**（见下方"图片资源"部分）
 
@@ -144,18 +145,15 @@ miniapp/
 **功能**：
 - 方案概览（预算、人均、天数）
 - 行程安排（时间轴）
-- 预算明细（分类展示）
-- 供应商信息（联系方式）
 - 确认方案
 
 **交互流程**：
 ```
-查看详情 → 确认方案 → 联系供应商（拨打电话/复制微信）
+查看详情 → 确认方案
 ```
 
 **折叠面板**：
 - 默认展开：行程安排
-- 默认折叠：预算明细、供应商信息
 
 ---
 
@@ -235,7 +233,6 @@ const ENV = 'dev'  // dev | beta | prod
 - `PLAN_TYPES` - 方案类型
 - `ACTIVITY_TYPES` - 活动类型选项
 - `ACCOMMODATION_LEVELS` - 住宿标准选项
-- `DINING_PREFERENCES` - 餐饮偏好选项
 
 ---
 

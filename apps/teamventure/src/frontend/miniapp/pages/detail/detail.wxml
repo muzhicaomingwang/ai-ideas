@@ -39,7 +39,11 @@
   <!-- 行程安排 -->
   <view class="section-panel">
     <view class="panel-header" bindtap="toggleSection" data-section="itinerary">
-      <text class="panel-title">行程安排</text>
+      <view class="panel-title-row">
+        <text class="panel-title">行程安排</text>
+        <view class="itinerary-change-pill" catchtap="goItineraryChange">行程变更</view>
+        <text class="panel-version">v{{plan.itinerary_version || 1}}</text>
+      </view>
       <text class="toggle-icon">{{sections.itinerary ? '▼' : '▶'}}</text>
     </view>
     <view class="panel-content {{sections.itinerary ? 'expanded' : ''}}">
@@ -79,111 +83,6 @@
     </view>
   </view>
 
-  <!-- 预算明细 -->
-  <view class="section-panel">
-    <view class="panel-header" bindtap="toggleSection" data-section="budget">
-      <text class="panel-title">预算明细</text>
-      <text class="toggle-icon">{{sections.budget ? '▼' : '▶'}}</text>
-    </view>
-    <view class="panel-content {{sections.budget ? 'expanded' : ''}}">
-      <view class="budget-breakdown">
-        <view
-          wx:for="{{plan.budget_breakdown.categories}}"
-          wx:key="category"
-          class="budget-category"
-        >
-          <view class="category-header">
-            <text class="category-name">{{item.category}}</text>
-            <text class="category-subtotal">¥{{item.subtotal}}</text>
-          </view>
-          <view class="category-items" wx:if="{{item.items && item.items.length > 0}}">
-            <view
-              wx:for="{{item.items}}"
-              wx:for-item="budgetItem"
-              wx:key="item"
-              class="budget-item"
-            >
-              <view class="item-info">
-                <text class="item-name">{{budgetItem.item}}</text>
-                <text class="item-quantity">{{budgetItem.quantity}}</text>
-              </view>
-              <text class="item-total">¥{{budgetItem.total}}</text>
-            </view>
-          </view>
-        </view>
-        <view class="budget-total">
-          <text class="total-label">总计</text>
-          <text class="total-amount">¥{{plan.budget_breakdown.total}}</text>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 供应商信息 -->
-  <view class="section-panel">
-    <view class="panel-header" bindtap="toggleSection" data-section="suppliers">
-      <text class="panel-title">供应商信息</text>
-      <text class="toggle-icon">{{sections.suppliers ? '▼' : '▶'}}</text>
-    </view>
-    <view class="panel-content {{sections.suppliers ? 'expanded' : ''}}">
-      <view class="suppliers-list">
-        <view
-          wx:for="{{plan.suppliers}}"
-          wx:key="supplier_id"
-          class="supplier-card"
-        >
-          <view class="supplier-header">
-            <view class="supplier-info">
-              <text class="supplier-name">{{item.name}}</text>
-              <view class="supplier-rating" wx:if="{{item.rating}}">
-                <text class="rating-star">⭐</text>
-                <text class="rating-value">{{item.rating}}</text>
-              </view>
-            </view>
-            <view class="supplier-meta">
-              <text class="supplier-category">{{item.category_label}}</text>
-              <text class="supplier-price" wx:if="{{item.price}}">{{item.price}}</text>
-            </view>
-          </view>
-
-          <!-- 标签 -->
-          <view class="supplier-tags" wx:if="{{item.tags && item.tags.length}}">
-            <text
-              wx:for="{{item.tags}}"
-              wx:for-item="tag"
-              wx:key="*this"
-              class="tag"
-            >
-              #{{tag}}
-            </text>
-          </view>
-
-          <!-- 联系方式 -->
-          <view class="supplier-actions">
-            <button
-              class="btn-contact"
-              bindtap="handleCallPhone"
-              data-phone="{{item.contact_phone}}"
-              data-supplier-id="{{item.supplier_id}}"
-              wx:if="{{item.contact_phone}}"
-            >
-              📞 拨打电话
-            </button>
-            <button
-              class="btn-contact"
-              bindtap="handleCopyWechat"
-              data-wechat="{{item.contact_wechat}}"
-              data-supplier-id="{{item.supplier_id}}"
-              wx:if="{{item.contact_wechat}}"
-            >
-              💬 复制微信
-            </button>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
-
   <!-- 底部操作栏 -->
   <view class="bottom-actions">
     <button
@@ -195,9 +94,9 @@
     </button>
     <!-- 通晒中状态：显示3个操作按钮 -->
     <view class="reviewing-actions" wx:if="{{plan.status === 'reviewing'}}">
-      <button class="btn-confirm" bindtap="handleConfirmPlan">方案确认</button>
-      <button class="btn-cancel" bindtap="handleCancelPlan">方案取消</button>
-      <button class="btn-archive" bindtap="handleArchivePlan">方案归档</button>
+      <button class="btn-action btn-confirm" bindtap="handleConfirmPlan">方案确认</button>
+      <button class="btn-action btn-cancel" bindtap="handleCancelPlan">方案取消</button>
+      <button class="btn-action btn-archive" bindtap="handleArchivePlan">方案归档</button>
     </view>
     <button
       class="btn-confirmed"

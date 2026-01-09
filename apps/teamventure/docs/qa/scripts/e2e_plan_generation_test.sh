@@ -5,7 +5,7 @@
 # ====================================
 # 版本: v1.0
 # 日期: 2026-01-04
-# 说明: 完整测试方案生成、查询、确认、联系供应商等流程
+# 说明: 完整测试方案生成、查询、确认等流程
 # ====================================
 
 set -e  # 遇到错误立即退出
@@ -84,7 +84,7 @@ print_header "前置准备：登录获取Token"
 print_test "创建测试用户并登录"
 LOGIN_RESPONSE=$(curl -s -X POST "$API_BASE_URL/auth/wechat/login" \
     -H "Content-Type: application/json" \
-    -d '{"code":"E2E_PLAN_GEN_USER","nickname":"PlanGenTestUser","avatarUrl":"https://example.com/avatar.jpg"}')
+    -d '{"code":"E2E_PLAN_GEN_USER","nickname":"PlanGenTestUser","avatarUrl":""}')
 
 SESSION_TOKEN=$(json_get "$LOGIN_RESPONSE" "['data']['sessionToken']")
 USER_ID=$(json_get "$LOGIN_RESPONSE" "['data']['userInfo']['user_id']")
@@ -105,22 +105,22 @@ fi
 print_header "测试 1: 创建方案生成请求"
 
 print_test "发送方案生成请求"
-GENERATE_RESPONSE=$(curl -s -X POST "$API_BASE_URL/plans/generate" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $SESSION_TOKEN" \
-    -d '{
-        "people_count": 50,
-        "budget_min": 10000,
-        "budget_max": 15000,
-        "start_date": "2026-02-01",
-        "end_date": "2026-02-03",
-        "departure_city": "Beijing",
-        "preferences": {
-            "activity_types": ["team_building"],
-            "accommodation": "standard",
-            "dining": ["local"]
-        }
-    }')
+	GENERATE_RESPONSE=$(curl -s -X POST "$API_BASE_URL/plans/generate" \
+	    -H "Content-Type: application/json" \
+	    -H "Authorization: Bearer $SESSION_TOKEN" \
+	    -d '{
+	        "people_count": 50,
+	        "budget_min": 10000,
+	        "budget_max": 15000,
+	        "start_date": "2026-02-01",
+	        "end_date": "2026-02-03",
+	        "departure_city": "Beijing",
+	        "destination": "杭州千岛湖",
+	        "preferences": {
+	            "activity_types": ["team_building"],
+	            "accommodation_level": "standard"
+	        }
+	    }')
 
 print_info "响应内容:"
 echo "$GENERATE_RESPONSE" | python3 -m json.tool 2>/dev/null || echo "$GENERATE_RESPONSE"
@@ -246,7 +246,7 @@ fi
 print_header "测试 4: 方案列表查询"
 
 print_test "查询我的方案列表"
-LIST_RESPONSE=$(curl -s -X GET "$API_BASE_URL/plans?page=1&page_size=10" \
+LIST_RESPONSE=$(curl -s -X GET "$API_BASE_URL/plans?page=1&pageSize=10" \
     -H "Authorization: Bearer $SESSION_TOKEN")
 
 print_info "列表响应:"
@@ -254,7 +254,7 @@ echo "$LIST_RESPONSE" | python3 -m json.tool 2>/dev/null || echo "$LIST_RESPONSE
 
 print_test "验证列表响应结构"
 assert_json_field "$LIST_RESPONSE" "['success']" "True" || true
-assert_json_field "$LIST_RESPONSE" "['data']['records']" || true
+assert_json_field "$LIST_RESPONSE" "['data']['plans']" || true
 assert_json_field "$LIST_RESPONSE" "['data']['total']" || true
 
 # 注意：由于AI生成需要时间，此时可能列表为空
@@ -331,7 +331,7 @@ docker exec teamventure-mysql-master mysql -u root -proot123456 -D teamventure_m
         '3天2晚精品团建',
         '[]',
         '{}',
-        '{}',
+        '[]',
         12000.00,
         240.00,
         3,
@@ -389,37 +389,6 @@ if echo "$CONFIRM_AGAIN" | grep -q '"success":true'; then
     print_success "重复确认成功（幂等）"
 else
     print_failure "重复确认失败"
-fi
-
-# ====================================
-# 测试 7: 供应商联系记录
-# ====================================
-print_header "测试 7: 供应商联系记录"
-
-print_test "记录拨打电话联系供应商"
-CONTACT_RESPONSE=$(curl -s -X POST "$API_BASE_URL/plans/$TEST_PLAN_ID/supplier-contacts" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $SESSION_TOKEN" \
-    -d '{
-        "supplier_id": "sup_test_001",
-        "channel": "PHONE",
-        "notes": "咨询活动详情"
-    }')
-
-print_info "联系记录响应:"
-echo "$CONTACT_RESPONSE" | python3 -m json.tool 2>/dev/null || echo "$CONTACT_RESPONSE"
-
-if echo "$CONTACT_RESPONSE" | grep -q '"success":true'; then
-    print_success "供应商联系记录创建成功"
-
-    # 验证数据库记录
-    CONTACT_COUNT=$(docker exec teamventure-mysql-master mysql -u root -proot123456 -D teamventure_main -e \
-        "SELECT COUNT(*) FROM supplier_contact_logs WHERE plan_id='$TEST_PLAN_ID';" \
-        2>&1 | grep -v Warning | tail -n 1)
-
-    print_info "联系记录数: $CONTACT_COUNT"
-else
-    print_failure "供应商联系记录创建失败"
 fi
 
 # ====================================

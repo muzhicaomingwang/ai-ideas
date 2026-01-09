@@ -5,7 +5,7 @@
 # 功能：
 # 1) 选择环境（--env-file），启动 docker compose
 # 2) 等待 Java/Python 健康检查可用
-# 3) 通过网关调用 API：登录 → 生成（异步）→ 轮询直到 3 套方案落库 → 列表/详情 → 确认(幂等) → 供应商查询/详情 → 记录联系
+# 3) 通过网关调用 API：登录 → 生成（异步）→ 轮询直到 3 套方案落库 → 列表/详情 → 确认(幂等)
 # 4) 输出 MQ 队列 consumers/messages 作为进度与定位线索
 # 5) 失败时自动打印关键容器日志尾部，便于快速提 bug/修复
 #
@@ -220,32 +220,14 @@ main() {
   [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "login http status=$CURL_STATUS"; }
   echo "$CURL_BODY" | py_assert "data.get('success') is True"
   local session_token user_id
-  session_token="$(echo "$CURL_BODY" | py_get "data['data']['session_token']")"
-  user_id="$(echo "$CURL_BODY" | py_get "data['data']['user_id']")"
+  session_token="$(echo "$CURL_BODY" | py_get "data['data']['sessionToken']")"
+  user_id="$(echo "$CURL_BODY" | py_get "data['data']['userInfo']['user_id']")"
   [[ -n "$session_token" ]] || { dump_debug_logs; die "missing session_token in login response"; }
   log "login OK user_id=$user_id"
 
-  # 3) 供应商查询（拿一个 supplierId）
-  log "Step 3: suppliers search"
+  # 3) 发起生成（异步）
+  log "Step 3: plans generate (async)"
   CURL_EXTRA_HEADERS=$'Authorization: Bearer '"$session_token"
-  local sup_list_raw
-  sup_list_raw="$(curl_json GET "${BASE_URL%/}/api/v1/suppliers")" || {
-    dump_debug_logs
-    die "suppliers search failed"
-  }
-  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "suppliers search http status=$CURL_STATUS"; }
-  parse_curl_response "$sup_list_raw"
-  echo "$CURL_BODY" | py_assert "data.get('success') is True"
-  local supplier_id
-  supplier_id="$(echo "$CURL_BODY" | py_get "(data.get('data') or [{}])[0].get('supplierId') or (data.get('data') or [{}])[0].get('supplier_id')")"
-  if [[ -z "$supplier_id" ]]; then
-    log "WARN: supplier list empty; ensure DB seed applied (V1.0.1__seed_suppliers.sql)"
-  else
-    log "supplier_id=$supplier_id"
-  fi
-
-  # 4) 发起生成（异步）
-  log "Step 4: plans generate (async)"
   local gen_body
   gen_body="$(cat <<JSON
 {
@@ -255,6 +237,7 @@ main() {
   "start_date": "2026-01-10",
   "end_date": "2026-01-11",
   "departure_city": "北京",
+  "destination": "北京周边",
   "preferences": { "qa_run_at": "$(date -Iseconds)" }
 }
 JSON
@@ -272,19 +255,21 @@ JSON
   [[ -n "$plan_request_id" ]] || { dump_debug_logs; die "missing plan_request_id"; }
   log "plan_request_id=$plan_request_id"
 
-  # 5) MQ 观测：队列消费者/积压
-  log "Step 5: MQ queue check (consumers/messages)"
+  # 4) MQ 观测：队列消费者/积压
+  log "Step 4: MQ queue check (consumers/messages)"
   docker exec teamventure-rabbitmq rabbitmqctl list_queues name messages consumers | sed -n '1,60p' || true
 
-  # 6) 轮询 plans 列表，直到 records >= 3
-  log "Step 6: poll plans list until >= 3 records (max=${POLL_MAX_ATTEMPTS}, interval=${POLL_INTERVAL_SEC}s)"
+  # 5) 轮询 plans 列表，直到本次 plan_request_id 对应的 plans >= 3
+  log "Step 5: poll plans list until >= 3 plans for current request (max=${POLL_MAX_ATTEMPTS}, interval=${POLL_INTERVAL_SEC}s)"
   local attempt=0
   local list_raw=""
   local list_resp_body=""
   local record_count=0
+  local matched_count=0
   while [[ $attempt -lt $POLL_MAX_ATTEMPTS ]]; do
     attempt=$((attempt + 1))
-    list_raw="$(curl_json GET "${BASE_URL%/}/api/v1/plans?page=1&pageSize=10")" || {
+    # 仅轮询 draft，避免 confirmed/reviewing 占满首页导致本次生成的 draft 不在第一页
+    list_raw="$(curl_json GET "${BASE_URL%/}/api/v1/plans?page=1&pageSize=50&status=draft")" || {
       dump_debug_logs
       die "plans list failed during polling"
     }
@@ -296,30 +281,40 @@ JSON
       die "plans list http status=$CURL_STATUS"
     fi
     echo "$CURL_BODY" | py_assert "data.get('success') is True"
-    record_count="$(echo "$CURL_BODY" | py_get "len((((data or {}).get('data') or {}).get('records')) or [])")"
-    log "poll attempt=${attempt}: records=${record_count}"
-    if [[ "$record_count" -ge 3 ]]; then
+    record_count="$(echo "$CURL_BODY" | py_get "len((((data or {}).get('data') or {}).get('plans')) or [])")"
+    matched_count="$(PLAN_REQUEST_ID="$plan_request_id" py_get "len([p for p in (((data or {}).get('data') or {}).get('plans')) or [] if isinstance(p, dict) and p.get('plan_request_id') == os.environ.get('PLAN_REQUEST_ID') and (p.get('is_generating') is False) and str(p.get('plan_id') or '').startswith('plan_')])" <<<"$CURL_BODY")"
+    log "poll attempt=${attempt}: plans_total=${record_count} plans_for_request=${matched_count}"
+    if [[ "$matched_count" -ge 3 ]]; then
       break
     fi
     sleep "$POLL_INTERVAL_SEC"
   done
-  if [[ "$record_count" -lt 3 ]]; then
-    log "polling did not reach 3 plans in time"
+  if [[ "$matched_count" -lt 3 ]]; then
+    log "polling did not reach 3 plans for current request in time"
     dump_debug_logs
     die "plans not generated within polling window"
   fi
 
-  # 7) 取一个 planId，调详情
-  log "Step 7: plan detail"
+  # 6) 从列表中挑选本次生成的 planId，调详情
+  log "Step 6: plan detail"
   local plan_id
   local json_input
   json_input="$CURL_BODY"
-  plan_id="$(JSON_INPUT="$json_input" python3 <<'PY'
+  plan_id="$(JSON_INPUT="$json_input" PLAN_REQUEST_ID="$plan_request_id" python3 <<'PY'
 import json, os
 j = json.loads(os.environ.get('JSON_INPUT', '{}'))
-records = (((j or {}).get("data") or {}).get("records")) or []
-first = records[0] if records else {}
-print(first.get("planId") or first.get("plan_id") or "")
+plans = (((j or {}).get("data") or {}).get("plans")) or []
+target_req = os.environ.get("PLAN_REQUEST_ID") or ""
+picked = None
+for p in plans:
+  if not isinstance(p, dict):
+    continue
+  if (p.get("plan_request_id") == target_req) and (p.get("is_generating") is False) and str(p.get("plan_id") or "").startswith("plan_"):
+    picked = p
+    break
+if picked is None:
+  picked = plans[0] if plans else {}
+print(picked.get("plan_id") or picked.get("planId") or "")
 PY
 )"
   [[ -n "$plan_id" ]] || { dump_debug_logs; die "missing plan_id from list"; }
@@ -330,6 +325,17 @@ PY
   }
   [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plan detail http status=$CURL_STATUS"; }
   parse_curl_response "$detail_raw"
+  echo "$CURL_BODY" | py_assert "data.get('success') is True"
+
+  # 7) 提交通晒（draft -> reviewing）
+  log "Step 7: submit-review plan"
+  local submit_raw
+  submit_raw="$(curl_json PUT "${BASE_URL%/}/api/v1/plans/${plan_id}/submit-review" "")" || {
+    dump_debug_logs
+    die "plan submit-review failed"
+  }
+  parse_curl_response "$submit_raw"
+  [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plan submit-review http status=$CURL_STATUS"; }
   echo "$CURL_BODY" | py_assert "data.get('success') is True"
 
   # 8) confirm 幂等（调用两次都应成功）
@@ -351,40 +357,9 @@ PY
   [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "plan confirm #2 http status=$CURL_STATUS"; }
   echo "$CURL_BODY" | py_assert "data.get('success') is True"
 
-  # 9) 供应商详情（如果有 supplier_id）
-  if [[ -n "$supplier_id" ]]; then
-    log "Step 9: supplier detail"
-    local sup_detail_resp
-    sup_detail_raw="$(curl_json GET "${BASE_URL%/}/api/v1/suppliers/${supplier_id}")" || {
-      dump_debug_logs
-      die "supplier detail failed"
-    }
-    [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "supplier detail http status=$CURL_STATUS"; }
-  parse_curl_response "$sup_detail_raw"
-    echo "$CURL_BODY" | py_assert "data.get('success') is True"
-  else
-    log "Step 9: skip supplier detail (no supplier_id)"
-  fi
-
-  # 10) 记录联系供应商（如果有 supplier_id）
-  if [[ -n "$supplier_id" ]]; then
-    log "Step 10: record supplier contact"
-    local contact_body
-    contact_body="$(printf '{"supplier_id":"%s","channel":"PHONE","notes":"qa-run %s"}' "$supplier_id" "$(date -Iseconds)")"
-    local contact_resp
-    contact_resp="$(curl_json POST "${BASE_URL%/}/api/v1/plans/${plan_id}/supplier-contacts" "$contact_body")" || {
-      dump_debug_logs
-      die "supplier contact failed"
-    }
-    [[ "$CURL_STATUS" == "200" ]] || { echo "$CURL_BODY"; dump_debug_logs; die "supplier contact http status=$CURL_STATUS"; }
-    echo "$CURL_BODY" | py_assert "data.get('success') is True"
-  else
-    log "Step 10: skip supplier contact (no supplier_id)"
-  fi
-
-  # 11) Internal callback 安全性（密钥错误应拒绝）
+  # 9) Internal callback 安全性（密钥错误应拒绝）
   # 注意：该接口未走 Nginx；这里直连 Java（默认 http://localhost:8080）
-  log "Step 11: internal callback security (wrong secret should be rejected)"
+  log "Step 9: internal callback security (wrong secret should be rejected)"
   CURL_EXTRA_HEADERS="X-Internal-Secret: wrong"
   local internal_body
   internal_body="$(printf '{"plan_request_id":"%s","user_id":"%s","plans":[],"trace_id":"trace_qa"}' "$plan_request_id" "$user_id")"
@@ -402,4 +377,3 @@ PY
 
 trap 'dump_debug_logs' ERR
 main "$@"
-

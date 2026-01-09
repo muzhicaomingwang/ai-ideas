@@ -136,10 +136,36 @@
   background-color: #fafafa;
 }
 
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
 .panel-title {
   font-size: 32rpx;
   font-weight: 500;
   color: #333;
+}
+
+.panel-version {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.itinerary-change-pill {
+  height: 48rpx;
+  line-height: 48rpx;
+  padding: 0 16rpx;
+  font-size: 24rpx;
+  border-radius: 999rpx;
+  background: #f6ffed;
+  color: #52c41a;
+  border: 2rpx solid #b7eb8f;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toggle-icon {
@@ -254,211 +280,6 @@
   font-style: italic;
 }
 
-/* 预算明细 */
-.budget-breakdown {
-  padding: 32rpx;
-}
-
-.budget-category {
-  margin-bottom: 32rpx;
-}
-
-.budget-category:last-of-type {
-  margin-bottom: 24rpx;
-}
-
-.category-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-  padding-bottom: 12rpx;
-  border-bottom: 2rpx solid #e8e8e8;
-}
-
-.category-name {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #333;
-}
-
-.category-subtotal {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1890ff;
-}
-
-.category-items {
-  padding-left: 16rpx;
-}
-
-.budget-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 12rpx 0;
-  border-bottom: 1rpx dashed #f0f0f0;
-}
-
-.budget-item:last-child {
-  border-bottom: none;
-}
-
-.item-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.item-name {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 4rpx;
-}
-
-.item-quantity {
-  font-size: 22rpx;
-  color: #999;
-}
-
-.item-total {
-  font-size: 26rpx;
-  color: #333;
-  margin-left: 16rpx;
-}
-
-.budget-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 24rpx;
-  border-top: 2rpx solid #333;
-}
-
-.total-label {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.total-amount {
-  font-size: 40rpx;
-  font-weight: 600;
-  color: #f5222d;
-}
-
-/* 供应商列表 */
-.suppliers-list {
-  padding: 32rpx;
-}
-
-.supplier-card {
-  padding: 24rpx;
-  background-color: #fafafa;
-  border-radius: 12rpx;
-  margin-bottom: 16rpx;
-}
-
-.supplier-card:last-child {
-  margin-bottom: 0;
-}
-
-.supplier-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16rpx;
-}
-
-.supplier-info {
-  flex: 1;
-}
-
-.supplier-name {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #333;
-  display: block;
-  margin-bottom: 8rpx;
-}
-
-.supplier-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4rpx;
-}
-
-.rating-star {
-  font-size: 24rpx;
-}
-
-.rating-value {
-  font-size: 24rpx;
-  color: #faad14;
-  font-weight: 500;
-}
-
-.supplier-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8rpx;
-}
-
-.supplier-category {
-  font-size: 24rpx;
-  color: #666;
-  padding: 4rpx 12rpx;
-  background-color: #fff;
-  border-radius: 4rpx;
-}
-
-.supplier-price {
-  font-size: 26rpx;
-  color: #1890ff;
-  font-weight: 500;
-}
-
-.supplier-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
-}
-
-.supplier-tags .tag {
-  padding: 6rpx 12rpx;
-  background-color: #e6f7ff;
-  color: #1890ff;
-  border-radius: 4rpx;
-  font-size: 22rpx;
-}
-
-.supplier-actions {
-  display: flex;
-  gap: 16rpx;
-}
-
-.btn-contact {
-  flex: 1;
-  height: 64rpx;
-  line-height: 64rpx;
-  background-color: #fff;
-  color: #1890ff;
-  border: 2rpx solid #1890ff;
-  border-radius: 32rpx;
-  font-size: 26rpx;
-  text-align: center;
-}
-
-.btn-contact::after {
-  border: none;
-}
-
-.btn-contact:active {
-  background-color: #e6f7ff;
-}
-
 /* 底部操作栏 */
 .bottom-actions {
   position: fixed;
@@ -470,6 +291,23 @@
   border-top: 1rpx solid #e8e8e8;
   box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.05);
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.reviewing-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn-action {
+  flex: 1;
+  width: auto;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+  text-align: center;
 }
 
 .btn-confirm,
@@ -495,6 +333,30 @@
 
 .btn-confirm:active {
   background-color: #0070dd;
+}
+
+.reviewing-actions .btn-confirm {
+  width: auto;
+}
+
+.btn-cancel {
+  background-color: #fff1f0;
+  color: #f5222d;
+  border: 2rpx solid #ffa39e;
+}
+
+.btn-archive {
+  background-color: #fafafa;
+  color: #666;
+  border: 2rpx solid #d9d9d9;
+}
+
+.btn-action::after {
+  border: none;
+}
+
+.btn-action:active {
+  opacity: 0.9;
 }
 
 .btn-confirmed {

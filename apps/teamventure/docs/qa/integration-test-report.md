@@ -307,7 +307,7 @@ chmod +x e2e_login_test.sh
 ✅ **TEST 4**: 用户信息验证
 - **验证点**:
   - nickname正确存储: "AutoTestUser"
-  - avatar正确存储: "https://example.com/avatar.jpg"
+  - avatar正确存储: ""
   - user_id格式正确: `user_*`
   - role为 "user"
 - **结果**: PASS
@@ -1223,7 +1223,7 @@ curl -X POST 'http://localhost/api/v1/auth/wechat/login' \
   -d '{
     "code": "TEST_CODE",
     "nickname": "' OR '1'='1",
-    "avatarUrl": "https://example.com/avatar.jpg"
+    "avatarUrl": ""
   }'
 ```
 
@@ -1349,7 +1349,7 @@ curl -X POST 'http://localhost/api/v1/auth/wechat/login' \
 **测试用户**:
 ```
 昵称: AutoTestUser
-头像: https://example.com/avatar.jpg
+头像: （空字符串或 MinIO URL）
 微信OpenID: MOCK_OPENID_FOR_TEST
 ```
 

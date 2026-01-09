@@ -154,7 +154,7 @@ export const USE_MOCK_DATA = true  // ✅ 已启用
 **无需手动添加测试数据！** 系统已自动集成模拟数据：
 
 - 3 个完整的团建方案（经济型、平衡型、品质型）
-- 每个方案包含详细行程、预算明细、供应商信息
+- 每个方案包含详细行程
 - 在 `utils/mock-data.js` 中查看完整数据
 
 **测试流程**：
@@ -183,7 +183,6 @@ const mockPlans = [
       suitable_for: ['预算有限', '注重性价比'],
       preferences: {
         accommodation_level: 'budget',
-        dining_style: ['local']
       },
       itinerary: {
         days: [
@@ -200,35 +199,7 @@ const mockPlans = [
             ]
           }
         ]
-      },
-      budget_breakdown: {
-        categories: [
-          {
-            category: '交通',
-            items: [
-              {
-                item: '大巴往返',
-                quantity: '1辆 x 2天',
-                unit_price: 2000,
-                total: 4000
-              }
-            ],
-            subtotal: 4000
-          }
-        ],
-        total: 35000
-      },
-      suppliers: [
-        {
-          supplier_id: 'sup_1',
-          name: '怀柔山庄',
-          category: 'accommodation',
-          rating: 4.5,
-          contact_phone: '13800138000',
-          contact_wechat: 'huairou_wx',
-          tags: ['适合拓展', '湖景房']
-        }
-      ]
+      }
     },
     {
       plan_id: 'mock_2',
@@ -243,11 +214,8 @@ const mockPlans = [
       suitable_for: ['性价比优先', '体验均衡'],
       preferences: {
         accommodation_level: 'standard',
-        dining_style: ['local', 'bbq']
       },
-      itinerary: { days: [] },
-      budget_breakdown: { categories: [], total: 45000 },
-      suppliers: []
+      itinerary: { days: [] }
     },
     {
       plan_id: 'mock_3',
@@ -262,11 +230,8 @@ const mockPlans = [
       suitable_for: ['重视体验', '预算充足'],
       preferences: {
         accommodation_level: 'premium',
-        dining_style: ['western']
       },
-      itinerary: { days: [] },
-      budget_breakdown: { categories: [], total: 60000 },
-      suppliers: []
+      itinerary: { days: [] }
     }
   ]
 
@@ -285,10 +250,6 @@ const mockPlans = [
 #### ✅ 方案详情页测试
 - [ ] 概览卡片显示完整
 - [ ] 行程面板展开/折叠
-- [ ] 预算面板展开/折叠
-- [ ] 供应商面板展开/折叠
-- [ ] 点击"拨打电话"触发拨号
-- [ ] 点击"复制微信"复制成功
 
 ### 阶段 3: 后端联调测试
 

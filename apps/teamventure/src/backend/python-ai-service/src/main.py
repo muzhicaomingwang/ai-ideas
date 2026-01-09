@@ -41,6 +41,10 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# Avoid leaking query params (e.g., AMAP_API_KEY) via httpx INFO logs.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

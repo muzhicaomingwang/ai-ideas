@@ -374,7 +374,7 @@ Authorization: Bearer {token}
 operationId: getPlanDetail
 tags: [Plans]
 summary: 获取方案详细信息
-description: 查询单个方案的完整信息，包括行程、预算明细等
+description: 查询单个方案的完整信息（MVP：不返回预算明细与供应商信息）
 security:
   - BearerAuth: []
 ```
@@ -453,44 +453,6 @@ Authorization: Bearer {token}
         }
       ]
     },
-    "budgetBreakdown": {
-      "total": 25000,
-      "per_person": 500,
-      "categories": [
-        {
-          "category": "住宿",
-          "subtotal": 10000
-        },
-        {
-          "category": "活动",
-          "subtotal": 8000
-        },
-        {
-          "category": "餐饮",
-          "subtotal": 7000
-        }
-      ]
-    },
-    "supplierSnapshots": [
-      {
-        "supplier_id": "sup_acc_002",
-        "name": "密云水库度假村",
-        "type": "accommodation",
-        "price_range": "低"
-      },
-      {
-        "supplier_id": "sup_demo_activity",
-        "name": "北京·示例活动教练",
-        "type": "activity",
-        "price_range": "低"
-      },
-      {
-        "supplier_id": "sup_demo_dining",
-        "name": "北京·示例餐饮",
-        "type": "dining",
-        "price_range": "低"
-      }
-    ],
     "budgetTotal": 25000.00,
     "budgetPerPerson": 500.00,
     "durationDays": 2,

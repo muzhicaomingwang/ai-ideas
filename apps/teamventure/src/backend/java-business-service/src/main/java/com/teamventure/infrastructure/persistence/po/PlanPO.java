@@ -29,6 +29,7 @@ public class PlanPO {
     private String summary;
     private String highlights;
     private String itinerary;
+    private Integer itinerary_version;
     private String budget_breakdown;
     private String supplier_snapshots;
     private BigDecimal budget_total;
@@ -54,6 +55,7 @@ public class PlanPO {
         po.summary = (String) m.getOrDefault("summary", "");
         po.highlights = JsonHelper.safeJson(m.get("highlights"));
         po.itinerary = JsonHelper.safeJson(m.get("itinerary"));
+        po.itinerary_version = 1;
         po.budget_breakdown = JsonHelper.safeJson(m.get("budget_breakdown"));
         po.supplier_snapshots = JsonHelper.safeJson(m.get("supplier_snapshots"));
         po.budget_total = JsonHelper.safeDecimal(m.get("budget_total"));
@@ -96,6 +98,9 @@ public class PlanPO {
     public String getItinerary() { return itinerary; }
     public void setItinerary(String v) { this.itinerary = v; }
 
+    public Integer getItineraryVersion() { return itinerary_version; }
+    public void setItineraryVersion(Integer v) { this.itinerary_version = v; }
+
     public String getBudgetBreakdown() { return budget_breakdown; }
     public void setBudgetBreakdown(String v) { this.budget_breakdown = v; }
 
@@ -120,4 +125,3 @@ public class PlanPO {
     public Instant getReviewStartedAt() { return review_started_at; }
     public void setReviewStartedAt(Instant v) { this.review_started_at = v; }
 }
-
