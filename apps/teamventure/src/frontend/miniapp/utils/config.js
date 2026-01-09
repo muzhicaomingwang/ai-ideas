@@ -63,6 +63,7 @@ export const API_ENDPOINTS = {
   PLAN_REVERT_REVIEW: '/plans/:id/revert-review',
   PLAN_ARCHIVE: '/plans/:id/archive',
   PLAN_UPDATE_ITINERARY: '/plans/:id/itinerary',
+  PLAN_ROUTE: '/plans/:id/route',
 
   // 供应商相关
   SUPPLIER_SEARCH: '/suppliers/search',

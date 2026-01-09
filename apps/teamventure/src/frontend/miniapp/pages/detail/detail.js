@@ -8,8 +8,17 @@ Page({
     plan: null,
     planId: '',
     sections: {
-      itinerary: true // 默认展开行程
-    }
+      itinerary: true, // 默认展开行程
+      map: false
+    },
+    selectedDay: 1,
+    routeLoading: false,
+    route: {
+      markers: [],
+      polyline: [],
+      include_points: [],
+      unresolved: []
+    },
   },
 
   onLoad(options) {
@@ -109,6 +118,42 @@ Page({
     }
 
     this.setData({ plan: processedPlan })
+    this.initRouteAfterPlanLoaded()
+  },
+
+  initRouteAfterPlanLoaded() {
+    const days = this.data.plan?.itinerary?.days || []
+    const firstDay = days?.[0]?.day || 1
+    this.setData({ selectedDay: firstDay })
+    this.fetchRoute(firstDay)
+  },
+
+  async fetchRoute(day) {
+    const planId = this.data.plan?.plan_id || this.data.planId
+    if (!planId) return
+
+    try {
+      this.setData({ routeLoading: true })
+      const endpoint = API_ENDPOINTS.PLAN_ROUTE.replace(':id', planId) + `?day=${encodeURIComponent(day)}`
+      const data = await get(endpoint)
+      this.setData({
+        route: data || { markers: [], polyline: [], include_points: [], unresolved: [] }
+      })
+    } catch (e) {
+      console.error('获取路线失败:', e)
+      this.setData({
+        route: { markers: [], polyline: [], include_points: [], unresolved: [] }
+      })
+    } finally {
+      this.setData({ routeLoading: false })
+    }
+  },
+
+  handleSelectDay(e) {
+    const day = Number(e.currentTarget.dataset.day)
+    if (!day || day === this.data.selectedDay) return
+    this.setData({ selectedDay: day })
+    this.fetchRoute(day)
   },
 
   /**

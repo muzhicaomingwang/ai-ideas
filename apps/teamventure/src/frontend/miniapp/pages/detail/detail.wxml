@@ -83,6 +83,54 @@
     </view>
   </view>
 
+  <!-- 地图路线 -->
+  <view class="section-panel">
+    <view class="panel-header" bindtap="toggleSection" data-section="map">
+      <text class="panel-title">地图路线</text>
+      <text class="toggle-icon">{{sections.map ? '▼' : '▶'}}</text>
+    </view>
+    <view class="panel-content {{sections.map ? 'expanded' : ''}}">
+      <view class="map-panel">
+        <scroll-view
+          class="day-tabs"
+          scroll-x="true"
+          wx:if="{{plan.itinerary && plan.itinerary.days && plan.itinerary.days.length > 1}}"
+        >
+          <view class="day-tabs-inner">
+            <view
+              wx:for="{{plan.itinerary.days}}"
+              wx:key="day"
+              class="day-tab {{selectedDay === item.day ? 'active' : ''}}"
+              bindtap="handleSelectDay"
+              data-day="{{item.day}}"
+            >
+              Day {{item.day}}
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="map-loading" wx:if="{{routeLoading}}">
+          <text>路线加载中...</text>
+        </view>
+        <view class="map-empty" wx:elif="{{!routeLoading && (!route || !route.markers || route.markers.length === 0)}}">
+          <text>暂无可定位的路线点位</text>
+        </view>
+
+        <map
+          wx:else
+          class="route-map"
+          longitude="{{route.markers[0].longitude}}"
+          latitude="{{route.markers[0].latitude}}"
+          scale="12"
+          markers="{{route.markers}}"
+          polyline="{{route.polyline}}"
+          include-points="{{route.include_points}}"
+          show-location="true"
+        />
+      </view>
+    </view>
+  </view>
+
   <!-- 底部操作栏 -->
   <view class="bottom-actions">
     <button

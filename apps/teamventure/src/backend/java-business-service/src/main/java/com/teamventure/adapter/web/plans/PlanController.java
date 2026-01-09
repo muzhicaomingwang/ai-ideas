@@ -3,6 +3,7 @@ package com.teamventure.adapter.web.plans;
 import com.teamventure.adapter.web.common.ApiResponse;
 import com.teamventure.app.service.AuthService;
 import com.teamventure.app.service.PlanService;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -45,6 +46,16 @@ public class PlanController {
     public ApiResponse<?> detail(@RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable String planId) {
         String userId = authService.getUserIdFromAuthorization(authorization);
         return ApiResponse.success(planService.getPlanDetail(userId, planId));
+    }
+
+    @GetMapping("/{planId}/route")
+    public ApiResponse<Map<String, Object>> route(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable String planId,
+            @RequestParam(required = false) Integer day
+    ) {
+        String userId = authService.getUserIdFromAuthorization(authorization);
+        return ApiResponse.success(planService.getPlanRoute(userId, planId, day));
     }
 
     @PostMapping("/{planId}/confirm")
@@ -130,7 +141,9 @@ public class PlanController {
      */
     public static class GenerateRequest {
         /** 参与人数 */
-        @NotNull public Integer people_count;
+        @NotNull
+        @JsonAlias("group_size")
+        public Integer people_count;
         /** 最低预算（元） */
         @NotNull public BigDecimal budget_min;
         /** 最高预算（元） */
@@ -143,6 +156,8 @@ public class PlanController {
         @NotBlank public String departure_city;
         /** 目的地（团建活动举办地点，如：杭州千岛湖，可选） */
         public String destination;
+        /** 目的地所属行政城市（如：杭州，可选，用于季节/价格配置） */
+        public String destination_city;
         /** 偏好设置（活动类型、住宿标准、餐饮偏好等） */
         public Map<String, Object> preferences;
     }

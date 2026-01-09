@@ -16,12 +16,20 @@ import com.teamventure.infrastructure.persistence.po.DomainEventPO;
 import com.teamventure.infrastructure.persistence.po.PlanPO;
 import com.teamventure.infrastructure.persistence.po.PlanRequestPO;
 import com.teamventure.infrastructure.persistence.po.SupplierContactLogPO;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,6 +43,15 @@ public class PlanService {
     private final RabbitTemplate rabbitTemplate;
     private final String exchange;
     private final String routingKey;
+    private final String amapApiKey;
+    private final HttpClient httpClient;
+
+    private static final Map<String, double[]> GEO_CACHE = new LinkedHashMap<>(256, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, double[]> eldest) {
+            return size() > 300;
+        }
+    };
 
     public PlanService(
             PlanRequestMapper planRequestMapper,
@@ -43,7 +60,8 @@ public class PlanService {
             DomainEventMapper eventMapper,
             RabbitTemplate rabbitTemplate,
             @Value("${teamventure.mq.exchange.plan-generation}") String exchange,
-            @Value("${teamventure.mq.routing-key.plan-request}") String routingKey
+            @Value("${teamventure.mq.routing-key.plan-request}") String routingKey,
+            @Value("${AMAP_API_KEY:}") String amapApiKey
     ) {
         this.planRequestMapper = planRequestMapper;
         this.planMapper = planMapper;
@@ -52,6 +70,10 @@ public class PlanService {
         this.rabbitTemplate = rabbitTemplate;
         this.exchange = exchange;
         this.routingKey = routingKey;
+        this.amapApiKey = amapApiKey == null ? "" : amapApiKey;
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(3))
+                .build();
     }
 
     public GenerateResponse createPlanRequestAndPublish(String userId, GenerateRequest req) {
@@ -449,6 +471,88 @@ public class PlanService {
         recordEvent("PlanRevertedToReview", "Plan", planId, userId, Map.of("plan_id", planId));
     }
 
+    public Map<String, Object> getPlanRoute(String userId, String planId, Integer day) {
+        PlanPO plan = planMapper.selectById(planId);
+        if (plan == null || plan.getDeletedAt() != null) {
+            throw new BizException("NOT_FOUND", "plan not found");
+        }
+        if (!userId.equals(plan.getUserId())) {
+            throw new BizException("UNAUTHORIZED", "not owner");
+        }
+
+        Map<String, Object> itinerary = Jsons.toMap(plan.getItinerary());
+        Object daysObj = itinerary.get("days");
+        if (!(daysObj instanceof List<?> daysListRaw) || daysListRaw.isEmpty()) {
+            return Map.of(
+                    "markers", List.of(),
+                    "polyline", List.of(),
+                    "include_points", List.of(),
+                    "unresolved", List.of()
+            );
+        }
+
+        String cityHint = plan.getDestination() == null ? "" : plan.getDestination();
+        List<Map<String, Object>> markers = new ArrayList<>();
+        List<Map<String, Object>> points = new ArrayList<>();
+        List<Map<String, Object>> unresolved = new ArrayList<>();
+
+        int markerId = 1;
+        for (Object d : daysListRaw) {
+            if (!(d instanceof Map<?, ?> dayMapRaw)) continue;
+            Map<String, Object> dayMap = castMap(dayMapRaw);
+            Integer dayNo = asInt(dayMap.get("day")).orElse(null);
+            if (day != null && dayNo != null && !day.equals(dayNo)) continue;
+            if (day != null && dayNo == null) continue;
+
+            Object itemsObj = dayMap.get("items");
+            if (!(itemsObj instanceof List<?> itemsRaw)) continue;
+            for (Object it : itemsRaw) {
+                if (!(it instanceof Map<?, ?> itemRaw)) continue;
+                Map<String, Object> item = castMap(itemRaw);
+                String activity = asString(item.get("activity")).orElse("");
+                String location = asString(item.get("location")).orElse("");
+
+                String keyword = !location.isBlank() ? location : activity;
+                if (keyword.isBlank()) continue;
+
+                Optional<double[]> lngLat = resolveLngLat(keyword, cityHint);
+                if (lngLat.isEmpty()) {
+                    unresolved.add(Map.of(
+                            "day", dayNo == null ? 0 : dayNo,
+                            "keyword", keyword
+                    ));
+                    continue;
+                }
+                double lng = lngLat.get()[0];
+                double lat = lngLat.get()[1];
+
+                markers.add(Map.of(
+                        "id", markerId,
+                        "latitude", lat,
+                        "longitude", lng,
+                        "title", keyword.length() > 18 ? keyword.substring(0, 18) : keyword
+                ));
+                points.add(Map.of("latitude", lat, "longitude", lng));
+                markerId++;
+            }
+        }
+
+        List<Map<String, Object>> polyline = List.of(
+                Map.of(
+                        "points", points,
+                        "color", "#1890FF",
+                        "width", 4
+                )
+        );
+
+        return Map.of(
+                "markers", markers,
+                "polyline", polyline,
+                "include_points", points,
+                "unresolved", unresolved
+        );
+    }
+
     /**
      * 将 PlanPO 转换为详情 Map，解析 JSON 字符串字段
      */
@@ -476,6 +580,82 @@ public class PlanService {
 
         result.put("is_generating", false);
         return result;
+    }
+
+    private static Map<String, Object> castMap(Map<?, ?> raw) {
+        Map<String, Object> m = new HashMap<>();
+        for (Map.Entry<?, ?> e : raw.entrySet()) {
+            if (e.getKey() == null) continue;
+            m.put(String.valueOf(e.getKey()), e.getValue());
+        }
+        return m;
+    }
+
+    private static Optional<String> asString(Object v) {
+        if (v == null) return Optional.empty();
+        if (v instanceof String s) return Optional.of(s);
+        return Optional.of(String.valueOf(v));
+    }
+
+    private static Optional<Integer> asInt(Object v) {
+        if (v == null) return Optional.empty();
+        if (v instanceof Integer i) return Optional.of(i);
+        if (v instanceof Number n) return Optional.of(n.intValue());
+        try {
+            return Optional.of(Integer.parseInt(String.valueOf(v)));
+        } catch (Exception ignore) {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<double[]> resolveLngLat(String keyword, String cityHint) {
+        if (this.amapApiKey.isBlank()) return Optional.empty();
+        String cacheKey = keyword + "|" + cityHint;
+        synchronized (GEO_CACHE) {
+            double[] cached = GEO_CACHE.get(cacheKey);
+            if (cached != null) return Optional.of(cached);
+        }
+
+        try {
+            String url = "https://restapi.amap.com/v3/place/text"
+                    + "?key=" + enc(amapApiKey)
+                    + "&keywords=" + enc(keyword)
+                    + "&offset=1&page=1&extensions=base&output=JSON"
+                    + (cityHint == null || cityHint.isBlank() ? "" : "&city=" + enc(cityHint));
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(java.time.Duration.ofSeconds(6))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) return Optional.empty();
+
+            Map<String, Object> body = Jsons.toMap(resp.body());
+            Object poisObj = body.get("pois");
+            if (!(poisObj instanceof List<?> pois) || pois.isEmpty()) return Optional.empty();
+            Object first = pois.get(0);
+            if (!(first instanceof Map<?, ?> firstMapRaw)) return Optional.empty();
+            Map<String, Object> firstMap = castMap(firstMapRaw);
+            String location = asString(firstMap.get("location")).orElse("");
+            if (location.isBlank() || !location.contains(",")) return Optional.empty();
+            String[] parts = location.split(",", 2);
+            double lng = Double.parseDouble(parts[0]);
+            double lat = Double.parseDouble(parts[1]);
+
+            double[] lngLat = new double[]{lng, lat};
+            synchronized (GEO_CACHE) {
+                GEO_CACHE.put(cacheKey, lngLat);
+            }
+            return Optional.of(lngLat);
+        } catch (Exception ignore) {
+            return Optional.empty();
+        }
+    }
+
+    private static String enc(String s) {
+        return URLEncoder.encode(s == null ? "" : s, StandardCharsets.UTF_8);
     }
 
     public Map<String, Object> updateItineraryWithCas(String userId, String planId, int baseVersion, Map<String, Object> itinerary) {
