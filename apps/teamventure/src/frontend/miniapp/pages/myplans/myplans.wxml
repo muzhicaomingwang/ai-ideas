@@ -112,7 +112,7 @@
           </view>
         </view>
 
-        <!-- 出发地 → 目的地 -->
+        <!-- 出发城市 → 目的地 -->
         <view class="plan-location" wx:if="{{(item.departure_city || item.destination) && item.status !== 'generating' && item.status !== 'failed'}}">
           <text class="location-icon">📍</text>
           <text class="location-text" wx:if="{{item.departure_city && item.destination}}">{{item.departure_city}} → {{item.destination}}</text>

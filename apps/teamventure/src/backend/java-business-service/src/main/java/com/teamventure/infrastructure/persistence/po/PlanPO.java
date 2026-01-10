@@ -14,6 +14,7 @@ import java.util.Map;
  * 字段语义说明：
  * - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
  * - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+ * - destination_city: 目的地所属行政城市（如：杭州）
  *
  * 前端显示格式："{departure_city} → {destination}"
  * 示例：上海市 → 杭州千岛湖
@@ -39,6 +40,8 @@ public class PlanPO {
     private String departure_city;
     /** 目的地（团建活动举办地点，如：杭州千岛湖） */
     private String destination;
+    /** 目的地所属行政城市（如：杭州） */
+    private String destination_city;
     private String status;
     private Instant create_time;
     private Instant confirmed_time;
@@ -46,6 +49,10 @@ public class PlanPO {
     private Instant archived_at;
     /** 通晒开始时间（draft → reviewing 时设置） */
     private Instant review_started_at;
+    /** 通晒评价数（reviewing/confirmed 期间累加） */
+    private Integer review_count;
+    /** 通晒平均分（0-5，可为空） */
+    private java.math.BigDecimal average_score;
 
     public static PlanPO fromMap(Map<String, Object> m) {
         PlanPO po = new PlanPO();
@@ -63,6 +70,9 @@ public class PlanPO {
         po.duration_days = JsonHelper.safeInt(m.get("duration_days"));
         po.departure_city = (String) m.getOrDefault("departure_city", "");
         po.destination = (String) m.getOrDefault("destination", "");
+        po.destination_city = (String) m.getOrDefault("destination_city", "");
+        po.review_count = JsonHelper.safeInt(m.getOrDefault("review_count", 0));
+        po.average_score = JsonHelper.safeDecimal(m.get("average_score"));
         po.status = (String) m.getOrDefault("status", "draft");
         return po;
     }
@@ -116,6 +126,9 @@ public class PlanPO {
     public String getDestination() { return destination; }
     public void setDestination(String v) { this.destination = v; }
 
+    public String getDestinationCity() { return destination_city; }
+    public void setDestinationCity(String v) { this.destination_city = v; }
+
     public Instant getDeletedAt() { return deleted_at; }
     public void setDeletedAt(Instant v) { this.deleted_at = v; }
 
@@ -124,4 +137,10 @@ public class PlanPO {
 
     public Instant getReviewStartedAt() { return review_started_at; }
     public void setReviewStartedAt(Instant v) { this.review_started_at = v; }
+
+    public Integer getReviewCount() { return review_count; }
+    public void setReviewCount(Integer v) { this.review_count = v; }
+
+    public java.math.BigDecimal getAverageScore() { return average_score; }
+    public void setAverageScore(java.math.BigDecimal v) { this.average_score = v; }
 }

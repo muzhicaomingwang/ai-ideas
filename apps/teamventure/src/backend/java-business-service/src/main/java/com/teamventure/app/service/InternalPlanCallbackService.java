@@ -41,6 +41,8 @@ public class InternalPlanCallbackService {
             plan.setUserId(req.user_id);
             planMapper.insert(plan);
             recordEvent("PlanGenerated", "Plan", plan.getPlanId(), req.user_id, Map.of("plan_id", plan.getPlanId()));
+            // UL v1.3+ (backward compatible): more explicit event name.
+            recordEvent("PlanGenerationSucceeded", "Plan", plan.getPlanId(), req.user_id, Map.of("plan_id", plan.getPlanId()));
         }
 
         planRequest.setStatus("COMPLETED");
@@ -61,4 +63,3 @@ public class InternalPlanCallbackService {
         eventMapper.insert(evt);
     }
 }
-

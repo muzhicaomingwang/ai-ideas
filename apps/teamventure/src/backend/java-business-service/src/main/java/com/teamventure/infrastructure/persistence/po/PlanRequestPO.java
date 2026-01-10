@@ -29,6 +29,8 @@ public class PlanRequestPO {
     private String departure_city;
     /** 目的地（团建活动举办地点，如：杭州千岛湖） */
     private String destination;
+    /** 目的地所属行政城市（如：杭州） */
+    private String destination_city;
     private String preferences;
     private String status;
     private Instant generation_started_at;
@@ -55,6 +57,8 @@ public class PlanRequestPO {
     public void setDepartureCity(String v) { this.departure_city = v; }
     public String getDestination() { return destination; }
     public void setDestination(String v) { this.destination = v; }
+    public String getDestinationCity() { return destination_city; }
+    public void setDestinationCity(String v) { this.destination_city = v; }
     public String getPreferencesJson() { return preferences; }
     public void setPreferencesJson(String v) { this.preferences = v; }
     public String getStatus() { return status; }
@@ -70,4 +74,3 @@ public class PlanRequestPO {
     public Instant getDeletedAt() { return deleted_at; }
     public void setDeletedAt(Instant v) { this.deleted_at = v; }
 }
-

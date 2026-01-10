@@ -125,15 +125,15 @@
       </view>
     </view>
 
-    <!-- 出发地点 -->
+    <!-- 出发城市 -->
     <view class="form-item">
       <view class="form-label">
-        <text class="label-text">出发地点</text>
+        <text class="label-text">出发城市</text>
         <text class="required">*</text>
       </view>
       <input
         class="text-input"
-        placeholder="请输入出发城市或地点"
+        placeholder="请输入出发城市"
         value="{{formData.departureLocation}}"
         bindinput="handleDepartureLocationInput"
       />

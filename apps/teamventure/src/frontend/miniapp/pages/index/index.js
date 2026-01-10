@@ -186,7 +186,7 @@ Page({
     this.markFormModified()
   },
 
-  // 出发地点输入
+  // 出发城市输入
   handleDepartureLocationInput(e) {
     const value = e.detail.value
     this.setData({
@@ -303,7 +303,7 @@ Page({
     }
 
     if (!departureLocation) {
-      wx.showToast({ title: '请输入出发地点', icon: 'none' })
+      wx.showToast({ title: '请输入出发城市', icon: 'none' })
       return false
     }
 

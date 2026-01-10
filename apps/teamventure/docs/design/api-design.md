@@ -383,11 +383,13 @@ POST /api/v1/plans/generate
 | end_date | String | ✅ | 结束日期（YYYY-MM-DD） | "2026-02-03" |
 | departure_city | String | ✅ | 出发城市（团队从哪里出发，如公司所在地） | "上海市" |
 | destination | String | ❌ | 目的地（团建活动举办地点，可选，留空由AI推荐） | "杭州千岛湖" |
+| destination_city | String | ❌ | 目的地所属行政城市（可选，用于季节/价格配置） | "杭州" |
 | preferences | Object | ❌ | 偏好设置（JSON对象） | 见下方 |
 
 > **字段语义说明**：
 > - `departure_city`：出发城市，表示团队从哪里出发，通常是公司所在地（如：上海市）
 > - `destination`：目的地，表示团建活动举办地点（如：杭州千岛湖）
+> - `destination_city`：目的地所属行政城市（如：杭州），用于季节/价格配置维度
 > - 前端显示格式："{departure_city} → {destination}"，例如：上海市 → 杭州千岛湖
 
 **preferences对象结构**:
@@ -415,6 +417,7 @@ curl -X POST http://localhost/api/v1/plans/generate \
     "end_date": "2026-02-03",
     "departure_city": "上海市",
     "destination": "杭州千岛湖",
+    "destination_city": "杭州",
     "preferences": {
       "activity_types": ["team_building", "leisure"],
       "accommodation_level": "standard",
@@ -434,6 +437,7 @@ curl -X POST http://localhost/api/v1/plans/generate \
   "end_date": "2026-02-03",
   "departure_city": "上海市",
   "destination": "杭州千岛湖",
+  "destination_city": "杭州",
   "preferences": {
     "activity_types": ["team_building", "leisure"],
     "accommodation_level": "standard",

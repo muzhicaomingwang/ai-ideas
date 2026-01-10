@@ -4,6 +4,7 @@
 字段语义说明：
 - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
 - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+- destination_city: 目的地所属行政城市（如：杭州）
 
 前端显示格式："{departure_city} → {destination}"
 示例：上海市 → 杭州千岛湖
@@ -120,6 +121,7 @@ def _normalize_generated_plans(
     duration_days: int,
     departure_city: str,
     destination: str,
+    destination_city: str,
 ) -> list[dict[str, Any]]:
     """
     规范化 LLM 生成的方案数据
@@ -127,6 +129,7 @@ def _normalize_generated_plans(
     Args:
         departure_city: 出发城市（团队从哪里出发，如：上海市）
         destination: 目的地（团建活动举办地点，如：杭州千岛湖）
+        destination_city: 目的地所属行政城市（如：杭州）
     """
     plans = raw.get("plans")
     if not isinstance(plans, list) or len(plans) != 3:
@@ -154,6 +157,7 @@ def _normalize_generated_plans(
                 "duration_days": duration_days,
                 "departure_city": departure_city,  # 出发城市（从输入获取，非LLM生成）
                 "destination": destination,        # 目的地（从输入获取，非LLM生成）
+                "destination_city": destination_city,  # 目的地城市（可由上游/高德补全）
                 "status": "draft",
             }
         )
@@ -304,12 +308,14 @@ async def _generate_three_plans_stub(
     字段说明：
     - departure_city: 出发城市（团队从哪里出发，如：上海市）
     - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
+    - destination_city: 目的地所属行政城市（如：杭州）
     """
     people = int(inputs["people_count"])
     duration_days = int(inputs["duration_days"])
     # 正确区分出发城市和目的地
     departure_city = inputs.get("departure_city") or "出发地"  # 出发城市
     destination = inputs.get("destination") or "目的地"        # 团建活动举办地点
+    destination_city = inputs.get("destination_city") or ""   # 目的地所属城市（可选）
     targets = _budget_targets(inputs)
 
     def make_plan(plan_type: str, budget_total: float) -> dict[str, Any]:
@@ -351,6 +357,7 @@ async def _generate_three_plans_stub(
             "duration_days": duration_days,
             "departure_city": departure_city,  # 出发城市
             "destination": destination,        # 目的地
+            "destination_city": destination_city,
             "status": "draft",
         }
 
@@ -372,12 +379,14 @@ async def generate_three_plans(
     字段说明：
     - departure_city: 出发城市（团队从哪里出发，如：上海市）
     - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
+    - destination_city: 目的地所属行政城市（如：杭州）
     """
     people = int(inputs["people_count"])
     duration_days = int(inputs["duration_days"])
     # 正确区分出发城市和目的地
     departure_city = inputs.get("departure_city") or "出发地"  # 出发城市
     destination = inputs.get("destination") or "目的地"        # 团建活动举办地点
+    destination_city = inputs.get("destination_city") or ""   # 目的地所属城市（用于季节/价格配置）
     targets = _budget_targets(inputs)
 
     client = OpenAIClient()
@@ -397,9 +406,6 @@ async def generate_three_plans(
     start_date = inputs.get("start_date", "")
     end_date = inputs.get("end_date", "")
 
-    # 季节适配（基于目的地而非出发城市）
-    season_info = _get_season_info(start_date, destination)
-
     destination_context = None
     amap = AmapClient()
     if amap.is_enabled():
@@ -408,6 +414,12 @@ async def generate_three_plans(
             activity_types=activity_types if isinstance(activity_types, list) else [],
             accommodation_level=str(accommodation_level),
         )
+        if not destination_city and isinstance(destination_context, dict):
+            destination_city = str(destination_context.get("destination_city") or "")
+
+    # 季节适配（基于目的地城市而非出发城市）
+    city_for_context = destination_city or destination
+    season_info = _get_season_info(start_date, city_for_context)
 
     prompt_payload = {
         "plan_request_id": plan_request_id,
@@ -418,6 +430,7 @@ async def generate_three_plans(
             "duration_days": duration_days,
             "departure_city": departure_city,  # 出发城市
             "destination": destination,        # 目的地（活动举办地点）
+            "destination_city": destination_city,  # 目的地所属城市（行政区）
             "budget_targets_total": targets,
         },
         "user_preferences": {
@@ -486,6 +499,7 @@ async def generate_three_plans(
         "- Keep itinerary duration_days days.\n"
         f"- 出发城市: {departure_city}（团队从这里出发）\n"
         f"- 目的地: {destination}（团建活动举办地点）\n"
+        f"- 目的地城市: {destination_city or '（未知）'}（用于季节/价格参考）\n"
         f"- 活动应在{destination}或周边（车程2小时内）\n"
         f"{extra_constraints}"
         "\n"
@@ -501,6 +515,7 @@ async def generate_three_plans(
         duration_days=duration_days,
         departure_city=departure_city,  # 出发城市
         destination=destination,        # 目的地
+        destination_city=destination_city,
     )
 
     # 预算合理性校验（基于目的地，因为住宿/活动在目的地）
@@ -508,7 +523,7 @@ async def generate_three_plans(
         plans=normalized_plans,
         people_count=people,
         duration_days=duration_days,
-        city=destination,  # 使用目的地进行预算校验
+        city=city_for_context,  # 优先使用目的地城市（行政区）进行预算校验
         accommodation_level=accommodation_level,
     )
 

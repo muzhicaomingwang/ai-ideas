@@ -88,12 +88,15 @@ public class PlanService {
         po.setEndDate(req.end_date);
         po.setDepartureCity(req.departure_city);
         po.setDestination(req.destination);
+        po.setDestinationCity(req.destination_city);
         po.setPreferencesJson(req.preferences == null ? "{}" : Jsons.toJson(req.preferences));
         po.setStatus("GENERATING");
         po.setGenerationStartedAt(Instant.now());
         planRequestMapper.insert(po);
 
         recordEvent("PlanRequestCreated", "PlanRequest", planRequestId, userId, Map.of("plan_request_id", planRequestId));
+        // UL v1.3+ (backward compatible): more explicit event name.
+        recordEvent("PlanGenerationRequested", "PlanRequest", planRequestId, userId, Map.of("plan_request_id", planRequestId));
 
         Map<String, Object> mq = new HashMap<>();
         mq.put("plan_request_id", planRequestId);
@@ -105,6 +108,7 @@ public class PlanService {
         mq.put("end_date", req.end_date);
         mq.put("departure_city", req.departure_city);
         mq.put("destination", req.destination);
+        mq.put("destination_city", req.destination_city);
         mq.put("preferences", req.preferences == null ? Map.of() : req.preferences);
         mq.put("trace_id", IdGenerator.newId("trace"));
 
@@ -168,11 +172,14 @@ public class PlanService {
                 item.put("plan_name", isGenerating ? "方案生成中..." : "生成失败");
                 item.put("status", req.getStatus().toLowerCase());
                 item.put("people_count", req.getPeopleCount());
+                item.put("group_size", req.getPeopleCount()); // UL v1.3 alias (non-breaking)
                 item.put("budget_total", req.getBudgetMax());
                 item.put("start_date", req.getStartDate());
                 item.put("end_date", req.getEndDate());
+                item.put("trip_duration", null); // UL v1.3 alias (unknown for pending requests)
                 item.put("departure_city", req.getDepartureCity());
                 item.put("destination", req.getDestination());
+                item.put("destination_city", req.getDestinationCity());
                 item.put("created_at", req.getGenerationStartedAt());
                 item.put("is_generating", isGenerating);
                 mergedList.add(item);
@@ -234,8 +241,10 @@ public class PlanService {
                 item.put("plan_type", plan.getPlanType());
                 item.put("budget_total", plan.getBudgetTotal());
                 item.put("duration_days", plan.getDurationDays());
+                item.put("trip_duration", plan.getDurationDays()); // UL v1.3 alias (non-breaking)
                 item.put("departure_city", plan.getDepartureCity());
                 item.put("destination", plan.getDestination());
+                item.put("destination_city", plan.getDestinationCity());
                 item.put("confirmed_time", plan.getConfirmedTime());
                 item.put("review_started_at", plan.getReviewStartedAt());
                 // API 统一输出 created_at（前端列表使用该字段）；create_time 为数据库字段命名
@@ -244,10 +253,12 @@ public class PlanService {
                 PlanRequestPO req = requestMap.get(plan.getPlanRequestId());
                 if (req != null) {
                     item.put("people_count", req.getPeopleCount());
+                    item.put("group_size", req.getPeopleCount()); // UL v1.3 alias (non-breaking)
                     item.put("start_date", req.getStartDate());
                     item.put("end_date", req.getEndDate());
                 } else {
                     item.put("people_count", null);
+                    item.put("group_size", null);
                 }
                 item.put("is_generating", false);
                 mergedList.add(item);
@@ -302,8 +313,13 @@ public class PlanService {
             result.put("start_date", req.getStartDate());
             result.put("end_date", req.getEndDate());
             result.put("departure_city", req.getDepartureCity());
+            result.put("destination", req.getDestination());
+            result.put("destination_city", req.getDestinationCity());
             result.put("created_at", req.getGenerationStartedAt());
             result.put("is_generating", isGenerating);
+            // UL v1.3 alias fields (non-breaking)
+            result.put("group_size", req.getPeopleCount());
+            result.put("trip_duration", null);
             return result;
         }
 
@@ -335,6 +351,8 @@ public class PlanService {
         plan.setConfirmedTime(Instant.now());
         planMapper.updateById(plan);
         recordEvent("PlanConfirmed", "Plan", planId, userId, Map.of("plan_id", planId));
+        // UL v1.3+ (backward compatible): more explicit event name.
+        recordEvent("PlanAdoptionConfirmed", "Plan", planId, userId, Map.of("plan_id", planId));
     }
 
     public void logSupplierContact(String userId, String planId, SupplierContactRequest req) {
@@ -491,7 +509,9 @@ public class PlanService {
             );
         }
 
-        String cityHint = plan.getDestination() == null ? "" : plan.getDestination();
+        String cityHint = plan.getDestinationCity() == null || plan.getDestinationCity().isBlank()
+                ? (plan.getDestination() == null ? "" : plan.getDestination())
+                : plan.getDestinationCity();
         List<Map<String, Object>> markers = new ArrayList<>();
         List<Map<String, Object>> points = new ArrayList<>();
         List<Map<String, Object>> unresolved = new ArrayList<>();
@@ -568,11 +588,18 @@ public class PlanService {
         result.put("budget_total", plan.getBudgetTotal());
         result.put("budget_per_person", plan.getBudgetPerPerson());
         result.put("duration_days", plan.getDurationDays());
+        result.put("trip_duration", plan.getDurationDays()); // UL v1.3 alias (non-breaking)
         result.put("departure_city", plan.getDepartureCity());
         result.put("destination", plan.getDestination());
+        result.put("destination_city", plan.getDestinationCity());
+        result.put("review_count", plan.getReviewCount());
+        result.put("average_score", plan.getAverageScore());
         result.put("confirmed_time", plan.getConfirmedTime());
         result.put("review_started_at", plan.getReviewStartedAt());
         result.put("itinerary_version", plan.getItineraryVersion() == null ? 1 : plan.getItineraryVersion());
+        PlanRequestPO req = plan.getPlanRequestId() == null ? null : planRequestMapper.selectById(plan.getPlanRequestId());
+        result.put("people_count", req == null ? null : req.getPeopleCount());
+        result.put("group_size", req == null ? null : req.getPeopleCount()); // UL v1.3 alias (non-breaking)
 
         // 解析 JSON 字符串字段
         result.put("highlights", Jsons.toStringList(plan.getHighlights())); // highlights 是字符串数组

@@ -119,6 +119,8 @@ CREATE TABLE `plan_requests` (
   `start_date` DATE NOT NULL COMMENT '开始日期',
   `end_date` DATE NOT NULL COMMENT '结束日期',
   `departure_city` VARCHAR(50) NOT NULL COMMENT '出发城市',
+  `destination` VARCHAR(100) DEFAULT NULL COMMENT '目的地（团建活动举办地点）',
+  `destination_city` VARCHAR(50) DEFAULT NULL COMMENT '目的地所属行政城市（如：杭州）',
   `preferences` JSON NOT NULL COMMENT '偏好设置（活动类型/住宿/餐饮/特殊需求）',
   `status` VARCHAR(20) NOT NULL DEFAULT 'CREATING' COMMENT '状态：CREATING/GENERATING/COMPLETED/FAILED',
   `generation_started_at` TIMESTAMP NULL COMMENT '生成开始时间',
@@ -172,11 +174,17 @@ CREATE TABLE `plans` (
   `budget_total` DECIMAL(10,2) NOT NULL COMMENT '总预算',
   `budget_per_person` DECIMAL(10,2) NOT NULL COMMENT '人均预算',
   `duration_days` INT NOT NULL COMMENT '天数',
+  `departure_city` VARCHAR(50) NOT NULL COMMENT '出发城市',
+  `destination` VARCHAR(100) DEFAULT NULL COMMENT '目的地（团建活动举办地点）',
+  `destination_city` VARCHAR(50) DEFAULT NULL COMMENT '目的地所属行政城市（如：杭州）',
 
   -- 状态与时间
-  `status` VARCHAR(20) NOT NULL DEFAULT 'draft' COMMENT '状态：draft/confirmed',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'draft' COMMENT '状态：draft/reviewing/confirmed/archived',
   `confirmed_time` TIMESTAMP NULL COMMENT '确认时间',
   `confirmed_by` VARCHAR(32) NULL COMMENT '确认人（冗余user_id）',
+  `review_started_at` TIMESTAMP NULL COMMENT '通晒开始时间（draft → reviewing）',
+  `review_count` INT NOT NULL DEFAULT 0 COMMENT '通晒评价数',
+  `average_score` DECIMAL(3,2) DEFAULT NULL COMMENT '通晒平均分（0-5，可为空）',
 
   -- 埋点与统计
   `view_count` INT NOT NULL DEFAULT 0 COMMENT '查看次数',

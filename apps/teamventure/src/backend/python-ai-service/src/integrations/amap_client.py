@@ -70,7 +70,10 @@ class AmapClient:
         try:
             async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout) as client:
                 geocode = await self._geocode(client, address=dest)
-                city_hint = (geocode.city or geocode.district or geocode.province or dest) if geocode else dest
+                destination_city = self._normalize_city_name(
+                    (geocode.city or geocode.province or geocode.district) if geocode else None
+                )
+                city_hint = destination_city or (geocode.district or geocode.province or dest) if geocode else dest
 
                 categories: list[tuple[str, str]] = [
                     ("团建拓展", f"{dest} 团建 拓展 基地"),
@@ -93,6 +96,7 @@ class AmapClient:
                 result: dict[str, Any] = {
                     "provider": "amap",
                     "destination": dest,
+                    "destination_city": destination_city,
                     "geocode": geocode.__dict__ if geocode else None,
                     "pois": pois_by_category,
                     "notes": [
@@ -133,6 +137,17 @@ class AmapClient:
             adcode=g.get("adcode"),
             location=g.get("location"),
         )
+
+    @staticmethod
+    def _normalize_city_name(city: str | None) -> str | None:
+        if not city:
+            return None
+        c = city.strip()
+        if not c:
+            return None
+        if c.endswith("市") and len(c) > 1:
+            return c[:-1]
+        return c
 
     async def _place_text(
         self, client: httpx.AsyncClient, *, keywords: str, city: str

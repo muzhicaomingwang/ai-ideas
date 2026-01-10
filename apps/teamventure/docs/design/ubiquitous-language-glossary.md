@@ -1,7 +1,7 @@
 # TeamVenture 领域统一语言词汇表 (Ubiquitous Language Glossary)
 
 **创建日期**: 2026-01-06
-**版本**: v1.0
+**版本**: v1.3
 **目的**: 确保全链路字段命名一致性，消除"翻译损耗"
 
 ---
@@ -45,6 +45,7 @@
 | 结束日期 | End Date | `end_date` | `endDate` | `end_date` | `endDate` | YYYY-MM-DD |
 | **出发城市** | **Departure City** | `departure_city` | `departureCity` | `departure_city` | `departureLocation` | ⚠️ 前端字段名不同，需映射 |
 | **目的地** | **Destination** | `destination` | `destination` | `destination` | `destination` | 团建活动举办地点 |
+| **目的地城市** | **Destination City** | `destination_city` | `destinationCity` | `destination_city` | - | 目的地所属行政城市（用于季节/价格配置） |
 | 偏好设置 | Preferences | `preferences` | `preferencesJson` | `preferences` | `preferences` | JSON对象 |
 | 请求状态 | Status | `status` | `status` | `status` | `status` | CREATING/GENERATING/COMPLETED/FAILED |
 
@@ -73,6 +74,9 @@
 | 天数 | Duration Days | `duration_days` | `durationDays` | `duration_days` | `durationDays` | |
 | **出发城市** | **Departure City** | `departure_city` | `departureCity` | `departure_city` | `departureCity` | 从请求继承 |
 | **目的地** | **Destination** | `destination` | `destination` | `destination` | `destination` | 从请求继承 |
+| **目的地城市** | **Destination City** | `destination_city` | `destinationCity` | `destination_city` | - | 从请求继承/可由地图补全 |
+| **评价数** | **Review Count** | `review_count` | `reviewCount` | `review_count` | - | 通晒后反馈收集 |
+| **平均分** | **Average Score** | `average_score` | `averageScore` | `average_score` | - | 通晒后反馈收集（0-5，可为空） |
 | 方案状态 | Status | `status` | `status` | `status` | `status` | draft/confirmed |
 | 确认时间 | Confirmed Time | `confirmed_time` | `confirmedTime` | `confirmed_time` | `confirmedTime` | |
 | 创建时间 | Created At | `create_time` | `createTime` | `created_at` | `created_at` | API 统一 `created_at`（前端列表使用） |
@@ -100,7 +104,8 @@
 | 字段 | 中文名 | 语义说明 | 示例值 | 使用场景 |
 |------|--------|----------|--------|----------|
 | `departure_city` | 出发城市 | 团队从哪里出发，通常是公司所在城市 | 上海市 | 行程规划起点、交通费用计算 |
-| `destination` | 目的地 | 团建活动举办地点，团队前往的地方 | 杭州千岛湖 | 活动安排、住宿费用计算 |
+| `destination` | 目的地 | 团建活动举办地点（可视为“目的地聚合”的展示名） | 千岛湖洲际酒店 | 行程安排、POI推荐 |
+| `destination_city` | 目的地城市 | 目的地所属行政城市（季节/价格配置维度） | 杭州 | 季节配置、住宿/交通参考价 |
 
 **前端显示格式**: `{departure_city} → {destination}`
 **示例**: 上海市 → 杭州千岛湖
@@ -114,11 +119,11 @@ formData.destination        →  API: destination     // 目的地
 
 ### 3.2 方案类型 (Plan Type)
 
-| 类型值 | 中文名 | 定位说明 | 预算占比 |
-|--------|--------|----------|----------|
-| `budget` | 经济型 | 最低预算方案，满足基本需求 | ≈ budget_min |
-| `standard` | 平衡型 | 性价比方案，推荐选择 | ≈ (budget_min + budget_max) / 2 |
-| `premium` | 品质型 | 最高预算方案，追求体验 | ≈ budget_max |
+| 类型值 | 中文名 | 核心价值主张 | 定位说明 | 预算占比 |
+|--------|--------|-------------|----------|----------|
+| `budget` | 经济型 | 极致性价比，确保核心体验 | 最低预算方案，满足基本需求 | ≈ budget_min |
+| `standard` | 平衡型 | 平衡之选，兼顾舒适与趣味 | 性价比方案，推荐选择 | ≈ (budget_min + budget_max) / 2 |
+| `premium` | 品质型 | 尊享体验，打造团队高光时刻 | 最高预算方案，追求体验 | ≈ budget_max |
 
 ### 3.3 方案状态 (Plan Status)
 
@@ -160,15 +165,18 @@ confirmed → archived (归档)
 |------|------|------|
 | `departure_city` | ✅ | 数据库/Java/Python/API 全链路一致 |
 | `destination` | ✅ | 数据库/Java/Python/API 全链路一致 |
+| `destination_city` | ✅ | 数据库/Java/Python/API 全链路一致（可选字段） |
 | `plan_name` | ✅ | 数据库/Java/Python/API 全链路一致（非 title） |
 | `supplier_snapshots` | ✅ | DB/Java/Python 一致（MVP 不对外输出） |
 | `budget_breakdown` | ✅ | DB/Java/Python 一致（MVP 不对外输出） |
+| `review_count` | ✅ | DB/Java/API 一致（通晒反馈指标） |
+| `average_score` | ✅ | DB/Java/API 一致（通晒反馈指标） |
 
 ### 4.2 ⚠️ 需注意的映射
 
 | 前端字段 | API字段 | 说明 |
 |----------|---------|------|
-| `departureLocation` | `departure_city` | 前端使用更通用的"出发地点"，API使用精确的"出发城市" |
+| `departureLocation` | `departure_city` | 前端变量名保留，UI文案统一为“出发城市” |
 | `create_time` | `created_at` | DB字段为 `create_time`，API 列表统一输出 `created_at` |
 | `accommodation` | `preferences.accommodation_level` | 旧字段名，需迁移/兼容 |
 
@@ -182,8 +190,9 @@ confirmed → archived (归档)
 | 确认方案 | ConfirmPlan | `status='confirmed'` | `PUT /plans/{id}/confirm` | "确认此方案" |
 | 供应商快照（非MVP） | SupplierSnapshot | `supplier_snapshots` | `supplier_snapshots` | - |
 | 生成时间 | GenerationDuration | `generation_time_ms` | `generation_time_ms` | "已为您生成方案（耗时45秒）" |
-| 出发城市 | DepartureCity | `departure_city` | `departure_city` | "出发地点" |
+| 出发城市 | DepartureCity | `departure_city` | `departure_city` | "出发城市" |
 | 目的地 | Destination | `destination` | `destination` | "目的地" |
+| 目的地城市 | DestinationCity | `destination_city` | `destination_city` | - |
 
 ---
 
@@ -207,9 +216,12 @@ confirmed → archived (归档)
 | 事件类型 | 聚合根 | 触发时机 | Payload字段 |
 |---------|--------|---------|-------------|
 | `PlanRequestCreated` | PlanRequest | 用户提交生成需求后 | `{plan_request_id}` |
+| `PlanGenerationRequested` | PlanRequest | 用户请求生成（更明确） | `{plan_request_id}` |
 | `PlanGenerated` | Plan | AI服务回调生成方案后 | `{plan_id}` |
+| `PlanGenerationSucceeded` | Plan | 生成成功（更明确） | `{plan_id}` |
 | `PlanSubmittedForReview` | Plan | 用户通晒方案后 | `{plan_id}` |
 | `PlanConfirmed` | Plan | 用户确认方案后 | `{plan_id}` |
+| `PlanAdoptionConfirmed` | Plan | 用户采纳确认（更明确） | `{plan_id}` |
 | `SupplierContacted`（非MVP） | SupplierContactLog | 用户联系供应商后 | `{plan_id, supplier_id, channel}` |
 
 ---
@@ -261,3 +273,4 @@ confirmed → archived (归档)
 | v1.0 | 2026-01-06 | 初始版本，整合全链路字段定义 |
 | v1.1 | 2026-01-07 | 补充"通晒"工作流：Section 4.3 添加"通晒方案"术语映射，Section 5 添加 `PlanSubmittedForReview` 领域事件 |
 | v1.2 | 2026-01-08 | 补充UI组件术语：添加Section 4.4（自定义导航栏、用户状态显示等），添加Section 7（前端状态管理、路由） |
+| v1.3 | 2026-01-09 | 强化出发城市/目的地/目的地城市区分；补充通晒反馈指标；补充更明确的领域事件命名；PlanType补充价值主张 |

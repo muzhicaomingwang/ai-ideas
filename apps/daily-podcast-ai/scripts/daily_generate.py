@@ -20,6 +20,54 @@ from news_sources.rss_fetcher import Article
 load_dotenv(project_root / ".env")
 
 
+def filter_low_quality_news(articles: list) -> list:
+    """
+    过滤低质量新闻
+    
+    排除：股票减持/增持、ST股票、纯财务公告等
+    保留：有实质内容的科技新闻
+    """
+    # 严格排除的关键词（标题包含即排除）
+    exclude_keywords = [
+        "减持", "增持", "*ST", "ST声迅", "ST股",
+        "涨停", "跌停", "连板",
+        "公司股份", "股东减持",
+        "主力买", "主力资金", "A股主力"
+    ]
+    
+    # 保留关键词（即使有其他关键词也保留）
+    keep_keywords = [
+        "AI", "人工智能", "大模型", "GPT", "Claude",
+        "苹果", "Apple", "库克", "Cook",
+        "特斯拉", "Tesla", "马斯克",
+        "华为", "小米", "吉利",
+        "卫星", "航天", "芯片",
+        "发布", "推出", "升级"
+    ]
+    
+    filtered = []
+    for article in articles:
+        title = article.title if hasattr(article, 'title') else ""
+        summary = article.summary if hasattr(article, 'summary') else ""
+        content = title + summary
+        
+        # 检查是否包含保留关键词
+        has_keep_keyword = any(kw in content for kw in keep_keywords)
+        
+        # 检查是否包含排除关键词
+        has_exclude_keyword = any(kw in title for kw in exclude_keywords)
+        
+        # 如果有保留关键词，优先保留；否则排除低质量
+        if has_keep_keyword or not has_exclude_keyword:
+            filtered.append(article)
+    
+    removed = len(articles) - len(filtered)
+    if removed > 0:
+        print(f"  🗑️ 移除 {removed} 篇低质量新闻")
+    
+    return filtered
+
+
 def load_articles_from_cache(date_str: str) -> list:
     """
     从缓存加载新闻
@@ -391,6 +439,10 @@ def generate_podcast(
 
     print(f"📊 候选新闻: {len(articles)} 篇")
 
+    # 过滤低质量新闻
+    articles = filter_low_quality_news(articles)
+    print(f"📊 过滤后: {len(articles)} 篇")
+
     # 使用 AI 优选
     if from_cache and len(articles) > max_articles:
         print(f"🤖 步骤 1.5: AI 优选新闻 (从 {len(articles)} 篇中选出 {max_articles} 篇)")
@@ -435,9 +487,16 @@ def generate_podcast(
     print("-" * 40)
 
     if deep_dive:
-        writer = DialogueWriter()
+        # 优先使用 Claude 对话生成器
+        try:
+            from processors.claude_dialogue_writer import ClaudeDialogueWriter
+            writer = ClaudeDialogueWriter()
+            print("  🤖 使用 Anthropic Claude 生成高质量对话")
+        except (ImportError, ValueError) as e:
+            print(f"  ⚠️ Claude 不可用 ({e})，回退到 Gemini")
+            writer = DialogueWriter()
+        
         script = writer.generate_dialogue(summarized, date=target_date)
-        # Deep Dive 模式下 script 是 DialogueScript 对象
         result["article_count"] = len(summarized)
     else:
         writer = ScriptWriter()
@@ -556,22 +615,21 @@ def generate_podcast(
     print("-" * 40)
     
     try:
-        from generators.nano_banana_generator import NanoBananaGenerator
-        cover_gen = NanoBananaGenerator()
+        # 使用 PIL 生成封面（更稳定，无需外部 API）
+        from generate_cover import generate_cover as pil_generate_cover
         
         cover_filename = f"cover-{date_str}.png"
         cover_path = str(output_path / cover_filename)
         
-        # 使用 NanoBananaGenerator (Gemini) 生成封面
-        # title 可以在这里动态设置，比如加上 "Deep Dive"
         podcast_title = "今日科技早报"
         if deep_dive:
             podcast_title += " Deep Dive"
             
-        generated_cover = cover_gen.generate_cover(
-            date=date_str,
+        generated_cover = pil_generate_cover(
+            date=target_date,
+            output_path=cover_path,
             title=podcast_title,
-            output_path=cover_path
+            article_count=len(summarized)
         )
         
         if generated_cover:

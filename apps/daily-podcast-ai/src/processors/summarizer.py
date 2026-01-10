@@ -93,16 +93,46 @@ class ArticleSummarizer:
             )
 
         except Exception as e:
-            print(f"  ❌ AI 摘要失败: {e}")
-            # 降级处理：直接使用原摘要
-            fallback_text = f"{article.title}。{article.summary[:100]}"
-            return SummarizedArticle(
-                title=article.title,
-                summary=article.summary,
-                podcast_text=fallback_text,
-                source=article.source,
-                category=article.category
-            )
+            print(f"  ⚠️ OpenAI 摘要失败: {e}，尝试切换到 Gemini...")
+            try:
+                import google.generativeai as genai
+                
+                # 尝试获取 Google API Key
+                api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+                if not api_key:
+                    raise ValueError("未设置 GOOGLE_API_KEY 或 GEMINI_API_KEY")
+                
+                genai.configure(api_key=api_key)
+                # 使用 Gemini 1.5 Flash 模型，速度快且成本低
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                
+                # 添加系统提示词到 prompt 中，因为 Gemini generate_content 主要接受 prompt
+                full_prompt = f"你是专业的科技新闻播报员，擅长将书面新闻改写为口语化的播报文本。\n\n{prompt}"
+                
+                response = model.generate_content(full_prompt)
+                podcast_text = response.text.strip()
+                
+                print("  ✅ Gemini 摘要成功")
+                
+                return SummarizedArticle(
+                    title=article.title,
+                    summary=article.summary,
+                    podcast_text=podcast_text,
+                    source=article.source,
+                    category=article.category
+                )
+                
+            except Exception as gemini_e:
+                print(f"  ❌ AI 摘要失败 (OpenAI & Gemini): {gemini_e}")
+                # 降级处理：直接使用原摘要
+                fallback_text = f"{article.title}。{article.summary[:100]}"
+                return SummarizedArticle(
+                    title=article.title,
+                    summary=article.summary,
+                    podcast_text=fallback_text,
+                    source=article.source,
+                    category=article.category
+                )
 
     def summarize_batch(self, articles: list, show_progress: bool = True) -> list[SummarizedArticle]:
         """

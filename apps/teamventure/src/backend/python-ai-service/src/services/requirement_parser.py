@@ -8,7 +8,10 @@ def parse_requirements(message: dict[str, Any]) -> dict[str, Any]:
     """
     Rule-based parsing per detailed-design: no LLM call.
     """
-    people_count = int(message["people_count"])
+    people_raw = message.get("people_count", message.get("group_size"))
+    if people_raw is None:
+        raise KeyError("people_count")
+    people_count = int(people_raw)
     budget_min = float(message["budget_min"])
     budget_max = float(message["budget_max"])
     start_date = date.fromisoformat(message["start_date"])
@@ -25,6 +28,7 @@ def parse_requirements(message: dict[str, Any]) -> dict[str, Any]:
         preferences["accommodation_level"] = preferences.get("accommodation")
     return {
         "people_count": people_count,
+        "group_size": people_count,  # alias (UL v1.3): group_size
         "budget_min": budget_min,
         "budget_max": budget_max,
         "budget_per_person_range": [round(budget_per_person_min, 2), round(budget_per_person_max, 2)],
@@ -35,5 +39,6 @@ def parse_requirements(message: dict[str, Any]) -> dict[str, Any]:
         # Keep destination from upstream (miniapp/Java) so generated plans reflect real user input.
         # When empty, downstream may choose to recommend a destination; do not hardcode placeholder here.
         "destination": message.get("destination", "") or "",
+        "destination_city": message.get("destination_city", "") or "",
         "preferences": preferences,
     }

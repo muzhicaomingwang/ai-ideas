@@ -350,7 +350,7 @@
   color: #fff;
 }
 
-/* 出发地信息 */
+/* 出发城市信息 */
 .plan-location {
   display: flex;
   align-items: center;
