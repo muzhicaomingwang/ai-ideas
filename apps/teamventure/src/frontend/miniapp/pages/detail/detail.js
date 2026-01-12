@@ -136,6 +136,16 @@ Page({
       this.setData({ routeLoading: true })
       const endpoint = API_ENDPOINTS.PLAN_ROUTE.replace(':id', planId) + `?day=${encodeURIComponent(day)}`
       const data = await get(endpoint)
+
+      // Fix: Ensure markers have width and height to avoid rendering errors
+      if (data && data.markers) {
+        data.markers = data.markers.map(marker => ({
+          ...marker,
+          width: marker.width || 32,
+          height: marker.height || 32
+        }))
+      }
+
       this.setData({
         route: data || { markers: [], polyline: [], include_points: [], unresolved: [] }
       })

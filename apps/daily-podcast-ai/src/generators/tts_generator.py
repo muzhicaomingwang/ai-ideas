@@ -75,14 +75,19 @@ class TTSGenerator:
             }
         }
 
-    def _get_voice_settings(self) -> VoiceSettings:
+    def _get_voice_settings(self, speed: Optional[float] = None) -> VoiceSettings:
         """获取语音设置"""
         settings = self.tts_config.get("voice_settings", {})
+        # 获取语速设置（范围 0.7-1.2）
+        speech_speed = speed or self.tts_config.get("speed", 1.0)
+        speech_speed = max(0.7, min(1.2, speech_speed))  # 限制范围
+        
         return VoiceSettings(
             stability=settings.get("stability", 0.5),
             similarity_boost=settings.get("similarity_boost", 0.75),
             style=settings.get("style", 0.0),
-            use_speaker_boost=settings.get("use_speaker_boost", True)
+            use_speaker_boost=settings.get("use_speaker_boost", True),
+            speed=speech_speed
         )
 
     def list_voices(self) -> list[dict]:
@@ -134,7 +139,8 @@ class TTSGenerator:
         self,
         text: str,
         output_path: str,
-        voice_id: Optional[str] = None
+        voice_id: Optional[str] = None,
+        speed: Optional[float] = None
     ) -> Optional[str]:
         """
         将文本转换为音频
@@ -143,6 +149,7 @@ class TTSGenerator:
             text: 要转换的文本
             output_path: 输出文件路径
             voice_id: 语音 ID（可选，默认使用配置中的）
+            speed: 语速（0.7-1.2，默认使用配置中的）
 
         Returns:
             生成的音频文件路径，失败返回 None
@@ -153,13 +160,13 @@ class TTSGenerator:
             return None
 
         try:
-            # 调用 ElevenLabs API
+            # 调用 ElevenLabs API（语速通过 VoiceSettings 传递）
             audio = self.client.text_to_speech.convert(
                 voice_id=voice_id,
                 text=text,
                 model_id=self.model_id,
                 output_format=self.output_format,
-                voice_settings=self._get_voice_settings()
+                voice_settings=self._get_voice_settings(speed)
             )
 
             # 确保输出目录存在

@@ -1,0 +1,41 @@
+{
+  "branding": {
+    "brandColor": "#0052D9",
+    "brandColorLight": "#E0EBFF",
+    "successColor": "#2BA471",
+    "warningColor": "#E37318",
+    "errorColor": "#D54941"
+  },
+  "typography": {
+    "fontSize": {
+      "xs": "20rpx",
+      "sm": "24rpx",
+      "md": "28rpx",
+      "lg": "32rpx",
+      "xl": "36rpx",
+      "xxl": "48rpx"
+    },
+    "fontWeight": {
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    }
+  },
+  "spacing": {
+    "xs": "8rpx",
+    "sm": "16rpx",
+    "md": "24rpx",
+    "lg": "32rpx",
+    "xl": "48rpx"
+  },
+  "borderRadius": {
+    "sm": "4rpx",
+    "md": "8rpx",
+    "lg": "16rpx",
+    "circle": "50%"
+  },
+  "shadows": {
+    "card": "0 2rpx 8rpx rgba(0, 0, 0, 0.05)",
+    "floating": "0 8rpx 24rpx rgba(0, 0, 0, 0.12)"
+  }
+}
