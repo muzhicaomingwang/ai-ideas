@@ -11,7 +11,7 @@ elevenlabs:
   voice_id: ''
   voice_settings:
     similarity_boost: 0.75
-    stability: 0.5
+    stability: 1.0
     style: 0.0
     use_speaker_boost: true
 output:
@@ -37,7 +37,7 @@ script:
   - 接着来看这条新闻。
 tts:
   voice_id: SKlxpKXGwoM0E8XpnxNs # 默认声音 (Host A)
-  speed: 1.2  # 语速 (0.7-1.2)，1.2为最快
+  speed: 1.2  # 语速 (0.7-1.2)，1.2为用户指定速度
 hosts:
   host_a:
     name: "植萌"
