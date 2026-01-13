@@ -402,7 +402,7 @@ def generate_podcast(
     if deep_dive:
         output_path = base_output_path / date_str / "dailytechnews"
     else:
-        output_path = base_output_path
+        output_path = base_output_path / date_str / "dailyReport"
         
     output_path.mkdir(parents=True, exist_ok=True)
 

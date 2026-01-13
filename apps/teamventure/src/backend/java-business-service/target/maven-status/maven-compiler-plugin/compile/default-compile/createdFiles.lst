@@ -22,6 +22,7 @@ com/teamventure/adapter/web/internal/InternalPlanController.class
 com/teamventure/adapter/web/common/ApiResponse.class
 com/teamventure/adapter/web/users/UserController.class
 com/teamventure/TeamVentureApplication.class
+com/teamventure/app/service/PlanService$RouteSegment.class
 com/teamventure/infrastructure/persistence/mapper/PlanRequestMapper.class
 com/teamventure/infrastructure/persistence/po/SupplierContactLogPO.class
 com/teamventure/app/service/PlanService.class
@@ -33,6 +34,7 @@ com/teamventure/adapter/web/media/MediaController$PresignResponse.class
 com/teamventure/adapter/web/plans/PlanController$GenerateRequest.class
 com/teamventure/app/support/IdGenerator.class
 com/teamventure/adapter/web/common/ApiError.class
+com/teamventure/app/service/PlanService$2.class
 com/teamventure/adapter/web/plans/PlanController$GenerateResponse.class
 com/teamventure/adapter/web/plans/PlanController.class
 com/teamventure/adapter/web/media/MediaController$UploadResponse.class
@@ -42,9 +44,11 @@ com/teamventure/infrastructure/persistence/mapper/DomainEventMapper.class
 com/teamventure/app/service/InternalPlanCallbackService.class
 com/teamventure/adapter/web/auth/AuthController.class
 com/teamventure/app/service/OssService$UploadResult.class
+com/teamventure/app/service/PlanService$1.class
 com/teamventure/infrastructure/persistence/po/UserPO.class
 com/teamventure/adapter/web/users/UserController$UserInfo.class
 com/teamventure/app/service/Jsons$2.class
 com/teamventure/app/support/JwtSupport.class
+com/teamventure/adapter/web/plans/PlanController$UpdateItineraryRequest.class
 com/teamventure/adapter/web/auth/AuthController$LoginResponse.class
 com/teamventure/infrastructure/persistence/po/JsonHelper.class

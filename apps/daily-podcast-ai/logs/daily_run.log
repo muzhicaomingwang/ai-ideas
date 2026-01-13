@@ -1,0 +1,5 @@
+[2026-01-13 19:22:15] ========================================
+[2026-01-13 19:22:15] Starting daily podcast generation for 2026-01-13
+[2026-01-13 19:22:15] Loaded environment variables from .env
+[2026-01-13 19:22:15] Environment variables verified
+[2026-01-13 19:22:15] Podcast for 2026-01-13 already exists, skipping generation

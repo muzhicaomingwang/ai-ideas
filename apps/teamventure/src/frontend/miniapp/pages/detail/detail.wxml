@@ -112,16 +112,24 @@
         <view class="map-loading" wx:if="{{routeLoading}}">
           <text>路线加载中...</text>
         </view>
-        <view class="map-empty" wx:elif="{{!routeLoading && (!route || !route.markers || route.markers.length === 0)}}">
+        <view class="map-empty" wx:elif="{{!routeLoading && (!route || ((!route.markers || route.markers.length === 0) && !route.staticMapUrl))}}">
           <text>暂无可定位的路线点位</text>
         </view>
+
+        <image
+          wx:elif="{{route.mapType === 'static' && route.staticMapUrl}}"
+          class="route-map-static"
+          src="{{route.staticMapUrl}}"
+          mode="aspectFill"
+          show-menu-by-longpress="true"
+        />
 
         <map
           wx:else
           class="route-map"
           longitude="{{route.markers[0].longitude}}"
           latitude="{{route.markers[0].latitude}}"
-          scale="12"
+          scale="{{mapScale}}"
           markers="{{route.markers}}"
           polyline="{{route.polyline}}"
           include-points="{{route.include_points}}"

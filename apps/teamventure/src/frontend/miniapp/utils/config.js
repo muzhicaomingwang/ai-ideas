@@ -35,7 +35,7 @@ const ENV = detectEnv()
 
 // API 基础地址配置
 const API_BASE_URLS = {
-  local: 'http://localhost:8080/api/v1', // 本地开发环境（直连本机 Java 服务 8080；开发者工具下用 HTTP 避免证书问题）
+  local: 'http://api.teamventure.com/api/v1', // 本地开发环境（通过 Nginx 反向代理）
   dev: 'https://dev-api.teamventure.com/api/v1', // 开发环境
   beta: 'https://beta-api.teamventure.com/api/v1', // 测试环境
   prod: 'https://api.teamventure.com/api/v1' // 生产环境
@@ -129,6 +129,34 @@ export const ACCOMMODATION_LEVELS = [
   { value: 'budget', label: '经济型' },
   { value: 'standard', label: '舒适型' },
   { value: 'premium', label: '品质型' }
+]
+
+// 行程类型
+export const TRIP_TYPES = [
+  {
+    value: 'regional',
+    label: '周边游',
+    icon: '🚗',
+    description: '周边城市2-3天短途'
+  },
+  {
+    value: 'domestic',
+    label: '国内游',
+    icon: '✈️',
+    description: '国内跨省长途旅行'
+  },
+  {
+    value: 'international',
+    label: '出境游',
+    icon: '🌏',
+    description: '出国旅行'
+  },
+  {
+    value: 'custom',
+    label: '自定义',
+    icon: '✏️',
+    description: '自由描述行程需求'
+  }
 ]
 
 // 错误码

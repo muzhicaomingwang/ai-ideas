@@ -87,6 +87,58 @@ L4: 基础设施层
 - **后端（AI）**: Python 3.11 + FastAPI + LangGraph + GPT-4
 - **基础设施**: MySQL 8.0（主从）+ Redis 7.0 + RabbitMQ 3.12 + Nginx
 
+### 🚨 服务运行规范（重要规则）
+
+**【必须遵守】只使用Docker容器化服务**：
+- ✅ **唯一运行方式**: 通过 `docker compose` 启动所有服务
+- ❌ **禁止本地Maven服务**: 不要通过 `mvn spring-boot:run` 启动Java服务
+- ❌ **禁止多节点混跑**: 禁止同时运行Docker版(8080)和本地Maven版(8082)
+- **原因**:
+  - 避免代码不同步（Docker镜像 vs 本地代码可能不一致）
+  - 避免端口冲突和配置混乱
+  - 确保环境一致性（依赖版本、环境变量）
+  - 统一监控和日志收集
+
+**端口映射架构**（单节点配置）：
+```
+外部访问              Docker网络              容器内部
+─────────────────────────────────────────────────────
+localhost:8080  →  [端口映射]  →  java-business-service:8082
+localhost:8000  →  [端口映射]  →  python-ai-service:8000
+localhost:9090  →  [端口映射]  →  prometheus:9090
+localhost:3306  →  [端口映射]  →  mysql-master:3306
+```
+
+**Nginx反向代理配置**：
+- Nginx通过Docker内部网络访问服务（如 `java-business-service:8082`）
+- 外部通过域名 `api.teamventure.com` 访问（Nginx监听80/443端口）
+- 禁止前端直连端口（如 `localhost:8080`）
+
+**配置同步要求**：
+修改服务端口时，必须同步更新以下配置：
+1. `backend/java-business-service/src/main/resources/application.yml` - 容器内端口(8082)
+2. `src/nginx/nginx.conf` - Nginx upstream端口(8082)
+3. `src/docker-compose.yml` - 端口映射 + Python回调URL
+4. `.env.local` - `JAVA_SERVICE_PORT`宿主机端口映射(8080)
+
+### 🔄 代码修改后的同步规范
+
+**【关键】修改代码后必须重新构建Docker镜像**：
+- ❌ **错误做法**: 直接修改代码 → `docker compose restart` → 代码不生效（镜像仍是旧版本）
+- ✅ **正确做法**: 修改代码 → `docker compose build` → `docker compose up -d` → 代码生效
+- **原因**: Docker镜像在构建时打包代码，重启容器不会更新镜像内的代码
+
+**快速验证代码是否同步**：
+```bash
+# 检查镜像构建时间
+docker images src-java-business-service --format "table {{.CreatedAt}}"
+
+# 检查本地代码最后修改时间
+ls -lt backend/java-business-service/src/main/resources/application.yml | head -1
+
+# 如果镜像构建时间早于代码修改时间，说明代码不同步，需要重新构建
+```
+
 ### 常用命令
 
 #### 使用 Makefile（推荐）
@@ -98,6 +150,9 @@ make help
 
 # 启动所有服务（local环境）
 make up
+
+# 【代码修改后】重新构建并启动
+make rebuild
 
 # 启动所有服务（指定环境：dev/beta/prod）
 make ENV=dev up

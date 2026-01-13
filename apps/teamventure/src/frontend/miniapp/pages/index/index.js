@@ -1,7 +1,8 @@
 // pages/index/index.js
 import { post } from '../../utils/request.js'
-import { API_ENDPOINTS, ACTIVITY_TYPES, ACCOMMODATION_LEVELS, STORAGE_KEYS } from '../../utils/config.js'
+import { API_ENDPOINTS, ACTIVITY_TYPES, ACCOMMODATION_LEVELS, TRIP_TYPES, STORAGE_KEYS } from '../../utils/config.js'
 import { formatDate, calculateDays, formatDuration, formatMoney, formatPerPerson } from '../../utils/util.js'
+import { PROVINCES } from '../../utils/cities.js'
 
 const app = getApp()
 
@@ -30,8 +31,35 @@ Page({
       budgetMax: '',
       startDate: '',
       endDate: '',
+
+      // 新增：行程类型选择器
+      tripType: 'regional', // 默认周边游
+
+      // 新增：分类型的地点信息
+      location: {
+        regional: {
+          departureCity: '',
+          destinationCity: '',
+          destinationLocation: ''
+        },
+        domestic: {
+          departureCity: '',
+          destinationCity: ''
+        },
+        international: {
+          departureCity: '',
+          destinationCountry: '',
+          destinationCity: ''
+        },
+        custom: {
+          description: ''
+        }
+      },
+
+      // 保留旧字段以保持向后兼容
       departureLocation: '', // 出发城市（映射到API的departure_city）
       destination: '', // 目的地（团建活动地点）
+
       preferences: {
         activityTypes: [],
         accommodationLevel: 'standard',
@@ -42,6 +70,15 @@ Page({
     // 选项数据
     activityTypes: ACTIVITY_TYPES,
     accommodationLevels: ACCOMMODATION_LEVELS,
+    tripTypes: TRIP_TYPES,
+
+    // 级联选择器状态（用于周边游省市区三级联动）
+    provinceList: [],
+    cityList: [],
+    districtList: [],
+    selectedProvinceIndex: -1,
+    selectedCityIndex: -1,
+    selectedDistrictIndex: -1,
 
     // 计算字段
     budgetPerPerson: '',
@@ -68,6 +105,11 @@ Page({
 
     // 保存初始表单数据
     this.initialFormData = JSON.parse(JSON.stringify(this.data.formData))
+
+    // 初始化省份列表（用于周边游的三级联动选择器）
+    this.setData({
+      provinceList: PROVINCES
+    })
 
     // 尝试恢复上次的输入
     this.loadLastRequest()
@@ -143,6 +185,131 @@ Page({
       'formData.peopleCount': value
     })
     this.updateBudgetPerPerson()
+    this.markFormModified()
+  },
+
+  // 行程类型选择
+  handleTripTypeChange(e) {
+    const tripType = e.currentTarget.dataset.value
+    const { formData } = this.data
+
+    // 切换类型时重置对应的location字段
+    formData.tripType = tripType
+    formData.location = {
+      regional: { departureCity: '', destinationProvince: '', destinationCity: '', destinationLocation: '' },
+      domestic: { departureCity: '', destinationCity: '' },
+      international: { departureCity: '', destinationCountry: '', destinationCity: '' },
+      custom: { description: '' }
+    }
+
+    this.setData({
+      formData,
+      // 重置级联选择器状态
+      provinceList: [],
+      cityList: [],
+      districtList: [],
+      selectedProvinceIndex: -1,
+      selectedCityIndex: -1,
+      selectedDistrictIndex: -1
+    })
+    this.markFormModified()
+  },
+
+  // === 周边游：省市区三级联动处理器 ===
+  handleRegionalDepartureCityInput(e) {
+    this.setData({
+      'formData.location.regional.departureCity': e.detail.value
+    })
+    this.markFormModified()
+  },
+
+  handleProvinceChange(e) {
+    const index = parseInt(e.detail.value)
+    const { provinceList } = this.data
+    const province = provinceList[index]
+
+    this.setData({
+      selectedProvinceIndex: index,
+      'formData.location.regional.destinationProvince': province.name,
+      cityList: province.cities || [],
+      districtList: [],
+      selectedCityIndex: -1,
+      selectedDistrictIndex: -1,
+      'formData.location.regional.destinationCity': '',
+      'formData.location.regional.destinationLocation': ''
+    })
+    this.markFormModified()
+  },
+
+  handleCityChange(e) {
+    const index = parseInt(e.detail.value)
+    const { cityList } = this.data
+    const city = cityList[index]
+
+    this.setData({
+      selectedCityIndex: index,
+      'formData.location.regional.destinationCity': city.name,
+      districtList: city.districts || [],
+      selectedDistrictIndex: -1,
+      'formData.location.regional.destinationLocation': ''
+    })
+    this.markFormModified()
+  },
+
+  handleDistrictChange(e) {
+    const index = parseInt(e.detail.value)
+    const { districtList } = this.data
+    const district = districtList[index]
+
+    this.setData({
+      selectedDistrictIndex: index,
+      'formData.location.regional.destinationLocation': district.name
+    })
+    this.markFormModified()
+  },
+
+  // === 国内游：出发城市+目的地城市处理器 ===
+  handleDomesticDepartureCityInput(e) {
+    this.setData({
+      'formData.location.domestic.departureCity': e.detail.value
+    })
+    this.markFormModified()
+  },
+
+  handleDomesticDestinationCityInput(e) {
+    this.setData({
+      'formData.location.domestic.destinationCity': e.detail.value
+    })
+    this.markFormModified()
+  },
+
+  // === 出境游：出发城市+国家+城市处理器 ===
+  handleInternationalDepartureCityInput(e) {
+    this.setData({
+      'formData.location.international.departureCity': e.detail.value
+    })
+    this.markFormModified()
+  },
+
+  handleInternationalDestinationCountryInput(e) {
+    this.setData({
+      'formData.location.international.destinationCountry': e.detail.value
+    })
+    this.markFormModified()
+  },
+
+  handleInternationalDestinationCityInput(e) {
+    this.setData({
+      'formData.location.international.destinationCity': e.detail.value
+    })
+    this.markFormModified()
+  },
+
+  // === 自定义：自由描述处理器 ===
+  handleCustomDescriptionInput(e) {
+    this.setData({
+      'formData.location.custom.description': e.detail.value
+    })
     this.markFormModified()
   },
 
@@ -272,7 +439,7 @@ Page({
 
   // 验证第一步
   validateStep1() {
-    const { peopleCount, budgetMin, budgetMax, startDate, endDate, departureLocation } = this.data.formData
+    const { peopleCount, budgetMin, budgetMax, startDate, endDate, tripType, location } = this.data.formData
 
     if (!peopleCount || peopleCount < 1) {
       wx.showToast({ title: '请输入参与人数', icon: 'none' })
@@ -302,12 +469,101 @@ Page({
       return false
     }
 
-    if (!departureLocation) {
-      wx.showToast({ title: '请输入出发城市', icon: 'none' })
+    // 验证行程类型已选择
+    if (!tripType) {
+      wx.showToast({ title: '请选择行程类型', icon: 'none' })
       return false
     }
 
+    // 根据行程类型验证不同的必填字段
+    switch (tripType) {
+      case 'regional':
+        if (!location.regional.departureCity) {
+          wx.showToast({ title: '请输入出发城市', icon: 'none' })
+          return false
+        }
+        if (!location.regional.destinationProvince) {
+          wx.showToast({ title: '请选择目的地省份', icon: 'none' })
+          return false
+        }
+        if (!location.regional.destinationCity) {
+          wx.showToast({ title: '请选择目的地城市', icon: 'none' })
+          return false
+        }
+        break
+
+      case 'domestic':
+        if (!location.domestic.departureCity) {
+          wx.showToast({ title: '请输入出发城市', icon: 'none' })
+          return false
+        }
+        if (!location.domestic.destinationCity) {
+          wx.showToast({ title: '请输入目的地城市', icon: 'none' })
+          return false
+        }
+        break
+
+      case 'international':
+        if (!location.international.departureCity) {
+          wx.showToast({ title: '请输入出发城市', icon: 'none' })
+          return false
+        }
+        if (!location.international.destinationCountry) {
+          wx.showToast({ title: '请输入目的地国家', icon: 'none' })
+          return false
+        }
+        break
+
+      case 'custom':
+        if (!location.custom.description || location.custom.description.trim().length === 0) {
+          wx.showToast({ title: '请输入行程描述', icon: 'none' })
+          return false
+        }
+        if (location.custom.description.trim().length < 10) {
+          wx.showToast({ title: '行程描述至少需要10个字符', icon: 'none' })
+          return false
+        }
+        break
+
+      default:
+        wx.showToast({ title: '未知的行程类型', icon: 'none' })
+        return false
+    }
+
     return true
+  },
+
+  /**
+   * 映射表单数据到API请求格式
+   * 将新的分类型location结构映射到后端API所需的字段格式
+   */
+  mapFormDataToAPIRequest() {
+    const { formData } = this.data
+    const { tripType, location } = formData
+    console.log('📍 [Mapping Input]', { tripType, location })
+
+    // 根据行程类型映射字段
+    switch (tripType) {
+      case 'regional':
+        formData.departureLocation = location.regional.departureCity
+        formData.destination = location.regional.destinationLocation || location.regional.destinationCity
+        break
+      case 'domestic':
+        formData.departureLocation = location.domestic.departureCity
+        formData.destination = location.domestic.destinationCity
+        break
+      case 'international':
+        formData.departureLocation = location.international.departureCity
+        formData.destination = `${location.international.destinationCountry} ${location.international.destinationCity}`.trim()
+        break
+      case 'custom':
+        // 自定义类型可能没有明确的出发城市
+        formData.destination = location.custom.description
+        break
+    }
+    console.log('📍 [Mapping Output]', { departureLocation: formData.departureLocation, destination: formData.destination })
+
+    this.setData({ formData })
   },
 
   /**
@@ -315,6 +571,11 @@ Page({
    */
   async handleGenerate() {
     const { formData } = this.data
+    console.log('📍 [Before Mapping]', { tripType: formData.tripType, location: formData.location })
+
+    // 映射新的分类型location结构到后端API格式
+    this.mapFormDataToAPIRequest()
+    console.log('📍 [After Mapping]', { departureLocation: formData.departureLocation, destination: formData.destination })
 
     try {
       wx.showLoading({

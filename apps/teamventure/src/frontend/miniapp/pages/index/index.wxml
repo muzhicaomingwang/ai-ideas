@@ -125,32 +125,193 @@
       </view>
     </view>
 
-    <!-- 出发城市 -->
+    <!-- 行程类型 -->
     <view class="form-item">
       <view class="form-label">
-        <text class="label-text">出发城市</text>
+        <text class="label-text">行程类型</text>
         <text class="required">*</text>
       </view>
-      <input
-        class="text-input"
-        placeholder="请输入出发城市"
-        value="{{formData.departureLocation}}"
-        bindinput="handleDepartureLocationInput"
-      />
+      <view class="trip-type-group">
+        <view
+          wx:for="{{tripTypes}}"
+          wx:key="value"
+          class="trip-type-item {{formData.tripType === item.value ? 'selected' : ''}}"
+          bindtap="handleTripTypeChange"
+          data-value="{{item.value}}"
+        >
+          <view class="trip-type-icon">{{item.icon}}</view>
+          <view class="trip-type-label">{{item.label}}</view>
+          <view class="trip-type-desc">{{item.description}}</view>
+        </view>
+      </view>
     </view>
 
-    <!-- 目的地 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">目的地</text>
-        <text class="hint-text">（可选，留空则由AI推荐）</text>
+    <!-- 周边游：省-市-区三级联动 -->
+    <view wx:if="{{formData.tripType === 'regional'}}">
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">出发城市</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="text-input"
+          placeholder="请输入出发城市"
+          value="{{formData.location.regional.departureCity}}"
+          bindinput="handleRegionalDepartureCityInput"
+        />
       </view>
-      <input
-        class="text-input"
-        placeholder="例如：北京怀柔、杭州千岛湖等"
-        value="{{formData.destination}}"
-        bindinput="handleDestinationInput"
-      />
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">目的地省份</text>
+          <text class="required">*</text>
+        </view>
+        <picker
+          mode="selector"
+          range="{{provinceList}}"
+          range-key="name"
+          value="{{selectedProvinceIndex}}"
+          bindchange="handleProvinceChange"
+        >
+          <view class="picker-display">
+            <text wx:if="{{formData.location.regional.destinationProvince}}">
+              {{formData.location.regional.destinationProvince}}
+            </text>
+            <text wx:else class="placeholder">请选择省份</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item" wx:if="{{cityList.length > 0}}">
+        <view class="form-label">
+          <text class="label-text">目的地城市</text>
+          <text class="required">*</text>
+        </view>
+        <picker
+          mode="selector"
+          range="{{cityList}}"
+          range-key="name"
+          value="{{selectedCityIndex}}"
+          bindchange="handleCityChange"
+        >
+          <view class="picker-display">
+            <text wx:if="{{formData.location.regional.destinationCity}}">
+              {{formData.location.regional.destinationCity}}
+            </text>
+            <text wx:else class="placeholder">请选择城市</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item" wx:if="{{districtList.length > 0}}">
+        <view class="form-label">
+          <text class="label-text">目的地区县/景点</text>
+          <text class="hint-text">（可选）</text>
+        </view>
+        <picker
+          mode="selector"
+          range="{{districtList}}"
+          range-key="name"
+          value="{{selectedDistrictIndex}}"
+          bindchange="handleDistrictChange"
+        >
+          <view class="picker-display">
+            <text wx:if="{{formData.location.regional.destinationLocation}}">
+              {{formData.location.regional.destinationLocation}}
+            </text>
+            <text wx:else class="placeholder">请选择区县/景点</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 国内游：出发城市+目的地城市 -->
+    <view wx:if="{{formData.tripType === 'domestic'}}">
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">出发城市</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="text-input"
+          placeholder="请输入出发城市"
+          value="{{formData.location.domestic.departureCity}}"
+          bindinput="handleDomesticDepartureCityInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">目的地城市</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="text-input"
+          placeholder="请输入目的地城市"
+          value="{{formData.location.domestic.destinationCity}}"
+          bindinput="handleDomesticDestinationCityInput"
+        />
+      </view>
+    </view>
+
+    <!-- 出境游：出发城市+国家/城市 -->
+    <view wx:if="{{formData.tripType === 'international'}}">
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">出发城市</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="text-input"
+          placeholder="请输入出发城市"
+          value="{{formData.location.international.departureCity}}"
+          bindinput="handleInternationalDepartureCityInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">目的地国家</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="text-input"
+          placeholder="例如：日本、泰国"
+          value="{{formData.location.international.destinationCountry}}"
+          bindinput="handleInternationalDestinationCountryInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">目的地城市</text>
+          <text class="hint-text">（可选）</text>
+        </view>
+        <input
+          class="text-input"
+          placeholder="例如：东京、曼谷"
+          value="{{formData.location.international.destinationCity}}"
+          bindinput="handleInternationalDestinationCityInput"
+        />
+      </view>
+    </view>
+
+    <!-- 自定义：自由描述 -->
+    <view wx:if="{{formData.tripType === 'custom'}}">
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">行程描述</text>
+          <text class="required">*</text>
+        </view>
+        <textarea
+          class="textarea-input"
+          placeholder="请详细描述您的行程需求，包括出发地、目的地、期望的活动内容等（支持Markdown格式）"
+          value="{{formData.location.custom.description}}"
+          bindinput="handleCustomDescriptionInput"
+          maxlength="1024"
+        />
+        <view class="textarea-count">{{formData.location.custom.description.length}}/1024</view>
+      </view>
     </view>
 
     <!-- 下一步按钮 -->

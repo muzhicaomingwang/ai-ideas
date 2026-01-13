@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/daily_generate.py:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

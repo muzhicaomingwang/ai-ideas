@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.zhimeng.teamventure-health</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/.venv/bin/python</string>
+        <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/tasks/teamventure_health/main.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PYTHONPATH</key>
+        <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent</string>
+        <key>PATH</key>
+        <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/.venv/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <!-- 每小时执行一次 (3600秒) -->
+    <key>StartInterval</key>
+    <integer>3600</integer>
+
+    <!-- 系统启动时也执行一次 -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- 日志输出 -->
+    <key>StandardOutPath</key>
+    <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/logs/teamventure-health-stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/qitmac001395/workspace/QAL/ideas/apps/zhimeng-agent/logs/teamventure-health-stderr.log</string>
+
+    <!-- 进程管理 -->
+    <key>KeepAlive</key>
+    <false/>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+</dict>
+</plist>

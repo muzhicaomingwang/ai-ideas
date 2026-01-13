@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Literal
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -57,9 +57,11 @@ class Settings(BaseSettings):
     port: int = 8001
     debug: bool = True
 
-    class Config:
-        env_file = "config/.env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file="config/.env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     @property
     def vault_path(self) -> Path:

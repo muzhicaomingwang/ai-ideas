@@ -13,6 +13,7 @@ Page({
     },
     selectedDay: 1,
     routeLoading: false,
+    mapScale: 12, // 默认地图比例尺（动态计算）
     route: {
       markers: [],
       polyline: [],
@@ -137,6 +138,10 @@ Page({
       const endpoint = API_ENDPOINTS.PLAN_ROUTE.replace(':id', planId) + `?day=${encodeURIComponent(day)}`
       const data = await get(endpoint)
 
+      // Extract map type and static map URL from backend response
+      const mapType = data?.mapType || 'interactive'
+      const staticMapUrl = data?.staticMapUrl || ''
+
       // Fix: Ensure markers have width and height to avoid rendering errors
       if (data && data.markers) {
         data.markers = data.markers.map(marker => ({
@@ -146,17 +151,87 @@ Page({
         }))
       }
 
+      // Enhance polyline with better styling for visibility
+      if (data && data.polyline) {
+        data.polyline = data.polyline.map(line => ({
+          ...line,
+          color: line.color || '#1890ff',        // Primary blue color
+          width: line.width || 6,                // Thicker line for visibility
+          borderColor: line.borderColor || '#ffffff',  // White border for contrast
+          borderWidth: line.borderWidth || 2,    // Border width
+          dottedLine: false                      // Solid line
+        }))
+      }
+
+      // Calculate dynamic map scale based on route bounds
+      const scale = this.calculateMapScale(data?.include_points || [])
+
       this.setData({
-        route: data || { markers: [], polyline: [], include_points: [], unresolved: [] }
+        route: {
+          ...(data || {}),
+          mapType,
+          staticMapUrl,
+          markers: data?.markers || [],
+          polyline: data?.polyline || [],
+          include_points: data?.include_points || [],
+          unresolved: data?.unresolved || []
+        },
+        mapScale: scale
       })
     } catch (e) {
       console.error('获取路线失败:', e)
       this.setData({
-        route: { markers: [], polyline: [], include_points: [], unresolved: [] }
+        route: {
+          mapType: 'interactive',
+          staticMapUrl: '',
+          markers: [],
+          polyline: [],
+          include_points: [],
+          unresolved: []
+        }
       })
     } finally {
       this.setData({ routeLoading: false })
     }
+  },
+
+  /**
+   * Calculate appropriate map scale based on route bounds
+   * @param {Array} includePoints - Array of {latitude, longitude} objects
+   * @returns {Number} - Map scale value (3-20, larger = more zoomed in)
+   */
+  calculateMapScale(includePoints) {
+    if (!includePoints || includePoints.length === 0) {
+      return 12 // Default scale
+    }
+
+    // Find bounding box
+    let minLat = includePoints[0].latitude
+    let maxLat = includePoints[0].latitude
+    let minLng = includePoints[0].longitude
+    let maxLng = includePoints[0].longitude
+
+    includePoints.forEach(point => {
+      minLat = Math.min(minLat, point.latitude)
+      maxLat = Math.max(maxLat, point.latitude)
+      minLng = Math.min(minLng, point.longitude)
+      maxLng = Math.max(maxLng, point.longitude)
+    })
+
+    // Calculate geographic span
+    const latSpan = maxLat - minLat
+    const lngSpan = maxLng - minLng
+    const maxSpan = Math.max(latSpan, lngSpan)
+
+    // Map span to scale (empirical mapping for WeChat map)
+    // Smaller span = larger scale (more zoomed in)
+    // Scale ranges from 3 (zoomed out) to 20 (zoomed in)
+    if (maxSpan > 1.0) return 5   // Very large area (>100km)
+    if (maxSpan > 0.5) return 8   // Large area (50-100km)
+    if (maxSpan > 0.1) return 11  // Medium area (10-50km)
+    if (maxSpan > 0.05) return 13 // Small area (5-10km)
+    if (maxSpan > 0.01) return 15 // Very small area (1-5km)
+    return 17                     // Tiny area (<1km)
   },
 
   handleSelectDay(e) {

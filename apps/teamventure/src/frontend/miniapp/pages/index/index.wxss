@@ -227,6 +227,73 @@
   font-size: 28rpx;
 }
 
+/* 行程类型选择器 */
+.trip-type-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.trip-type-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 24rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  border: 2rpx solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.trip-type-item.selected {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+  box-shadow: 0 4rpx 12rpx rgba(24, 144, 255, 0.15);
+}
+
+.trip-type-icon {
+  font-size: 48rpx;
+  margin-bottom: 16rpx;
+  line-height: 1;
+}
+
+.trip-type-label {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.trip-type-item.selected .trip-type-label {
+  color: #1890ff;
+}
+
+.trip-type-desc {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.trip-type-item.selected .trip-type-desc {
+  color: #1890ff;
+}
+
+/* 选择器显示 */
+.picker-display {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid #e8e8e8;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.picker-display .placeholder,
+.placeholder {
+  color: #ccc;
+}
+
 /* 标签组 */
 .chips-group {
   display: flex;

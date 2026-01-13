@@ -53,6 +53,17 @@ public class PlanService {
         }
     };
 
+    /**
+     * 路线规划结果缓存（LRU淘汰策略）
+     * Key格式: "origin_lng,lat|dest_lng,lat|mode"
+     */
+    private static final Map<String, RouteSegment> ROUTE_CACHE = new LinkedHashMap<>(128, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, RouteSegment> eldest) {
+            return size() > 200;
+        }
+    };
+
     public PlanService(
             PlanRequestMapper planRequestMapper,
             PlanMapper planMapper,
@@ -557,20 +568,167 @@ public class PlanService {
             }
         }
 
+        // === 路线规划逻辑 ===
+        List<Map<String, Object>> allRoutePoints = new ArrayList<>();
+        List<Map<String, Object>> segmentInfos = new ArrayList<>();
+        int totalDistance = 0;
+        int totalDuration = 0;
+
+        // 遍历相邻地点对，规划每段路线
+        for (int i = 0; i < markers.size() - 1; i++) {
+            Map<String, Object> origin = markers.get(i);
+            Map<String, Object> dest = markers.get(i + 1);
+
+            double[] originLngLat = {
+                    (double) origin.get("longitude"),
+                    (double) origin.get("latitude")
+            };
+            double[] destLngLat = {
+                    (double) dest.get("longitude"),
+                    (double) dest.get("latitude")
+            };
+
+            // 计算直线距离
+            double distanceKm = calculateDistance(originLngLat, destLngLat);
+
+            // 选择交通方式
+            String mode = selectTransportMode(distanceKm);
+
+            // 尝试路线规划
+            Optional<RouteSegment> segment = resolveRouteSegment(originLngLat, destLngLat, mode);
+
+            if (segment.isPresent()) {
+                // 成功：使用规划的路径点
+                RouteSegment seg = segment.get();
+                allRoutePoints.addAll(seg.points);
+
+                totalDistance += seg.distanceMeters;
+                totalDuration += seg.durationSeconds;
+
+                segmentInfos.add(Map.of(
+                        "from", origin.get("title"),
+                        "to", dest.get("title"),
+                        "distance", seg.distanceMeters,
+                        "duration", seg.durationSeconds,
+                        "mode", seg.mode
+                ));
+            } else {
+                // 降级：使用起点和终点的直线连接
+                allRoutePoints.add(Map.of(
+                        "latitude", origin.get("latitude"),
+                        "longitude", origin.get("longitude")
+                ));
+                allRoutePoints.add(Map.of(
+                        "latitude", dest.get("latitude"),
+                        "longitude", dest.get("longitude")
+                ));
+
+                int estimatedDistance = (int) (distanceKm * 1000);
+                totalDistance += estimatedDistance;
+
+                segmentInfos.add(Map.of(
+                        "from", origin.get("title"),
+                        "to", dest.get("title"),
+                        "distance", estimatedDistance,
+                        "duration", 0,
+                        "mode", "direct",
+                        "warning", "路线规划失败，显示为直线连接"
+                ));
+            }
+        }
+
+        // 构建polyline（使用规划的路径点）
         List<Map<String, Object>> polyline = List.of(
                 Map.of(
-                        "points", points,
+                        "points", allRoutePoints,
                         "color", "#1890FF",
-                        "width", 4
+                        "width", 6,
+                        "borderColor", "#ffffff",
+                        "borderWidth", 2
                 )
         );
 
-        return Map.of(
-                "markers", markers,
-                "polyline", polyline,
-                "include_points", points,
-                "unresolved", unresolved
+        // Determine route type and generate static map URL for same-city routes
+        String mapType = "interactive";
+        String staticMapUrl = "";
+
+        if (!points.isEmpty()) {
+            // Calculate geographic bounding box
+            double minLat = points.stream().mapToDouble(p -> (double) p.get("latitude")).min().orElse(0);
+            double maxLat = points.stream().mapToDouble(p -> (double) p.get("latitude")).max().orElse(0);
+            double minLng = points.stream().mapToDouble(p -> (double) p.get("longitude")).min().orElse(0);
+            double maxLng = points.stream().mapToDouble(p -> (double) p.get("longitude")).max().orElse(0);
+
+            double latSpan = maxLat - minLat;
+            double lngSpan = maxLng - minLng;
+            double maxSpan = Math.max(latSpan, lngSpan);
+
+            // Same-city route: span < 0.1 degrees (≈10km radius)
+            if (maxSpan < 0.1 && !amapApiKey.isBlank()) {
+                mapType = "static";
+
+                // Calculate center point
+                double centerLat = (minLat + maxLat) / 2.0;
+                double centerLng = (minLng + maxLng) / 2.0;
+
+                // Calculate zoom level: smaller span = higher zoom (closer view)
+                int zoom = 15; // Default for same-city
+                if (maxSpan < 0.01) zoom = 17;      // < 1km: very close
+                else if (maxSpan < 0.03) zoom = 16;  // < 3km: close
+                else if (maxSpan < 0.05) zoom = 15;  // < 5km: medium
+
+                // Build markers parameter: green (start), blue (waypoints), red (end)
+                StringBuilder markersParam = new StringBuilder();
+                for (int i = 0; i < markers.size(); i++) {
+                    if (i > 0) markersParam.append("|");
+                    Map<String, Object> marker = markers.get(i);
+                    double lng = (double) marker.get("longitude");
+                    double lat = (double) marker.get("latitude");
+
+                    String color;
+                    if (i == 0) color = "0x00FF00";              // Green for start
+                    else if (i == markers.size() - 1) color = "0xFF0000"; // Red for end
+                    else color = "0x1890FF";                     // Blue for waypoints
+
+                    markersParam.append("mid,").append(color).append(",A:").append(lng).append(",").append(lat);
+                }
+
+                // Build polyline parameter: all points connected with blue line
+                StringBuilder pathParam = new StringBuilder("6,0x1890FF,1:");
+                for (int i = 0; i < points.size(); i++) {
+                    if (i > 0) pathParam.append(";");
+                    Map<String, Object> point = points.get(i);
+                    pathParam.append(point.get("longitude")).append(",").append(point.get("latitude"));
+                }
+
+                // Construct Amap Static Map API URL
+                staticMapUrl = "https://restapi.amap.com/v3/staticmap"
+                        + "?key=" + enc(amapApiKey)
+                        + "&center=" + enc(centerLng + "," + centerLat)
+                        + "&zoom=" + zoom
+                        + "&size=750*520"
+                        + "&markers=" + enc(markersParam.toString())
+                        + "&paths=" + enc(pathParam.toString());
+            }
+        }
+
+        // 构建summary
+        Map<String, Object> summary = Map.of(
+                "totalDistance", totalDistance,
+                "totalDuration", totalDuration
         );
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("markers", markers);
+        result.put("polyline", polyline);
+        result.put("include_points", allRoutePoints);  // 改为allRoutePoints
+        result.put("unresolved", unresolved);
+        result.put("mapType", mapType);
+        result.put("staticMapUrl", staticMapUrl);
+        result.put("segments", segmentInfos);  // 新增
+        result.put("summary", summary);        // 新增
+
+        return result;
     }
 
     /**
@@ -744,5 +902,227 @@ public class PlanService {
         evt.setOccurredAt(Instant.now());
         evt.setProcessed(false);
         eventMapper.insert(evt);
+    }
+
+    // ==================== 路线规划相关方法 ====================
+
+    /**
+     * 规划两点间的路线（调用高德路线规划API）
+     *
+     * @param originLngLat 起点经纬度 [lng, lat]
+     * @param destLngLat 终点经纬度 [lng, lat]
+     * @param mode 交通方式: "walking" | "driving"
+     * @return RouteSegment对象，包含polyline、distance、duration
+     */
+    private Optional<RouteSegment> resolveRouteSegment(
+            double[] originLngLat,
+            double[] destLngLat,
+            String mode
+    ) {
+        if (this.amapApiKey.isBlank()) return Optional.empty();
+
+        // 1. 检查缓存
+        String cacheKey = buildRouteCacheKey(originLngLat, destLngLat, mode);
+        synchronized (ROUTE_CACHE) {
+            RouteSegment cached = ROUTE_CACHE.get(cacheKey);
+            if (cached != null) return Optional.of(cached);
+        }
+
+        // 2. 选择API端点
+        String apiPath = mode.equals("walking")
+                ? "/v3/direction/walking"
+                : "/v3/direction/driving";
+
+        try {
+            // 3. 构建请求URL
+            String origin = originLngLat[0] + "," + originLngLat[1];
+            String destination = destLngLat[0] + "," + destLngLat[1];
+            String url = "https://restapi.amap.com" + apiPath
+                    + "?key=" + enc(amapApiKey)
+                    + "&origin=" + enc(origin)
+                    + "&destination=" + enc(destination);
+
+            // 4. 发送HTTP请求
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(java.time.Duration.ofSeconds(6))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) return Optional.empty();
+
+            // 5. 解析响应
+            Map<String, Object> body = Jsons.toMap(resp.body());
+            String status = asString(body.get("status")).orElse("");
+            if (!"1".equals(status)) return Optional.empty();
+
+            Object routeObj = body.get("route");
+            if (!(routeObj instanceof Map<?, ?> routeMapRaw)) return Optional.empty();
+
+            Map<String, Object> routeMap = castMap(routeMapRaw);
+            Object pathsObj = routeMap.get("paths");
+            if (!(pathsObj instanceof List<?> paths) || paths.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Object firstPath = paths.get(0);
+            if (!(firstPath instanceof Map<?, ?> pathMapRaw)) return Optional.empty();
+            Map<String, Object> pathMap = castMap(pathMapRaw);
+
+            // 6. 提取polyline（优先使用path级别，否则拼接steps）
+            String polylineStr = asString(pathMap.get("polyline")).orElse("");
+
+            if (polylineStr.isBlank()) {
+                // 降级：拼接steps中的polyline
+                Object stepsObj = pathMap.get("steps");
+                if (stepsObj instanceof List<?> steps) {
+                    StringBuilder combined = new StringBuilder();
+                    for (Object step : steps) {
+                        if (step instanceof Map<?, ?> stepMap) {
+                            String stepPoly = asString(castMap(stepMap).get("polyline")).orElse("");
+                            if (!stepPoly.isBlank()) {
+                                if (combined.length() > 0) combined.append(";");
+                                combined.append(stepPoly);
+                            }
+                        }
+                    }
+                    polylineStr = combined.toString();
+                }
+            }
+
+            int distance = asInt(pathMap.get("distance")).orElse(0);
+            int duration = asInt(pathMap.get("duration")).orElse(0);
+
+            if (polylineStr.isBlank()) return Optional.empty();
+
+            // 7. 解析polyline字符串为坐标点列表
+            List<Map<String, Object>> points = parsePolyline(polylineStr);
+            if (points.isEmpty()) return Optional.empty();
+
+            // 8. 构建结果并缓存
+            RouteSegment segment = new RouteSegment(points, distance, duration, mode);
+            synchronized (ROUTE_CACHE) {
+                ROUTE_CACHE.put(cacheKey, segment);
+            }
+
+            return Optional.of(segment);
+
+        } catch (Exception e) {
+            System.err.println("Route planning failed: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * 解析高德polyline字符串为坐标点列表
+     *
+     * 输入格式: "120.1,30.2;120.11,30.21;120.12,30.22"
+     * 输出格式: [{"latitude":30.2,"longitude":120.1}, ...]
+     *
+     * @param polylineStr 高德返回的polyline字符串（分号分隔，格式为"经度,纬度"）
+     * @return 坐标点列表
+     */
+    private List<Map<String, Object>> parsePolyline(String polylineStr) {
+        List<Map<String, Object>> points = new ArrayList<>();
+
+        if (polylineStr == null || polylineStr.isBlank()) {
+            return points;
+        }
+
+        String[] pairs = polylineStr.split(";");
+        for (String pair : pairs) {
+            if (pair.isBlank() || !pair.contains(",")) continue;
+
+            String[] parts = pair.split(",", 2);
+            try {
+                double lng = Double.parseDouble(parts[0].trim());
+                double lat = Double.parseDouble(parts[1].trim());
+
+                points.add(Map.of(
+                        "latitude", lat,
+                        "longitude", lng
+                ));
+            } catch (NumberFormatException ignore) {
+                // 跳过无效坐标点
+            }
+        }
+
+        return points;
+    }
+
+    /**
+     * 计算两点间的haversine距离（千米）
+     *
+     * @param lngLat1 点1 [lng, lat]
+     * @param lngLat2 点2 [lng, lat]
+     * @return 距离（千米）
+     */
+    private double calculateDistance(double[] lngLat1, double[] lngLat2) {
+        final double EARTH_RADIUS_KM = 6371.0;
+
+        double lat1 = Math.toRadians(lngLat1[1]);
+        double lat2 = Math.toRadians(lngLat2[1]);
+        double deltaLat = Math.toRadians(lngLat2[1] - lngLat1[1]);
+        double deltaLng = Math.toRadians(lngLat2[0] - lngLat1[0]);
+
+        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                        Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return EARTH_RADIUS_KM * c;
+    }
+
+    /**
+     * 根据两点距离选择交通方式
+     *
+     * @param distanceKm 两点间直线距离（千米）
+     * @return "walking" | "driving"
+     */
+    private String selectTransportMode(double distanceKm) {
+        final double WALKING_THRESHOLD_KM = 3.0;
+        return distanceKm < WALKING_THRESHOLD_KM ? "walking" : "driving";
+    }
+
+    /**
+     * 构建路线缓存键
+     *
+     * @param origin 起点 [lng, lat]
+     * @param dest 终点 [lng, lat]
+     * @param mode 交通方式
+     * @return 缓存键（保留4位小数，精度约11米）
+     */
+    private String buildRouteCacheKey(double[] origin, double[] dest, String mode) {
+        return String.format("%.4f,%.4f|%.4f,%.4f|%s",
+                origin[0], origin[1],
+                dest[0], dest[1],
+                mode
+        );
+    }
+
+    // ==================== 内部类 ====================
+
+    /**
+     * 路线段数据结构
+     */
+    private static class RouteSegment {
+        public final List<Map<String, Object>> points;  // 路径点列表
+        public final int distanceMeters;                // 距离（米）
+        public final int durationSeconds;               // 时长（秒）
+        public final String mode;                       // walking|driving
+
+        public RouteSegment(
+                List<Map<String, Object>> points,
+                int distanceMeters,
+                int durationSeconds,
+                String mode
+        ) {
+            this.points = points;
+            this.distanceMeters = distanceMeters;
+            this.durationSeconds = durationSeconds;
+            this.mode = mode;
+        }
     }
 }
