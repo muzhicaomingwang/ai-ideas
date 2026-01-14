@@ -73,7 +73,7 @@ def show_technical_specs():
     print("     - 成本: ¥0.008/张")
 
     print("\n  🎙️ 语音合成: ElevenLabs")
-    print("     - 模型: eleven_multilingual_v2")
+    print("     - 模型: eleven_v3")
     print("     - 格式: MP3 44.1kHz 128kbps")
     print("     - 成本: ¥2.5/分钟")
 

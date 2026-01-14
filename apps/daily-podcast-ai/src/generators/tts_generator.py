@@ -44,7 +44,7 @@ class TTSGenerator:
 
         # 获取配置
         self.voice_id = self.tts_config.get("voice_id", "")
-        self.model_id = self.tts_config.get("model", "eleven_multilingual_v2")
+        self.model_id = self.tts_config.get("model", "eleven_v3")
         self.output_format = self.tts_config.get("output_format", "mp3_44100_128")
 
     def _load_config(self, config_path: str) -> dict:
@@ -64,7 +64,7 @@ class TTSGenerator:
         """默认配置"""
         return {
             "tts": {
-                "model": "eleven_multilingual_v2",
+                "model": "eleven_v3",
                 "output_format": "mp3_44100_128",
                 "voice_settings": {
                     "stability": 0.5,

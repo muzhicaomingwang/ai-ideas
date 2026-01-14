@@ -7,7 +7,7 @@ bgm:
 elevenlabs:
   api_key_env: ELEVENLABS_API_KEY
   default_voice: Josh
-  model_id: eleven_multilingual_v2
+  model_id: eleven_v3
   voice_id: ''
   voice_settings:
     similarity_boost: 0.75
