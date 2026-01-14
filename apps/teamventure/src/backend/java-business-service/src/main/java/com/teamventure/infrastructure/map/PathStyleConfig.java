@@ -196,5 +196,11 @@ public class PathStyleConfig {
     public static class PathSegment {
         private List<Point> points;
         private PathStyle style;
+
+        /**
+         * 手动添加getter方法（Lombok编译问题临时方案）
+         */
+        public List<Point> getPoints() { return points; }
+        public PathStyle getStyle() { return style; }
     }
 }

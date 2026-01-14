@@ -3,6 +3,7 @@ com/teamventure/infrastructure/persistence/mapper/PlanMapper.class
 com/teamventure/adapter/web/users/UserController$UpdateAvatarRequest.class
 com/teamventure/infrastructure/persistence/po/DomainEventPO.class
 com/teamventure/app/service/SupplierService.class
+com/teamventure/app/service/PlanService$MapData.class
 com/teamventure/infrastructure/map/PathStyleConfig$PathStyle.class
 com/teamventure/infrastructure/map/MarkerStyleConfig$MarkerStyle.class
 com/teamventure/adapter/web/internal/InternalPlanController$BatchPlanRequest.class
@@ -30,6 +31,7 @@ com/teamventure/adapter/web/internal/InternalPlanController.class
 com/teamventure/adapter/web/common/ApiResponse.class
 com/teamventure/infrastructure/config/MapConfig.class
 com/teamventure/infrastructure/map/ZoomCalculator.class
+com/teamventure/app/service/PlanService$DayRouteType.class
 com/teamventure/adapter/web/users/UserController.class
 com/teamventure/TeamVentureApplication.class
 com/teamventure/app/service/PlanService$RouteSegment.class

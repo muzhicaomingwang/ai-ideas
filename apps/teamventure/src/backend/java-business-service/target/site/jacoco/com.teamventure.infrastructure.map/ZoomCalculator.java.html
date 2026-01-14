@@ -20,7 +20,7 @@ import java.util.List;
  * @since 2026-01-14
  */
 @Component
-<span class="fc" id="L23">public class ZoomCalculator {</span>
+<span class="nc" id="L23">public class ZoomCalculator {</span>
 
     /**
      * 计算最佳zoom级别
@@ -30,29 +30,29 @@ import java.util.List;
      * @return zoom级别（3-18）
      */
     public int calculateOptimalZoom(List&lt;Point&gt; points, MapSizePreset size) {
-<span class="fc bfc" id="L33" title="All 4 branches covered.">        if (points == null || points.isEmpty()) {</span>
-<span class="fc" id="L34">            return getDefaultZoom(size);</span>
+<span class="nc bnc" id="L33" title="All 4 branches missed.">        if (points == null || points.isEmpty()) {</span>
+<span class="nc" id="L34">            return getDefaultZoom(size);</span>
         }
 
-<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (points.size() == 1) {</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (points.size() == 1) {</span>
             // 单点地图：根据场景返回合适的zoom
-<span class="fc" id="L39">            return getSinglePointZoom(size);</span>
+<span class="nc" id="L39">            return getSinglePointZoom(size);</span>
         }
 
         // 1. 计算包围盒
-<span class="fc" id="L43">        BoundingBox bbox = calculateBoundingBox(points);</span>
+<span class="nc" id="L43">        BoundingBox bbox = calculateBoundingBox(points);</span>
 
         // 2. 计算跨度（取宽高中的较大值，并留20%边距）
-<span class="fc" id="L46">        double maxSpan = Math.max(bbox.getWidth(), bbox.getHeight()) * 1.2;</span>
+<span class="nc" id="L46">        double maxSpan = Math.max(bbox.getWidth(), bbox.getHeight()) * 1.2;</span>
 
         // 3. 跨度到zoom级别映射
-<span class="fc" id="L49">        int zoom = mapSpanToZoom(maxSpan);</span>
+<span class="nc" id="L49">        int zoom = mapSpanToZoom(maxSpan);</span>
 
         // 4. 根据地图尺寸微调
-<span class="fc" id="L52">        zoom = adjustZoomBySize(zoom, size);</span>
+<span class="nc" id="L52">        zoom = adjustZoomBySize(zoom, size);</span>
 
         // 5. 限制在有效范围内
-<span class="fc" id="L55">        return Math.max(3, Math.min(18, zoom));</span>
+<span class="nc" id="L55">        return Math.max(3, Math.min(18, zoom));</span>
     }
 
     /**
@@ -69,16 +69,16 @@ import java.util.List;
      * @return zoom级别
      */
     private int mapSpanToZoom(double maxSpan) {
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (maxSpan &gt; 5.0) {</span>
-<span class="fc" id="L73">            return 3;   // 跨省/跨国（&gt;500km，如北京-上海、上海-广州）</span>
-<span class="fc bfc" id="L74" title="All 2 branches covered.">        } else if (maxSpan &gt; 1.0) {</span>
-<span class="fc" id="L75">            return 8;   // 跨市（100-500km）</span>
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        } else if (maxSpan &gt; 0.1) {</span>
-<span class="fc" id="L77">            return 12;  // 同城（10-100km）</span>
-<span class="fc bfc" id="L78" title="All 2 branches covered.">        } else if (maxSpan &gt; 0.01) {</span>
-<span class="fc" id="L79">            return 15;  // 街区（1-10km）</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (maxSpan &gt; 5.0) {</span>
+<span class="nc" id="L73">            return 3;   // 跨省/跨国（&gt;500km，如北京-上海、上海-广州）</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        } else if (maxSpan &gt; 1.0) {</span>
+<span class="nc" id="L75">            return 8;   // 跨市（100-500km）</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        } else if (maxSpan &gt; 0.1) {</span>
+<span class="nc" id="L77">            return 12;  // 同城（10-100km）</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        } else if (maxSpan &gt; 0.01) {</span>
+<span class="nc" id="L79">            return 15;  // 街区（1-10km）</span>
         } else {
-<span class="fc" id="L81">            return 17;  // 相邻建筑（&lt;1km）</span>
+<span class="nc" id="L81">            return 17;  // 相邻建筑（&lt;1km）</span>
         }
     }
 
@@ -94,20 +94,20 @@ import java.util.List;
      * @return 调整后的zoom
      */
     private int adjustZoomBySize(int baseZoom, MapSizePreset size) {
-<span class="fc bfc" id="L97" title="All 3 branches covered.">        switch (size) {</span>
+<span class="nc bnc" id="L97" title="All 3 branches missed.">        switch (size) {</span>
             case THUMBNAIL:
                 // 缩略图：降低1级zoom（显示更大范围，避免拥挤）
-<span class="fc" id="L100">                return Math.max(3, baseZoom - 1);</span>
+<span class="nc" id="L100">                return Math.max(3, baseZoom - 1);</span>
 
             case SHARE:
                 // 分享图：提高1级zoom（显示更多细节）
-<span class="fc" id="L104">                return Math.min(18, baseZoom + 1);</span>
+<span class="nc" id="L104">                return Math.min(18, baseZoom + 1);</span>
 
             case DETAIL:
             case SUPPLIER:
             default:
                 // 详情页和供应商地点：使用基础zoom
-<span class="fc" id="L110">                return baseZoom;</span>
+<span class="nc" id="L110">                return baseZoom;</span>
         }
     }
 
@@ -118,7 +118,7 @@ import java.util.List;
      * @return zoom级别
      */
     private int getSinglePointZoom(MapSizePreset size) {
-<span class="pc bpc" id="L121" title="3 of 4 branches missed.">        switch (size) {</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">        switch (size) {</span>
             case THUMBNAIL:
 <span class="nc" id="L123">                return 13;  // 缩略图：稍远视角</span>
             case SHARE:
@@ -127,7 +127,7 @@ import java.util.List;
 <span class="nc" id="L127">                return 15;  // 供应商：街区级别</span>
             case DETAIL:
             default:
-<span class="fc" id="L130">                return 15;  // 详情页：街区级别</span>
+<span class="nc" id="L130">                return 15;  // 详情页：街区级别</span>
         }
     }
 
@@ -138,7 +138,7 @@ import java.util.List;
      * @return zoom级别
      */
     private int getDefaultZoom(MapSizePreset size) {
-<span class="fc" id="L141">        return 12;  // 默认城市级别视图</span>
+<span class="nc" id="L141">        return 12;  // 默认城市级别视图</span>
     }
 
     /**
@@ -148,27 +148,27 @@ import java.util.List;
      * @return 包围盒对象
      */
     private BoundingBox calculateBoundingBox(List&lt;Point&gt; points) {
-<span class="fc" id="L151">        double minLat = points.stream()</span>
-<span class="fc" id="L152">            .mapToDouble(Point::getLatitude)</span>
-<span class="fc" id="L153">            .min()</span>
-<span class="fc" id="L154">            .orElse(0);</span>
+<span class="nc" id="L151">        double minLat = points.stream()</span>
+<span class="nc" id="L152">            .mapToDouble(Point::getLatitude)</span>
+<span class="nc" id="L153">            .min()</span>
+<span class="nc" id="L154">            .orElse(0);</span>
 
-<span class="fc" id="L156">        double maxLat = points.stream()</span>
-<span class="fc" id="L157">            .mapToDouble(Point::getLatitude)</span>
-<span class="fc" id="L158">            .max()</span>
-<span class="fc" id="L159">            .orElse(0);</span>
+<span class="nc" id="L156">        double maxLat = points.stream()</span>
+<span class="nc" id="L157">            .mapToDouble(Point::getLatitude)</span>
+<span class="nc" id="L158">            .max()</span>
+<span class="nc" id="L159">            .orElse(0);</span>
 
-<span class="fc" id="L161">        double minLng = points.stream()</span>
-<span class="fc" id="L162">            .mapToDouble(Point::getLongitude)</span>
-<span class="fc" id="L163">            .min()</span>
-<span class="fc" id="L164">            .orElse(0);</span>
+<span class="nc" id="L161">        double minLng = points.stream()</span>
+<span class="nc" id="L162">            .mapToDouble(Point::getLongitude)</span>
+<span class="nc" id="L163">            .min()</span>
+<span class="nc" id="L164">            .orElse(0);</span>
 
-<span class="fc" id="L166">        double maxLng = points.stream()</span>
-<span class="fc" id="L167">            .mapToDouble(Point::getLongitude)</span>
-<span class="fc" id="L168">            .max()</span>
-<span class="fc" id="L169">            .orElse(0);</span>
+<span class="nc" id="L166">        double maxLng = points.stream()</span>
+<span class="nc" id="L167">            .mapToDouble(Point::getLongitude)</span>
+<span class="nc" id="L168">            .max()</span>
+<span class="nc" id="L169">            .orElse(0);</span>
 
-<span class="fc" id="L171">        return new BoundingBox(minLat, maxLat, minLng, maxLng);</span>
+<span class="nc" id="L171">        return new BoundingBox(minLat, maxLat, minLng, maxLng);</span>
     }
 
     /**
@@ -180,25 +180,25 @@ import java.util.List;
         private final double minLng;
         private final double maxLng;
 
-<span class="fc" id="L183">        BoundingBox(double minLat, double maxLat, double minLng, double maxLng) {</span>
-<span class="fc" id="L184">            this.minLat = minLat;</span>
-<span class="fc" id="L185">            this.maxLat = maxLat;</span>
-<span class="fc" id="L186">            this.minLng = minLng;</span>
-<span class="fc" id="L187">            this.maxLng = maxLng;</span>
-<span class="fc" id="L188">        }</span>
+<span class="nc" id="L183">        BoundingBox(double minLat, double maxLat, double minLng, double maxLng) {</span>
+<span class="nc" id="L184">            this.minLat = minLat;</span>
+<span class="nc" id="L185">            this.maxLat = maxLat;</span>
+<span class="nc" id="L186">            this.minLng = minLng;</span>
+<span class="nc" id="L187">            this.maxLng = maxLng;</span>
+<span class="nc" id="L188">        }</span>
 
         /**
          * 获取纬度跨度（度）
          */
         double getHeight() {
-<span class="fc" id="L194">            return maxLat - minLat;</span>
+<span class="nc" id="L194">            return maxLat - minLat;</span>
         }
 
         /**
          * 获取经度跨度（度）
          */
         double getWidth() {
-<span class="fc" id="L201">            return maxLng - minLng;</span>
+<span class="nc" id="L201">            return maxLng - minLng;</span>
         }
 
         /**

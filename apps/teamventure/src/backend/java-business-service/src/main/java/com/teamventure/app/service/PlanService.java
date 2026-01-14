@@ -543,10 +543,79 @@ public class PlanService {
                     "markers", List.of(),
                     "polyline", List.of(),
                     "include_points", List.of(),
-                    "unresolved", List.of()
+                    "unresolved", List.of(),
+                    "maps", List.of()
             );
         }
 
+        // === 新逻辑：双地图支持 ===
+        // 1. 找到指定天的数据
+        Map<String, Object> targetDayMap = null;
+        for (Object d : daysListRaw) {
+            if (!(d instanceof Map<?, ?> dayMapRaw)) continue;
+            Map<String, Object> dayMap = castMap(dayMapRaw);
+            Integer dayNo = asInt(dayMap.get("day")).orElse(null);
+            if (day != null && dayNo != null && day.equals(dayNo)) {
+                targetDayMap = dayMap;
+                break;
+            }
+        }
+
+        if (targetDayMap == null) {
+            return Map.of(
+                "markers", List.of(),
+                "polyline", List.of(),
+                "include_points", List.of(),
+                "unresolved", List.of(),
+                "maps", List.of()
+            );
+        }
+
+        // 2. 分析该天路线类型
+        DayRouteType routeType = analyzeDayRouteType(targetDayMap, plan);
+
+        // 3. 根据类型生成地图
+        List<MapData> maps = new ArrayList<>();
+
+        if (routeType == DayRouteType.INTERCITY) {
+            // 生成跨城地图
+            MapData intercityMap = generateIntercityMap(plan);
+            if (intercityMap != null) {
+                maps.add(intercityMap);
+            }
+
+            // 检查是否还有周边游
+            String destinationCity = plan.getDestinationCity();
+            if (destinationCity != null) {
+                MapData regionalMap = generateRegionalMap(plan, destinationCity, targetDayMap);
+                if (regionalMap != null) {
+                    maps.add(regionalMap);
+                }
+            }
+        } else if (routeType == DayRouteType.REGIONAL) {
+            // 生成周边游地图
+            String destinationCity = plan.getDestinationCity();
+            if (destinationCity != null) {
+                MapData regionalMap = generateRegionalMap(plan, destinationCity, targetDayMap);
+                if (regionalMap != null) {
+                    maps.add(regionalMap);
+                }
+            }
+        }
+
+        // 4. 如果新逻辑生成了地图，使用新格式返回
+        if (!maps.isEmpty()) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("maps", maps.stream().map(MapData::toResponseMap).toList());
+
+            // 向后兼容：填充旧字段
+            Map<String, Object> legacyFields = mergeMapsToLegacyFormat(maps);
+            result.putAll(legacyFields);
+
+            return result;
+        }
+
+        // 5. 降级：使用旧逻辑（当新逻辑失败或不支持时）
         String cityHint = plan.getDestinationCity() == null || plan.getDestinationCity().isBlank()
                 ? (plan.getDestination() == null ? "" : plan.getDestination())
                 : plan.getDestinationCity();
@@ -1218,6 +1287,490 @@ public class PlanService {
     }
 
     /**
+     * 分析某天的路线类型
+     *
+     * 判断该天是跨城、周边游还是无地图
+     *
+     * @param dayMap 某天的行程数据
+     * @param plan 方案PO（包含departure_city和destination_city）
+     * @return DayRouteType枚举
+     */
+    private DayRouteType analyzeDayRouteType(Map<String, Object> dayMap, PlanPO plan) {
+        // 1. 提取该天的items
+        Object itemsObj = dayMap.get("items");
+        if (!(itemsObj instanceof List<?> itemsRaw) || itemsRaw.isEmpty()) {
+            return DayRouteType.NONE;
+        }
+
+        // 2. 提取所有地点的城市名
+        java.util.Set<String> cities = new java.util.HashSet<>();
+        int locationCount = 0;
+
+        for (Object it : itemsRaw) {
+            if (!(it instanceof Map<?, ?> itemRaw)) continue;
+            Map<String, Object> item = castMap(itemRaw);
+
+            String location = asString(item.get("location")).orElse("");
+            String activity = asString(item.get("activity")).orElse("");
+
+            String keyword = !location.isBlank() ? location : activity;
+            if (keyword.isBlank()) continue;
+
+            locationCount++;
+
+            // 提取城市名
+            Optional<String> city = com.teamventure.infrastructure.map.CityNameExtractor
+                .extractCityFromAddress(keyword);
+
+            if (city.isPresent()) {
+                String normalizedCity = com.teamventure.infrastructure.map.CityNameExtractor
+                    .normalizeCityName(city.get());
+                cities.add(normalizedCity);
+            }
+        }
+
+        // 如果没有提取到城市信息，尝试使用destination_city
+        if (cities.isEmpty() && plan.getDestinationCity() != null) {
+            cities.add(plan.getDestinationCity());
+        }
+
+        // 3. 判断类型
+        String departureCity = plan.getDepartureCity();
+        String destinationCity = plan.getDestinationCity();
+
+        // 包含出发城市且有其他城市 → 跨城
+        if (departureCity != null && cities.contains(departureCity) && cities.size() > 1) {
+            return DayRouteType.INTERCITY;
+        }
+
+        // 只有目的地城市且地点≥2 → 周边游
+        if (cities.size() == 1 &&
+            destinationCity != null &&
+            cities.contains(destinationCity) &&
+            locationCount >= 2) {
+            return DayRouteType.REGIONAL;
+        }
+
+        // 其他情况：无地图或不支持
+        return DayRouteType.NONE;
+    }
+
+    /**
+     * 根据距离推断长距离交通方式
+     *
+     * 用于跨城地图生成，判断城市间使用何种交通工具
+     *
+     * @param distanceKm 直线距离（千米）
+     * @return driving | train | flight
+     */
+    private String inferLongDistanceTransportMode(double distanceKm) {
+        if (distanceKm < 50) {
+            return "driving";      // <50km: 自驾/包车
+        } else if (distanceKm < 500) {
+            return "train";        // 50-500km: 高铁/动车
+        } else {
+            return "flight";       // >500km: 飞机
+        }
+    }
+
+    /**
+     * 计算跨城地图的zoom级别
+     *
+     * 距离越远，zoom越小（视野越大）
+     *
+     * @param distanceKm 直线距离（千米）
+     * @return zoom级别（5-10）
+     */
+    private int calculateIntercityZoom(double distanceKm) {
+        if (distanceKm < 50) {
+            return 10;      // 同省相邻城市
+        } else if (distanceKm < 200) {
+            return 8;       // 省内跨度
+        } else if (distanceKm < 500) {
+            return 7;       // 跨省
+        } else if (distanceKm < 1000) {
+            return 6;       // 远距离
+        } else {
+            return 5;       // 超远距离（>1000km）
+        }
+    }
+
+    /**
+     * 估算行程时长（秒）
+     *
+     * 基于交通方式的平均速度估算
+     *
+     * @param distanceKm 距离（千米）
+     * @param mode 交通方式
+     * @return 时长（秒）
+     */
+    private int estimateDuration(double distanceKm, String mode) {
+        double avgSpeedKmh = switch (mode) {
+            case "walking" -> 5.0;       // 步行5km/h
+            case "driving" -> 60.0;      // 驾车60km/h
+            case "train" -> 200.0;       // 高铁200km/h
+            case "flight" -> 600.0;      // 飞机600km/h（含等待时间）
+            default -> 50.0;
+        };
+
+        return (int) (distanceKm / avgSpeedKmh * 3600);
+    }
+
+    /**
+     * 生成跨城地图数据
+     *
+     * 展示城市间位移（起点城市→终点城市，直线连接）
+     *
+     * @param plan 方案PO
+     * @return MapData对象，失败返回null
+     */
+    private MapData generateIntercityMap(PlanPO plan) {
+        String departureCity = plan.getDepartureCity();
+        String destinationCity = plan.getDestinationCity();
+
+        if (departureCity == null || destinationCity == null) {
+            return null;
+        }
+
+        // 1. 获取城市坐标
+        Optional<double[]> departureLngLat = getCityCoordinate(departureCity);
+        Optional<double[]> destLngLat = getCityCoordinate(destinationCity);
+
+        if (departureLngLat.isEmpty() || destLngLat.isEmpty()) {
+            return null; // 地理编码失败
+        }
+
+        double[] originCoord = departureLngLat.get();
+        double[] destCoord = destLngLat.get();
+
+        // 2. 计算直线距离
+        double distanceKm = calculateDistance(originCoord, destCoord);
+        int distanceMeters = (int) (distanceKm * 1000);
+
+        // 3. 推断交通方式
+        String transportMode = inferLongDistanceTransportMode(distanceKm);
+
+        // 4. 构建markers（起点+终点）
+        List<Map<String, Object>> markers = List.of(
+            Map.of(
+                "id", 1,
+                "latitude", originCoord[1],
+                "longitude", originCoord[0],
+                "title", departureCity,
+                "iconPath", "/images/marker-start.png" // 绿色起点标
+            ),
+            Map.of(
+                "id", 2,
+                "latitude", destCoord[1],
+                "longitude", destCoord[0],
+                "title", destinationCity,
+                "iconPath", "/images/marker-end.png" // 红色终点标
+            )
+        );
+
+        // 5. 构建直线路径
+        List<Map<String, Object>> pathPoints = List.of(
+            Map.of("latitude", originCoord[1], "longitude", originCoord[0]),
+            Map.of("latitude", destCoord[1], "longitude", destCoord[0])
+        );
+
+        List<Map<String, Object>> polyline = List.of(
+            Map.of(
+                "points", pathPoints,
+                "color", "#1890FF",
+                "width", 6,
+                "borderColor", "#ffffff",
+                "borderWidth", 2,
+                "dottedLine", true // 虚线表示概略路线
+            )
+        );
+
+        // 6. 计算地图中心和zoom
+        double centerLng = (originCoord[0] + destCoord[0]) / 2.0;
+        double centerLat = (originCoord[1] + destCoord[1]) / 2.0;
+        int zoom = calculateIntercityZoom(distanceKm);
+
+        // 7. 生成静态地图URL（使用缓存）
+        String staticMapUrl = null;
+        try {
+            List<com.teamventure.domain.valueobject.MapRequest.Point> points = List.of(
+                com.teamventure.domain.valueobject.MapRequest.Point.of(originCoord[0], originCoord[1]),
+                com.teamventure.domain.valueobject.MapRequest.Point.of(destCoord[0], destCoord[1])
+            );
+
+            String markersParam = markerStyleConfig.generateMarkersParam(points);
+            String pathsParam = pathStyleConfig.generatePathsParam(points);
+
+            com.teamventure.domain.valueobject.MapRequest mapRequest =
+                com.teamventure.domain.valueobject.MapRequest.builder()
+                    .size(com.teamventure.domain.valueobject.MapSizePreset.DETAIL)
+                    .zoom(zoom)
+                    .center(com.teamventure.domain.valueobject.MapRequest.Point.of(centerLng, centerLat))
+                    .markers(markersParam)
+                    .paths(pathsParam)
+                    .style("normal")
+                    .format("png")
+                    .build();
+
+            staticMapUrl = staticMapUrlCache.getOrGenerate(
+                mapRequest,
+                () -> mapDegradationHandler.callWithFallback(
+                    mapRequest,
+                    () -> buildAmapStaticMapUrl(mapRequest)
+                )
+            );
+        } catch (Exception e) {
+            System.err.println("Generate intercity static map failed: " + e.getMessage());
+        }
+
+        // 8. 构建MapData对象
+        MapData mapData = new MapData();
+        mapData.mapId = "intercity";
+        mapData.mapType = staticMapUrl != null ? "static" : "interactive";
+        mapData.displayName = "跨城路线";
+        mapData.description = departureCity + " → " + destinationCity;
+        mapData.markers = markers;
+        mapData.polyline = polyline;
+        mapData.includePoints = pathPoints;
+        mapData.segments = List.of(
+            Map.of(
+                "from", departureCity,
+                "to", destinationCity,
+                "distance", distanceMeters,
+                "duration", estimateDuration(distanceKm, transportMode),
+                "mode", transportMode
+            )
+        );
+        mapData.summary = Map.of(
+            "total_distance", distanceMeters,
+            "total_duration", estimateDuration(distanceKm, transportMode),
+            "transport_mode", transportMode
+        );
+        mapData.staticMapUrl = staticMapUrl;
+        mapData.zoomLevel = zoom;
+        mapData.center = Map.of("longitude", centerLng, "latitude", centerLat);
+
+        return mapData;
+    }
+
+    /**
+     * 生成周边游地图数据
+     *
+     * 展示城市内景点详细路线（复用现有路线规划逻辑）
+     *
+     * @param plan 方案PO
+     * @param targetCity 目标城市名（如"杭州市"）
+     * @param dayMap 某天的行程数据
+     * @return MapData对象，失败返回null
+     */
+    private MapData generateRegionalMap(PlanPO plan, String targetCity, Map<String, Object> dayMap) {
+        // 1. 筛选属于目标城市的items
+        Object itemsObj = dayMap.get("items");
+        if (!(itemsObj instanceof List<?> itemsRaw)) {
+            return null;
+        }
+
+        List<Map<String, Object>> regionalItems = new ArrayList<>();
+        for (Object it : itemsRaw) {
+            if (!(it instanceof Map<?, ?> itemRaw)) continue;
+            Map<String, Object> item = castMap(itemRaw);
+
+            String location = asString(item.get("location")).orElse("");
+            String activity = asString(item.get("activity")).orElse("");
+
+            String keyword = !location.isBlank() ? location : activity;
+            if (keyword.isBlank()) continue;
+
+            // 检查是否属于目标城市
+            Optional<String> city = com.teamventure.infrastructure.map.CityNameExtractor
+                .extractCityFromAddress(keyword);
+
+            if (city.isPresent()) {
+                String normalizedCity = com.teamventure.infrastructure.map.CityNameExtractor
+                    .normalizeCityName(city.get());
+                if (normalizedCity.equals(targetCity)) {
+                    regionalItems.add(item);
+                }
+            } else if (plan.getDestinationCity() != null &&
+                       plan.getDestinationCity().equals(targetCity)) {
+                // 如果无法提取城市名，且plan的destination_city是目标城市，则包含此item
+                regionalItems.add(item);
+            }
+        }
+
+        if (regionalItems.size() < 2) {
+            return null; // 地点不足，无需生成地图
+        }
+
+        // 2. 使用现有逻辑生成markers和路线（复用getPlanRoute的逻辑）
+        String cityHint = targetCity;
+        List<Map<String, Object>> markers = new ArrayList<>();
+        List<Map<String, Object>> allPoints = new ArrayList<>();
+        List<Map<String, Object>> segments = new ArrayList<>();
+        List<double[]> coordinates = new ArrayList<>();
+
+        int markerId = 1;
+        for (Map<String, Object> item : regionalItems) {
+            String location = asString(item.get("location")).orElse("");
+            String activity = asString(item.get("activity")).orElse("");
+            String keyword = !location.isBlank() ? location : activity;
+
+            Optional<double[]> lngLat = resolveLngLat(keyword, cityHint);
+            if (lngLat.isEmpty()) {
+                continue;
+            }
+
+            double[] coord = lngLat.get();
+            coordinates.add(coord);
+
+            markers.add(Map.of(
+                "id", markerId++,
+                "latitude", coord[1],
+                "longitude", coord[0],
+                "title", !location.isBlank() ? location : activity,
+                "iconPath", markerId == 2 ? "/images/marker-start.png" :
+                           (markerId == regionalItems.size() + 1 ? "/images/marker-end.png" :
+                            "/images/marker-waypoint.png")
+            ));
+        }
+
+        if (coordinates.size() < 2) {
+            return null;
+        }
+
+        // 3. 规划相邻地点间的路线
+        int totalDistance = 0;
+        int totalDuration = 0;
+
+        for (int i = 0; i < coordinates.size() - 1; i++) {
+            double[] origin = coordinates.get(i);
+            double[] dest = coordinates.get(i + 1);
+
+            double distanceKm = calculateDistance(origin, dest);
+            String mode = selectTransportMode(distanceKm);
+
+            Optional<RouteSegment> routeSegmentOpt = resolveRouteSegment(origin, dest, mode);
+
+            if (routeSegmentOpt.isPresent()) {
+                RouteSegment routeSegment = routeSegmentOpt.get();
+                allPoints.addAll(routeSegment.points);
+                totalDistance += routeSegment.distanceMeters;
+                totalDuration += routeSegment.durationSeconds;
+
+                segments.add(Map.of(
+                    "from", markers.get(i).get("title"),
+                    "to", markers.get(i + 1).get("title"),
+                    "distance", routeSegment.distanceMeters,
+                    "duration", routeSegment.durationSeconds,
+                    "mode", mode
+                ));
+            }
+        }
+
+        // 4. 构建polyline
+        List<Map<String, Object>> polyline = List.of(
+            Map.of(
+                "points", allPoints,
+                "color", "#52C41A",  // 绿色（周边游）
+                "width", 6
+            )
+        );
+
+        // 5. 计算zoom级别（基于所有坐标的范围）
+        int zoom = zoomCalculator.calculateOptimalZoom(
+            coordinates.stream()
+                .map(coord -> com.teamventure.domain.valueobject.MapRequest.Point.of(coord[0], coord[1]))
+                .collect(java.util.stream.Collectors.toList()),
+            com.teamventure.domain.valueobject.MapSizePreset.DETAIL
+        );
+
+        // 6. 计算中心点
+        double centerLng = coordinates.stream().mapToDouble(c -> c[0]).average().orElse(0);
+        double centerLat = coordinates.stream().mapToDouble(c -> c[1]).average().orElse(0);
+
+        // 7. 生成静态地图URL（可选）
+        String staticMapUrl = null;
+        // TODO: 如果需要静态地图，可在此处生成
+
+        // 8. 构建MapData对象
+        MapData mapData = new MapData();
+        mapData.mapId = "regional";
+        mapData.mapType = "interactive";  // 周边游使用交互地图（详细路线）
+        mapData.displayName = targetCity + "周边游";
+        mapData.description = markers.stream()
+            .map(m -> (String) m.get("title"))
+            .collect(java.util.stream.Collectors.joining(" → "));
+        mapData.markers = markers;
+        mapData.polyline = polyline;
+        mapData.includePoints = allPoints;
+        mapData.segments = segments;
+        mapData.summary = Map.of(
+            "total_distance", totalDistance,
+            "total_duration", totalDuration,
+            "transport_mode", "walking"  // 周边游主要是步行
+        );
+        mapData.staticMapUrl = staticMapUrl;
+        mapData.zoomLevel = zoom;
+        mapData.center = Map.of("longitude", centerLng, "latitude", centerLat);
+
+        return mapData;
+    }
+
+    /**
+     * 合并多个地图数据为旧格式（向后兼容）
+     *
+     * 将maps数组合并为单一的markers/polyline/mapType/staticMapUrl字段
+     *
+     * @param maps 地图数据列表
+     * @return 合并后的旧格式字段
+     */
+    private Map<String, Object> mergeMapsToLegacyFormat(List<MapData> maps) {
+        if (maps == null || maps.isEmpty()) {
+            return Map.of(
+                "markers", List.of(),
+                "polyline", List.of(),
+                "include_points", List.of(),
+                "segments", List.of(),
+                "mapType", "interactive",
+                "staticMapUrl", null
+            );
+        }
+
+        // 合并所有地图的数据
+        List<Map<String, Object>> allMarkers = new ArrayList<>();
+        List<Map<String, Object>> allPolyline = new ArrayList<>();
+        List<Map<String, Object>> allIncludePoints = new ArrayList<>();
+        List<Map<String, Object>> allSegments = new ArrayList<>();
+
+        for (MapData map : maps) {
+            if (map.markers != null) allMarkers.addAll(map.markers);
+            if (map.polyline != null) allPolyline.addAll(map.polyline);
+            if (map.includePoints != null) allIncludePoints.addAll(map.includePoints);
+            if (map.segments != null) allSegments.addAll(map.segments);
+        }
+
+        // 确定mapType：如果有任一地图是interactive，则返回interactive
+        String mapType = maps.stream()
+            .anyMatch(m -> "interactive".equals(m.mapType)) ? "interactive" : "static";
+
+        // 确定staticMapUrl：返回第一张static地图的URL
+        String staticMapUrl = maps.stream()
+            .filter(m -> "static".equals(m.mapType) && m.staticMapUrl != null)
+            .findFirst()
+            .map(m -> m.staticMapUrl)
+            .orElse(null);
+
+        return Map.of(
+            "markers", allMarkers,
+            "polyline", allPolyline,
+            "include_points", allIncludePoints,
+            "segments", allSegments,
+            "mapType", mapType,
+            "staticMapUrl", staticMapUrl != null ? staticMapUrl : ""
+        );
+    }
+
+    /**
      * 构建路线缓存键
      *
      * @param origin 起点 [lng, lat]
@@ -1254,6 +1807,53 @@ public class PlanService {
             this.distanceMeters = distanceMeters;
             this.durationSeconds = durationSeconds;
             this.mode = mode;
+        }
+    }
+
+    /**
+     * 某天路线类型枚举
+     */
+    private enum DayRouteType {
+        INTERCITY,    // 跨城（出发城市 → 目的地城市）
+        REGIONAL,     // 周边游（目的地城市内）
+        NONE          // 无地图（地点<2）
+    }
+
+    /**
+     * 地图数据结构（支持双地图展示）
+     */
+    private static class MapData {
+        String mapId;              // intercity | regional
+        String mapType;            // static | interactive
+        String displayName;        // 跨城路线 | 杭州周边游
+        String description;        // 上海市 → 杭州市
+        List<Map<String, Object>> markers;
+        List<Map<String, Object>> polyline;
+        List<Map<String, Object>> includePoints;
+        List<Map<String, Object>> segments;
+        Map<String, Object> summary;
+        String staticMapUrl;       // null if interactive
+        Integer zoomLevel;
+        Map<String, Double> center; // {longitude, latitude}
+
+        /**
+         * 转换为API响应格式
+         */
+        public Map<String, Object> toResponseMap() {
+            Map<String, Object> map = new HashMap<>();
+            map.put("map_id", mapId);
+            map.put("map_type", mapType);
+            map.put("display_name", displayName);
+            map.put("description", description);
+            map.put("markers", markers != null ? markers : List.of());
+            map.put("polyline", polyline != null ? polyline : List.of());
+            map.put("include_points", includePoints != null ? includePoints : List.of());
+            map.put("segments", segments != null ? segments : List.of());
+            map.put("summary", summary != null ? summary : Map.of());
+            map.put("static_map_url", staticMapUrl);
+            map.put("zoom_level", zoomLevel);
+            map.put("center", center);
+            return map;
         }
     }
 }

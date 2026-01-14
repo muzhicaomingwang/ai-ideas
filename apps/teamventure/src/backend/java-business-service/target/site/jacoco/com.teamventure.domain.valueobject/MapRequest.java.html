@@ -13,12 +13,17 @@ import org.apache.commons.codec.digest.DigestUtils;
  * @since 2026-01-14
  */
 <span class="nc bnc" id="L15" title="All 62 branches missed.">@Data</span>
-<span class="pc bpc" id="L16" title="2 of 4 branches missed.">@Builder</span>
+<span class="nc" id="L16">@Builder</span>
 public class MapRequest {
+    /**
+     * 无参构造函数（用于手动builder）
+     */
+<span class="nc" id="L21">    public MapRequest() {}</span>
+
     /**
      * 地图尺寸预设
      */
-<span class="fc" id="L21">    private MapSizePreset size;</span>
+    private MapSizePreset size;
 
     /**
      * 缩放级别（3-18）
@@ -28,26 +33,26 @@ public class MapRequest {
      * - 15: 街区视图
      * - 17: 建筑视图
      */
-<span class="fc" id="L31">    private Integer zoom;</span>
+    private Integer zoom;
 
     /**
      * 地图中心点坐标
      */
-<span class="fc" id="L36">    private Point center;</span>
+    private Point center;
 
     /**
      * 标注参数（高德API格式）
      * 格式：size,color,label:lng,lat|size,color,label:lng,lat|...
      * 示例：mid,0x00FF00,A:121.47,31.23|mid,0xFF0000,B:121.48,31.24
      */
-<span class="fc" id="L43">    private String markers;</span>
+    private String markers;
 
     /**
      * 路径参数（高德API格式）
      * 格式：weight,color,transparency:lng1,lat1;lng2,lat2;...
      * 示例：6,0x1890FF,1:121.47,31.23;121.48,31.24;121.49,31.25
      */
-<span class="nc" id="L50">    private String paths;</span>
+    private String paths;
 
     /**
      * 地图风格
@@ -56,7 +61,7 @@ public class MapRequest {
      * - dark: 暗色模式（v5支持）
      */
     @Builder.Default
-<span class="fc" id="L59">    private String style = &quot;normal&quot;;</span>
+    private String style = &quot;normal&quot;;
 
     /**
      * 图片格式
@@ -65,7 +70,7 @@ public class MapRequest {
      * - webp: WebP格式（v5支持，最优压缩）
      */
     @Builder.Default
-<span class="nc" id="L68">    private String format = &quot;png&quot;;</span>
+    private String format = &quot;png&quot;;
 
     /**
      * 生成缓存Key（MD5哈希）
@@ -75,16 +80,16 @@ public class MapRequest {
      * @return 32字符MD5字符串
      */
     public String generateCacheKey() {
-<span class="nc" id="L78">        String raw = String.join(&quot;_&quot;,</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            size != null ? size.name() : &quot;DETAIL&quot;,</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            zoom != null ? zoom.toString() : &quot;15&quot;,</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">            center != null ? formatPoint(center) : &quot;0,0&quot;,</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            markers != null ? markers : &quot;&quot;,</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            paths != null ? paths : &quot;&quot;,</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            style != null ? style : &quot;normal&quot;,</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">            format != null ? format : &quot;png&quot;</span>
+<span class="nc" id="L83">        String raw = String.join(&quot;_&quot;,</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            size != null ? size.name() : &quot;DETAIL&quot;,</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            zoom != null ? zoom.toString() : &quot;15&quot;,</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            center != null ? formatPoint(center) : &quot;0,0&quot;,</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            markers != null ? markers : &quot;&quot;,</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            paths != null ? paths : &quot;&quot;,</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            style != null ? style : &quot;normal&quot;,</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            format != null ? format : &quot;png&quot;</span>
         );
-<span class="nc" id="L87">        return DigestUtils.md5Hex(raw);</span>
+<span class="nc" id="L92">        return DigestUtils.md5Hex(raw);</span>
     }
 
     /**
@@ -94,9 +99,9 @@ public class MapRequest {
      * @return 格式：longitude,latitude（保留6位小数）
      */
     private String formatPoint(Point point) {
-<span class="nc" id="L97">        return String.format(&quot;%.6f,%.6f&quot;,</span>
-<span class="nc" id="L98">            point.getLongitude(),</span>
-<span class="nc" id="L99">            point.getLatitude()</span>
+<span class="nc" id="L102">        return String.format(&quot;%.6f,%.6f&quot;,</span>
+<span class="nc" id="L103">            point.getLongitude(),</span>
+<span class="nc" id="L104">            point.getLatitude()</span>
         );
     }
 
@@ -106,36 +111,116 @@ public class MapRequest {
      * @throws IllegalArgumentException 参数不合法时抛出
      */
     public void validate() {
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (size == null) {</span>
-<span class="nc" id="L110">            throw new IllegalArgumentException(&quot;MapSizePreset cannot be null&quot;);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (size == null) {</span>
+<span class="nc" id="L115">            throw new IllegalArgumentException(&quot;MapSizePreset cannot be null&quot;);</span>
         }
 
-<span class="nc bnc" id="L113" title="All 6 branches missed.">        if (zoom == null || zoom &lt; 3 || zoom &gt; 18) {</span>
-<span class="nc" id="L114">            throw new IllegalArgumentException(&quot;Zoom must be between 3 and 18&quot;);</span>
+<span class="nc bnc" id="L118" title="All 6 branches missed.">        if (zoom == null || zoom &lt; 3 || zoom &gt; 18) {</span>
+<span class="nc" id="L119">            throw new IllegalArgumentException(&quot;Zoom must be between 3 and 18&quot;);</span>
         }
 
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (center == null) {</span>
-<span class="nc" id="L118">            throw new IllegalArgumentException(&quot;Center point cannot be null&quot;);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (center == null) {</span>
+<span class="nc" id="L123">            throw new IllegalArgumentException(&quot;Center point cannot be null&quot;);</span>
         }
 
         // 校验坐标范围（中国境内）
-<span class="nc" id="L122">        double lat = center.getLatitude();</span>
-<span class="nc" id="L123">        double lng = center.getLongitude();</span>
-<span class="nc bnc" id="L124" title="All 8 branches missed.">        if (lat &lt; 3.86 || lat &gt; 53.55 || lng &lt; 73.66 || lng &gt; 135.05) {</span>
-<span class="nc" id="L125">            throw new IllegalArgumentException(</span>
-<span class="nc" id="L126">                String.format(&quot;Coordinates out of China range: (%f, %f)&quot;, lng, lat)</span>
+<span class="nc" id="L127">        double lat = center.getLatitude();</span>
+<span class="nc" id="L128">        double lng = center.getLongitude();</span>
+<span class="nc bnc" id="L129" title="All 8 branches missed.">        if (lat &lt; 3.86 || lat &gt; 53.55 || lng &lt; 73.66 || lng &gt; 135.05) {</span>
+<span class="nc" id="L130">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L131">                String.format(&quot;Coordinates out of China range: (%f, %f)&quot;, lng, lat)</span>
             );
         }
-<span class="nc" id="L129">    }</span>
+<span class="nc" id="L134">    }</span>
+
+    /**
+     * 手动添加getter方法（Lombok编译问题临时方案）
+     */
+<span class="nc" id="L139">    public MapSizePreset getSize() { return size; }</span>
+<span class="nc" id="L140">    public Integer getZoom() { return zoom; }</span>
+<span class="nc" id="L141">    public Point getCenter() { return center; }</span>
+<span class="nc" id="L142">    public String getMarkers() { return markers; }</span>
+<span class="nc" id="L143">    public String getPaths() { return paths; }</span>
+<span class="nc" id="L144">    public String getStyle() { return style; }</span>
+<span class="nc" id="L145">    public String getFormat() { return format; }</span>
+
+    /**
+     * 手动添加builder方法（Lombok编译问题临时方案）
+     */
+    public static MapRequestBuilder builder() {
+<span class="nc" id="L151">        return new MapRequestBuilder();</span>
+    }
+
+    public static class MapRequestBuilder {
+        private MapSizePreset size;
+        private Integer zoom;
+        private Point center;
+        private String markers;
+        private String paths;
+<span class="nc" id="L160">        private String style = &quot;normal&quot;;</span>
+<span class="nc" id="L161">        private String format = &quot;png&quot;;</span>
+
+        public MapRequestBuilder size(MapSizePreset size) {
+<span class="nc" id="L164">            this.size = size;</span>
+<span class="nc" id="L165">            return this;</span>
+        }
+
+        public MapRequestBuilder zoom(Integer zoom) {
+<span class="nc" id="L169">            this.zoom = zoom;</span>
+<span class="nc" id="L170">            return this;</span>
+        }
+
+        public MapRequestBuilder center(Point center) {
+<span class="nc" id="L174">            this.center = center;</span>
+<span class="nc" id="L175">            return this;</span>
+        }
+
+        public MapRequestBuilder markers(String markers) {
+<span class="nc" id="L179">            this.markers = markers;</span>
+<span class="nc" id="L180">            return this;</span>
+        }
+
+        public MapRequestBuilder paths(String paths) {
+<span class="nc" id="L184">            this.paths = paths;</span>
+<span class="nc" id="L185">            return this;</span>
+        }
+
+        public MapRequestBuilder style(String style) {
+<span class="nc" id="L189">            this.style = style;</span>
+<span class="nc" id="L190">            return this;</span>
+        }
+
+        public MapRequestBuilder format(String format) {
+<span class="nc" id="L194">            this.format = format;</span>
+<span class="nc" id="L195">            return this;</span>
+        }
+
+        public MapRequest build() {
+<span class="nc" id="L199">            MapRequest request = new MapRequest();</span>
+<span class="nc" id="L200">            request.size = this.size;</span>
+<span class="nc" id="L201">            request.zoom = this.zoom;</span>
+<span class="nc" id="L202">            request.center = this.center;</span>
+<span class="nc" id="L203">            request.markers = this.markers;</span>
+<span class="nc" id="L204">            request.paths = this.paths;</span>
+<span class="nc" id="L205">            request.style = this.style;</span>
+<span class="nc" id="L206">            request.format = this.format;</span>
+<span class="nc" id="L207">            return request;</span>
+        }
+    }
 
     /**
      * 坐标点内部类
      */
-<span class="pc bpc" id="L134" title="5 of 10 branches missed.">    @Data</span>
-<span class="pc" id="L135">    @Builder</span>
+<span class="nc bnc" id="L214" title="All 10 branches missed.">    @Data</span>
+<span class="nc" id="L215">    @Builder</span>
     public static class Point {
-<span class="fc" id="L137">        private double longitude;  // 经度（GCJ-02坐标系）</span>
-<span class="fc" id="L138">        private double latitude;   // 纬度（GCJ-02坐标系）</span>
+        /**
+         * 无参构造函数（用于手动builder）
+         */
+<span class="nc" id="L220">        public Point() {}</span>
+
+        private double longitude;  // 经度（GCJ-02坐标系）
+        private double latitude;   // 纬度（GCJ-02坐标系）
 
         /**
          * 创建坐标点
@@ -145,15 +230,50 @@ public class MapRequest {
          * @return Point对象
          */
         public static Point of(double longitude, double latitude) {
-<span class="fc" id="L148">            return Point.builder()</span>
-<span class="fc" id="L149">                .longitude(longitude)</span>
-<span class="fc" id="L150">                .latitude(latitude)</span>
-<span class="fc" id="L151">                .build();</span>
+<span class="nc" id="L233">            return Point.builder()</span>
+<span class="nc" id="L234">                .longitude(longitude)</span>
+<span class="nc" id="L235">                .latitude(latitude)</span>
+<span class="nc" id="L236">                .build();</span>
+        }
+
+        /**
+         * 手动添加getter方法（Lombok编译问题临时方案）
+         */
+<span class="nc" id="L242">        public double getLongitude() { return longitude; }</span>
+<span class="nc" id="L243">        public double getLatitude() { return latitude; }</span>
+
+        /**
+         * 手动添加builder方法（Lombok编译问题临时方案）
+         */
+        public static PointBuilder builder() {
+<span class="nc" id="L249">            return new PointBuilder();</span>
+        }
+
+        public static class PointBuilder {
+            private double longitude;
+            private double latitude;
+
+            public PointBuilder longitude(double longitude) {
+<span class="nc" id="L257">                this.longitude = longitude;</span>
+<span class="nc" id="L258">                return this;</span>
+            }
+
+            public PointBuilder latitude(double latitude) {
+<span class="nc" id="L262">                this.latitude = latitude;</span>
+<span class="nc" id="L263">                return this;</span>
+            }
+
+            public Point build() {
+<span class="nc" id="L267">                Point point = new Point();</span>
+<span class="nc" id="L268">                point.longitude = this.longitude;</span>
+<span class="nc" id="L269">                point.latitude = this.latitude;</span>
+<span class="nc" id="L270">                return point;</span>
+            }
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L156">            return String.format(&quot;(%.6f, %.6f)&quot;, longitude, latitude);</span>
+<span class="nc" id="L276">            return String.format(&quot;(%.6f, %.6f)&quot;, longitude, latitude);</span>
         }
     }
 }

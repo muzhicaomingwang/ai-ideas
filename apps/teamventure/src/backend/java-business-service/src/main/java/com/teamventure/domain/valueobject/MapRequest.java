@@ -16,6 +16,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 @Builder
 public class MapRequest {
     /**
+     * 无参构造函数（用于手动builder）
+     */
+    public MapRequest() {}
+
+    /**
      * 地图尺寸预设
      */
     private MapSizePreset size;
@@ -129,11 +134,91 @@ public class MapRequest {
     }
 
     /**
+     * 手动添加getter方法（Lombok编译问题临时方案）
+     */
+    public MapSizePreset getSize() { return size; }
+    public Integer getZoom() { return zoom; }
+    public Point getCenter() { return center; }
+    public String getMarkers() { return markers; }
+    public String getPaths() { return paths; }
+    public String getStyle() { return style; }
+    public String getFormat() { return format; }
+
+    /**
+     * 手动添加builder方法（Lombok编译问题临时方案）
+     */
+    public static MapRequestBuilder builder() {
+        return new MapRequestBuilder();
+    }
+
+    public static class MapRequestBuilder {
+        private MapSizePreset size;
+        private Integer zoom;
+        private Point center;
+        private String markers;
+        private String paths;
+        private String style = "normal";
+        private String format = "png";
+
+        public MapRequestBuilder size(MapSizePreset size) {
+            this.size = size;
+            return this;
+        }
+
+        public MapRequestBuilder zoom(Integer zoom) {
+            this.zoom = zoom;
+            return this;
+        }
+
+        public MapRequestBuilder center(Point center) {
+            this.center = center;
+            return this;
+        }
+
+        public MapRequestBuilder markers(String markers) {
+            this.markers = markers;
+            return this;
+        }
+
+        public MapRequestBuilder paths(String paths) {
+            this.paths = paths;
+            return this;
+        }
+
+        public MapRequestBuilder style(String style) {
+            this.style = style;
+            return this;
+        }
+
+        public MapRequestBuilder format(String format) {
+            this.format = format;
+            return this;
+        }
+
+        public MapRequest build() {
+            MapRequest request = new MapRequest();
+            request.size = this.size;
+            request.zoom = this.zoom;
+            request.center = this.center;
+            request.markers = this.markers;
+            request.paths = this.paths;
+            request.style = this.style;
+            request.format = this.format;
+            return request;
+        }
+    }
+
+    /**
      * 坐标点内部类
      */
     @Data
     @Builder
     public static class Point {
+        /**
+         * 无参构造函数（用于手动builder）
+         */
+        public Point() {}
+
         private double longitude;  // 经度（GCJ-02坐标系）
         private double latitude;   // 纬度（GCJ-02坐标系）
 
@@ -149,6 +234,41 @@ public class MapRequest {
                 .longitude(longitude)
                 .latitude(latitude)
                 .build();
+        }
+
+        /**
+         * 手动添加getter方法（Lombok编译问题临时方案）
+         */
+        public double getLongitude() { return longitude; }
+        public double getLatitude() { return latitude; }
+
+        /**
+         * 手动添加builder方法（Lombok编译问题临时方案）
+         */
+        public static PointBuilder builder() {
+            return new PointBuilder();
+        }
+
+        public static class PointBuilder {
+            private double longitude;
+            private double latitude;
+
+            public PointBuilder longitude(double longitude) {
+                this.longitude = longitude;
+                return this;
+            }
+
+            public PointBuilder latitude(double latitude) {
+                this.latitude = latitude;
+                return this;
+            }
+
+            public Point build() {
+                Point point = new Point();
+                point.longitude = this.longitude;
+                point.latitude = this.latitude;
+                return point;
+            }
         }
 
         @Override
