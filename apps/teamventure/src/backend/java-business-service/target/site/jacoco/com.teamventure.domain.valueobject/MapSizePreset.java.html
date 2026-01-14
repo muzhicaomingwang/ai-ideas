@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapSizePreset.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.domain.valueobject</a> &gt; <span class="el_source">MapSizePreset.java</span></div><h1>MapSizePreset.java</h1><pre class="source lang-java linenums">package com.teamventure.domain.valueobject;
+
+/**
+ * 地图尺寸预设枚举
+ *
+ * 定义不同使用场景下的标准地图尺寸规格
+ *
+ * @author TeamVenture
+ * @since 2026-01-14
+ */
+<span class="fc" id="L11">public enum MapSizePreset {</span>
+    /**
+     * 详情页主地图
+     * 用于方案详情页展示完整路线
+     */
+<span class="fc" id="L16">    DETAIL(750, 520, &quot;detail&quot;),</span>
+
+    /**
+     * 列表缩略图
+     * 用于方案列表页快速预览
+     */
+<span class="fc" id="L22">    THUMBNAIL(375, 200, &quot;thumbnail&quot;),</span>
+
+    /**
+     * 分享图
+     * 用于生成社交媒体分享图片（适配微信朋友圈）
+     */
+<span class="fc" id="L28">    SHARE(1200, 800, &quot;share&quot;),</span>
+
+    /**
+     * 供应商位置图
+     * 用于供应商详情页展示位置
+     */
+<span class="fc" id="L34">    SUPPLIER(600, 400, &quot;supplier&quot;);</span>
+
+    private final int width;
+    private final int height;
+    private final String sceneName;
+
+<span class="fc" id="L40">    MapSizePreset(int width, int height, String sceneName) {</span>
+<span class="fc" id="L41">        this.width = width;</span>
+<span class="fc" id="L42">        this.height = height;</span>
+<span class="fc" id="L43">        this.sceneName = sceneName;</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * 获取地图宽度（像素）
+     */
+    public int getWidth() {
+<span class="nc" id="L50">        return width;</span>
+    }
+
+    /**
+     * 获取地图高度（像素）
+     */
+    public int getHeight() {
+<span class="nc" id="L57">        return height;</span>
+    }
+
+    /**
+     * 获取场景名称
+     */
+    public String getSceneName() {
+<span class="nc" id="L64">        return sceneName;</span>
+    }
+
+    /**
+     * 转换为高德地图API的size参数格式
+     *
+     * @return 格式：widthxheight（例如：750x520）
+     */
+    public String toApiParam() {
+<span class="nc" id="L73">        return width + &quot;x&quot; + height;</span>
+    }
+
+    /**
+     * 校验尺寸是否在API允许范围内
+     * 高德地图v3最大支持1024x1024，v5支持2048x2048
+     *
+     * @param apiVersion API版本（v3或v5）
+     * @return true表示尺寸合法
+     */
+    public boolean isValid(String apiVersion) {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        int maxSize = &quot;v5&quot;.equals(apiVersion) ? 2048 : 1024;</span>
+<span class="nc bnc" id="L85" title="All 4 branches missed.">        return width &lt;= maxSize &amp;&amp; height &lt;= maxSize;</span>
+    }
+
+    /**
+     * 根据场景名称查找对应的尺寸预设
+     *
+     * @param sceneName 场景名称（detail/thumbnail/share/supplier）
+     * @return MapSizePreset枚举值
+     * @throws IllegalArgumentException 如果场景名称不存在
+     */
+    public static MapSizePreset fromSceneName(String sceneName) {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (MapSizePreset preset : values()) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (preset.sceneName.equalsIgnoreCase(sceneName)) {</span>
+<span class="nc" id="L98">                return preset;</span>
+            }
+        }
+<span class="nc" id="L101">        throw new IllegalArgumentException(&quot;Unknown scene name: &quot; + sceneName);</span>
+    }
+
+    /**
+     * 估算该尺寸地图的文件大小（PNG格式）
+     *
+     * @return 估算文件大小（KB）
+     */
+    public int estimatedSizeKB() {
+        // 经验值：PNG格式约0.3KB/像素（包含标注和路径）
+<span class="nc" id="L111">        int pixels = width * height;</span>
+<span class="nc" id="L112">        return (int) (pixels * 0.3 / 1024);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L117">        return String.format(&quot;%s(%dx%d, ~%dKB)&quot;,</span>
+<span class="nc" id="L118">            sceneName, width, height, estimatedSizeKB());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

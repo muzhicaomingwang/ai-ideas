@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupplierService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">SupplierService.java</span></div><h1>SupplierService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.teamventure.app.support.BizException;
+import com.teamventure.infrastructure.persistence.mapper.SupplierMapper;
+import com.teamventure.infrastructure.persistence.po.SupplierPO;
+import java.util.List;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SupplierService {
+    private final SupplierMapper supplierMapper;
+
+<span class="nc" id="L14">    public SupplierService(SupplierMapper supplierMapper) {</span>
+<span class="nc" id="L15">        this.supplierMapper = supplierMapper;</span>
+<span class="nc" id="L16">    }</span>
+
+    public List&lt;SupplierPO&gt; search(String city, String category) {
+<span class="nc" id="L19">        QueryWrapper&lt;SupplierPO&gt; q = new QueryWrapper&lt;&gt;();</span>
+<span class="nc bnc" id="L20" title="All 4 branches missed.">        if (city != null &amp;&amp; !city.isBlank()) {</span>
+<span class="nc" id="L21">            q.eq(&quot;city&quot;, city);</span>
+        }
+<span class="nc bnc" id="L23" title="All 4 branches missed.">        if (category != null &amp;&amp; !category.isBlank()) {</span>
+<span class="nc" id="L24">            q.eq(&quot;category&quot;, category);</span>
+        }
+<span class="nc" id="L26">        q.eq(&quot;status&quot;, &quot;active&quot;).orderByDesc(&quot;rating&quot;);</span>
+<span class="nc" id="L27">        return supplierMapper.selectList(q);</span>
+    }
+
+    public SupplierPO getById(String supplierId) {
+<span class="nc" id="L31">        SupplierPO po = supplierMapper.selectById(supplierId);</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        if (po == null) {</span>
+<span class="nc" id="L33">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;supplier not found&quot;);</span>
+        }
+<span class="nc" id="L35">        return po;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

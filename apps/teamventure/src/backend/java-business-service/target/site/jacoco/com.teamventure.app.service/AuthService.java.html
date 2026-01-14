@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.teamventure.adapter.web.auth.AuthController.LoginResponse;
+import com.teamventure.app.support.BizException;
+import com.teamventure.app.support.IdGenerator;
+import com.teamventure.app.support.JwtSupport;
+import com.teamventure.infrastructure.persistence.mapper.UserMapper;
+import com.teamventure.infrastructure.persistence.po.UserPO;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.Duration;
+import java.util.HexFormat;
+import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthService {
+<span class="nc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AuthService.class);</span>
+    private static final long EXPIRES_SECONDS = 604800L; // 7 days
+    private static final long REFRESH_THRESHOLD_SECONDS = 43200L; // Refresh when &lt; 12 hours remaining
+
+    private final UserMapper userMapper;
+    private final StringRedisTemplate redis;
+    private final JwtSupport jwt;
+    private final OssService ossService;
+
+    public AuthService(
+            UserMapper userMapper,
+            StringRedisTemplate redis,
+            @Value(&quot;${teamventure.jwt.secret:change-me-change-me-change-me-change-me}&quot;) String jwtSecret,
+            OssService ossService
+<span class="nc" id="L37">    ) {</span>
+<span class="nc" id="L38">        this.userMapper = userMapper;</span>
+<span class="nc" id="L39">        this.redis = redis;</span>
+<span class="nc" id="L40">        this.jwt = new JwtSupport(jwtSecret);</span>
+<span class="nc" id="L41">        this.ossService = ossService;</span>
+<span class="nc" id="L42">    }</span>
+
+    public LoginResponse loginWithWeChat(String code, String nickname, String avatarUrl) {
+<span class="nc" id="L45">        String openid = pseudoOpenId(code);</span>
+
+<span class="nc" id="L47">        UserPO user = userMapper.selectOne(new QueryWrapper&lt;UserPO&gt;().eq(&quot;wechat_openid&quot;, openid));</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (user == null) {</span>
+            // 创建新用户
+<span class="nc" id="L50">            user = new UserPO();</span>
+<span class="nc" id="L51">            user.setUserId(IdGenerator.newId(&quot;user&quot;));</span>
+<span class="nc" id="L52">            user.setWechatOpenid(openid);</span>
+            // 使用传入的nickname，如果为空则使用默认值
+<span class="nc bnc" id="L54" title="All 2 branches missed.">            user.setNickname(hasText(nickname) ? nickname.trim() : &quot;微信用户&quot;);</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">            user.setAvatarUrl(hasText(avatarUrl) &amp;&amp; !isExampleDotComAvatar(avatarUrl) ? avatarUrl : &quot;&quot;);</span>
+<span class="nc" id="L56">            user.setRole(&quot;HR&quot;);</span>
+<span class="nc" id="L57">            user.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="nc" id="L58">            userMapper.insert(user);</span>
+        } else {
+            // 更新现有用户信息（如果提供了新的nickname或avatarUrl）
+<span class="nc" id="L61">            boolean needUpdate = false;</span>
+
+<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (hasText(nickname) &amp;&amp; !nickname.trim().equals(user.getNickname())) {</span>
+<span class="nc" id="L64">                user.setNickname(nickname.trim());</span>
+<span class="nc" id="L65">                needUpdate = true;</span>
+            }
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (hasText(avatarUrl)) {</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">                if (!isExampleDotComAvatar(avatarUrl) &amp;&amp; !avatarUrl.equals(user.getAvatarUrl())) {</span>
+<span class="nc" id="L70">                    user.setAvatarUrl(avatarUrl);</span>
+<span class="nc" id="L71">                    needUpdate = true;</span>
+                }
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            } else if (isExampleDotComAvatar(user.getAvatarUrl())) {</span>
+                // 自动清理历史测试数据里遗留的 example.com 外链头像，避免前端持续 404
+<span class="nc" id="L75">                user.setAvatarUrl(&quot;&quot;);</span>
+<span class="nc" id="L76">                needUpdate = true;</span>
+            }
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (needUpdate) {</span>
+<span class="nc" id="L80">                userMapper.updateById(user);</span>
+            }
+        }
+
+<span class="nc" id="L84">        String token = jwt.issueToken(user.getUserId(), EXPIRES_SECONDS);</span>
+        try {
+<span class="nc" id="L86">            redis.opsForValue().set(&quot;session:&quot; + token, user.getUserId(), Duration.ofSeconds(EXPIRES_SECONDS));</span>
+<span class="nc" id="L87">        } catch (Exception e) {</span>
+            // Redis 不可用时仍允许登录，后续请求可回退到 JWT 解析
+<span class="nc" id="L89">            log.warn(&quot;redis unavailable when setting session token, fallback to stateless jwt: userId={}&quot;, user.getUserId(), e);</span>
+<span class="nc" id="L90">        }</span>
+
+        // 构建包含完整userInfo的响应
+<span class="nc" id="L93">        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());</span>
+<span class="nc" id="L94">        LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(</span>
+<span class="nc" id="L95">            user.getUserId(),</span>
+<span class="nc" id="L96">            user.getNickname(),</span>
+            avatar,
+<span class="nc" id="L98">            user.getPhone(),</span>
+<span class="nc" id="L99">            user.getCompany(),</span>
+<span class="nc" id="L100">            user.getRole()</span>
+        );
+
+<span class="nc" id="L103">        return new LoginResponse(token, userInfo);</span>
+    }
+
+    // 辅助方法：检查字符串是否有内容
+    private boolean hasText(String str) {
+<span class="nc bnc" id="L108" title="All 4 branches missed.">        return str != null &amp;&amp; !str.trim().isEmpty();</span>
+    }
+
+    private boolean isExampleDotComAvatar(String avatarUrl) {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (avatarUrl == null) return false;</span>
+<span class="nc" id="L113">        String s = avatarUrl.trim().toLowerCase(Locale.ROOT);</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">        return s.startsWith(&quot;http://example.com/&quot;) || s.startsWith(&quot;https://example.com/&quot;);</span>
+    }
+
+    public String getUserIdFromAuthorization(String authorization) {
+<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (authorization == null || !authorization.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="nc" id="L119">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;missing bearer token&quot;);</span>
+        }
+<span class="nc" id="L121">        String token = authorization.substring(&quot;Bearer &quot;.length()).trim();</span>
+<span class="nc" id="L122">        String userId = null;</span>
+        try {
+<span class="nc" id="L124">            userId = redis.opsForValue().get(&quot;session:&quot; + token);</span>
+<span class="nc" id="L125">        } catch (Exception e) {</span>
+            // 本地联调常见：Redis 未启动/密码不一致/网络不可达，避免直接 500
+<span class="nc" id="L127">            log.warn(&quot;redis unavailable when reading session token, fallback to stateless jwt&quot;, e);</span>
+<span class="nc" id="L128">        }</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (userId == null) {</span>
+            // fallback: parse jwt (stateless); still requires that token is valid
+            try {
+<span class="nc" id="L132">                userId = jwt.parseUserId(token);</span>
+<span class="nc" id="L133">            } catch (Exception e) {</span>
+<span class="nc" id="L134">                throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
+<span class="nc" id="L135">            }</span>
+        }
+<span class="nc" id="L137">        return userId;</span>
+    }
+
+    /**
+     * Refresh token if it's close to expiration.
+     * Returns new token and user info, or null if token doesn't need refresh.
+     */
+    public LoginResponse refreshTokenIfNeeded(String authorization) {
+<span class="nc bnc" id="L145" title="All 4 branches missed.">        if (authorization == null || !authorization.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="nc" id="L146">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;missing bearer token&quot;);</span>
+        }
+<span class="nc" id="L148">        String token = authorization.substring(&quot;Bearer &quot;.length()).trim();</span>
+
+        // Validate and extract userId
+        String userId;
+        try {
+<span class="nc" id="L153">            userId = jwt.parseUserId(token);</span>
+<span class="nc" id="L154">        } catch (Exception e) {</span>
+<span class="nc" id="L155">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
+<span class="nc" id="L156">        }</span>
+
+        // Check if token needs refresh
+        boolean needsRefresh;
+        try {
+<span class="nc" id="L161">            needsRefresh = jwt.willExpireSoon(token, REFRESH_THRESHOLD_SECONDS);</span>
+<span class="nc" id="L162">        } catch (Exception e) {</span>
+<span class="nc" id="L163">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
+<span class="nc" id="L164">        }</span>
+
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (!needsRefresh) {</span>
+<span class="nc" id="L167">            return null; // Token is still fresh, no refresh needed</span>
+        }
+
+        // Issue new token
+<span class="nc" id="L171">        String newToken = jwt.issueToken(userId, EXPIRES_SECONDS);</span>
+
+        // Update Redis session
+        try {
+            // Delete old session
+<span class="nc" id="L176">            redis.delete(&quot;session:&quot; + token);</span>
+            // Create new session
+<span class="nc" id="L178">            redis.opsForValue().set(&quot;session:&quot; + newToken, userId, Duration.ofSeconds(EXPIRES_SECONDS));</span>
+<span class="nc" id="L179">        } catch (Exception e) {</span>
+<span class="nc" id="L180">            log.warn(&quot;redis unavailable when refreshing token, fallback to stateless jwt: userId={}&quot;, userId, e);</span>
+<span class="nc" id="L181">        }</span>
+
+        // Load user info
+<span class="nc" id="L184">        UserPO user = userMapper.selectOne(new QueryWrapper&lt;UserPO&gt;().eq(&quot;user_id&quot;, userId));</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L186">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;user not found&quot;);</span>
+        }
+
+<span class="nc" id="L189">        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());</span>
+<span class="nc" id="L190">        LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(</span>
+<span class="nc" id="L191">            user.getUserId(),</span>
+<span class="nc" id="L192">            user.getNickname(),</span>
+            avatar,
+<span class="nc" id="L194">            user.getPhone(),</span>
+<span class="nc" id="L195">            user.getCompany(),</span>
+<span class="nc" id="L196">            user.getRole()</span>
+        );
+
+<span class="nc" id="L199">        log.info(&quot;Token refreshed for user: {}&quot;, userId);</span>
+<span class="nc" id="L200">        return new LoginResponse(newToken, userInfo);</span>
+    }
+
+    private static String pseudoOpenId(String code) {
+        // 开发模式：使用固定的 openid，确保同一设备登录到同一账号
+        // TODO: 生产环境需调用微信 API (jscode2session) 获取真实 openid
+        // 暂时使用固定 openid 方便测试，所有用户登录到同一账号
+<span class="nc" id="L207">        return &quot;openid_dev_fixed_user&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

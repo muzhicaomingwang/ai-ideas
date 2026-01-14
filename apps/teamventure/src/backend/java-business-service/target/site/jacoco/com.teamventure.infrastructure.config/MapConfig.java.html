@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.config</a> &gt; <span class="el_source">MapConfig.java</span></div><h1>MapConfig.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.config;
+
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
+
+/**
+ * 地图服务配置类
+ *
+ * 配置熔断器、重试等resilience组件
+ *
+ * @author TeamVenture
+ * @since 2026-01-14
+ */
+@Configuration
+<span class="fc" id="L20">public class MapConfig {</span>
+
+    /**
+     * 配置高德地图API的熔断器
+     *
+     * 熔断策略：
+     * - 失败率达到50%时开启熔断
+     * - 熔断后等待30秒再尝试半开状态
+     * - 滑动窗口10次请求
+     * - 至少5次调用后才开始计算失败率
+     *
+     * @return CircuitBreaker实例
+     */
+    @Bean
+    public CircuitBreaker mapCircuitBreaker() {
+<span class="fc" id="L35">        CircuitBreakerConfig config = CircuitBreakerConfig.custom()</span>
+<span class="fc" id="L36">            .failureRateThreshold(50)  // 失败率阈值50%</span>
+<span class="fc" id="L37">            .waitDurationInOpenState(Duration.ofSeconds(30))  // 熔断后等待30秒</span>
+<span class="fc" id="L38">            .slidingWindowSize(10)  // 滑动窗口大小10次请求</span>
+<span class="fc" id="L39">            .minimumNumberOfCalls(5)  // 至少5次调用才计算失败率</span>
+<span class="fc" id="L40">            .permittedNumberOfCallsInHalfOpenState(3)  // 半开状态允许3次调用</span>
+<span class="fc" id="L41">            .automaticTransitionFromOpenToHalfOpenEnabled(true)  // 自动从开启转半开</span>
+<span class="fc" id="L42">            .recordExceptions(</span>
+                java.net.SocketTimeoutException.class,
+                java.net.ConnectException.class,
+                java.io.IOException.class
+            )
+<span class="fc" id="L47">            .ignoreExceptions(IllegalArgumentException.class)  // 参数错误不计入失败率</span>
+<span class="fc" id="L48">            .build();</span>
+
+<span class="fc" id="L50">        CircuitBreaker circuitBreaker = CircuitBreaker.of(&quot;amap-static-api&quot;, config);</span>
+
+        // 注册事件监听（用于监控和告警）
+<span class="fc" id="L53">        circuitBreaker.getEventPublisher()</span>
+<span class="fc" id="L54">            .onStateTransition(event -&gt; {</span>
+                // 熔断状态变化时记录日志
+<span class="nc" id="L56">                org.slf4j.LoggerFactory.getLogger(MapConfig.class)</span>
+<span class="nc" id="L57">                    .warn(&quot;CircuitBreaker state changed: {} -&gt; {}&quot;,</span>
+<span class="nc" id="L58">                        event.getStateTransition().getFromState(),</span>
+<span class="nc" id="L59">                        event.getStateTransition().getToState()</span>
+                    );
+<span class="nc" id="L61">            })</span>
+<span class="fc" id="L62">            .onFailureRateExceeded(event -&gt; {</span>
+                // 失败率超过阈值时告警
+<span class="nc" id="L64">                org.slf4j.LoggerFactory.getLogger(MapConfig.class)</span>
+<span class="nc" id="L65">                    .error(&quot;CircuitBreaker failure rate exceeded: {}%&quot;,</span>
+<span class="nc" id="L66">                        event.getFailureRate()</span>
+                    );
+<span class="nc" id="L68">            });</span>
+
+<span class="fc" id="L70">        return circuitBreaker;</span>
+    }
+
+    /**
+     * 配置熔断器注册表（用于管理多个熔断器）
+     *
+     * @return CircuitBreakerRegistry
+     */
+    @Bean
+    public CircuitBreakerRegistry circuitBreakerRegistry() {
+<span class="fc" id="L80">        return CircuitBreakerRegistry.of(</span>
+<span class="fc" id="L81">            CircuitBreakerConfig.ofDefaults()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

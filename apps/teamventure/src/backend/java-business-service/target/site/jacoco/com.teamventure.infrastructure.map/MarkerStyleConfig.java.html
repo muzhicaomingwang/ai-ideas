@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarkerStyleConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.map</a> &gt; <span class="el_source">MarkerStyleConfig.java</span></div><h1>MarkerStyleConfig.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.map;
+
+import com.teamventure.domain.valueobject.MapRequest.Point;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 地图标注样式配置
+ *
+ * 为不同类型的POI生成统一的标注样式参数
+ *
+ * @author TeamVenture
+ * @since 2026-01-14
+ */
+@Component
+<span class="fc" id="L20">public class MarkerStyleConfig {</span>
+
+    @Value(&quot;${teamventure.map.style.marker.start-color:0x00FF00}&quot;)
+    private String startColor;
+
+    @Value(&quot;${teamventure.map.style.marker.end-color:0xFF0000}&quot;)
+    private String endColor;
+
+    @Value(&quot;${teamventure.map.style.marker.waypoint-color:0x1890FF}&quot;)
+    private String waypointColor;
+
+    /**
+     * 标注样式枚举
+     */
+<span class="fc" id="L34">    public enum MarkerStyle {</span>
+<span class="fc" id="L35">        START(&quot;S&quot;, &quot;0x00FF00&quot;, &quot;large&quot;),      // 起点：绿色大标</span>
+<span class="fc" id="L36">        END(&quot;E&quot;, &quot;0xFF0000&quot;, &quot;large&quot;),        // 终点：红色大标</span>
+<span class="fc" id="L37">        WAYPOINT(&quot;&quot;, &quot;0x1890FF&quot;, &quot;mid&quot;),      // 途经点：蓝色中标</span>
+<span class="fc" id="L38">        SUPPLIER(&quot;$&quot;, &quot;0xFFA500&quot;, &quot;small&quot;);   // 供应商：橙色小标</span>
+
+        private final String label;
+        private final String defaultColor;
+        private final String size;
+
+<span class="fc" id="L44">        MarkerStyle(String label, String defaultColor, String size) {</span>
+<span class="fc" id="L45">            this.label = label;</span>
+<span class="fc" id="L46">            this.defaultColor = defaultColor;</span>
+<span class="fc" id="L47">            this.size = size;</span>
+<span class="fc" id="L48">        }</span>
+
+        public String getLabel() {
+<span class="fc" id="L51">            return label;</span>
+        }
+
+        public String getDefaultColor() {
+<span class="fc" id="L55">            return defaultColor;</span>
+        }
+
+        public String getSize() {
+<span class="fc" id="L59">            return size;</span>
+        }
+    }
+
+    /**
+     * 为路线POI列表生成markers参数
+     *
+     * 格式：size,color,label:lng,lat|size,color,label:lng,lat|...
+     * 示例：mid,0x00FF00,S:121.47,31.23|mid,0x1890FF,:121.48,31.24|mid,0xFF0000,E:121.49,31.25
+     *
+     * @param points POI坐标列表
+     * @return 高德API markers参数
+     */
+    public String generateMarkersParam(List&lt;Point&gt; points) {
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        if (points == null || points.isEmpty()) {</span>
+<span class="fc" id="L74">            return &quot;&quot;;</span>
+        }
+
+<span class="fc" id="L77">        List&lt;String&gt; markers = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (int i = 0; i &lt; points.size(); i++) {</span>
+<span class="fc" id="L80">            Point point = points.get(i);</span>
+            MarkerStyle style;
+            String color;
+
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            if (i == 0) {</span>
+                // 起点
+<span class="fc" id="L86">                style = MarkerStyle.START;</span>
+<span class="fc" id="L87">                color = startColor;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            } else if (i == points.size() - 1) {</span>
+                // 终点
+<span class="fc" id="L90">                style = MarkerStyle.END;</span>
+<span class="fc" id="L91">                color = endColor;</span>
+            } else {
+                // 途经点
+<span class="fc" id="L94">                style = MarkerStyle.WAYPOINT;</span>
+<span class="fc" id="L95">                color = waypointColor;</span>
+            }
+
+<span class="fc" id="L98">            markers.add(formatMarker(style, color, point));</span>
+        }
+
+<span class="fc" id="L101">        return String.join(&quot;|&quot;, markers);</span>
+    }
+
+    /**
+     * 格式化单个标注参数
+     *
+     * @param style 标注样式
+     * @param color 标注颜色（十六进制，如0x00FF00）
+     * @param point 坐标点
+     * @return 高德API格式：size,color,label:lng,lat
+     */
+    private String formatMarker(MarkerStyle style, String color, Point point) {
+<span class="fc" id="L113">        return String.format(&quot;%s,%s,%s:%.6f,%.6f&quot;,</span>
+<span class="fc" id="L114">            style.getSize(),</span>
+            color,
+<span class="fc" id="L116">            style.getLabel(),</span>
+<span class="fc" id="L117">            point.getLongitude(),</span>
+<span class="fc" id="L118">            point.getLatitude()</span>
+        );
+    }
+
+    /**
+     * 为供应商位置生成单个标注
+     *
+     * @param point 供应商坐标
+     * @return markers参数
+     */
+    public String generateSupplierMarker(Point point) {
+<span class="fc" id="L129">        return formatMarker(</span>
+            MarkerStyle.SUPPLIER,
+<span class="fc" id="L131">            MarkerStyle.SUPPLIER.getDefaultColor(),</span>
+            point
+        );
+    }
+
+    /**
+     * 生成带自定义标签的标注
+     *
+     * @param point 坐标点
+     * @param label 自定义标签文本（单个字符）
+     * @param color 颜色（十六进制）
+     * @return markers参数
+     */
+    public String generateCustomMarker(Point point, String label, String color) {
+<span class="fc" id="L145">        return String.format(&quot;mid,%s,%s:%.6f,%.6f&quot;,</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            color != null ? color : waypointColor,</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">            label != null ? label : &quot;&quot;,</span>
+<span class="fc" id="L148">            point.getLongitude(),</span>
+<span class="fc" id="L149">            point.getLatitude()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

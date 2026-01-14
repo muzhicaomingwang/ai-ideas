@@ -120,7 +120,7 @@ public class MarkerStyleConfig {
     }
 
     /**
-     * 为供应商位置生成单个标注
+     * 为供应商地点生成单个标注
      *
      * @param point 供应商坐标
      * @return markers参数

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ZoomCalculator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.map</a> &gt; <span class="el_source">ZoomCalculator.java</span></div><h1>ZoomCalculator.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.map;
+
+import com.teamventure.domain.valueobject.MapRequest.Point;
+import com.teamventure.domain.valueobject.MapSizePreset;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+/**
+ * 地图缩放级别智能计算器
+ *
+ * 根据POI分布自动计算最佳zoom级别，确保所有标注点都在可视范围内
+ *
+ * 算法原理：
+ * 1. 计算所有POI的地理包围盒（BoundingBox）
+ * 2. 根据包围盒的宽度和高度映射到zoom级别
+ * 3. 针对不同地图尺寸进行微调
+ *
+ * @author TeamVenture
+ * @since 2026-01-14
+ */
+@Component
+<span class="fc" id="L23">public class ZoomCalculator {</span>
+
+    /**
+     * 计算最佳zoom级别
+     *
+     * @param points POI坐标列表
+     * @param size 地图尺寸预设
+     * @return zoom级别（3-18）
+     */
+    public int calculateOptimalZoom(List&lt;Point&gt; points, MapSizePreset size) {
+<span class="pc bpc" id="L33" title="2 of 4 branches missed.">        if (points == null || points.isEmpty()) {</span>
+<span class="nc" id="L34">            return getDefaultZoom(size);</span>
+        }
+
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (points.size() == 1) {</span>
+            // 单点地图：根据场景返回合适的zoom
+<span class="nc" id="L39">            return getSinglePointZoom(size);</span>
+        }
+
+        // 1. 计算包围盒
+<span class="fc" id="L43">        BoundingBox bbox = calculateBoundingBox(points);</span>
+
+        // 2. 计算跨度（取宽高中的较大值，并留20%边距）
+<span class="fc" id="L46">        double maxSpan = Math.max(bbox.getWidth(), bbox.getHeight()) * 1.2;</span>
+
+        // 3. 跨度到zoom级别映射
+<span class="fc" id="L49">        int zoom = mapSpanToZoom(maxSpan);</span>
+
+        // 4. 根据地图尺寸微调
+<span class="fc" id="L52">        zoom = adjustZoomBySize(zoom, size);</span>
+
+        // 5. 限制在有效范围内
+<span class="fc" id="L55">        return Math.max(3, Math.min(18, zoom));</span>
+    }
+
+    /**
+     * 跨度到zoom级别映射
+     *
+     * 高德地图zoom与经纬度跨度的对应关系：
+     * - zoom=3:  全球视图   (~180度，跨国/跨省&gt;500km)
+     * - zoom=8:  省级视图   (~10度，跨市100-500km)
+     * - zoom=12: 城市视图   (~0.3度 ≈ 30km，同城)
+     * - zoom=15: 街区视图   (~0.01度 ≈ 1km)
+     * - zoom=17: 建筑视图   (~0.003度 ≈ 300m)
+     *
+     * @param maxSpan 最大跨度（度）
+     * @return zoom级别
+     */
+    private int mapSpanToZoom(double maxSpan) {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (maxSpan &gt; 5.0) {</span>
+<span class="fc" id="L73">            return 3;   // 跨省/跨国（&gt;500km，如北京-上海、上海-广州）</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        } else if (maxSpan &gt; 1.0) {</span>
+<span class="nc" id="L75">            return 8;   // 跨市（100-500km）</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        } else if (maxSpan &gt; 0.1) {</span>
+<span class="nc" id="L77">            return 12;  // 同城（10-100km）</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        } else if (maxSpan &gt; 0.01) {</span>
+<span class="nc" id="L79">            return 15;  // 街区（1-10km）</span>
+        } else {
+<span class="nc" id="L81">            return 17;  // 相邻建筑（&lt;1km）</span>
+        }
+    }
+
+    /**
+     * 根据地图尺寸微调zoom
+     *
+     * 原则：
+     * - 缩略图（小尺寸）：降低zoom，显示更大范围
+     * - 分享图（大尺寸）：提高zoom，显示更多细节
+     *
+     * @param baseZoom 基础zoom级别
+     * @param size 地图尺寸
+     * @return 调整后的zoom
+     */
+    private int adjustZoomBySize(int baseZoom, MapSizePreset size) {
+<span class="pc bpc" id="L97" title="2 of 3 branches missed.">        switch (size) {</span>
+            case THUMBNAIL:
+                // 缩略图：降低1级zoom（显示更大范围，避免拥挤）
+<span class="nc" id="L100">                return Math.max(3, baseZoom - 1);</span>
+
+            case SHARE:
+                // 分享图：提高1级zoom（显示更多细节）
+<span class="nc" id="L104">                return Math.min(18, baseZoom + 1);</span>
+
+            case DETAIL:
+            case SUPPLIER:
+            default:
+                // 详情页和供应商位置：使用基础zoom
+<span class="fc" id="L110">                return baseZoom;</span>
+        }
+    }
+
+    /**
+     * 获取单点地图的默认zoom
+     *
+     * @param size 地图尺寸
+     * @return zoom级别
+     */
+    private int getSinglePointZoom(MapSizePreset size) {
+<span class="nc bnc" id="L121" title="All 4 branches missed.">        switch (size) {</span>
+            case THUMBNAIL:
+<span class="nc" id="L123">                return 13;  // 缩略图：稍远视角</span>
+            case SHARE:
+<span class="nc" id="L125">                return 16;  // 分享图：清晰展示周边</span>
+            case SUPPLIER:
+<span class="nc" id="L127">                return 15;  // 供应商：街区级别</span>
+            case DETAIL:
+            default:
+<span class="nc" id="L130">                return 15;  // 详情页：街区级别</span>
+        }
+    }
+
+    /**
+     * 获取默认zoom（无POI时）
+     *
+     * @param size 地图尺寸
+     * @return zoom级别
+     */
+    private int getDefaultZoom(MapSizePreset size) {
+<span class="nc" id="L141">        return 12;  // 默认城市级别视图</span>
+    }
+
+    /**
+     * 计算地理包围盒
+     *
+     * @param points POI坐标列表
+     * @return 包围盒对象
+     */
+    private BoundingBox calculateBoundingBox(List&lt;Point&gt; points) {
+<span class="fc" id="L151">        double minLat = points.stream()</span>
+<span class="fc" id="L152">            .mapToDouble(Point::getLatitude)</span>
+<span class="fc" id="L153">            .min()</span>
+<span class="fc" id="L154">            .orElse(0);</span>
+
+<span class="fc" id="L156">        double maxLat = points.stream()</span>
+<span class="fc" id="L157">            .mapToDouble(Point::getLatitude)</span>
+<span class="fc" id="L158">            .max()</span>
+<span class="fc" id="L159">            .orElse(0);</span>
+
+<span class="fc" id="L161">        double minLng = points.stream()</span>
+<span class="fc" id="L162">            .mapToDouble(Point::getLongitude)</span>
+<span class="fc" id="L163">            .min()</span>
+<span class="fc" id="L164">            .orElse(0);</span>
+
+<span class="fc" id="L166">        double maxLng = points.stream()</span>
+<span class="fc" id="L167">            .mapToDouble(Point::getLongitude)</span>
+<span class="fc" id="L168">            .max()</span>
+<span class="fc" id="L169">            .orElse(0);</span>
+
+<span class="fc" id="L171">        return new BoundingBox(minLat, maxLat, minLng, maxLng);</span>
+    }
+
+    /**
+     * 地理包围盒内部类
+     */
+    private static class BoundingBox {
+        private final double minLat;
+        private final double maxLat;
+        private final double minLng;
+        private final double maxLng;
+
+<span class="fc" id="L183">        BoundingBox(double minLat, double maxLat, double minLng, double maxLng) {</span>
+<span class="fc" id="L184">            this.minLat = minLat;</span>
+<span class="fc" id="L185">            this.maxLat = maxLat;</span>
+<span class="fc" id="L186">            this.minLng = minLng;</span>
+<span class="fc" id="L187">            this.maxLng = maxLng;</span>
+<span class="fc" id="L188">        }</span>
+
+        /**
+         * 获取纬度跨度（度）
+         */
+        double getHeight() {
+<span class="fc" id="L194">            return maxLat - minLat;</span>
+        }
+
+        /**
+         * 获取经度跨度（度）
+         */
+        double getWidth() {
+<span class="fc" id="L201">            return maxLng - minLng;</span>
+        }
+
+        /**
+         * 获取中心点
+         */
+        Point getCenter() {
+<span class="nc" id="L208">            return Point.builder()</span>
+<span class="nc" id="L209">                .latitude((minLat + maxLat) / 2.0)</span>
+<span class="nc" id="L210">                .longitude((minLng + maxLng) / 2.0)</span>
+<span class="nc" id="L211">                .build();</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L216">            return String.format(&quot;BBox[lat:%.4f~%.4f, lng:%.4f~%.4f, span:%.4f°×%.4f°]&quot;,</span>
+<span class="nc" id="L217">                minLat, maxLat, minLng, maxLng, getHeight(), getWidth());</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

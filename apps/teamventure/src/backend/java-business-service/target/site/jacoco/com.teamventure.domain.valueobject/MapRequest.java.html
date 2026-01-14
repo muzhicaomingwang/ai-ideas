@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.domain.valueobject</a> &gt; <span class="el_source">MapRequest.java</span></div><h1>MapRequest.java</h1><pre class="source lang-java linenums">package com.teamventure.domain.valueobject;
+
+import lombok.Builder;
+import lombok.Data;
+import org.apache.commons.codec.digest.DigestUtils;
+
+/**
+ * 静态地图请求参数值对象
+ *
+ * 封装生成高德静态地图所需的全部参数
+ *
+ * @author TeamVenture
+ * @since 2026-01-14
+ */
+<span class="nc bnc" id="L15" title="All 62 branches missed.">@Data</span>
+<span class="pc bpc" id="L16" title="2 of 4 branches missed.">@Builder</span>
+public class MapRequest {
+    /**
+     * 地图尺寸预设
+     */
+<span class="fc" id="L21">    private MapSizePreset size;</span>
+
+    /**
+     * 缩放级别（3-18）
+     * - 3: 跨省视图
+     * - 8: 跨市视图
+     * - 12: 同城视图
+     * - 15: 街区视图
+     * - 17: 建筑视图
+     */
+<span class="fc" id="L31">    private Integer zoom;</span>
+
+    /**
+     * 地图中心点坐标
+     */
+<span class="fc" id="L36">    private Point center;</span>
+
+    /**
+     * 标注参数（高德API格式）
+     * 格式：size,color,label:lng,lat|size,color,label:lng,lat|...
+     * 示例：mid,0x00FF00,A:121.47,31.23|mid,0xFF0000,B:121.48,31.24
+     */
+<span class="fc" id="L43">    private String markers;</span>
+
+    /**
+     * 路径参数（高德API格式）
+     * 格式：weight,color,transparency:lng1,lat1;lng2,lat2;...
+     * 示例：6,0x1890FF,1:121.47,31.23;121.48,31.24;121.49,31.25
+     */
+<span class="nc" id="L50">    private String paths;</span>
+
+    /**
+     * 地图风格
+     * - normal: 标准地图
+     * - satellite: 卫星图
+     * - dark: 暗色模式（v5支持）
+     */
+    @Builder.Default
+<span class="fc" id="L59">    private String style = &quot;normal&quot;;</span>
+
+    /**
+     * 图片格式
+     * - png: PNG格式（无损，文件较大）
+     * - jpg: JPEG格式（有损，文件较小）
+     * - webp: WebP格式（v5支持，最优压缩）
+     */
+    @Builder.Default
+<span class="nc" id="L68">    private String format = &quot;png&quot;;</span>
+
+    /**
+     * 生成缓存Key（MD5哈希）
+     *
+     * 缓存Key包含所有影响地图生成的参数，确保唯一性
+     *
+     * @return 32字符MD5字符串
+     */
+    public String generateCacheKey() {
+<span class="nc" id="L78">        String raw = String.join(&quot;_&quot;,</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            size != null ? size.name() : &quot;DETAIL&quot;,</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            zoom != null ? zoom.toString() : &quot;15&quot;,</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            center != null ? formatPoint(center) : &quot;0,0&quot;,</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            markers != null ? markers : &quot;&quot;,</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            paths != null ? paths : &quot;&quot;,</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            style != null ? style : &quot;normal&quot;,</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            format != null ? format : &quot;png&quot;</span>
+        );
+<span class="nc" id="L87">        return DigestUtils.md5Hex(raw);</span>
+    }
+
+    /**
+     * 格式化坐标点为字符串
+     *
+     * @param point 坐标点
+     * @return 格式：longitude,latitude（保留6位小数）
+     */
+    private String formatPoint(Point point) {
+<span class="nc" id="L97">        return String.format(&quot;%.6f,%.6f&quot;,</span>
+<span class="nc" id="L98">            point.getLongitude(),</span>
+<span class="nc" id="L99">            point.getLatitude()</span>
+        );
+    }
+
+    /**
+     * 校验请求参数合法性
+     *
+     * @throws IllegalArgumentException 参数不合法时抛出
+     */
+    public void validate() {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (size == null) {</span>
+<span class="nc" id="L110">            throw new IllegalArgumentException(&quot;MapSizePreset cannot be null&quot;);</span>
+        }
+
+<span class="nc bnc" id="L113" title="All 6 branches missed.">        if (zoom == null || zoom &lt; 3 || zoom &gt; 18) {</span>
+<span class="nc" id="L114">            throw new IllegalArgumentException(&quot;Zoom must be between 3 and 18&quot;);</span>
+        }
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (center == null) {</span>
+<span class="nc" id="L118">            throw new IllegalArgumentException(&quot;Center point cannot be null&quot;);</span>
+        }
+
+        // 校验坐标范围（中国境内）
+<span class="nc" id="L122">        double lat = center.getLatitude();</span>
+<span class="nc" id="L123">        double lng = center.getLongitude();</span>
+<span class="nc bnc" id="L124" title="All 8 branches missed.">        if (lat &lt; 3.86 || lat &gt; 53.55 || lng &lt; 73.66 || lng &gt; 135.05) {</span>
+<span class="nc" id="L125">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L126">                String.format(&quot;Coordinates out of China range: (%f, %f)&quot;, lng, lat)</span>
+            );
+        }
+<span class="nc" id="L129">    }</span>
+
+    /**
+     * 坐标点内部类
+     */
+<span class="pc bpc" id="L134" title="5 of 10 branches missed.">    @Data</span>
+<span class="pc" id="L135">    @Builder</span>
+    public static class Point {
+<span class="fc" id="L137">        private double longitude;  // 经度（GCJ-02坐标系）</span>
+<span class="fc" id="L138">        private double latitude;   // 纬度（GCJ-02坐标系）</span>
+
+        /**
+         * 创建坐标点
+         *
+         * @param longitude 经度
+         * @param latitude 纬度
+         * @return Point对象
+         */
+        public static Point of(double longitude, double latitude) {
+<span class="fc" id="L148">            return Point.builder()</span>
+<span class="fc" id="L149">                .longitude(longitude)</span>
+<span class="fc" id="L150">                .latitude(latitude)</span>
+<span class="fc" id="L151">                .build();</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L156">            return String.format(&quot;(%.6f, %.6f)&quot;, longitude, latitude);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

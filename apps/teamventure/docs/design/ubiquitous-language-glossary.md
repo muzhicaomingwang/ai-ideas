@@ -1,10 +1,10 @@
 # TeamVenture 领域统一语言词汇表 (Ubiquitous Language Glossary)
 
 **创建日期**: 2026-01-06
-**版本**: v1.4
+**版本**: v1.5
 **目的**: 确保全链路字段命名一致性，消除"翻译损耗"
 
-**最新更新**: 新增地点选择（LocationPicker）模块术语定义
+**最新更新**: 新增地图服务（MapService）模块术语定义（v1.5）
 
 ---
 
@@ -397,6 +397,123 @@ confirmed → archived (归档)
 | `COMPLETED` | 已完成 | 3套方案已生成 |
 | `FAILED` | 失败 | 生成过程出错 |
 
+### 3.7 地图服务 (Map Service) ⭐ v1.5新增
+
+#### 3.7.1 核心术语定义
+
+| 中文术语 | 英文术语 | 代码标识 | 说明 | ❌ 避免使用 |
+|---------|---------|---------|------|-----------|
+| **标注** | **Marker** | `marker` | 地图上的标记点（如起点/终点/途经点） | 标记、图钉、pin |
+| **路径** | **Path** | `path` / `polyline` | 连接多个坐标点的线条（表示行程路线） | 线路、轨迹、路线线条 |
+| **折线** | **Polyline** | `polyline` | 由多个坐标点组成的折线（高德API术语） | 路径点列表、坐标串 |
+| **缩放级别** | **Zoom Level** | `zoom` | 地图显示精度（3-18，数字越大越详细） | 缩放比例、zoom比例 |
+| **地图尺寸** | **Map Size** | `size` | 静态地图图片的宽高（如750x520） | 图片大小、地图大小 |
+| **静态地图** | **Static Map** | `staticMap` | 服务端生成的地图图片URL（用于展示） | 地图图片、地图快照 |
+| **交互地图** | **Interactive Map** | `interactiveMap` | 小程序原生地图组件（用户可操作） | 动态地图、可交互地图 |
+| **降级策略** | **Degradation** | `degradation` | API失败时的兜底方案（简化→占位图） | 回退、fallback、备选方案 |
+| **占位图** | **Placeholder** | `placeholder` | API完全失败时显示的默认图片 | 默认图、兜底图 |
+| **缓存键** | **Cache Key** | `cacheKey` | 基于请求参数生成的MD5哈希（32字符） | 缓存ID、key |
+
+#### 3.7.2 标注类型枚举
+
+| 标注类型 | 中文名 | 样式参数 | 说明 |
+|---------|--------|---------|------|
+| `START` | 起点 | 绿色大标，标签"S" | 行程的第一个地点 |
+| `END` | 终点 | 红色大标，标签"E" | 行程的最后一个地点 |
+| `WAYPOINT` | 途经点 | 蓝色中标，无标签 | 起终点之间的中间地点 |
+| `SUPPLIER` | 供应商地点 | 橙色小标，标签"$" | 供应商POI（非MVP） |
+
+#### 3.7.3 路径样式枚举（按交通方式）
+
+| 交通方式 | 英文术语 | 路径样式 | 说明 |
+|---------|---------|---------|------|
+| 驾车 | `driving` | 蓝色粗线（宽度6，透明度1.0） | 自驾或包车路线 |
+| 步行 | `walking` | 绿色中线（宽度4，透明度0.8） | 景点间步行路线 |
+| 骑行 | `cycling` | 橙色中线（宽度5，透明度0.9） | 骑行路线（非MVP） |
+| 公交 | `transit` | 紫色中线（宽度5，透明度0.9） | 公共交通路线 |
+
+#### 3.7.4 地图尺寸预设
+
+| 预设名称 | 英文标识 | 尺寸（宽x高） | 使用场景 |
+|---------|---------|-------------|----------|
+| 详情页主地图 | `DETAIL` | 750x520 | 方案详情页展示完整路线 |
+| 列表缩略图 | `THUMBNAIL` | 375x200 | 方案列表页快速预览 |
+| 分享图 | `SHARE` | 1200x800 | 社交媒体分享（适配微信朋友圈） |
+| 供应商地点图 | `SUPPLIER` | 600x400 | 供应商详情页（非MVP） |
+
+#### 3.7.5 缩放级别映射
+
+| Zoom级别 | 跨度范围 | 视图类型 | 典型场景 |
+|---------|---------|---------|----------|
+| 3 | >5度（>500km） | 全球/跨省 | 北京→上海、上海→广州 |
+| 8 | 1-5度（100-500km） | 省级/跨市 | 杭州→宁波 |
+| 12 | 0.1-1度（10-100km） | 城市 | 杭州市内跨区 |
+| 15 | 0.01-0.1度（1-10km） | 街区 | 西湖周边景点 |
+| 17 | <0.01度（<1km） | 建筑 | 相邻建筑物 |
+
+#### 3.7.6 降级策略层级
+
+| 降级级别 | 策略名称 | 触发条件 | 应对措施 |
+|---------|---------|---------|----------|
+| Level 1 | 重试 | API超时/限流 | 指数退避重试（1s→2s→4s，最多3次） |
+| Level 2 | 简化地图 | 重试失败 | 降低zoom、缩小尺寸、移除路径、改用JPEG |
+| Level 3 | 占位图 | 简化失败 | 返回CDN占位图URL |
+| Level 4 | 熔断器 | 持续失败 | 熔断器打开，快速失败，不调用API |
+
+#### 3.7.7 缓存架构
+
+| 缓存层级 | 存储介质 | 容量 | TTL | 用途 |
+|---------|---------|------|-----|------|
+| L1 | Caffeine内存 | 1000条 | 7天 | 快速访问（<10ms） |
+| L2 | Redis | 无限制 | 30天 | 跨实例共享 |
+| L3 | MySQL | 无限制 | 永久 | 防缓存穿透、热度统计 |
+
+#### 3.7.8 数据库表设计
+
+**表名**: `static_map_url_cache` （静态地图URL缓存表）
+
+| 数据库字段 | Java字段 | 类型 | 说明 |
+|-----------|---------|------|------|
+| `cache_key` | `cacheKey` | VARCHAR(32) | MD5缓存键（UNIQUE） |
+| `url` | `url` | TEXT | 静态地图URL |
+| `request` | `request` | JSON | 原始请求参数（用于调试） |
+| `hit_count` | `hitCount` | INT | 缓存命中次数（热度统计） |
+| `created_at` | `createdAt` | TIMESTAMP | 创建时间 |
+| `last_hit_at` | `lastHitAt` | TIMESTAMP | 最后命中时间 |
+
+#### 3.7.9 API响应字段
+
+**路线API响应结构** (`GET /api/v1/plans/{planId}/route?day={dayNum}`):
+
+| API字段 | Java字段 | 类型 | 说明 |
+|---------|---------|------|------|
+| `markers` | `markers` | Array | 标注点列表（起点/终点/途经点） |
+| `polyline` | `polyline` | Array | 折线数据（包含points数组和样式） |
+| `include_points` | `includePoints` | Array | 路径细化点（高德API返回） |
+| `segments` | `segments` | Array | 路线段详情（from/to/distance/duration/mode） |
+| `summary` | `summary` | Object | 路线摘要（总距离/总时长） |
+| `unresolved` | `unresolved` | Array | 未解析的地点名称 |
+| `mapType` | `mapType` | String | 地图类型：static/interactive |
+| `staticMapUrl` | `staticMapUrl` | String/null | 静态地图URL（跨市路线为null） |
+
+#### 3.7.10 日志输出规范
+
+**统一日志格式**：
+```java
+// ✅ 推荐
+log.debug("L1 cache hit: {}", cacheKey);
+log.debug("L2 cache hit: {}", cacheKey);
+log.debug("L3 cache hit: {}", cacheKey);
+log.info("Cache miss, generating new URL: {}", cacheKey);
+log.warn("L1 memory cache cleared");
+log.warn("Redis get failed: {}", e.getMessage());
+log.error("Database save failed: {}", e.getMessage());
+
+// ❌ 避免
+log.info("内存缓存命中");              // 使用"L1 cache hit"明确层级
+log.info("缓存未命中，调用API");       // 使用"Cache miss, generating new URL"
+```
+
 ---
 
 ## 4. 命名一致性检查清单
@@ -524,4 +641,5 @@ confirmed → archived (归档)
 | v1.1 | 2026-01-07 | 补充"通晒"工作流：Section 4.3 添加"通晒方案"术语映射，Section 5 添加 `PlanSubmittedForReview` 领域事件 |
 | v1.2 | 2026-01-08 | 补充UI组件术语：添加Section 4.4（自定义导航栏、用户状态显示等），添加Section 7（前端状态管理、路由） |
 | v1.3 | 2026-01-09 | 强化出发城市/目的地/目的地城市区分；补充通晒反馈指标；补充更明确的领域事件命名；PlanType补充价值主张 |
-| **v1.4** | **2026-01-14** | **新增地点选择（LocationPicker）模块完整术语体系**：<br>• Section 3.2：地点选择与POI核心术语（11个术语定义）<br>• Section 3.2.2：LocationValue标准数据结构<br>• Section 3.2.3：POI类型枚举（7种类型）<br>• Section 3.2.4：hot_destinations表字段规范<br>• Section 3.2.5：API接口命名规范（suggest/hot-spots/reverse-geocode）<br>• Section 3.2.6：前端组件命名规范<br>• Section 3.2.7：用户界面文案规范（10+条文案标准）<br>• Section 3.2.8：代码注释规范（Java/JavaScript）<br>• Section 3.2.9：日志输出规范<br>• Section 3.2.10：高德地图API术语映射<br>• Section 6：扩充反模式禁用术语（新增8条） |
+| v1.4 | 2026-01-14 | 新增地点选择（LocationPicker）模块完整术语体系：<br>• Section 3.2：地点选择与POI核心术语（11个术语定义）<br>• Section 3.2.2：LocationValue标准数据结构<br>• Section 3.2.3：POI类型枚举（7种类型）<br>• Section 3.2.4：hot_destinations表字段规范<br>• Section 3.2.5：API接口命名规范（suggest/hot-spots/reverse-geocode）<br>• Section 3.2.6：前端组件命名规范<br>• Section 3.2.7：用户界面文案规范（10+条文案标准）<br>• Section 3.2.8：代码注释规范（Java/JavaScript）<br>• Section 3.2.9：日志输出规范<br>• Section 3.2.10：高德地图API术语映射<br>• Section 6：扩充反模式禁用术语（新增8条） |
+| **v1.5** | **2026-01-14** | **新增地图服务（MapService）模块术语体系**：<br>• Section 3.7：地图服务核心术语（10个术语定义）<br>• Section 3.7.2：标注类型枚举（START/END/WAYPOINT/SUPPLIER）<br>• Section 3.7.3：路径样式枚举（driving/walking/cycling/transit）<br>• Section 3.7.4：地图尺寸预设（DETAIL/THUMBNAIL/SHARE/SUPPLIER）<br>• Section 3.7.5：缩放级别映射（zoom 3-17对应不同跨度范围）<br>• Section 3.7.6：降级策略层级（Level 1-4）<br>• Section 3.7.7：三级缓存架构（L1/L2/L3）<br>• Section 3.7.8：static_map_url_cache表字段规范<br>• Section 3.7.9：路线API响应字段<br>• Section 3.7.10：日志输出规范<br>• **术语修正**：代码中"位置"→"地点"（2处） |

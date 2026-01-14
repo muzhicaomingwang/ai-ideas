@@ -106,7 +106,7 @@ public class ZoomCalculator {
             case DETAIL:
             case SUPPLIER:
             default:
-                // 详情页和供应商位置：使用基础zoom
+                // 详情页和供应商地点：使用基础zoom
                 return baseZoom;
         }
     }

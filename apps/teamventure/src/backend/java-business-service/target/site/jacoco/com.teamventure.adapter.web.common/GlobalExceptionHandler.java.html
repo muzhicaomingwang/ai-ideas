@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.adapter.web.common</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.teamventure.adapter.web.common;
+
+import com.teamventure.app.support.BizException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+<span class="nc" id="L21">    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
+    private final Environment env;
+
+<span class="nc" id="L24">    public GlobalExceptionHandler(Environment env) {</span>
+<span class="nc" id="L25">        this.env = env;</span>
+<span class="nc" id="L26">    }</span>
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleNotReadable(HttpMessageNotReadableException e) {
+        // JSON 解析失败 / body 缺失：这是客户端请求问题，应返回 400，而不是 500
+<span class="nc" id="L31">        String msg = &quot;Invalid request body&quot;;</span>
+<span class="nc bnc" id="L32" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
+<span class="nc" id="L33">            Throwable cause = e.getMostSpecificCause();</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            String detail = (cause == null ? e.getMessage() : cause.getMessage());</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">            msg = &quot;HttpMessageNotReadableException: &quot; + (detail == null ? &quot;&quot; : detail);</span>
+        }
+<span class="nc" id="L37">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure(&quot;BAD_REQUEST&quot;, msg.trim()));</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleValidation(MethodArgumentNotValidException e) {
+<span class="nc" id="L42">        String msg = &quot;Validation failed&quot;;</span>
+<span class="nc bnc" id="L43" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
+<span class="nc" id="L44">            msg = e.getBindingResult().getFieldErrors().stream()</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                    .map(fe -&gt; fe.getField() + &quot;: &quot; + (fe.getDefaultMessage() == null ? &quot;&quot; : fe.getDefaultMessage()))</span>
+<span class="nc" id="L46">                    .collect(Collectors.joining(&quot;; &quot;));</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            if (msg.isBlank()) msg = &quot;Validation failed&quot;;</span>
+        }
+<span class="nc" id="L49">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure(&quot;BAD_REQUEST&quot;, msg.trim()));</span>
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleConstraintViolation(ConstraintViolationException e) {
+<span class="nc" id="L54">        String msg = &quot;Validation failed&quot;;</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
+<span class="nc" id="L56">            msg = e.getConstraintViolations().stream()</span>
+<span class="nc" id="L57">                    .map(ConstraintViolation::getMessage)</span>
+<span class="nc" id="L58">                    .collect(Collectors.joining(&quot;; &quot;));</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (msg.isBlank()) msg = &quot;Validation failed&quot;;</span>
+        }
+<span class="nc" id="L61">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure(&quot;BAD_REQUEST&quot;, msg.trim()));</span>
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleMissingParam(MissingServletRequestParameterException e) {
+<span class="nc" id="L66">        String msg = &quot;Missing request parameter&quot;;</span>
+<span class="nc bnc" id="L67" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
+<span class="nc" id="L68">            msg = &quot;MissingServletRequestParameterException: &quot; + e.getParameterName();</span>
+        }
+<span class="nc" id="L70">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure(&quot;BAD_REQUEST&quot;, msg.trim()));</span>
+    }
+
+    @ExceptionHandler(BizException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleBiz(BizException e) {
+<span class="nc" id="L75">        HttpStatus status = HttpStatus.BAD_REQUEST;</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (&quot;UNAUTHENTICATED&quot;.equals(e.getCode())) {</span>
+<span class="nc" id="L77">            status = HttpStatus.UNAUTHORIZED;</span>
+        }
+<span class="nc" id="L79">        return ResponseEntity.status(status).body(ApiResponse.failure(e.getCode(), e.getMessage()));</span>
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleNoResource(NoResourceFoundException e) {
+<span class="nc" id="L84">        return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L85">                .body(ApiResponse.failure(&quot;NOT_FOUND&quot;, e.getMessage()));</span>
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleGeneric(Exception e) {
+<span class="nc" id="L90">        log.error(&quot;unhandled exception&quot;, e);</span>
+        // 开发环境下透出更多错误信息，便于联调排查；生产环境仍返回统一文案
+<span class="nc bnc" id="L92" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            String detail = e.getClass().getSimpleName() + &quot;: &quot; + (e.getMessage() == null ? &quot;&quot; : e.getMessage());</span>
+<span class="nc" id="L94">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L95">                    .body(ApiResponse.failure(&quot;INTERNAL_ERROR&quot;, detail.trim()));</span>
+        }
+<span class="nc" id="L97">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L98">                .body(ApiResponse.failure(&quot;INTERNAL_ERROR&quot;, &quot;Internal server error&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

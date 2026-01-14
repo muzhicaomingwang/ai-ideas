@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MediaController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.adapter.web.media</a> &gt; <span class="el_source">MediaController.java</span></div><h1>MediaController.java</h1><pre class="source lang-java linenums">package com.teamventure.adapter.web.media;
+
+import com.teamventure.adapter.web.common.ApiResponse;
+import com.teamventure.app.service.AuthService;
+import com.teamventure.app.service.OssService;
+import com.teamventure.app.service.OssService.Category;
+import com.teamventure.app.support.BizException;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping(&quot;/api/v1/media&quot;)
+public class MediaController {
+
+    private final AuthService authService;
+    private final OssService ossService;
+
+<span class="nc" id="L19">    public MediaController(AuthService authService, OssService ossService) {</span>
+<span class="nc" id="L20">        this.authService = authService;</span>
+<span class="nc" id="L21">        this.ossService = ossService;</span>
+<span class="nc" id="L22">    }</span>
+
+    @PostMapping(&quot;/upload&quot;)
+    public ApiResponse&lt;UploadResponse&gt; upload(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @RequestParam(defaultValue = &quot;itinerary&quot;) String category,
+            @RequestParam(required = false) String scope,
+            @RequestPart(&quot;file&quot;) MultipartFile file
+    ) {
+<span class="nc" id="L31">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L32">        Category c = parseCategory(category);</span>
+<span class="nc" id="L33">        var r = ossService.uploadImage(userId, c, file, scope);</span>
+<span class="nc" id="L34">        return ApiResponse.success(new UploadResponse(r.bucket(), r.objectKey(), r.url(), r.publicReadable()));</span>
+    }
+
+    @GetMapping(&quot;/presign&quot;)
+    public ApiResponse&lt;PresignResponse&gt; presign(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @RequestParam @NotBlank String bucket,
+            @RequestParam @NotBlank String key
+    ) {
+<span class="nc" id="L43">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+        // Basic guard for private avatar objects: must be under the current user's prefix.
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        if (&quot;avatars&quot;.equals(bucket) &amp;&amp; !key.startsWith(&quot;users/&quot; + userId + &quot;/&quot;)) {</span>
+<span class="nc" id="L46">            throw new BizException(&quot;FORBIDDEN&quot;, &quot;invalid key scope&quot;);</span>
+        }
+<span class="nc" id="L48">        String url = ossService.presignGet(bucket, key);</span>
+<span class="nc" id="L49">        return ApiResponse.success(new PresignResponse(url));</span>
+    }
+
+    private static Category parseCategory(String v) {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        String s = v == null ? &quot;&quot; : v.trim().toLowerCase();</span>
+<span class="nc bnc" id="L54" title="All 3 branches missed.">        return switch (s) {</span>
+<span class="nc" id="L55">            case &quot;avatar&quot;, &quot;avatars&quot; -&gt; Category.AVATAR;</span>
+<span class="nc" id="L56">            case &quot;itinerary&quot;, &quot;itineraries&quot; -&gt; Category.ITINERARY;</span>
+<span class="nc" id="L57">            default -&gt; Category.ITINERARY;</span>
+        };
+    }
+
+<span class="nc" id="L61">    public record UploadResponse(String bucket, String key, String url, boolean publicReadable) {}</span>
+
+<span class="nc" id="L63">    public record PresignResponse(String url) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
