@@ -3,3 +3,12 @@
 [2026-01-13 19:22:15] Loaded environment variables from .env
 [2026-01-13 19:22:15] Environment variables verified
 [2026-01-13 19:22:15] Podcast for 2026-01-13 already exists, skipping generation
+[2026-01-14 10:25:16] ========================================
+[2026-01-14 10:25:16] Starting daily podcast generation for 2026-01-14
+[2026-01-14 10:25:16] Loaded environment variables from .env
+[2026-01-14 10:25:16] ⚠️  WARNING: RSS.com credentials not set - publishing will be skipped
+[2026-01-14 10:25:16]   Set RSS_COM_API_KEY and RSS_COM_PODCAST_ID in .env to enable publishing
+[2026-01-14 10:25:16] Environment variables verified
+[2026-01-14 10:25:16] Executing: python scripts/daily_generate.py --date 2026-01-14 --classic --output output
+[2026-01-14 10:25:16] Check /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/logs/daily_error.log for details
+[2026-01-14 10:25:16] ========================================

@@ -159,6 +159,40 @@ teamventure:
     routing-key:
       plan-request: plan.request.#
 
+  # 地图服务配置
+  map:
+    amap:
+      api-key: ${AMAP_API_KEY:}  # 从环境变量读取
+      api-version: v3
+      base-url: https://restapi.amap.com/v3/staticmap
+      timeout-ms: 5000
+
+    cache:
+      enabled: true
+      memory-size: 1000          # L1内存缓存大小
+      memory-ttl-days: 7         # L1缓存过期时间（天）
+      redis-ttl-days: 30         # L2 Redis缓存过期时间（天）
+
+    decision:
+      distance-threshold-km: 50   # 超过50km使用动态地图
+      poi-count-threshold: 5      # 超过5个POI使用动态地图
+
+    cost:
+      daily-budget: 1000          # 每日预算（元/天）
+      static-map-price: 0.01      # 单次调用成本（元/次）
+      alert-threshold: 0.8        # 预算使用率告警阈值（80%）
+
+    style:
+      default: normal
+      marker:
+        start-color: "0x00FF00"    # 起点标注颜色（绿色）
+        end-color: "0xFF0000"      # 终点标注颜色（红色）
+        waypoint-color: "0x1890FF" # 途经点标注颜色（蓝色）
+      path:
+        color: "0x1890FF"          # 路径颜色（蓝色）
+        width: 6                   # 路径宽度（像素）
+        transparency: 1.0          # 路径透明度（0.0-1.0）
+
 ---
 # 生产环境配置
 spring:

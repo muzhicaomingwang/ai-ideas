@@ -95,10 +95,9 @@ public class MapDegradationHandler {
     private String retryWithBackoff(MapRequest request, Supplier<String> apiCaller) {
         RetryConfig config = RetryConfig.custom()
             .maxAttempts(3)
-            .waitDuration(Duration.ofSeconds(1))
             .intervalFunction(io.github.resilience4j.core.IntervalFunction.ofExponentialBackoff(
-                Duration.ofSeconds(1),
-                2.0  // 指数倍数
+                Duration.ofSeconds(1),  // 初始等待1秒
+                2.0                      // 指数倍数：1s → 2s → 4s
             ))
             .build();
 

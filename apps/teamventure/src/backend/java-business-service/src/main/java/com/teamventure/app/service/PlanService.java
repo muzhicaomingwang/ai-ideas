@@ -46,6 +46,13 @@ public class PlanService {
     private final String amapApiKey;
     private final HttpClient httpClient;
 
+    // 新增：地图相关组件
+    private final com.teamventure.infrastructure.map.ZoomCalculator zoomCalculator;
+    private final com.teamventure.infrastructure.cache.StaticMapUrlCache staticMapUrlCache;
+    private final com.teamventure.infrastructure.map.MarkerStyleConfig markerStyleConfig;
+    private final com.teamventure.infrastructure.map.PathStyleConfig pathStyleConfig;
+    private final com.teamventure.infrastructure.map.MapDegradationHandler mapDegradationHandler;
+
     private static final Map<String, double[]> GEO_CACHE = new LinkedHashMap<>(256, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, double[]> eldest) {
@@ -72,7 +79,12 @@ public class PlanService {
             RabbitTemplate rabbitTemplate,
             @Value("${teamventure.mq.exchange.plan-generation}") String exchange,
             @Value("${teamventure.mq.routing-key.plan-request}") String routingKey,
-            @Value("${AMAP_API_KEY:}") String amapApiKey
+            @Value("${AMAP_API_KEY:}") String amapApiKey,
+            com.teamventure.infrastructure.map.ZoomCalculator zoomCalculator,
+            com.teamventure.infrastructure.cache.StaticMapUrlCache staticMapUrlCache,
+            com.teamventure.infrastructure.map.MarkerStyleConfig markerStyleConfig,
+            com.teamventure.infrastructure.map.PathStyleConfig pathStyleConfig,
+            com.teamventure.infrastructure.map.MapDegradationHandler mapDegradationHandler
     ) {
         this.planRequestMapper = planRequestMapper;
         this.planMapper = planMapper;
@@ -85,6 +97,13 @@ public class PlanService {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(java.time.Duration.ofSeconds(3))
                 .build();
+
+        // 新增组件
+        this.zoomCalculator = zoomCalculator;
+        this.staticMapUrlCache = staticMapUrlCache;
+        this.markerStyleConfig = markerStyleConfig;
+        this.pathStyleConfig = pathStyleConfig;
+        this.mapDegradationHandler = mapDegradationHandler;
     }
 
     public GenerateResponse createPlanRequestAndPublish(String userId, GenerateRequest req) {
@@ -652,7 +671,7 @@ public class PlanService {
         String mapType = "interactive";
         String staticMapUrl = "";
 
-        if (!points.isEmpty()) {
+        if (!points.isEmpty() && !amapApiKey.isBlank()) {
             // Calculate geographic bounding box
             double minLat = points.stream().mapToDouble(p -> (double) p.get("latitude")).min().orElse(0);
             double maxLat = points.stream().mapToDouble(p -> (double) p.get("latitude")).max().orElse(0);
@@ -663,52 +682,57 @@ public class PlanService {
             double lngSpan = maxLng - minLng;
             double maxSpan = Math.max(latSpan, lngSpan);
 
-            // Same-city route: span < 0.1 degrees (≈10km radius)
-            if (maxSpan < 0.1 && !amapApiKey.isBlank()) {
+            // Same-city route: span < 0.5 degrees (≈50km radius) - 修改阈值
+            if (maxSpan < 0.5) {
                 mapType = "static";
 
-                // Calculate center point
+                // 转换为Point对象列表
+                List<com.teamventure.domain.valueobject.MapRequest.Point> routePoints = new ArrayList<>();
+                for (Map<String, Object> point : points) {
+                    routePoints.add(
+                        com.teamventure.domain.valueobject.MapRequest.Point.of(
+                            (double) point.get("longitude"),
+                            (double) point.get("latitude")
+                        )
+                    );
+                }
+
+                // 计算中心点
                 double centerLat = (minLat + maxLat) / 2.0;
                 double centerLng = (minLng + maxLng) / 2.0;
+                com.teamventure.domain.valueobject.MapRequest.Point center =
+                    com.teamventure.domain.valueobject.MapRequest.Point.of(centerLng, centerLat);
 
-                // Calculate zoom level: smaller span = higher zoom (closer view)
-                int zoom = 15; // Default for same-city
-                if (maxSpan < 0.01) zoom = 17;      // < 1km: very close
-                else if (maxSpan < 0.03) zoom = 16;  // < 3km: close
-                else if (maxSpan < 0.05) zoom = 15;  // < 5km: medium
+                // 使用智能zoom计算器
+                int zoom = zoomCalculator.calculateOptimalZoom(
+                    routePoints,
+                    com.teamventure.domain.valueobject.MapSizePreset.DETAIL
+                );
 
-                // Build markers parameter: green (start), blue (waypoints), red (end)
-                StringBuilder markersParam = new StringBuilder();
-                for (int i = 0; i < markers.size(); i++) {
-                    if (i > 0) markersParam.append("|");
-                    Map<String, Object> marker = markers.get(i);
-                    double lng = (double) marker.get("longitude");
-                    double lat = (double) marker.get("latitude");
+                // 使用样式配置生成markers和paths参数
+                String markersParam = markerStyleConfig.generateMarkersParam(routePoints);
+                String pathsParam = pathStyleConfig.generatePathsParam(routePoints);
 
-                    String color;
-                    if (i == 0) color = "0x00FF00";              // Green for start
-                    else if (i == markers.size() - 1) color = "0xFF0000"; // Red for end
-                    else color = "0x1890FF";                     // Blue for waypoints
+                // 构建MapRequest对象
+                com.teamventure.domain.valueobject.MapRequest mapRequest =
+                    com.teamventure.domain.valueobject.MapRequest.builder()
+                        .size(com.teamventure.domain.valueobject.MapSizePreset.DETAIL)
+                        .zoom(zoom)
+                        .center(center)
+                        .markers(markersParam)
+                        .paths(pathsParam)
+                        .style("normal")
+                        .format("png")
+                        .build();
 
-                    markersParam.append("mid,").append(color).append(",A:").append(lng).append(",").append(lat);
-                }
-
-                // Build polyline parameter: all points connected with blue line
-                StringBuilder pathParam = new StringBuilder("6,0x1890FF,1:");
-                for (int i = 0; i < points.size(); i++) {
-                    if (i > 0) pathParam.append(";");
-                    Map<String, Object> point = points.get(i);
-                    pathParam.append(point.get("longitude")).append(",").append(point.get("latitude"));
-                }
-
-                // Construct Amap Static Map API URL
-                staticMapUrl = "https://restapi.amap.com/v3/staticmap"
-                        + "?key=" + enc(amapApiKey)
-                        + "&center=" + enc(centerLng + "," + centerLat)
-                        + "&zoom=" + zoom
-                        + "&size=750*520"
-                        + "&markers=" + enc(markersParam.toString())
-                        + "&paths=" + enc(pathParam.toString());
+                // 使用缓存获取URL（带降级处理）
+                staticMapUrl = staticMapUrlCache.getOrGenerate(
+                    mapRequest,
+                    () -> mapDegradationHandler.callWithFallback(
+                        mapRequest,
+                        () -> buildAmapStaticMapUrl(mapRequest)
+                    )
+                );
             }
         }
 
@@ -791,6 +815,25 @@ public class PlanService {
         } catch (Exception ignore) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * 构建高德静态地图URL
+     *
+     * @param request 地图请求参数
+     * @return 静态地图URL
+     */
+    private String buildAmapStaticMapUrl(com.teamventure.domain.valueobject.MapRequest request) {
+        return "https://restapi.amap.com/v3/staticmap"
+                + "?key=" + enc(amapApiKey)
+                + "&center=" + enc(String.format("%.6f,%.6f",
+                    request.getCenter().getLongitude(),
+                    request.getCenter().getLatitude()))
+                + "&zoom=" + request.getZoom()
+                + "&size=" + request.getSize().toApiParam()
+                + "&markers=" + enc(request.getMarkers())
+                + "&paths=" + enc(request.getPaths())
+                + "&scale=2";  // 高清输出（2倍像素密度）
     }
 
     private Optional<double[]> resolveLngLat(String keyword, String cityHint) {

@@ -1,9 +1,16 @@
 # TeamVenture API 设计文档
 
-**版本**: v1.5（Phase 1 - 小程序端）
+**版本**: v1.6（Phase 1 - 小程序端）
 **创建日期**: 2026-01-04
-**更新日期**: 2026-01-06
+**更新日期**: 2026-01-14
 **变更记录**:
+- **v1.6 (2026-01-14)**: 新增Location API（地点选择）模块
+  - 新增第4章：Location API（地点选择）
+  - 4.1: 搜索地点建议API（suggest）
+  - 4.2: 获取热门景点API（hot-spots）
+  - 4.3: 逆地理编码API（reverse-geocode）
+  - 4.4: 术语说明（LocationValue数据结构、POI类型枚举）
+  - 调整章节编号：Supplier API改为第5章，错误码清单改为第6章
 - v1.5 (2026-01-06): 查询方案列表API新增status筛选参数，支持Tab状态过滤
 - v1.4 (2026-01-06): 明确字段语义 - departure_city(出发城市)与destination(目的地)
 - v1.3 (2026-01-06): 新增方案删除API(3.6)、归档API(3.7)
@@ -19,9 +26,10 @@
 1. [通用约定](#1-通用约定)
 2. [认证流程](#2-认证流程)
 3. [Planning API（方案管理）](#3-planning-api方案管理)
-4. [Supplier API（供应商）](#4-supplier-api供应商)
-5. [错误码清单](#5-错误码清单)
-6. [分页约定](#6-分页约定)
+4. [Location API（地点选择）](#4-location-api地点选择)
+5. [Supplier API（供应商）](#5-supplier-api供应商)
+6. [错误码清单](#6-错误码清单)
+7. [分页约定](#7-分页约定)
 
 ---
 
@@ -1001,7 +1009,360 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/revert-review" \
 
 ---
 
-## 4. Supplier API（供应商）
+## 4. Location API（地点选择）⭐ v1.6新增
+
+### 4.1 搜索地点建议 API
+
+**用途**: 根据关键词搜索地点（POI），支持自动补全，用于LocationPicker组件
+
+#### Endpoint
+```
+GET /api/v1/locations/suggest
+```
+
+#### 请求参数
+
+| 字段 | 类型 | 必需 | 说明 | 示例 |
+|------|------|------|------|------|
+| keyword | String | ✅ | 搜索关键词（至少2个字符） | "莫干山" |
+| type | String | ✅ | 地点类型：`departure`（出发地）或 `destination`（目的地） | "destination" |
+| province | String | ❌ | 省份名称（限定搜索范围） | "浙江省" |
+| limit | Integer | ❌ | 返回数量限制（1-50），默认10 | 10 |
+
+#### 请求示例
+
+**curl命令**:
+```bash
+curl -X GET "http://localhost:8080/api/v1/locations/suggest?keyword=莫干山&type=destination&province=浙江省&limit=5" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**JavaScript (小程序)**:
+```javascript
+const { suggestions } = await get('/api/v1/locations/suggest', {
+  keyword: '莫干山',
+  type: 'destination',
+  province: '浙江省',
+  limit: 10
+});
+```
+
+#### 成功响应
+
+**HTTP 200**:
+```json
+{
+  "success": true,
+  "data": {
+    "suggestions": [
+      {
+        "poi_id": "B000A7BD6C",
+        "name": "莫干山风景名胜区",
+        "short_name": "莫干山",
+        "address": "浙江省湖州市德清县",
+        "location": {
+          "longitude": 119.912722,
+          "latitude": 30.562778
+        },
+        "poi_type": "scenic",
+        "tags": ["4A级景区", "避暑胜地"],
+        "distance": 62000
+      },
+      {
+        "poi_id": "B000A7BD6D",
+        "name": "莫干山郡安里度假酒店",
+        "short_name": "郡安里酒店",
+        "address": "浙江省湖州市德清县莫干山镇",
+        "location": {
+          "longitude": 119.918888,
+          "latitude": 30.565000
+        },
+        "poi_type": "hotel",
+        "tags": ["高端酒店", "4.8分"],
+        "distance": 63500
+      }
+    ]
+  },
+  "error": null
+}
+```
+
+**字段说明**:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| poi_id | String | 高德POI唯一标识 |
+| name | String | POI全名（用于显示） |
+| short_name | String | POI简称（用于标签） |
+| address | String | 完整地址（省市区） |
+| location.longitude | Number | 经度（GCJ-02坐标系） |
+| location.latitude | Number | 纬度（GCJ-02坐标系） |
+| poi_type | String | POI类型：`scenic`（景点）/`hotel`（酒店）/`activity`（活动场所）/`district`（行政区）/`landmark`（地标） |
+| tags | Array<String> | 标签列表（用于展示特色） |
+| distance | Number | 距离用户当前位置（米），需前端传location参数，未授权时为null |
+
+#### 错误响应
+
+**HTTP 400** - 参数错误:
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "keyword长度至少为2个字符"
+  }
+}
+```
+
+**HTTP 500** - 服务器错误（降级处理）:
+```json
+{
+  "success": false,
+  "data": {
+    "suggestions": []  // 返回空数组，前端显示"无搜索结果"
+  },
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "搜索服务暂时不可用，请稍后重试"
+  }
+}
+```
+
+#### 实现策略
+
+1. **查询静态表**：优先查询`hot_destinations`表（本地数据，<100ms）
+2. **高德API补充**：结果不足时调用高德地图`/v3/place/text` API
+3. **Redis缓存**：缓存搜索结果24小时（key: `location:suggest:{keyword}:{province}`）
+4. **降级策略**：高德API失败时返回静态表数据
+
+---
+
+### 4.2 获取热门景点 API
+
+**用途**: 获取指定省份或全国的热门景点，用于快捷标签
+
+#### Endpoint
+```
+GET /api/v1/locations/hot-spots
+```
+
+#### 请求参数
+
+| 字段 | 类型 | 必需 | 说明 | 示例 |
+|------|------|------|------|------|
+| province | String | ❌ | 省份名称（为空则返回全国热门） | "浙江省" |
+| limit | Integer | ❌ | 返回数量限制（1-20），默认8 | 8 |
+
+#### 请求示例
+
+**curl命令**:
+```bash
+curl -X GET "http://localhost:8080/api/v1/locations/hot-spots?province=浙江省&limit=8" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**JavaScript (小程序)**:
+```javascript
+const { hot_spots } = await get('/api/v1/locations/hot-spots', {
+  province: '浙江省',
+  limit: 8
+});
+```
+
+#### 成功响应
+
+**HTTP 200**:
+```json
+{
+  "success": true,
+  "data": {
+    "hot_spots": [
+      {
+        "poi_id": "B000A7BD6C",
+        "name": "莫干山风景名胜区",
+        "short_name": "莫干山",
+        "province": "浙江省",
+        "city": "湖州市",
+        "popularity": 95
+      },
+      {
+        "poi_id": "B000A83Q9F",
+        "name": "千岛湖风景区",
+        "short_name": "千岛湖",
+        "province": "浙江省",
+        "city": "杭州市",
+        "popularity": 100
+      }
+    ]
+  },
+  "error": null
+}
+```
+
+**字段说明**:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| poi_id | String | 高德POI ID |
+| name | String | POI全名 |
+| short_name | String | POI简称（用于标签显示） |
+| province | String | 所属省份 |
+| city | String | 所属城市 |
+| popularity | Integer | 热度值（0-100，用于排序） |
+
+#### 实现策略
+
+1. **查询数据库**：查询`hot_destinations`表
+2. **排序规则**：按`popularity`字段降序
+3. **缓存策略**：结果缓存24小时（热门景点变化不频繁）
+
+---
+
+### 4.3 逆地理编码 API（可选）
+
+**用途**: 将经纬度坐标转换为地址文本，用于"我的位置"功能
+
+#### Endpoint
+```
+GET /api/v1/locations/reverse-geocode
+```
+
+#### 请求参数
+
+| 字段 | 类型 | 必需 | 说明 | 示例 |
+|------|------|------|------|------|
+| longitude | Number | ✅ | 经度（GCJ-02坐标系） | 119.912722 |
+| latitude | Number | ✅ | 纬度（GCJ-02坐标系） | 30.562778 |
+
+#### 请求示例
+
+**curl命令**:
+```bash
+curl -X GET "http://localhost:8080/api/v1/locations/reverse-geocode?longitude=119.912722&latitude=30.562778" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**JavaScript (小程序)**:
+```javascript
+// 获取当前位置后调用
+const position = await wx.getLocation({ type: 'gcj02' });
+const geocode = await get('/api/v1/locations/reverse-geocode', {
+  longitude: position.longitude,
+  latitude: position.latitude
+});
+```
+
+#### 成功响应
+
+**HTTP 200**:
+```json
+{
+  "success": true,
+  "data": {
+    "formatted_address": "浙江省湖州市德清县莫干山镇",
+    "province": "浙江省",
+    "province_code": "330000",
+    "city": "湖州市",
+    "city_code": "330500",
+    "district": "德清县",
+    "district_code": "330521"
+  },
+  "error": null
+}
+```
+
+**字段说明**:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| formatted_address | String | 完整格式化地址 |
+| province | String | 省份名称 |
+| province_code | String | 省份行政区划代码 |
+| city | String | 城市名称 |
+| city_code | String | 城市行政区划代码 |
+| district | String | 区县名称 |
+| district_code | String | 区县行政区划代码 |
+
+#### 实现策略
+
+1. **调用高德API**：使用高德地图`/v3/geocode/regeo` API
+2. **缓存策略**：坐标→地址映射缓存24小时（经纬度精确到小数点后4位作为key）
+
+---
+
+### 4.4 术语说明（LocationPicker模块）
+
+#### 核心概念定义
+
+| 术语 | 英文 | 说明 |
+|------|------|------|
+| **地点** | Location | 泛指任何地理位置（城市/景点/地标/酒店） |
+| **景点/POI** | Attraction/Point of Interest | 旅游目的地，包括风景区、主题公园、名胜古迹 |
+| **出发地点** | Departure Location | 团建活动的出发位置（细化到景点/地标维度） |
+| **目的地点** | Destination Location | 团建活动的目标位置（细化到景点/地标维度） |
+| **搜索建议** | Suggestion | 基于关键词返回的候选地点列表项 |
+| **热门景点** | Hot Spot | 高热度的推荐目的地 |
+
+#### LocationValue 标准数据结构
+
+前端LocationPicker组件使用的统一数据格式：
+
+```typescript
+interface LocationValue {
+  name: string;              // 地点名称
+  address: string;           // 完整地址
+  location?: {               // 经纬度（可选）
+    longitude: number;       // 经度（GCJ-02）
+    latitude: number;        // 纬度（GCJ-02）
+  };
+  poi_id?: string;          // 高德POI ID（可选）
+  poi_type?: string;        // POI类型（可选）
+}
+```
+
+#### POI类型枚举
+
+| 类型值 | 中文名 | 说明 |
+|--------|--------|------|
+| `scenic` | 景点 | 风景区、名胜古迹、主题公园 |
+| `hotel` | 酒店 | 住宿场所（度假村、民宿、酒店） |
+| `activity` | 活动场所 | 团建活动场地（拓展基地、会议中心） |
+| `district` | 行政区 | 区县级行政区划 |
+| `landmark` | 地标 | 地标性建筑、广场、车站 |
+| `current` | 当前位置 | 用户当前所在位置 |
+| `map_selected` | 地图选点 | 用户通过地图手动选择的位置 |
+
+#### 与现有API的关系
+
+**扩展现有字段**：
+```json
+// 现有：PLAN_GENERATE 接口
+{
+  "departure_city": "上海市",              // 现有字段（兼容）
+  "destination": "千岛湖",                  // 现有字段（兼容）
+  "destination_city": "杭州市",            // 现有字段（可选）
+
+  // 新增可选字段（LocationPicker提供）
+  "departure_location": {                  // 出发地精确坐标（可选）
+    "longitude": 121.473701,
+    "latitude": 31.230416
+  },
+  "destination_location": {                // 目的地精确坐标（可选）
+    "longitude": 119.030122,
+    "latitude": 29.605768
+  }
+}
+```
+
+**向后兼容保证**：
+- 前端可只传`departure_city`和`destination`文本字段（旧版）
+- 前端也可传完整的LocationValue（新版），后端从中提取`name`和`location`
+- 后端接收到`destination_location`字段时，可用于距离计算、路线规划优化
+
+---
+
+## 5. Supplier API（供应商）
 
 ### 4.1 搜索供应商 API
 
@@ -1122,7 +1483,7 @@ curl -X GET "http://localhost/api/v1/suppliers/sup_hotel_001" \
 
 ---
 
-## 5. 错误码清单
+## 6. 错误码清单
 
 ### 5.1 认证相关错误
 
@@ -1218,7 +1579,7 @@ curl -X GET "http://localhost/api/v1/suppliers/sup_hotel_001" \
 
 ---
 
-## 6. 分页约定
+## 7. 分页约定
 
 ### 6.1 分页参数
 

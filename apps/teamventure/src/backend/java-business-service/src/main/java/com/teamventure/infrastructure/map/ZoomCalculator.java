@@ -59,9 +59,9 @@ public class ZoomCalculator {
      * 跨度到zoom级别映射
      *
      * 高德地图zoom与经纬度跨度的对应关系：
-     * - zoom=3:  全球视图   (~180度)
-     * - zoom=8:  省级视图   (~10度)
-     * - zoom=12: 城市视图   (~0.3度 ≈ 30km)
+     * - zoom=3:  全球视图   (~180度，跨国/跨省>500km)
+     * - zoom=8:  省级视图   (~10度，跨市100-500km)
+     * - zoom=12: 城市视图   (~0.3度 ≈ 30km，同城)
      * - zoom=15: 街区视图   (~0.01度 ≈ 1km)
      * - zoom=17: 建筑视图   (~0.003度 ≈ 300m)
      *
@@ -69,16 +69,16 @@ public class ZoomCalculator {
      * @return zoom级别
      */
     private int mapSpanToZoom(double maxSpan) {
-        if (maxSpan > 10.0) {
-            return 3;   // 跨省/跨国
+        if (maxSpan > 5.0) {
+            return 3;   // 跨省/跨国（>500km，如北京-上海、上海-广州）
         } else if (maxSpan > 1.0) {
-            return 8;   // 跨市
+            return 8;   // 跨市（100-500km）
         } else if (maxSpan > 0.1) {
-            return 12;  // 同城
+            return 12;  // 同城（10-100km）
         } else if (maxSpan > 0.01) {
-            return 15;  // 街区
+            return 15;  // 街区（1-10km）
         } else {
-            return 17;  // 相邻建筑
+            return 17;  // 相邻建筑（<1km）
         }
     }
 

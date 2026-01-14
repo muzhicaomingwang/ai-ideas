@@ -14,13 +14,13 @@ App({
       console.log('旧数据已清除')
     }
 
-    // 开发者工具默认走统一网关（apps/nginx）：http://localhost/api/v1
+    // 开发者工具默认走统一网关（apps/nginx）：http://api.teamventure.com/api/v1
     // - 仅在 devtools 且用户未手动设置 apiBaseUrl 时生效
     try {
       const existingBaseUrl = wx.getStorageSync('apiBaseUrl')
       const platform = wx.getSystemInfoSync?.()?.platform
       if (!existingBaseUrl && platform === 'devtools') {
-        wx.setStorageSync('apiBaseUrl', 'http://localhost/api/v1')
+        wx.setStorageSync('apiBaseUrl', 'http://api.teamventure.com/api/v1')
       }
     } catch (e) {
       // ignore

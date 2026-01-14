@@ -1,8 +1,10 @@
 # TeamVenture 领域统一语言词汇表 (Ubiquitous Language Glossary)
 
 **创建日期**: 2026-01-06
-**版本**: v1.3
+**版本**: v1.4
 **目的**: 确保全链路字段命名一致性，消除"翻译损耗"
+
+**最新更新**: 新增地点选择（LocationPicker）模块术语定义
 
 ---
 
@@ -117,7 +119,247 @@ formData.departureLocation  →  API: departure_city  // 出发城市
 formData.destination        →  API: destination     // 目的地
 ```
 
-### 3.2 方案类型 (Plan Type)
+### 3.2 地点选择与POI (Location Selection & POI) ⭐ v1.4新增
+
+#### 3.2.1 核心术语定义
+
+| 中文术语 | 英文术语 | 代码标识 | 说明 | ❌ 避免使用 |
+|---------|---------|---------|------|-----------|
+| **地点** | **Location** | `Location` | 泛指任何地理位置（城市/景点/地标/酒店等） | 位置、地方 |
+| **景点** | **Attraction/POI** | `POI` | 旅游目的地（风景区、主题公园、名胜古迹） | 地标、场所、兴趣点 |
+| **POI** | **Point of Interest** | `POI` | 兴趣点（高德地图标准术语），包括景点/酒店/地标/商圈等 | 位置点、地点 |
+| **出发地点** | **Departure Location** | `departure` | 团建活动的出发位置（细化到景点/地标维度） | 出发城市、起点 |
+| **目的地点** | **Destination Location** | `destination` | 团建活动的目标位置（细化到景点/地标维度） | 目的城市、终点 |
+| **地点值** | **LocationValue** | `LocationValue` | 包含name/address/location的完整数据对象 | 地点对象、位置数据 |
+| **搜索建议** | **Suggestion** | `suggestion` | 基于关键词返回的候选地点列表项 | 自动补全、搜索结果 |
+| **热门景点** | **Hot Spot** | `hotSpot` | 高热度的推荐目的地 | 推荐景点、热门地点 |
+| **最近使用** | **Recent Location** | `recentLocation` | 用户历史选择过的地点 | 历史地点、常用地点 |
+| **地理编码** | **Geocoding** | `geocode` | 地址文本→经纬度坐标的转换 | 地址解析、坐标转换 |
+| **逆地理编码** | **Reverse Geocoding** | `reverseGeocode` | 经纬度坐标→地址文本的转换 | 反向解析、坐标转地址 |
+
+#### 3.2.2 LocationValue 数据结构（标准格式）
+
+**定义**：LocationValue 是地点选择的统一数据格式，用于前后端传递地点信息。
+
+```typescript
+interface LocationValue {
+  name: string;              // 地点名称，如"莫干山风景名胜区"
+  address: string;           // 完整地址，如"浙江省湖州市德清县"
+  location?: {               // 经纬度（可选）
+    longitude: number;       // 经度（GCJ-02坐标系，高德/微信）
+    latitude: number;        // 纬度（GCJ-02坐标系）
+  };
+  poi_id?: string;          // 高德POI ID（可选），如"B000A7BD6C"
+  poi_type?: string;        // POI类型（可选）：scenic/hotel/activity/district
+}
+```
+
+**示例值**：
+```javascript
+{
+  name: "莫干山风景名胜区",
+  address: "浙江省湖州市德清县",
+  location: {
+    longitude: 119.912722,
+    latitude: 30.562778
+  },
+  poi_id: "B000A7BD6C",
+  poi_type: "scenic"
+}
+```
+
+**使用场景**：
+- 前端：LocationPicker组件的props.value和events.change
+- 前端：formData.location.regional.departure/destination
+- 后端：可选，用于接收前端传来的经纬度信息
+
+#### 3.2.3 POI类型枚举
+
+| POI类型值 | 中文名 | 说明 | 图标建议 |
+|----------|--------|------|---------|
+| `scenic` | 景点 | 风景区、名胜古迹、主题公园 | 📍 |
+| `hotel` | 酒店 | 住宿场所（度假村、民宿、酒店） | 🏨 |
+| `activity` | 活动场所 | 团建活动场地（拓展基地、会议中心） | 🎯 |
+| `district` | 行政区 | 区县级行政区划 | 📌 |
+| `landmark` | 地标 | 地标性建筑、广场、车站 | 🏛️ |
+| `current` | 当前位置 | 用户当前所在位置（通过wx.getLocation获取） | 📍 |
+| `map_selected` | 地图选点 | 用户通过地图手动选择的位置 | 🗺️ |
+
+#### 3.2.4 数据库表设计
+
+**表名**: `hot_destinations` （热门目的地表）
+
+| 数据库字段 | Java字段 | API字段 | 类型 | 说明 |
+|-----------|---------|--------|------|------|
+| `province_code` | `provinceCode` | `province_code` | VARCHAR(10) | 省份代码（如"330000"） |
+| `province_name` | `provinceName` | `province_name` | VARCHAR(50) | 省份名称（如"浙江省"） |
+| `city_name` | `cityName` | `city_name` | VARCHAR(50) | 城市名称（如"湖州市"） |
+| `poi_id` | `poiId` | `poi_id` | VARCHAR(50) | 高德POI ID |
+| `poi_name` | `poiName` | `poi_name` | VARCHAR(100) | POI全名 |
+| `short_name` | `shortName` | `short_name` | VARCHAR(50) | POI简称（用于标签显示） |
+| `poi_type` | `poiType` | `poi_type` | VARCHAR(20) | POI类型（见枚举） |
+| `latitude` | `latitude` | `latitude` | DECIMAL(10,6) | 纬度 |
+| `longitude` | `longitude` | `longitude` | DECIMAL(10,6) | 经度 |
+| `popularity` | `popularity` | `popularity` | INT | 热度值（用于排序，0-100） |
+
+**注意**：
+- 经纬度字段使用完整单词`latitude`/`longitude`（而非缩写`lat`/`lng`）
+- POI相关字段统一使用`poi_`前缀
+
+#### 3.2.5 API接口命名
+
+| 接口路径 | 方法 | 用途 | 术语说明 |
+|---------|------|------|---------|
+| `/api/v1/locations/suggest` | GET | 搜索地点建议 | 使用`suggest`（而非`search`/`autocomplete`） |
+| `/api/v1/locations/hot-spots` | GET | 获取热门景点 | 使用`hot-spots`（而非`popular`/`recommended`） |
+| `/api/v1/locations/reverse-geocode` | GET | 逆地理编码 | 标准GIS术语 |
+
+**请求参数术语**：
+- `keyword`: 搜索关键词（而非`query`/`search`/`q`）
+- `type`: 地点类型（`departure`/`destination`，而非`location_type`）
+- `province`: 省份名称（而非`province_name`）
+- `limit`: 返回数量限制（而非`count`/`size`）
+
+**响应字段术语**：
+- `suggestions`: 搜索建议列表（而非`results`/`items`）
+- `hot_spots`: 热门景点列表（而非`recommendations`/`popular_spots`）
+
+#### 3.2.6 前端组件命名
+
+| 组件名 | 用途 | Props术语 | Events术语 |
+|--------|------|----------|-----------|
+| `location-picker` | 地点选择组件 | `type`, `province`, `value`, `placeholder` | `change` |
+| ❌ `place-picker` | - | - | 避免使用place |
+| ❌ `poi-selector` | - | - | 避免使用selector |
+
+**组件内部状态术语**：
+```javascript
+// ✅ 推荐
+data: {
+  keyword: '',              // 搜索关键词
+  suggestions: [],          // 搜索建议列表
+  hotSpots: [],            // 热门景点列表
+  recentLocations: [],     // 最近使用地点列表
+  showResults: false,      // 是否显示搜索结果
+  loading: false           // 是否加载中
+}
+
+// ❌ 避免
+data: {
+  searchText: '',          // 使用keyword
+  results: [],             // 使用suggestions
+  popularPlaces: [],       // 使用hotSpots
+  history: [],             // 使用recentLocations
+  isResultsVisible: false  // 使用showResults
+}
+```
+
+#### 3.2.7 用户界面文案规范
+
+**标签文本**：
+| 场景 | 统一文案 | ❌ 避免使用 |
+|------|---------|-----------|
+| 出发地标签 | "出发地点" | "出发城市"、"起点" |
+| 目的地标签 | "目的地景点" | "目的地"、"终点"、"目标地点" |
+| 搜索框占位符（出发地） | "请输入出发地点（景点/地标/酒店）" | "请输入位置"、"搜索出发地" |
+| 搜索框占位符（目的地） | "搜索景点、酒店或地标" | "请输入目的地"、"搜索位置" |
+| 当前位置按钮 | "我的位置" | "当前位置"、"获取定位" |
+| 地图选点按钮 | "在地图上选" | "地图选择"、"打开地图" |
+| 最近使用区域标题 | "最近使用" | "历史记录"、"最近选择" |
+| 热门景点区域标题 | "热门景点" | "推荐地点"、"热门目的地" |
+| 无搜索结果提示 | "无搜索结果，试试热门景点" | "未找到"、"暂无数据" |
+
+**错误提示文案**：
+| 场景 | 统一文案 | ❌ 避免使用 |
+|------|---------|-----------|
+| 搜索失败 | "搜索失败，请稍后重试" | "网络错误"、"加载失败" |
+| 定位权限拒绝 | "需要定位权限才能使用此功能" | "无法获取位置"、"授权失败" |
+| 必填验证 | "请选择出发地点" / "请选择目的地景点" | "出发地不能为空"、"请输入目的地" |
+
+#### 3.2.8 代码注释规范
+
+**Java注释**：
+```java
+// ✅ 推荐
+/**
+ * 搜索地点建议（POI搜索自动补全）
+ * 策略：优先查询本地hot_destinations表，不足时调用高德API补充
+ *
+ * @param keyword 搜索关键词（至少2个字符）
+ * @param type 地点类型：departure（出发地）或destination（目的地）
+ * @param province 省份名称（可选，用于限定搜索范围）
+ * @param limit 返回数量限制（默认10）
+ * @return 搜索建议列表
+ */
+public SuggestionResponse suggest(String keyword, String type, String province, int limit)
+
+// ❌ 避免
+/**
+ * 搜索位置推荐
+ * @param query 查询文本
+ * @param locationType 位置类型
+ */
+```
+
+**JavaScript注释**：
+```javascript
+// ✅ 推荐
+/**
+ * 处理地点选择变更
+ * @param {Event} e - 微信事件对象
+ * @param {LocationValue} e.detail.value - 选中的地点值
+ */
+handleRegionalDepartureChange(e) {}
+
+// 从地址文本中提取城市名
+// 示例: "浙江省湖州市德清县" → "湖州市"
+extractCityName(address) {}
+
+// ❌ 避免
+// 处理位置改变
+// 提取城市
+```
+
+#### 3.2.9 日志输出规范
+
+**统一日志格式**：
+```java
+// ✅ 推荐
+log.info("POI搜索: keyword={}, type={}, province={}, resultCount={}, costMs={}",
+  keyword, type, province, suggestions.size(), costMs);
+
+log.info("热门景点加载: province={}, limit={}, resultCount={}",
+  province, limit, hotSpots.size());
+
+log.warn("高德API失败，降级到静态表: keyword={}, error={}",
+  keyword, e.getMessage());
+
+log.debug("Redis缓存命中: key={}, ttl={}s",
+  cacheKey, ttl);
+
+// ❌ 避免
+log.info("地点查询: ...");           // 使用"POI搜索"
+log.info("推荐位置加载: ...");        // 使用"热门景点加载"
+log.warn("API调用失败: ...");        // 明确指出"高德API失败"
+```
+
+#### 3.2.10 高德地图API术语映射
+
+| 高德API术语 | 我们的术语 | 说明 |
+|-----------|-----------|------|
+| `pois` | `suggestions` | 搜索结果列表 |
+| `location` (字符串) | `longitude,latitude` | 高德返回"经度,纬度"字符串，我们拆分为两个字段 |
+| `adcode` | `province_code` / `city_code` | 行政区划代码 |
+| `name` | `poi_name` | POI名称 |
+| `address` | `address` | 详细地址 |
+| `typecode` | `poi_type` | 类型代码（需转换为我们的枚举） |
+
+**坐标系说明**：
+- 高德地图使用**GCJ-02坐标系**（国测局坐标）
+- 微信小程序`wx.getLocation({type: 'gcj02'})`也返回GCJ-02坐标
+- 统一使用GCJ-02，无需坐标转换
+
+### 3.4 方案类型 (Plan Type)
 
 | 类型值 | 中文名 | 核心价值主张 | 定位说明 | 预算占比 |
 |--------|--------|-------------|----------|----------|
@@ -125,7 +367,7 @@ formData.destination        →  API: destination     // 目的地
 | `standard` | 平衡型 | 平衡之选，兼顾舒适与趣味 | 性价比方案，推荐选择 | ≈ (budget_min + budget_max) / 2 |
 | `premium` | 品质型 | 尊享体验，打造团队高光时刻 | 最高预算方案，追求体验 | ≈ budget_max |
 
-### 3.3 方案状态 (Plan Status)
+### 3.5 方案状态 (Plan Status)
 
 | 状态值 | 中文名 | 说明 | 后续动作 |
 |--------|--------|------|----------|
@@ -146,7 +388,7 @@ reviewing → confirmed (确认此方案)
 confirmed → archived (归档)
 ```
 
-### 3.4 请求状态 (Request Status)
+### 3.6 请求状态 (Request Status)
 
 | 状态值 | 中文名 | 说明 |
 |--------|--------|------|
@@ -232,9 +474,17 @@ confirmed → archived (归档)
 |-----------|---------|------|
 | "订单" | Plan（方案） | 一期不涉及支付/履约 |
 | "预订" | Confirm（确认） | 确认≠预订 |
-| "出发地" | departure_city（出发城市） | 统一术语 |
+| "出发地" | departure_city（出发城市）或 departure（出发地点） | 统一术语，避免歧义 |
 | "title" | plan_name（方案名称） | 代码已统一使用 plan_name |
 | "suppliers" (单数形式) | supplier_snapshots（供应商快照） | 非MVP：如保留该字段，也应强调是快照而非引用 |
+| **"位置"** ⭐ | **Location（地点）** | 统一使用"地点"而非"位置" |
+| **"地方"** ⭐ | **Location（地点）** | 统一使用"地点" |
+| **"place"** ⭐ | **location** | 代码中统一使用location |
+| **"search"** ⭐ | **suggest（搜索建议）** | API接口使用suggest明确语义 |
+| **"results"** ⭐ | **suggestions（建议列表）** | 前端变量使用suggestions |
+| **"popular"** ⭐ | **hot-spots（热门景点）** | API和前端统一使用hot-spots/hotSpots |
+| **"lat/lng"** ⭐ | **latitude/longitude** | 使用完整单词，避免缩写 |
+| **"poi_name"单独使用** ⭐ | **name（在POI上下文）或 poi_name（跨域）** | 同一领域内可简化，跨域需明确 |
 
 ---
 
@@ -274,3 +524,4 @@ confirmed → archived (归档)
 | v1.1 | 2026-01-07 | 补充"通晒"工作流：Section 4.3 添加"通晒方案"术语映射，Section 5 添加 `PlanSubmittedForReview` 领域事件 |
 | v1.2 | 2026-01-08 | 补充UI组件术语：添加Section 4.4（自定义导航栏、用户状态显示等），添加Section 7（前端状态管理、路由） |
 | v1.3 | 2026-01-09 | 强化出发城市/目的地/目的地城市区分；补充通晒反馈指标；补充更明确的领域事件命名；PlanType补充价值主张 |
+| **v1.4** | **2026-01-14** | **新增地点选择（LocationPicker）模块完整术语体系**：<br>• Section 3.2：地点选择与POI核心术语（11个术语定义）<br>• Section 3.2.2：LocationValue标准数据结构<br>• Section 3.2.3：POI类型枚举（7种类型）<br>• Section 3.2.4：hot_destinations表字段规范<br>• Section 3.2.5：API接口命名规范（suggest/hot-spots/reverse-geocode）<br>• Section 3.2.6：前端组件命名规范<br>• Section 3.2.7：用户界面文案规范（10+条文案标准）<br>• Section 3.2.8：代码注释规范（Java/JavaScript）<br>• Section 3.2.9：日志输出规范<br>• Section 3.2.10：高德地图API术语映射<br>• Section 6：扩充反模式禁用术语（新增8条） |
