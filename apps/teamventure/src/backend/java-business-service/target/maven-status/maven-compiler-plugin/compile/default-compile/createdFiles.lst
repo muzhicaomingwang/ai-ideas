@@ -20,6 +20,7 @@ com/teamventure/app/service/OssService.class
 com/teamventure/adapter/web/auth/AuthController$LoginRequest.class
 com/teamventure/infrastructure/map/PathStyleConfig$PathSegment.class
 com/teamventure/adapter/web/auth/AuthController$LoginResponse$UserInfo.class
+com/teamventure/infrastructure/map/CityNameExtractor.class
 com/teamventure/infrastructure/map/PathStyleConfig$PathSegment$PathSegmentBuilder.class
 com/teamventure/adapter/web/media/MediaController.class
 com/teamventure/infrastructure/persistence/po/SupplierPO.class

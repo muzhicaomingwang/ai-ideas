@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CityNameExtractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.map</a> &gt; <span class="el_source">CityNameExtractor.java</span></div><h1>CityNameExtractor.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.map;
+
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * 城市名称提取工具
+ *
+ * 从地址文本中提取城市名称，用于判断跨城/周边游路线
+ *
+ * 支持格式：
+ * - 标准格式：&quot;浙江省杭州市西湖区&quot; → &quot;杭州市&quot;
+ * - 无省份：&quot;杭州市西湖区&quot; → &quot;杭州市&quot;
+ * - 直辖市：&quot;上海市黄浦区&quot; → &quot;上海市&quot;
+ * - 自治区：&quot;新疆维吾尔自治区乌鲁木齐市&quot; → &quot;乌鲁木齐市&quot;
+ * - 自治州：&quot;云南省西双版纳傣族自治州&quot; → &quot;西双版纳傣族自治州&quot;
+ *
+ * @author TeamVenture
+ * @since 2026-01-14
+ */
+@Component
+<span class="nc" id="L25">public class CityNameExtractor {</span>
+
+    /**
+     * 城市名称匹配正则
+     *
+     * 匹配规则：
+     * - XX市（如&quot;杭州市&quot;、&quot;乌鲁木齐市&quot;）
+     * - XX自治州（如&quot;西双版纳傣族自治州&quot;）
+     * - XX地区（如&quot;阿里地区&quot;）
+     * - XX盟（如&quot;锡林郭勒盟&quot;）
+     */
+<span class="fc" id="L36">    private static final Pattern CITY_PATTERN = Pattern.compile(</span>
+        &quot;([\\u4e00-\\u9fa5]+?(?:市|自治州|地区|盟))&quot;
+    );
+
+    /**
+     * 省份前缀匹配正则（用于规范化）
+     *
+     * 匹配：XX省、XX自治区、XX特别行政区
+     */
+<span class="fc" id="L45">    private static final Pattern PROVINCE_PREFIX_PATTERN = Pattern.compile(</span>
+        &quot;^(.+?(?:省|自治区|特别行政区))&quot;
+    );
+
+    /**
+     * 从地址文本中提取城市名
+     *
+     * 示例：
+     * - &quot;浙江省杭州市西湖区莫干山路&quot; → &quot;杭州市&quot;
+     * - &quot;上海市黄浦区人民广场&quot; → &quot;上海市&quot;
+     * - &quot;新疆维吾尔自治区乌鲁木齐市&quot; → &quot;乌鲁木齐市&quot;
+     * - &quot;莫干山风景区&quot; → Optional.empty()
+     *
+     * @param address 地址文本
+     * @return 城市名（如&quot;杭州市&quot;），未提取到则返回Optional.empty()
+     */
+    public static Optional&lt;String&gt; extractCityFromAddress(String address) {
+<span class="fc bfc" id="L62" title="All 4 branches covered.">        if (address == null || address.isBlank()) {</span>
+<span class="fc" id="L63">            return Optional.empty();</span>
+        }
+
+        // 先去除省份前缀，再提取城市名
+<span class="fc" id="L67">        String normalized = PROVINCE_PREFIX_PATTERN.matcher(address)</span>
+<span class="fc" id="L68">            .replaceFirst(&quot;&quot;)</span>
+<span class="fc" id="L69">            .trim();</span>
+
+<span class="fc" id="L71">        Matcher matcher = CITY_PATTERN.matcher(normalized);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (matcher.find()) {</span>
+<span class="fc" id="L73">            return Optional.of(matcher.group(1));</span>
+        }
+
+<span class="fc" id="L76">        return Optional.empty();</span>
+    }
+
+    /**
+     * 规范化城市名（去除省份前缀）
+     *
+     * 示例：
+     * - &quot;浙江省杭州市&quot; → &quot;杭州市&quot;
+     * - &quot;杭州市&quot; → &quot;杭州市&quot;（无变化）
+     *
+     * @param cityName 可能包含省份前缀的城市名
+     * @return 规范化后的城市名
+     */
+    public static String normalizeCityName(String cityName) {
+<span class="pc bpc" id="L90" title="1 of 4 branches missed.">        if (cityName == null || cityName.isBlank()) {</span>
+<span class="fc" id="L91">            return cityName;</span>
+        }
+
+<span class="fc" id="L94">        return PROVINCE_PREFIX_PATTERN.matcher(cityName)</span>
+<span class="fc" id="L95">            .replaceFirst(&quot;&quot;)</span>
+<span class="fc" id="L96">            .trim();</span>
+    }
+
+    /**
+     * 批量提取城市名（去重）
+     *
+     * 从多个地址中提取唯一的城市集合
+     *
+     * @param addresses 地址列表
+     * @return 城市名集合
+     */
+    public static java.util.Set&lt;String&gt; extractCities(java.util.List&lt;String&gt; addresses) {
+<span class="pc bpc" id="L108" title="2 of 4 branches missed.">        if (addresses == null || addresses.isEmpty()) {</span>
+<span class="nc" id="L109">            return java.util.Set.of();</span>
+        }
+
+<span class="fc" id="L112">        return addresses.stream()</span>
+<span class="fc" id="L113">            .map(CityNameExtractor::extractCityFromAddress)</span>
+<span class="fc" id="L114">            .filter(Optional::isPresent)</span>
+<span class="fc" id="L115">            .map(Optional::get)</span>
+<span class="fc" id="L116">            .map(CityNameExtractor::normalizeCityName)</span>
+<span class="fc" id="L117">            .collect(java.util.stream.Collectors.toSet());</span>
+    }
+
+    /**
+     * 判断两个地址是否属于同一城市
+     *
+     * @param address1 地址1
+     * @param address2 地址2
+     * @return true表示同城
+     */
+    public static boolean isSameCity(String address1, String address2) {
+<span class="fc" id="L128">        Optional&lt;String&gt; city1 = extractCityFromAddress(address1);</span>
+<span class="fc" id="L129">        Optional&lt;String&gt; city2 = extractCityFromAddress(address2);</span>
+
+<span class="pc bpc" id="L131" title="1 of 4 branches missed.">        if (city1.isEmpty() || city2.isEmpty()) {</span>
+<span class="fc" id="L132">            return false;</span>
+        }
+
+<span class="fc" id="L135">        String normalizedCity1 = normalizeCityName(city1.get());</span>
+<span class="fc" id="L136">        String normalizedCity2 = normalizeCityName(city2.get());</span>
+
+<span class="fc" id="L138">        return normalizedCity1.equals(normalizedCity2);</span>
+    }
+
+    /**
+     * 验证城市名是否合法
+     *
+     * 合法标准：
+     * - 长度2-10个汉字
+     * - 以&quot;市&quot;、&quot;自治州&quot;、&quot;地区&quot;、&quot;盟&quot;结尾
+     *
+     * @param cityName 城市名
+     * @return true表示合法
+     */
+    public static boolean isValidCityName(String cityName) {
+<span class="pc bpc" id="L152" title="1 of 4 branches missed.">        if (cityName == null || cityName.isBlank()) {</span>
+<span class="fc" id="L153">            return false;</span>
+        }
+
+        // 长度检查
+<span class="pc bpc" id="L157" title="2 of 4 branches missed.">        if (cityName.length() &lt; 2 || cityName.length() &gt; 10) {</span>
+<span class="nc" id="L158">            return false;</span>
+        }
+
+        // 格式检查
+<span class="fc" id="L162">        return cityName.matches(&quot;[\\u4e00-\\u9fa5]+?(?:市|自治州|地区|盟)&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

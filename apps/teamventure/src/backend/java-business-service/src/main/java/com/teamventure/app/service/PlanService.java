@@ -71,6 +71,14 @@ public class PlanService {
         }
     };
 
+    /**
+     * 城市坐标缓存（永久缓存，城市坐标不变）
+     * Key格式: 城市名（如"杭州市"）
+     * Value: [lng, lat]
+     */
+    private static final java.util.concurrent.ConcurrentHashMap<String, double[]> CITY_GEO_CACHE =
+        new java.util.concurrent.ConcurrentHashMap<>();
+
     public PlanService(
             PlanRequestMapper planRequestMapper,
             PlanMapper planMapper,
@@ -1127,6 +1135,86 @@ public class PlanService {
     private String selectTransportMode(double distanceKm) {
         final double WALKING_THRESHOLD_KM = 3.0;
         return distanceKm < WALKING_THRESHOLD_KM ? "walking" : "driving";
+    }
+
+    /**
+     * 获取城市的地理坐标（通过高德地理编码API）
+     *
+     * 用于跨城地图生成，获取起点城市和终点城市的坐标
+     * 结果永久缓存（城市坐标不会变化）
+     *
+     * @param cityName 城市名（如"杭州市"）
+     * @return [lng, lat]，失败返回Optional.empty()
+     */
+    private Optional<double[]> getCityCoordinate(String cityName) {
+        if (amapApiKey.isBlank() || cityName == null || cityName.isBlank()) {
+            return Optional.empty();
+        }
+
+        // 1. 检查缓存
+        double[] cached = CITY_GEO_CACHE.get(cityName);
+        if (cached != null) {
+            return Optional.of(cached);
+        }
+
+        // 2. 调用高德地理编码API
+        try {
+            String url = "https://restapi.amap.com/v3/geocode/geo"
+                + "?key=" + enc(amapApiKey)
+                + "&address=" + enc(cityName)
+                + "&city=" + enc(cityName); // 限定城市范围提高准确性
+
+            HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(java.time.Duration.ofSeconds(6))
+                .GET()
+                .build();
+
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) {
+                return Optional.empty();
+            }
+
+            Map<String, Object> body = Jsons.toMap(resp.body());
+            String status = asString(body.get("status")).orElse("");
+            if (!"1".equals(status)) {
+                return Optional.empty();
+            }
+
+            // 3. 解析geocodes数组
+            Object geocodesObj = body.get("geocodes");
+            if (!(geocodesObj instanceof List<?> geocodes) || geocodes.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Object first = geocodes.get(0);
+            if (!(first instanceof Map<?, ?> firstMapRaw)) {
+                return Optional.empty();
+            }
+
+            Map<String, Object> firstMap = castMap(firstMapRaw);
+            String location = asString(firstMap.get("location")).orElse("");
+
+            if (location.isBlank() || !location.contains(",")) {
+                return Optional.empty();
+            }
+
+            // 4. 解析坐标
+            String[] parts = location.split(",", 2);
+            double lng = Double.parseDouble(parts[0]);
+            double lat = Double.parseDouble(parts[1]);
+
+            double[] lngLat = new double[]{lng, lat};
+
+            // 5. 缓存结果（永久缓存）
+            CITY_GEO_CACHE.put(cityName, lngLat);
+
+            return Optional.of(lngLat);
+
+        } catch (Exception e) {
+            System.err.println("City geocoding failed for " + cityName + ": " + e.getMessage());
+            return Optional.empty();
+        }
     }
 
     /**

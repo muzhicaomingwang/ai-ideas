@@ -41,4 +41,5 @@
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/app/service/InternalPlanCallbackService.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/mapper/StaticMapUrlMapper.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/po/SupplierPO.java
+/Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/map/CityNameExtractor.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/po/PlanRequestPO.java

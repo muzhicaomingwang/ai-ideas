@@ -30,13 +30,13 @@ import java.util.List;
      * @return zoom级别（3-18）
      */
     public int calculateOptimalZoom(List&lt;Point&gt; points, MapSizePreset size) {
-<span class="pc bpc" id="L33" title="2 of 4 branches missed.">        if (points == null || points.isEmpty()) {</span>
-<span class="nc" id="L34">            return getDefaultZoom(size);</span>
+<span class="fc bfc" id="L33" title="All 4 branches covered.">        if (points == null || points.isEmpty()) {</span>
+<span class="fc" id="L34">            return getDefaultZoom(size);</span>
         }
 
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (points.size() == 1) {</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (points.size() == 1) {</span>
             // 单点地图：根据场景返回合适的zoom
-<span class="nc" id="L39">            return getSinglePointZoom(size);</span>
+<span class="fc" id="L39">            return getSinglePointZoom(size);</span>
         }
 
         // 1. 计算包围盒
@@ -69,16 +69,16 @@ import java.util.List;
      * @return zoom级别
      */
     private int mapSpanToZoom(double maxSpan) {
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (maxSpan &gt; 5.0) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (maxSpan &gt; 5.0) {</span>
 <span class="fc" id="L73">            return 3;   // 跨省/跨国（&gt;500km，如北京-上海、上海-广州）</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        } else if (maxSpan &gt; 1.0) {</span>
-<span class="nc" id="L75">            return 8;   // 跨市（100-500km）</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        } else if (maxSpan &gt; 0.1) {</span>
-<span class="nc" id="L77">            return 12;  // 同城（10-100km）</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        } else if (maxSpan &gt; 0.01) {</span>
-<span class="nc" id="L79">            return 15;  // 街区（1-10km）</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        } else if (maxSpan &gt; 1.0) {</span>
+<span class="fc" id="L75">            return 8;   // 跨市（100-500km）</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        } else if (maxSpan &gt; 0.1) {</span>
+<span class="fc" id="L77">            return 12;  // 同城（10-100km）</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        } else if (maxSpan &gt; 0.01) {</span>
+<span class="fc" id="L79">            return 15;  // 街区（1-10km）</span>
         } else {
-<span class="nc" id="L81">            return 17;  // 相邻建筑（&lt;1km）</span>
+<span class="fc" id="L81">            return 17;  // 相邻建筑（&lt;1km）</span>
         }
     }
 
@@ -94,19 +94,19 @@ import java.util.List;
      * @return 调整后的zoom
      */
     private int adjustZoomBySize(int baseZoom, MapSizePreset size) {
-<span class="pc bpc" id="L97" title="2 of 3 branches missed.">        switch (size) {</span>
+<span class="fc bfc" id="L97" title="All 3 branches covered.">        switch (size) {</span>
             case THUMBNAIL:
                 // 缩略图：降低1级zoom（显示更大范围，避免拥挤）
-<span class="nc" id="L100">                return Math.max(3, baseZoom - 1);</span>
+<span class="fc" id="L100">                return Math.max(3, baseZoom - 1);</span>
 
             case SHARE:
                 // 分享图：提高1级zoom（显示更多细节）
-<span class="nc" id="L104">                return Math.min(18, baseZoom + 1);</span>
+<span class="fc" id="L104">                return Math.min(18, baseZoom + 1);</span>
 
             case DETAIL:
             case SUPPLIER:
             default:
-                // 详情页和供应商位置：使用基础zoom
+                // 详情页和供应商地点：使用基础zoom
 <span class="fc" id="L110">                return baseZoom;</span>
         }
     }
@@ -118,7 +118,7 @@ import java.util.List;
      * @return zoom级别
      */
     private int getSinglePointZoom(MapSizePreset size) {
-<span class="nc bnc" id="L121" title="All 4 branches missed.">        switch (size) {</span>
+<span class="pc bpc" id="L121" title="3 of 4 branches missed.">        switch (size) {</span>
             case THUMBNAIL:
 <span class="nc" id="L123">                return 13;  // 缩略图：稍远视角</span>
             case SHARE:
@@ -127,7 +127,7 @@ import java.util.List;
 <span class="nc" id="L127">                return 15;  // 供应商：街区级别</span>
             case DETAIL:
             default:
-<span class="nc" id="L130">                return 15;  // 详情页：街区级别</span>
+<span class="fc" id="L130">                return 15;  // 详情页：街区级别</span>
         }
     }
 
@@ -138,7 +138,7 @@ import java.util.List;
      * @return zoom级别
      */
     private int getDefaultZoom(MapSizePreset size) {
-<span class="nc" id="L141">        return 12;  // 默认城市级别视图</span>
+<span class="fc" id="L141">        return 12;  // 默认城市级别视图</span>
     }
 
     /**

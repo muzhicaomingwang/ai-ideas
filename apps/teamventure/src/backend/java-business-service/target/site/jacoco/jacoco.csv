@@ -51,9 +51,10 @@ TeamVenture Business Service,com.teamventure.infrastructure.map,PathStyleConfig.
 TeamVenture Business Service,com.teamventure.infrastructure.map,PathStyleConfig.PathSegment.PathSegmentBuilder,8,21,0,0,0,1,1,4,1,4
 TeamVenture Business Service,com.teamventure.infrastructure.map,ZoomCalculator.BoundingBox,60,27,0,0,6,8,2,3,2,3
 TeamVenture Business Service,com.teamventure.infrastructure.map,MarkerStyleConfig,0,136,0,14,0,28,0,12,0,5
-TeamVenture Business Service,com.teamventure.infrastructure.map,MapDegradationHandler,122,70,15,3,31,21,12,6,3,6
+TeamVenture Business Service,com.teamventure.infrastructure.map,MapDegradationHandler,23,169,7,11,6,46,7,11,0,9
 TeamVenture Business Service,com.teamventure.infrastructure.map,PathStyleConfig.PathStyle,3,69,0,0,1,14,1,5,1,5
-TeamVenture Business Service,com.teamventure.infrastructure.map,ZoomCalculator,55,92,16,5,17,29,14,5,2,5
+TeamVenture Business Service,com.teamventure.infrastructure.map,ZoomCalculator,6,141,3,18,3,43,3,16,0,7
+TeamVenture Business Service,com.teamventure.infrastructure.map,CityNameExtractor,7,115,7,19,3,34,8,12,1,6
 TeamVenture Business Service,com.teamventure.infrastructure.map,PathStyleConfig,9,212,4,14,3,37,5,13,1,8
 TeamVenture Business Service,com.teamventure.infrastructure.map,MarkerStyleConfig.MarkerStyle,0,62,0,0,0,13,0,5,0,5
 TeamVenture Business Service,com.teamventure.adapter.web.internal,InternalPlanController,24,0,2,0,8,0,3,0,2,0

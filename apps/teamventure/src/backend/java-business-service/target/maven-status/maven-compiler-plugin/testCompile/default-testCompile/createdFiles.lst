@@ -1,4 +1,5 @@
 com/teamventure/app/service/AuthServiceIntegrationTest.class
+com/teamventure/infrastructure/map/CityNameExtractorTest.class
 com/teamventure/infrastructure/cache/StaticMapUrlCacheTest.class
 com/teamventure/infrastructure/map/MapDegradationHandlerTest.class
 com/teamventure/infrastructure/map/MarkerStyleConfigTest.class
