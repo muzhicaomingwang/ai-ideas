@@ -1,10 +1,10 @@
 # TeamVenture 领域统一语言词汇表 (Ubiquitous Language Glossary)
 
 **创建日期**: 2026-01-06
-**版本**: v1.5
+**版本**: v1.6
 **目的**: 确保全链路字段命名一致性，消除"翻译损耗"
 
-**最新更新**: 新增地图服务（MapService）模块术语定义（v1.5）
+**最新更新**: 双地图展示功能术语补充（v1.6）
 
 ---
 
@@ -413,6 +413,10 @@ confirmed → archived (归档)
 | **降级策略** | **Degradation** | `degradation` | API失败时的兜底方案（简化→占位图） | 回退、fallback、备选方案 |
 | **占位图** | **Placeholder** | `placeholder` | API完全失败时显示的默认图片 | 默认图、兜底图 |
 | **缓存键** | **Cache Key** | `cacheKey` | 基于请求参数生成的MD5哈希（32字符） | 缓存ID、key |
+| **跨城地图** ⭐ v1.6 | **Intercity Map** | `intercityMap` | 展示城市间位移的地图（起点城市→终点城市，直线连接） | 城际地图、跨市地图 |
+| **周边游地图** ⭐ v1.6 | **Regional Map** | `regionalMap` | 展示城市内景点详细路线的地图 | 市内地图、本地地图 |
+| **地图标识** ⭐ v1.6 | **Map ID** | `map_id` | 区分地图类型的唯一标识（intercity/regional） | 地图ID、地图类型 |
+| **长距离交通方式** ⭐ v1.6 | **Long Distance Transport** | `transportMode` | train(高铁)/flight(飞机)/driving(自驾) | 交通工具、出行方式 |
 
 #### 3.7.2 标注类型枚举
 
@@ -485,16 +489,36 @@ confirmed → archived (归档)
 
 **路线API响应结构** (`GET /api/v1/plans/{planId}/route?day={dayNum}`):
 
+**新增字段（v1.6，推荐使用）**：
+
 | API字段 | Java字段 | 类型 | 说明 |
 |---------|---------|------|------|
-| `markers` | `markers` | Array | 标注点列表（起点/终点/途经点） |
-| `polyline` | `polyline` | Array | 折线数据（包含points数组和样式） |
-| `include_points` | `includePoints` | Array | 路径细化点（高德API返回） |
-| `segments` | `segments` | Array | 路线段详情（from/to/distance/duration/mode） |
-| `summary` | `summary` | Object | 路线摘要（总距离/总时长） |
+| `maps` ⭐ v1.6 | `maps` | Array | 地图数组（0-2张），每张地图包含完整配置 |
+| `maps[].map_id` | `mapId` | String | 地图标识：intercity/regional |
+| `maps[].map_type` | `mapType` | String | static/interactive |
+| `maps[].display_name` | `displayName` | String | 显示名称（如"跨城路线"/"杭州周边游"） |
+| `maps[].description` | `description` | String | 描述文本（如"上海市 → 杭州市"） |
+| `maps[].markers` | `markers` | Array | 该地图的标注点 |
+| `maps[].polyline` | `polyline` | Array | 该地图的折线数据 |
+| `maps[].segments` | `segments` | Array | 该地图的路线段 |
+| `maps[].summary` | `summary` | Object | 该地图的摘要（含transport_mode） |
+| `maps[].summary.transport_mode` | `transportMode` | String | 交通方式：driving/train/flight/walking |
+| `maps[].static_map_url` | `staticMapUrl` | String/null | 静态地图URL |
+| `maps[].zoom_level` | `zoomLevel` | Integer | 建议缩放级别 |
+| `maps[].center` | `center` | Object | 地图中心点{longitude, latitude} |
+
+**旧字段（向后兼容，标记为deprecated）**：
+
+| API字段 | Java字段 | 类型 | 说明 |
+|---------|---------|------|------|
+| `markers` | `markers` | Array | 合并所有地图的标注点（deprecated，建议使用maps[].markers） |
+| `polyline` | `polyline` | Array | 合并所有地图的折线（deprecated，建议使用maps[].polyline） |
+| `include_points` | `includePoints` | Array | 合并所有地图的路径点 |
+| `segments` | `segments` | Array | 合并所有地图的路线段 |
+| `summary` | `summary` | Object | 总摘要 |
 | `unresolved` | `unresolved` | Array | 未解析的地点名称 |
-| `mapType` | `mapType` | String | 地图类型：static/interactive |
-| `staticMapUrl` | `staticMapUrl` | String/null | 静态地图URL（跨市路线为null） |
+| `mapType` | `mapType` | String | 地图类型（deprecated，建议使用maps[].map_type） |
+| `staticMapUrl` | `staticMapUrl` | String/null | 第一张static地图的URL（deprecated） |
 
 #### 3.7.10 日志输出规范
 
@@ -643,3 +667,4 @@ log.info("缓存未命中，调用API");       // 使用"Cache miss, generating 
 | v1.3 | 2026-01-09 | 强化出发城市/目的地/目的地城市区分；补充通晒反馈指标；补充更明确的领域事件命名；PlanType补充价值主张 |
 | v1.4 | 2026-01-14 | 新增地点选择（LocationPicker）模块完整术语体系：<br>• Section 3.2：地点选择与POI核心术语（11个术语定义）<br>• Section 3.2.2：LocationValue标准数据结构<br>• Section 3.2.3：POI类型枚举（7种类型）<br>• Section 3.2.4：hot_destinations表字段规范<br>• Section 3.2.5：API接口命名规范（suggest/hot-spots/reverse-geocode）<br>• Section 3.2.6：前端组件命名规范<br>• Section 3.2.7：用户界面文案规范（10+条文案标准）<br>• Section 3.2.8：代码注释规范（Java/JavaScript）<br>• Section 3.2.9：日志输出规范<br>• Section 3.2.10：高德地图API术语映射<br>• Section 6：扩充反模式禁用术语（新增8条） |
 | **v1.5** | **2026-01-14** | **新增地图服务（MapService）模块术语体系**：<br>• Section 3.7：地图服务核心术语（10个术语定义）<br>• Section 3.7.2：标注类型枚举（START/END/WAYPOINT/SUPPLIER）<br>• Section 3.7.3：路径样式枚举（driving/walking/cycling/transit）<br>• Section 3.7.4：地图尺寸预设（DETAIL/THUMBNAIL/SHARE/SUPPLIER）<br>• Section 3.7.5：缩放级别映射（zoom 3-17对应不同跨度范围）<br>• Section 3.7.6：降级策略层级（Level 1-4）<br>• Section 3.7.7：三级缓存架构（L1/L2/L3）<br>• Section 3.7.8：static_map_url_cache表字段规范<br>• Section 3.7.9：路线API响应字段<br>• Section 3.7.10：日志输出规范<br>• **术语修正**：代码中"位置"→"地点"（2处） |
+| **v1.6** | **2026-01-14** | **双地图展示功能术语补充**：新增4个术语（跨城地图、周边游地图、地图标识、长距离交通方式）；扩展Section 3.7.9 API响应字段（maps数组，13个新字段）；标记旧字段为deprecated；新增判断规则（跨城=城市名变化、周边游=同城≥2景点）；新增交通方式（train/flight/driving）；新增地图类型（intercity/regional） |
