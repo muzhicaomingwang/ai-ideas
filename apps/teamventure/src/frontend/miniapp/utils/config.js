@@ -35,7 +35,7 @@ const ENV = detectEnv()
 
 // API 基础地址配置
 const API_BASE_URLS = {
-  local: 'http://api.teamventure.com/api/v1', // 本地开发环境（通过 Nginx 反向代理）
+  local: 'http://localhost:8080/api/v1', // 本地开发环境（直接访问Java服务端口）
   dev: 'https://dev-api.teamventure.com/api/v1', // 开发环境
   beta: 'https://beta-api.teamventure.com/api/v1', // 测试环境
   prod: 'https://api.teamventure.com/api/v1' // 生产环境
