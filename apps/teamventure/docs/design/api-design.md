@@ -1,9 +1,15 @@
 # TeamVenture API 设计文档
 
-**版本**: v1.6（Phase 1 - 小程序端）
+**版本**: v1.7（Phase 1 - 小程序端）
 **创建日期**: 2026-01-04
 **更新日期**: 2026-01-14
 **变更记录**:
+- **v1.7 (2026-01-14)**: 新增路线API（双地图展示）
+  - 新增3.10: 获取方案路线API
+  - 支持0-2张地图展示（跨城地图+周边游地图）
+  - 新增maps数组结构（map_id/map_type/display_name等13个字段）
+  - 新增交通方式推断（train/flight/driving）
+  - 标记旧字段为deprecated（向后兼容）
 - **v1.6 (2026-01-14)**: 新增Location API（地点选择）模块
   - 新增第4章：Location API（地点选择）
   - 4.1: 搜索地点建议API（suggest）
@@ -971,6 +977,157 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/revert-review" \
 | 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
 
 **说明**: 回退通晒后会生成领域事件 `PlanRevertedToReview`。
+
+---
+
+### 3.10 获取方案路线 API ⭐ **v1.7 新增**
+
+**接口**: `GET /api/v1/plans/{planId}/route?day={dayNum}`
+
+**功能**: 获取指定天的行程路线地图数据（支持双地图展示）
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| planId | String | 是 | 方案ID（路径参数） |
+| day | Integer | 否 | 天数（默认返回所有天） |
+
+**响应示例（v1.7新格式）**:
+
+```json
+{
+  "success": true,
+  "data": {
+    // === 新增字段（推荐使用） ===
+    "maps": [
+      {
+        "map_id": "intercity",
+        "map_type": "static",
+        "display_name": "跨城路线",
+        "description": "上海市 → 杭州市",
+        "markers": [
+          {"id": 1, "latitude": 31.23, "longitude": 121.47, "title": "上海市"},
+          {"id": 2, "latitude": 30.25, "longitude": 120.15, "title": "杭州市"}
+        ],
+        "polyline": [
+          {
+            "points": [
+              {"latitude": 31.23, "longitude": 121.47},
+              {"latitude": 30.25, "longitude": 120.15}
+            ],
+            "color": "#1890FF",
+            "width": 6,
+            "dottedLine": true
+          }
+        ],
+        "segments": [
+          {
+            "from": "上海市",
+            "to": "杭州市",
+            "distance": 180000,
+            "duration": 10800,
+            "mode": "train"
+          }
+        ],
+        "summary": {
+          "total_distance": 180000,
+          "total_duration": 10800,
+          "transport_mode": "train"
+        },
+        "static_map_url": "https://restapi.amap.com/v3/staticmap?...",
+        "zoom_level": 8,
+        "center": {"longitude": 120.81, "latitude": 30.74}
+      },
+      {
+        "map_id": "regional",
+        "map_type": "interactive",
+        "display_name": "杭州周边游",
+        "description": "西湖 → 灵隐寺 → 宋城景区",
+        "markers": [
+          {"id": 1, "latitude": 30.25, "longitude": 120.15, "title": "西湖"},
+          {"id": 2, "latitude": 30.24, "longitude": 120.10, "title": "灵隐寺"},
+          {"id": 3, "latitude": 30.22, "longitude": 120.19, "title": "宋城景区"}
+        ],
+        "polyline": [
+          {
+            "points": [ /* 详细路径点 */ ],
+            "color": "#52C41A",
+            "width": 6
+          }
+        ],
+        "segments": [ /* 详细路线段 */ ],
+        "summary": {
+          "total_distance": 25000,
+          "total_duration": 3600,
+          "transport_mode": "walking"
+        },
+        "static_map_url": null,
+        "zoom_level": 13,
+        "center": {"longitude": 120.15, "latitude": 30.24}
+      }
+    ],
+
+    // === 旧字段（向后兼容，标记为deprecated） ===
+    "markers": [ /* 合并所有地图的标注 */ ],
+    "polyline": [ /* 合并所有地图的路径 */ ],
+    "include_points": [ /* 所有路径点 */ ],
+    "segments": [ /* 所有路线段 */ ],
+    "summary": {"totalDistance": 205000, "totalDuration": 14400},
+    "unresolved": [],
+    "mapType": "static",
+    "staticMapUrl": "https://..."
+  },
+  "error": null
+}
+```
+
+**maps数组说明**:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| map_id | String | 地图标识：`intercity`（跨城）或 `regional`（周边游） |
+| map_type | String | `static`（静态地图）或 `interactive`（交互地图） |
+| display_name | String | 前端展示标题（如"跨城路线"、"杭州周边游"） |
+| description | String | 路线描述（如"上海市 → 杭州市"） |
+| markers | Array | 该地图的标注点列表 |
+| polyline | Array | 该地图的折线数据 |
+| segments | Array | 该地图的路线段详情 |
+| summary | Object | 该地图的路线摘要 |
+| summary.transport_mode | String | 交通方式：`driving`/`train`/`flight`/`walking` |
+| static_map_url | String/null | 静态地图URL（interactive类型为null） |
+| zoom_level | Integer | 建议的缩放级别（3-18） |
+| center | Object | 地图中心点坐标 |
+
+**地图展示规则**:
+
+| 场景 | maps数组内容 | 说明 |
+|-----|-------------|------|
+| 纯跨城 | [intercity] | Day1：上海→杭州（城市间位移） |
+| 纯周边游 | [regional] | Day2：杭州西湖→灵隐寺→宋城（同城≥2景点） |
+| 跨城+周边游 | [intercity, regional] | Day1上午上海→杭州，下午杭州游玩 |
+| 无地图 | [] | 地点<2或无坐标信息 |
+
+**交通方式推断规则**（跨城地图）:
+
+| 距离 | 交通方式 | 图标建议 |
+|------|---------|---------|
+| <50km | `driving` | 🚗 自驾 |
+| 50-500km | `train` | 🚄 高铁 |
+| >500km | `flight` | ✈️ 飞机 |
+
+**向后兼容说明**:
+- 旧字段（markers/polyline/mapType/staticMapUrl）仍然返回，但标记为deprecated
+- 旧字段值为所有地图数据的合并结果
+- 建议前端优先使用`maps`数组，降级使用旧字段
+
+**错误响应**:
+
+| 场景 | HTTP状态码 | error.code | 说明 |
+|------|-----------|------------|------|
+| 方案不存在 | 404 | NOT_FOUND | plan not found |
+| 无权限 | 403 | UNAUTHORIZED | not owner |
+| 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
 
 ---
 
