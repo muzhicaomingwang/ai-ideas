@@ -66,6 +66,18 @@ class Settings(BaseSettings):
     # 日志配置
     log_level: str = "INFO"
 
+    # 每日创意生成配置
+    daily_idea_enabled: bool = True
+    daily_idea_cron_hour: int = 10
+    daily_idea_cron_minute: int = 0
+
+    # Notion 集成（可选）
+    notion_page_id: str = ""
+
+    # 飞书集成（可选）
+    feishu_doc_token: str = ""
+    feishu_chat_id: str = ""
+
 
 # 全局配置实例
 settings = Settings()

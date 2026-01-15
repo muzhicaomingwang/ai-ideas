@@ -59,6 +59,21 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: ${REDIS_PORT:-6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123456}
+      # 每日创意生成配置
+      DAILY_IDEA_ENABLED: ${DAILY_IDEA_ENABLED:-true}
+      DAILY_IDEA_CRON_HOUR: ${DAILY_IDEA_CRON_HOUR:-10}
+      DAILY_IDEA_CRON_MINUTE: ${DAILY_IDEA_CRON_MINUTE:-0}
+      NOTION_PAGE_ID: ${NOTION_PAGE_ID:-}
+      FEISHU_DOC_TOKEN: ${FEISHU_DOC_TOKEN:-}
+      FEISHU_CHAT_ID: ${FEISHU_CHAT_ID:-}
+      # Git 配置（用于自动提交创意）
+      GIT_AUTHOR_NAME: TeamVenture AI Bot
+      GIT_AUTHOR_EMAIL: ai-bot@teamventure.com
+      GIT_COMMITTER_NAME: TeamVenture AI Bot
+      GIT_COMMITTER_EMAIL: ai-bot@teamventure.com
+    volumes:
+      - ../docs:/workspace/docs:rw  # 挂载 docs 目录（创意文件存储）
+      - ../.git:/workspace/.git:rw  # 挂载 .git 目录（Git 操作）
     ports:
       - "${PYTHON_SERVICE_PORT:-8000}:8000"
     depends_on:

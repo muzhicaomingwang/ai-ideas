@@ -268,3 +268,16 @@ stats: ## 查看容器资源使用情况
 
 top: ## 查看容器进程
 	@$(COMPOSE) top
+
+##@ 创意生成
+
+generate-ideas: ## 手动触发创意生成（调试用）
+	@echo "手动触发创意生成..."
+	@cd src/backend/python-ai-service && poetry run python -m src.scheduler.jobs
+
+ideas-status: ## 查看创意生成历史
+	@echo "创意生成历史:"
+	@ls -lh docs/ideas/2026/*/ 2>/dev/null || echo "暂无创意"
+	@echo ""
+	@echo "最新创意:"
+	@tail -20 docs/ideas/2026/01/$$(date +%Y-%m-%d).md 2>/dev/null || echo "今日暂无创意"

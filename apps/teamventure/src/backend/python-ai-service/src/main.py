@@ -27,6 +27,7 @@ from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.models.config import settings
+from src.scheduler.scheduler import start_scheduler, stop_scheduler
 from src.services.mq_consumer import start_mq_consumer, stop_mq_consumer
 
 # Import and initialize LLM metrics with Prometheus REGISTRY
@@ -61,6 +62,10 @@ async def lifespan(app: FastAPI):
         await start_mq_consumer()
         logger.info("✅ MQ Consumer started")
 
+        # 启动定时任务调度器
+        await start_scheduler()
+        logger.info("✅ Scheduler started")
+
         logger.info(f"🎯 AI Service running on: {settings.host}:{settings.port}")
         logger.info(f"📚 API Docs: http://{settings.host}:{settings.port}/docs")
         logger.info(f"💚 Health Check: http://{settings.host}:{settings.port}/health")
@@ -76,6 +81,9 @@ async def lifespan(app: FastAPI):
     try:
         await stop_mq_consumer()
         logger.info("✅ MQ Consumer stopped")
+
+        await stop_scheduler()
+        logger.info("✅ Scheduler stopped")
     except Exception as e:
         logger.error(f"⚠️ Shutdown warning: {e}")
 
