@@ -1,0 +1,220 @@
+# GMailHelper - 邮件处理规则配置
+# 规则执行顺序：白名单 → 营销邮件 → 通知邮件 → 论坛邮件 → AI分类 → 默认规则
+
+# ========== 全局配置 ==========
+global:
+  # 安全模式：true = 仅模拟，false = 实际执行
+  dry_run: true
+
+  # 每日处理上限（防止误操作）
+  max_emails_per_day: 500
+
+  # 批量操作大小（Gmail API 限制）
+  batch_size: 50
+
+  # AI 分类开关（需要 ANTHROPIC_API_KEY）
+  enable_ai_classification: true
+
+# ========== 白名单规则（跳过处理） ==========
+whitelist:
+  # 重要发件人（永不处理）
+  senders:
+    - "noreply@github.com"
+    - "security@*.com"
+    - "billing@*.com"
+    - "no-reply@accounts.google.com"
+    - "noreply@medium.com"
+
+  # 重要主题关键词
+  subjects:
+    - "[URGENT]"
+    - "[安全]"
+    - "密码重置"
+    - "登录提醒"
+    - "账单"
+    - "发票"
+
+  # 重要标签（已手动分类）
+  labels:
+    - "IMPORTANT"
+    - "STARRED"
+
+# ========== 营销邮件规则 ==========
+rules:
+  - name: "营销邮件"
+    priority: 10
+    enabled: true
+
+    matchers:
+      sender_domains:
+        - "trip.com"
+        - "ctrip.com"
+        - "datacamp.com"
+        - "figma.com"
+        - "*.marketing.com"
+        - "*.promo.com"
+
+      subject_keywords:
+        - "优惠"
+        - "折扣"
+        - "限时"
+        - "Special Offer"
+        - "Discount"
+        - "Sale"
+        - "Save"
+        - "Deal"
+
+      body_keywords:
+        - "点击查看"
+        - "立即购买"
+        - "unsubscribe"
+        - "取消订阅"
+
+    actions:
+      - type: "add_label"
+        value: "营销邮件"
+      - type: "archive"
+      - type: "mark_read"
+
+  # ========== 技术社区通知 ==========
+  - name: "技术社区通知"
+    priority: 20
+    enabled: true
+
+    matchers:
+      sender_domains:
+        - "stackoverflow.com"
+        - "stackexchange.com"
+        - "dev.to"
+        - "hashnode.com"
+
+      subject_keywords:
+        - "New answer"
+        - "New comment"
+        - "replied to"
+
+    actions:
+      - type: "add_label"
+        value: "通知/技术社区"
+      - type: "archive"
+
+  # ========== 学习平台通知 ==========
+  - name: "学习平台通知"
+    priority: 20
+    enabled: true
+
+    matchers:
+      sender_domains:
+        - "datacamp.com"
+        - "coursera.org"
+        - "udemy.com"
+        - "edx.org"
+
+      subject_keywords:
+        - "Course update"
+        - "学习提醒"
+        - "New lesson"
+
+    actions:
+      - type: "add_label"
+        value: "通知/学习平台"
+      - type: "archive"
+
+  # ========== 设计工具通知 ==========
+  - name: "设计工具通知"
+    priority: 20
+    enabled: true
+
+    matchers:
+      sender_domains:
+        - "figma.com"
+        - "sketch.com"
+        - "canva.com"
+
+      subject_keywords:
+        - "New comment"
+        - "Shared with you"
+        - "invited you"
+
+    actions:
+      - type: "add_label"
+        value: "通知/设计工具"
+      - type: "archive"
+
+  # ========== 论坛/社交邮件 ==========
+  - name: "论坛邮件"
+    priority: 30
+    enabled: true
+
+    matchers:
+      sender_domains:
+        - "reddit.com"
+        - "redditmail.com"
+        - "x.com"
+        - "twitter.com"
+        - "quora.com"
+        - "zhihu.com"
+
+      subject_keywords:
+        - "trending on"
+        - "recommended for you"
+        - "upvoted"
+
+    actions:
+      - type: "add_label"
+        value: "论坛/社交"
+      - type: "archive"
+      - type: "mark_read"
+
+  # ========== AI 智能分类规则（兜底） ==========
+  - name: "AI智能分类"
+    priority: 100
+    enabled: true
+
+    # 仅对未匹配的邮件启用
+    apply_to_unmatched: true
+
+    ai_config:
+      model: "claude-3-5-haiku-20241022"  # 使用Haiku，成本更低
+      max_tokens: 20
+      temperature: 0
+
+      prompt: |
+        分析以下邮件类型，仅返回类型名称（不要解释）：
+
+        发件人: {sender}
+        主题: {subject}
+        摘要: {snippet}
+
+        类型选项：
+        - marketing: 营销邮件
+        - notification: 通知邮件
+        - forum: 论坛邮件
+        - important: 重要邮件
+        - spam: 垃圾邮件
+
+      # AI分类结果到动作的映射
+      action_mapping:
+        marketing:
+          - type: "add_label"
+            value: "AI分类/营销"
+          - type: "archive"
+
+        notification:
+          - type: "add_label"
+            value: "AI分类/通知"
+          - type: "archive"
+
+        forum:
+          - type: "add_label"
+            value: "AI分类/论坛"
+          - type: "archive"
+
+        important:
+          - type: "add_label"
+            value: "AI分类/待处理"
+
+        spam:
+          - type: "add_label"
+            value: "垃圾邮件"
+          - type: "delete"

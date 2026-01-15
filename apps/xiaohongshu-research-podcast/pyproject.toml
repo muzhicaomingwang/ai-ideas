@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "xiaohongshu-research-podcast"
+version = "0.1.0"
+description = "每日小红书研究播客生成系统"
+authors = ["QAL Team"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+# 浏览器自动化
+playwright = "^1.41.0"
+
+# 数据处理
+pydantic = "^2.5.0"
+pandas = "^2.1.0"
+scikit-learn = "^1.4.0"
+jieba = "^0.42.0"
+
+# AI服务
+openai = "^1.10.0"
+google-generativeai = "^0.8.0"
+
+# TTS与音频
+elevenlabs = "^1.0.0"
+pydub = "^0.25.0"
+
+# 图像处理
+Pillow = "^10.2.0"
+
+# 工具库
+python-dotenv = "^1.0.0"
+pyyaml = "^6.0.0"
+httpx = "^0.26.0"
+click = "^8.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+black = "^23.12.0"
+ruff = "^0.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

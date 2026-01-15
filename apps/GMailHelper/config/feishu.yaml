@@ -1,0 +1,32 @@
+# GMailHelper - 飞书通知配置
+
+feishu:
+  # 应用信息
+  app_id: "cli_a8831f109ffc500e"
+  app_secret_env: "FEISHU_APP_SECRET"  # 从环境变量读取
+
+  # 接收人配置
+  recipients:
+    - name: "王植萌"
+      open_id: "ou_18b8063b232cbdec73ea1541dfb74890"
+      notify_on:
+        - "daily_report"
+        - "error"
+
+  # 报告模板配置
+  report_template:
+    header_color: "blue"         # blue/green/orange/red/purple
+    show_details: true           # 是否显示详细分类统计
+    include_unmatched: true      # 是否包含未匹配邮件
+    include_errors: true         # 是否包含错误信息
+
+  # 通知时机
+  notification:
+    # 总是发送报告（即使没有处理任何邮件）
+    always_send: false
+
+    # 仅在有处理邮件时发送
+    send_on_processed: true
+
+    # 出错时发送通知
+    send_on_error: true

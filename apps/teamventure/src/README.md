@@ -304,16 +304,25 @@ poetry add --group dev pytest pytest-asyncio black ruff
 
 #### 4.2 配置环境变量
 
-创建 `.env` 文件：
+创建 `.env` 文件（或使用 `.env.local`）：
 
 ```bash
 # OpenAI API
-OPENAI_API_KEY=sk-xxx  # 替换为真实的API Key
+OPENAI_API_KEY=sk-xxx  # 替换为真实的API Key（Mock模式下可不填）
 OPENAI_MODEL=gpt-4-0125-preview
+
+# ⚠️ AI Mock模式（开发测试时建议开启以节省token）
+# true=使用mock数据（不调用OpenAI），false=调用真实AI
+ENABLE_AI_MOCK=true
+
+# AI缓存配置（相同输入24小时内复用结果，减少token消耗）
+AI_CACHE_ENABLED=true
+AI_CACHE_TTL_SECONDS=86400
 
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
+REDIS_PASSWORD=redis123456
 
 # RabbitMQ
 RABBITMQ_HOST=localhost
@@ -328,6 +337,11 @@ JAVA_INTERNAL_SECRET=change-this-in-production
 # 日志级别
 LOG_LEVEL=INFO
 ```
+
+**💡 Token优化建议**：
+- 开发阶段设置 `ENABLE_AI_MOCK=true`（完全不消耗token）
+- 需要测试AI质量时临时改为 `false`
+- 详细说明见：`backend/python-ai-service/docs/AI_TOKEN_OPTIMIZATION.md`
 
 #### 4.3 启动Python服务
 

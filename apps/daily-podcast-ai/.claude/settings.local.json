@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(python scripts/daily_generate.py:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:www.zhihu.com)",
+      "Bash(.env.example )",
+      "Bash(README.md )",
+      "Bash(requirements.txt )",
+      "Bash(scripts/publish_to_rss.py )",
+      "Bash(scripts/notify_feishu.py )",
+      "Bash(QUICKSTART_XIAOYUZHOU.md )",
+      "Bash(docs/XIAOYUZHOU_INTEGRATION.md)",
+      "WebFetch(domain:xh.newrank.cn)"
     ]
   }
 }

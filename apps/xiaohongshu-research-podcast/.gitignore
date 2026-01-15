@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# Poetry
+poetry.lock
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Logs
+logs/*.log
+*.log
+
+# Cache
+cache/*.json
+!cache/.gitkeep
+
+# Output
+output/*/
+!output/.gitkeep
+
+# Playwright
+.playwright/
+playwright-report/
+test-results/
+
+# Audio files
+*.mp3
+*.wav
+*.m4a
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+!assets/*.png
+
+# Temporary files
+tmp/
+temp/

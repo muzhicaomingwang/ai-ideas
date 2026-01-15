@@ -198,6 +198,14 @@ make health             # 检查所有服务健康状态
 make format-java        # 使用spotless格式化Java代码
 make format-python      # 使用black+isort格式化Python代码
 
+# Token优化（减少AI调用成本）
+make mock-on            # 启用Mock模式（开发测试，完全不消耗token）
+make mock-off           # 关闭Mock模式（使用真实AI）
+make cache-clear        # 清空AI响应缓存
+make cache-stats        # 查看缓存统计
+make token-stats        # 查看Token使用统计
+make test-optimization  # 测试Token优化功能
+
 # 数据库操作
 make db-backup          # 备份数据库
 make db-restore FILE=backup/xxx.sql  # 恢复数据库
@@ -371,6 +379,13 @@ Closes #123
 - `.env.*` 文件包含数据库密码、API密钥等敏感信息，**绝不提交到Git**
 - `.env.example` 和 `.env.local` 中的示例密码仅供本地开发，生产环境必须更换
 
+### 前端配置规范（TeamVenture 小程序）
+- **API 地址配置**: `src/frontend/miniapp/utils/config.js:38`
+  - ✅ **正确**: `local: 'http://api.teamventure.com/api/v1'`（通过 Nginx 网关）
+  - ❌ **错误**: `local: 'http://localhost:8080/api/v1'`（直连 Java 绕过网关）
+- **本地域名绑定**: 需在 `/etc/hosts` 添加 `127.0.0.1 api.teamventure.com`
+- **原因**: 小程序必须通过 Nginx 网关访问（统一 CORS、日志、限流）
+
 ### 跨文档一致性
 修改以下关键字段时，需全局搜索并同步更新：
 - 产品定位（如"AI团建策划助手"）
@@ -384,6 +399,34 @@ Closes #123
 - 涉及大表（>100万行）的ALTER操作需制定降级预案
 
 ### AI成本控制（TeamVenture）
-- 每次方案生成约调用GPT-4 4次（4个Agent）
-- 单次成本约¥0.8-1.2（输入3000 tokens，输出2000 tokens）
+
+**Token消耗（优化后）**：
+- **优化前**: 输入~2500 tokens + 输出~2000 tokens = 单次¥1.0
+- **优化后**: 输入~1000 tokens + 输出~2000 tokens = 单次¥0.4（节省60%）
+
+**开发测试优化方案**：
+1. **Mock模式**（推荐）：完全不调用OpenAI，token消耗为0
+   ```bash
+   make mock-on && make restart  # 启用Mock模式
+   make mock-off && make restart # 关闭Mock模式
+   ```
+
+2. **缓存机制**（自动）：相同输入24小时内复用结果
+   ```bash
+   make cache-stats      # 查看缓存统计
+   make cache-clear      # 清空缓存
+   make token-stats      # 查看token使用量
+   ```
+
+3. **成本估算**：
+   - 开发阶段（Mock模式）: ¥0/月
+   - 集成测试（缓存24h，100次/天）: ~¥40/月
+   - 生产环境（缓存1h，1000次/天）: ~¥480/月
+
+**配置位置**：
+- 环境变量: `src/backend/python-ai-service/.env.local`
+- 完整文档: `src/backend/python-ai-service/docs/AI_TOKEN_OPTIMIZATION.md`
+
+**监控告警**：
 - 生产环境需配置预算告警（Prometheus + Grafana）
+- 单日超过1000次调用时发送告警

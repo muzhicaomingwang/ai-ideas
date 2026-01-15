@@ -11,6 +11,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 from datetime import datetime
@@ -19,8 +20,51 @@ from typing import Any
 from src.integrations.openai_client import OpenAIClient
 from src.integrations.amap_client import AmapClient
 from src.services.id_generator import new_prefixed_id
+from src.models.config import settings
 
 logger = logging.getLogger(__name__)
+
+# ============ Redis缓存客户端（懒加载）============
+_redis_client = None
+
+
+def _get_redis_client():
+    """获取Redis客户端（懒加载）"""
+    global _redis_client
+    if _redis_client is None and settings.ai_cache_enabled:
+        try:
+            import redis
+            _redis_client = redis.Redis(
+                host=settings.redis_host,
+                port=settings.redis_port,
+                password=settings.redis_password,
+                db=settings.redis_db,
+                decode_responses=True,
+            )
+            # 测试连接
+            _redis_client.ping()
+            logger.info("Redis AI cache connected successfully")
+        except Exception as exc:
+            logger.warning(f"Failed to connect to Redis for AI cache: {exc}")
+            _redis_client = False  # 标记为不可用
+    return _redis_client if _redis_client is not False else None
+
+
+def _generate_cache_key(inputs: dict[str, Any]) -> str:
+    """生成缓存key（基于输入hash）"""
+    # 只用影响方案生成的关键字段计算hash
+    cache_payload = {
+        "people_count": inputs.get("people_count"),
+        "duration_days": inputs.get("duration_days"),
+        "departure_city": inputs.get("departure_city"),
+        "destination": inputs.get("destination"),
+        "budget_min": inputs.get("budget_min"),
+        "budget_max": inputs.get("budget_max"),
+        "preferences": inputs.get("preferences"),
+    }
+    payload_str = json.dumps(cache_payload, sort_keys=True, ensure_ascii=False)
+    hash_digest = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()[:16]
+    return f"ai:plan:{hash_digest}"
 
 
 # ============ 偏好翻译映射 ============
@@ -380,6 +424,11 @@ async def generate_three_plans(
     - departure_city: 出发城市（团队从哪里出发，如：上海市）
     - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
     - destination_city: 目的地所属行政城市（如：杭州）
+
+    优化机制：
+    1. Mock模式：ENABLE_AI_MOCK=true 时强制使用stub（节省token）
+    2. 缓存机制：相同输入24小时内直接返回缓存结果
+    3. Fallback：API key未配置时自动降级到stub
     """
     people = int(inputs["people_count"])
     duration_days = int(inputs["duration_days"])
@@ -389,6 +438,34 @@ async def generate_three_plans(
     destination_city = inputs.get("destination_city") or ""   # 目的地所属城市（用于季节/价格配置）
     targets = _budget_targets(inputs)
 
+    # === 1. Mock模式检查 ===
+    if settings.enable_ai_mock:
+        logger.info("AI Mock模式已启用，使用确定性stub生成（节省token）")
+        return await _generate_three_plans_stub(
+            plan_request_id=plan_request_id,
+            user_id=user_id,
+            inputs=inputs,
+        )
+
+    # === 2. 缓存检查 ===
+    cache_key = _generate_cache_key(inputs)
+    redis = _get_redis_client()
+    if redis and settings.ai_cache_enabled:
+        try:
+            cached = redis.get(cache_key)
+            if cached:
+                logger.info(f"AI缓存命中 cache_key={cache_key}，跳过LLM调用")
+                cached_plans = json.loads(cached)
+                # 更新 plan_id 和 plan_request_id（避免ID重复）
+                for plan in cached_plans:
+                    plan["plan_id"] = new_prefixed_id("plan")
+                    plan["plan_request_id"] = plan_request_id
+                    plan["user_id"] = user_id
+                return cached_plans
+        except Exception as exc:
+            logger.warning(f"读取AI缓存失败: {exc}")
+
+    # === 3. API Key检查 ===
     client = OpenAIClient()
     if not client.is_configured():
         logger.warning("OPENAI_API_KEY not configured; using stub plan generation")
@@ -450,61 +527,43 @@ async def generate_three_plans(
     activity_desc = "、".join(_translate_activity_types(activity_types)) if activity_types else "团队拓展活动"
     accommodation_desc = _translate_accommodation_level(accommodation_level)
 
-    destination_hint = ""
-    if destination_context and isinstance(destination_context, dict):
-        destination_hint = (
-            "\n=== 目的地真实信息（尽量引用）===\n"
-            "- destination_context 已提供高德 POI 列表（按类别），请在行程中尽量使用其中的真实地点名称。\n"
-            "- 每天至少包含 2 个带具体地点名的活动/用餐点（例如：某景区/某农家乐/某拓展基地）。\n"
-        )
-
-    extra_constraints = ""
-    if special_requirements:
-        extra_constraints += f"- 特殊需求（必须考虑）：{special_requirements}\n"
-    extra_constraints += destination_hint
-
+    # 优化后的Prompt（减少token消耗）
     prompt = (
-        "Generate exactly 3 corporate team-building plans in Chinese.\n"
-        "Return JSON ONLY with this shape:\n"
+        "生成3套团建方案（中文），返回纯JSON格式：\n"
         "{\n"
         '  "plans": [\n'
-        "    {\n"
-        '      "plan_type": "budget|standard|premium",\n'
-        '      "plan_name": "string",\n'
-        '      "summary": "string",\n'
-        '      "highlights": ["string"],\n'
-        '      "itinerary": {"days": [{"day": 1, "items": [{"time_start":"HH:MM","time_end":"HH:MM","activity":"string"}]}]},\n'
-        '      "budget_breakdown": {"total": number, "per_person": number, "categories": [{"category":"string","subtotal": number}]},\n'
-        '      "budget_total": number,\n'
-        '      "budget_per_person": number\n'
-        "    }\n"
+        '    {"plan_type":"budget|standard|premium","plan_name":"string","summary":"string",\n'
+        '     "highlights":["string"],"itinerary":{"days":[{"day":1,"items":[{"time_start":"HH:MM","time_end":"HH:MM","activity":"string"}]}]},\n'
+        '     "budget_breakdown":{"total":number,"per_person":number,"categories":[{"category":"string","subtotal":number}]},\n'
+        '     "budget_total":number,"budget_per_person":number}\n'
         "  ]\n"
         "}\n"
         "\n"
-        "=== 严格约束（必须遵守）===\n"
-        f"1. 活动类型必须包含: {activity_desc}\n"
-        f"2. 住宿标准: {accommodation_desc}\n"
-        f"3. 季节注意: {season_info['description']}，禁止安排: {', '.join(season_info['forbidden_activities'])}\n"
-        "\n"
-        "=== 预算约束 ===\n"
-        "- plans must match plan_types budget/standard/premium in order.\n"
-        "- budget_total must be close to constraints.budget_targets_total for each plan.\n"
-        "- budget_per_person = budget_total / people_count.\n"
-        f"- 住宿预算占比应为25-35%（{accommodation_desc}标准）\n"
-        "- 活动预算占比应为30-40%\n"
-        "- 餐饮预算占比应为20-25%\n"
-        "- 交通预算占比应为10-15%\n"
-        "\n"
-        "=== 行程约束 ===\n"
-        "- Keep itinerary duration_days days.\n"
-        f"- 出发城市: {departure_city}（团队从这里出发）\n"
-        f"- 目的地: {destination}（团建活动举办地点）\n"
-        f"- 目的地城市: {destination_city or '（未知）'}（用于季节/价格参考）\n"
-        f"- 活动应在{destination}或周边（车程2小时内）\n"
-        f"{extra_constraints}"
-        "\n"
-        "Input JSON:\n"
-        f"{json.dumps(prompt_payload, ensure_ascii=False)}"
+        f"基本信息: {people}人, {duration_days}天, {departure_city}→{destination}\n"
+        f"预算目标: 经济¥{targets['budget']:.0f}/标准¥{targets['standard']:.0f}/品质¥{targets['premium']:.0f}\n"
+        f"活动偏好: {activity_desc} | 住宿: {accommodation_desc}\n"
+        f"季节: {season_info['description']}, 禁止: {','.join(season_info['forbidden_activities']) or '无'}\n"
+    )
+
+    if special_requirements:
+        prompt += f"特殊需求: {special_requirements}\n"
+
+    if destination_context and isinstance(destination_context, dict):
+        # 只附加POI名称列表，不传完整对象（减少token）
+        poi_categories = destination_context.get("poi_categories", {})
+        if poi_categories:
+            prompt += "\n真实地点（优先使用）:\n"
+            for cat, pois in list(poi_categories.items())[:3]:  # 只取前3类
+                poi_names = [p.get("name", "") for p in pois[:3]]  # 每类只取3个
+                if poi_names:
+                    prompt += f"- {cat}: {', '.join(poi_names)}\n"
+
+    prompt += (
+        "\n约束:\n"
+        "- 3套方案必须按budget/standard/premium顺序\n"
+        "- budget_total必须接近预算目标（±10%）\n"
+        "- 住宿25-35%，活动30-40%，餐饮20-25%，交通10-15%\n"
+        "- 每天至少3个时间段，包含具体活动名称\n"
     )
 
     raw = await client.generate_json(prompt)
@@ -526,5 +585,22 @@ async def generate_three_plans(
         city=city_for_context,  # 优先使用目的地城市（行政区）进行预算校验
         accommodation_level=accommodation_level,
     )
+
+    # === 4. 写入缓存 ===
+    if redis and settings.ai_cache_enabled:
+        try:
+            # 缓存清理ID后的plans（避免ID污染）
+            cache_data = [
+                {k: v for k, v in plan.items() if k not in ["plan_id", "plan_request_id", "user_id"]}
+                for plan in validated_plans
+            ]
+            redis.setex(
+                cache_key,
+                settings.ai_cache_ttl_seconds,
+                json.dumps(cache_data, ensure_ascii=False),
+            )
+            logger.info(f"AI响应已缓存 cache_key={cache_key}, ttl={settings.ai_cache_ttl_seconds}s")
+        except Exception as exc:
+            logger.warning(f"写入AI缓存失败: {exc}")
 
     return validated_plans

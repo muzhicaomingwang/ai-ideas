@@ -35,14 +35,21 @@ const ENV = detectEnv()
 
 // API 基础地址配置
 const API_BASE_URLS = {
-  local: 'http://localhost:8080/api/v1', // 本地开发环境（直接访问Java服务端口）
+  local: 'http://api.teamventure.com/api/v1', // 本地开发环境（通过Nginx网关，需配置 /etc/hosts: 127.0.0.1 api.teamventure.com）
   dev: 'https://dev-api.teamventure.com/api/v1', // 开发环境
   beta: 'https://beta-api.teamventure.com/api/v1', // 测试环境
   prod: 'https://api.teamventure.com/api/v1' // 生产环境
 }
 
 // 当前环境的 API 基础地址
-export const API_BASE_URL = wx.getStorageSync('apiBaseUrl') || API_BASE_URLS[ENV]
+const storedApiBaseUrl = wx.getStorageSync('apiBaseUrl')
+console.log('[DEBUG config.js] storedApiBaseUrl:', JSON.stringify(storedApiBaseUrl))
+console.log('[DEBUG config.js] ENV:', ENV)
+console.log('[DEBUG config.js] API_BASE_URLS[ENV]:', JSON.stringify(API_BASE_URLS[ENV]))
+
+export const API_BASE_URL = storedApiBaseUrl || API_BASE_URLS[ENV]
+console.log('[DEBUG config.js] 最终API_BASE_URL:', JSON.stringify(API_BASE_URL))
+
 export const CURRENT_ENV = ENV
 
 // API 端点

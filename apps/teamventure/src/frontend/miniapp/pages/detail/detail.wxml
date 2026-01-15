@@ -91,6 +91,7 @@
     </view>
     <view class="panel-content {{sections.map ? 'expanded' : ''}}">
       <view class="map-panel">
+        <!-- Day选择器 -->
         <scroll-view
           class="day-tabs"
           scroll-x="true"
@@ -105,6 +106,25 @@
               data-day="{{item.day}}"
             >
               Day {{item.day}}
+            </view>
+          </view>
+        </scroll-view>
+
+        <!-- 地图类型选择器（跨城/本地） -->
+        <scroll-view
+          class="map-type-tabs"
+          scroll-x="true"
+          wx:if="{{availableMapTypes.length > 1}}"
+        >
+          <view class="map-type-tabs-inner">
+            <view
+              wx:for="{{availableMapTypes}}"
+              wx:key="id"
+              class="map-type-tab {{selectedMapType === item.id ? 'active' : ''}}"
+              bindtap="handleSelectMapType"
+              data-type="{{item.id}}"
+            >
+              {{item.name}}
             </view>
           </view>
         </scroll-view>

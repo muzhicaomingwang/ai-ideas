@@ -33,11 +33,24 @@ teamventure:
   ai:
     callback-url: http://localhost:8080/api/v1/internal/plans/batch
     callback-secret: test-callback-secret
+  ai-service:
+    callback-secret: test-callback-secret
   oss:
     endpoint: http://localhost:9000
     bucket: teamventure-test
     access-key: minioadmin
     secret-key: minioadmin
+  mq:
+    exchange:
+      plan-generation: test.plan.generation
+    routing-key:
+      plan-request: test.plan.request
+  map:
+    cache:
+      enabled: true
+      memory-size: 100
+      memory-ttl-days: 1
+      redis-ttl-days: 7
 
 logging:
   level:

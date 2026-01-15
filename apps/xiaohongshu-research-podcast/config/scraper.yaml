@@ -1,0 +1,91 @@
+# 新榜小红书数据抓取配置
+
+newrank:
+  # 目标URL
+  base_url: "https://xh.newrank.cn/content/topicRank/hotTopic"
+
+  # CSS选择器配置（多重备选方案）
+  selectors:
+    # 话题列表容器
+    topic_list:
+      - '[class*="topic-list"]'
+      - '[class*="hot-topic"]'
+      - '[class*="rank-list"]'
+      - '.list-container'
+      - 'ul[class*="list"]'
+
+    # 单个话题项
+    topic_item:
+      - '[class*="topic-item"]'
+      - '[class*="list-item"]'
+      - 'li[class*="item"]'
+      - '.topic-card'
+      - 'div[class*="rank-item"]'
+
+    # 话题标题
+    title:
+      - '[class*="title"]'
+      - '[class*="topic-name"]'
+      - 'h3'
+      - 'h4'
+      - '.name'
+      - 'a[class*="title"]'
+
+    # 热度值
+    heat_score:
+      - '[class*="heat"]'
+      - '[class*="score"]'
+      - '[class*="hot-value"]'
+      - '[class*="number"]'
+      - 'span[class*="count"]'
+
+    # 分类标签
+    category:
+      - '[class*="category"]'
+      - '[class*="tag"]'
+      - '[class*="label"]'
+      - 'span[class*="type"]'
+
+    # 排名
+    rank:
+      - '[class*="rank"]'
+      - '[class*="index"]'
+      - '[class*="num"]'
+      - 'span[class*="order"]'
+
+    # 趋势指示
+    trend:
+      - '[class*="trend"]'
+      - '[class*="change"]'
+      - 'i[class*="arrow"]'
+
+  # 等待配置
+  wait:
+    timeout: 15000  # 15秒超时
+    selector: '[class*="topic-list"]'
+
+  # 滚动加载配置
+  scroll:
+    enabled: true
+    max_scrolls: 5      # 最多滚动5次
+    pause_ms: 2000      # 每次滚动后暂停2秒
+    scroll_height: 800  # 每次滚动高度
+
+  # 请求配置
+  request:
+    timeout: 30000
+    user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+# 数据过滤配置
+filters:
+  # 最小热度值
+  min_heat_score: 1000
+
+  # 黑名单关键词（排除这些话题）
+  exclude_keywords:
+    - "广告"
+    - "推广"
+    - "测试"
+
+  # 最大话题数
+  max_topics: 50

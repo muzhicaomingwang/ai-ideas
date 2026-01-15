@@ -48,7 +48,10 @@ async function refreshTokenIfNeeded() {
   }
 
   tokenRefreshInProgress = new Promise((resolve) => {
+    console.log('[DEBUG Token刷新] API_BASE_URL:', API_BASE_URL)
+    console.log('[DEBUG Token刷新] API_ENDPOINTS.USER_REFRESH:', API_ENDPOINTS.USER_REFRESH)
     const fullUrl = `${API_BASE_URL}${API_ENDPOINTS.USER_REFRESH}`
+    console.log('[DEBUG Token刷新] fullUrl:', fullUrl)
 
     wx.request({
       url: fullUrl,
@@ -126,7 +129,18 @@ async function request(url, method = 'GET', data = {}, options = {}) {
     const sessionToken = wx.getStorageSync(STORAGE_KEYS.SESSION_TOKEN)
 
     // 构建完整 URL
+    console.log('[DEBUG URL拼接] url:', JSON.stringify(url))
+    console.log('[DEBUG URL拼接] API_BASE_URL:', JSON.stringify(API_BASE_URL))
+    console.log('[DEBUG URL拼接] API_BASE_URL类型:', typeof API_BASE_URL)
+    console.log('[DEBUG URL拼接] API_BASE_URL长度:', API_BASE_URL?.length)
+
+    // 检查API_BASE_URL是否包含%或特殊字符
+    if (API_BASE_URL && (API_BASE_URL.includes('%') || API_BASE_URL.includes('weapp'))) {
+      console.error('❌ API_BASE_URL包含非法字符!', API_BASE_URL)
+    }
+
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`
+    console.log('[DEBUG URL拼接] fullUrl:', JSON.stringify(fullUrl))
 
     // 请求头
     const header = {

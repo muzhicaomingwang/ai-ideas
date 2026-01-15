@@ -1,0 +1,76 @@
+# TTS和音频配置
+
+# 主持人配置
+hosts:
+  host_a:
+    name: "小雅"
+    voice_name: "珊珊"  # ElevenLabs语音名称
+    voice_id: "ByhETIclHirOlWnWKhHc"  # 珊珊的voice_id
+    description: "活泼、好奇、提问引导"
+    speed: 1.2  # 播放速度（1.2倍速）
+
+  host_b:
+    name: "植萌"
+    voice_name: "植萌"
+    voice_id: "SKlxpKXGwoM0E8XpnxNs"  # 植萌的voice_id
+    description: "分析型、专家视角"
+    speed: 1.2  # 播放速度（1.2倍速）
+
+# TTS配置
+tts:
+  provider: "elevenlabs"
+  model: "eleven_multilingual_v3"     # V3模型（高质量中文）
+  output_format: "mp3_44100_128"      # 44.1kHz采样率，128kbps比特率
+
+  # 语音参数
+  voice_settings:
+    stability: 0.5              # 稳定性（0-1）
+    similarity_boost: 0.8       # 相似度增强（0-1）
+    style: 0.0                  # 风格强度（0-1）
+    use_speaker_boost: true     # 启用说话人增强
+
+  # 全局速度调整
+  default_speed: 1.2            # 默认播放速度
+
+# 音频处理配置
+audio:
+  # 片段设置
+  segment_gap_ms: 800           # 对话片段间隔（毫秒）
+  fade_in_ms: 500               # 淡入时长
+  fade_out_ms: 500              # 淡出时长
+
+  # BGM设置
+  bgm_enabled: false            # 是否启用背景音乐
+  bgm_volume_reduction_db: -20  # BGM音量降低（分贝）
+  bgm_fade_in_ms: 2000          # BGM淡入
+  bgm_fade_out_ms: 3000         # BGM淡出
+
+  # 输出设置
+  output_format: "mp3"
+  output_bitrate: "192k"
+  normalize: true               # 标准化音量
+  target_loudness_db: -16       # 目标响度（LUFS）
+
+# 脚本模板
+script_template:
+  # 开场白模板
+  intro: |
+    大家好，欢迎收听《每日小红书研究》。我是{host_a_name}。
+
+  intro_response: |
+    大家好，我是{host_b_name}。今天我们来深入分析小红书平台的最新热点趋势。
+
+  # 结束语模板
+  outro: |
+    好的，以上就是今天的小红书数据分析。感谢大家的收听！
+
+  outro_response: |
+    我们明天同一时间再见，记得关注我们的播客！
+
+# 播客元数据
+podcast:
+  title: "每日小红书研究"
+  description: "基于新榜数据的小红书热门话题深度分析"
+  language: "zh-CN"
+  category: "Technology"
+  target_duration_minutes: 9

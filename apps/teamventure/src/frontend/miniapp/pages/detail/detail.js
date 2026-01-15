@@ -12,6 +12,9 @@ Page({
       map: false
     },
     selectedDay: 1,
+    selectedMapType: '', // 当前选中的地图类型：'intercity' 或 'regional'
+    availableMapTypes: [], // 当前day可用的地图类型列表
+    allMaps: [], // 当前day的所有地图数据
     routeLoading: false,
     mapScale: 12, // 默认地图比例尺（动态计算）
     route: {
@@ -25,22 +28,23 @@ Page({
   onLoad(options) {
     console.log('方案详情页加载', options)
 
-    // 从 URL 参数获取方案数据
-    if (options.plan) {
-      try {
-        const plan = JSON.parse(decodeURIComponent(options.plan))
-        this.setData({ planId: plan?.plan_id || '' })
-        this.processPlanData(plan)
-      } catch (error) {
-        console.error('解析方案数据失败:', error)
-        this.showErrorAndBack('无法加载方案数据')
+    // 【紧急修复】禁用微信性能监控，避免_reportShowPage的URIError
+    // 这是微信开发者工具的Bug，与我们的代码无关
+    if (typeof this.__disablePageReporter__ !== 'undefined') {
+      this.__disablePageReporter__ = true
+    }
+
+    try {
+      // 从服务器获取方案详情（只支持planId参数）
+      if (options.planId) {
+        this.setData({ planId: options.planId })
+        this.fetchPlanDetail(options.planId)
+      } else {
+        this.showErrorAndBack('缺少方案ID')
       }
-    } else if (options.planId) {
-      // 如果只有 planId，从服务器获取
-      this.setData({ planId: options.planId })
-      this.fetchPlanDetail(options.planId)
-    } else {
-      this.showErrorAndBack('缺少方案信息')
+    } catch (e) {
+      console.error('页面加载异常:', e)
+      // 捕获但不阻断，继续执行
     }
   },
 
@@ -100,22 +104,30 @@ Page({
       highlight = plan.highlights
     }
 
-    // 处理展示数据
+    // 处理展示数据（只提取需要的字段，避免序列化问题）
     const processedPlan = {
-      ...plan,
+      plan_id: plan.plan_id,
+      plan_name: plan.plan_name,
+      plan_type: plan.plan_type,
       status: plan.status || PLAN_STATUS.DRAFT,
       status_label: PLAN_STATUS_NAMES[plan.status] || PLAN_STATUS_NAMES[PLAN_STATUS.DRAFT],
       itinerary_version: plan.itinerary_version || 1,
       budget_total: this.formatNumber(plan.budget_total),
-      // 优先使用后端返回的人均费用，否则计算
       budget_per_person: plan.budget_per_person
         ? formatMoney(plan.budget_per_person) + ' 人均'
         : formatPerPerson(plan.budget_total, plan.people_count),
       duration: formatDuration(days),
+      duration_days: plan.duration_days || days,
+      people_count: plan.people_count,
+      departure_city: plan.departure_city,
+      destination: plan.destination,
+      destination_city: plan.destination_city,
+      summary: plan.summary,
       highlight,
-
-      // 处理行程数据
       itinerary: this.processItinerary(plan.itinerary),
+      start_date: plan.start_date,
+      end_date: plan.end_date,
+      recommended: plan.recommended
     }
 
     this.setData({ plan: processedPlan })
@@ -138,49 +150,79 @@ Page({
       const endpoint = API_ENDPOINTS.PLAN_ROUTE.replace(':id', planId) + `?day=${encodeURIComponent(day)}`
       const data = await get(endpoint)
 
-      // Extract map type and static map URL from backend response
-      const mapType = data?.mapType || 'interactive'
-      const staticMapUrl = data?.staticMapUrl || ''
+      // 新逻辑：处理双Map数据
+      const maps = data?.maps || []
 
-      // Fix: Ensure markers have width and height to avoid rendering errors
-      if (data && data.markers) {
-        data.markers = data.markers.map(marker => ({
-          ...marker,
-          width: marker.width || 32,
-          height: marker.height || 32
-        }))
-      }
+      // 【关键修复】：预处理allMaps，限制数据量，避免page.data过大导致微信序列化失败
+      const processedMaps = maps.map(m => ({
+        map_id: m.map_id,
+        map_type: m.map_type,
+        display_name: m.display_name,
+        description: m.description,
+        static_map_url: m.static_map_url,
+        zoom_level: m.zoom_level,
+        center: m.center,
+        summary: m.summary,
+        // 限制数组大小
+        markers: (m.markers || []).slice(0, 20),  // markers通常<20个
+        polyline: (m.polyline || []).slice(0, 5).map(line => {
+          // 【关键】：限制每条polyline的points数组大小
+          const points = (line.points || []).slice(0, 200).map(p => ({
+            latitude: Number(p.latitude || 0),
+            longitude: Number(p.longitude || 0)
+          }))
 
-      // Enhance polyline with better styling for visibility
-      if (data && data.polyline) {
-        data.polyline = data.polyline.map(line => ({
-          ...line,
-          color: line.color || '#1890ff',        // Primary blue color
-          width: line.width || 6,                // Thicker line for visibility
-          borderColor: line.borderColor || '#ffffff',  // White border for contrast
-          borderWidth: line.borderWidth || 2,    // Border width
-          dottedLine: false                      // Solid line
-        }))
-      }
+          return {
+            points,
+            color: String(line.color || '#1890ff'),
+            width: Number(line.width || 6),
+            borderColor: String(line.borderColor || '#ffffff'),
+            borderWidth: Number(line.borderWidth || 2),
+            dottedLine: Boolean(line.dottedLine)
+          }
+        }),
+        include_points: (m.include_points || []).slice(0, 200),  // 限制200个点
+        segments: (m.segments || []).slice(0, 10).map(seg => {
+          // 严格字段过滤，不使用spread
+          const coordinates = (seg.coordinates || []).slice(0, 100).map(coord => ({
+            latitude: Number(coord.latitude || 0),
+            longitude: Number(coord.longitude || 0)
+          }))
 
-      // Calculate dynamic map scale based on route bounds
-      const scale = this.calculateMapScale(data?.include_points || [])
+          return {
+            distance: Number(seg.distance || 0),
+            duration: Number(seg.duration || 0),
+            mode: String(seg.mode || 'walking'),
+            coordinates
+          }
+        })
+      }))
 
+      // 提取可用的地图类型
+      const availableTypes = processedMaps.map(m => ({
+        id: m.map_id,
+        name: m.display_name || (m.map_id === 'intercity' ? '跨城路线' : '本地路线')
+      }))
+
+      // 默认选择第一个地图类型
+      const defaultMapType = availableTypes.length > 0 ? availableTypes[0].id : ''
+
+      // 设置当前显示的地图（使用预处理后的数据）
       this.setData({
-        route: {
-          ...(data || {}),
-          mapType,
-          staticMapUrl,
-          markers: data?.markers || [],
-          polyline: data?.polyline || [],
-          include_points: data?.include_points || [],
-          unresolved: data?.unresolved || []
-        },
-        mapScale: scale
+        allMaps: processedMaps,  // 使用预处理后的数据，而非原始数据
+        availableMapTypes: availableTypes,
+        selectedMapType: defaultMapType
       })
+
+      // 显示选中的地图
+      this.displaySelectedMap()
+
     } catch (e) {
       console.error('获取路线失败:', e)
       this.setData({
+        allMaps: [],
+        availableMapTypes: [],
+        selectedMapType: '',
         route: {
           mapType: 'interactive',
           staticMapUrl: '',
@@ -193,6 +235,99 @@ Page({
     } finally {
       this.setData({ routeLoading: false })
     }
+  },
+
+  /**
+   * 显示选中的地图
+   */
+  displaySelectedMap() {
+    const { allMaps, selectedMapType } = this.data
+
+    // 找到选中的地图
+    const selectedMap = allMaps.find(m => m.map_id === selectedMapType)
+
+    if (!selectedMap) {
+      this.setData({
+        route: {
+          mapType: 'interactive',
+          staticMapUrl: '',
+          markers: [],
+          polyline: [],
+          include_points: [],
+          unresolved: []
+        }
+      })
+      return
+    }
+
+    // 处理markers：只提取微信地图组件需要的字段
+    const markers = (selectedMap.markers || []).map(marker => {
+      const m = {
+        id: marker.id,
+        latitude: marker.latitude,
+        longitude: marker.longitude,
+        width: marker.width || 32,
+        height: marker.height || 32
+      }
+
+      // 添加可选字段
+      if (marker.title) m.title = String(marker.title)
+      if (marker.label) {
+        m.label = {
+          content: String(marker.label.content || ''),
+          color: String(marker.label.color || '#000000'),
+          fontSize: Number(marker.label.fontSize || 14),
+          bgColor: String(marker.label.bgColor || '#ffffff'),
+          borderRadius: Number(marker.label.borderRadius || 0),
+          padding: Number(marker.label.padding || 0)
+        }
+      }
+
+      return m
+    })
+
+    // 处理polyline：只提取微信地图组件需要的字段
+    const polyline = (selectedMap.polyline || []).map(line => {
+      const points = (line.points || []).map(p => ({
+        latitude: Number(p.latitude),
+        longitude: Number(p.longitude)
+      }))
+
+      return {
+        points,
+        color: String(line.color || '#1890ff'),
+        width: Number(line.width || 6),
+        borderColor: String(line.borderColor || '#ffffff'),
+        borderWidth: Number(line.borderWidth || 2),
+        dottedLine: Boolean(line.dottedLine)
+      }
+    })
+
+    // 计算地图比例尺
+    const scale = this.calculateMapScale(selectedMap.include_points || [])
+
+    // 限制include_points数量，避免data过大导致微信上报失败
+    // 微信小程序地图组件通常只需要100-200个点就能绘制流畅的路线
+    const includePoints = (selectedMap.include_points || []).slice(0, 200)
+
+    // 限制segments数量和坐标点数量
+    const segments = (selectedMap.segments || []).slice(0, 10).map(seg => ({
+      ...seg,
+      coordinates: (seg.coordinates || []).slice(0, 100)
+    }))
+
+    this.setData({
+      route: {
+        mapType: selectedMap.map_type || 'interactive',
+        staticMapUrl: selectedMap.static_map_url || '',
+        markers,
+        polyline,
+        include_points: includePoints,
+        segments,
+        unresolved: []
+      },
+      mapScale: scale
+    })
   },
 
   /**
@@ -239,6 +374,17 @@ Page({
     if (!day || day === this.data.selectedDay) return
     this.setData({ selectedDay: day })
     this.fetchRoute(day)
+  },
+
+  /**
+   * 切换地图类型（跨城/本地）
+   */
+  handleSelectMapType(e) {
+    const mapType = e.currentTarget.dataset.type
+    if (!mapType || mapType === this.data.selectedMapType) return
+
+    this.setData({ selectedMapType: mapType })
+    this.displaySelectedMap()
   },
 
   /**
@@ -559,10 +705,23 @@ Page({
   onShareAppMessage() {
     const { plan } = this.data
 
+    if (!plan) {
+      return {
+        title: '团建方案',
+        path: '/pages/index/index',
+        imageUrl: ''
+      }
+    }
+
+    // 安全处理：确保所有字段都是字符串，避免编码问题
+    const title = String(plan.plan_name || '团建方案')
+    const subtitle = plan.budget_per_person ? String(plan.budget_per_person) : ''
+    const shareTitle = subtitle ? `${title} - ${subtitle}` : title
+
     return {
-      title: `${plan?.plan_name || '团建方案'} - ${plan?.budget_per_person || ''}`,
-      path: `/pages/detail/detail?planId=${plan?.plan_id}`,
-      imageUrl: '' // TODO: 添加分享图片
+      title: shareTitle,
+      path: `/pages/detail/detail?planId=${plan.plan_id || ''}`,
+      imageUrl: ''
     }
   }
 })

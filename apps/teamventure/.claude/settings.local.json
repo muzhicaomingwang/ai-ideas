@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker inspect:*)",
+      "Bash(docker rmi:*)",
+      "Bash(/tmp/test_route_api.sh)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyXzAxa2U3MjBjeHByeTZlZGRzbTlmcGM3c2QwIiwiaWF0IjoxNzY3NjU1Mjk0LCJleHAiOjE3Njc3NDE2OTR9.N9Wb82KjGtw_WgEJKMRa5hGh_vbPv8Dz6LRKOmZ2Cys\")",
+      "Bash(PLAN_ID=\"plan_01kehpskdtdedcs5qfwp66p9vj\")",
+      "Bash(__NEW_LINE__ curl -s \"http://localhost:8080/api/v1/plans/$PLAN_ID\" )"
+    ]
+  }
+}

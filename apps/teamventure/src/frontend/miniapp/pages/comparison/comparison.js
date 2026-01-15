@@ -162,13 +162,12 @@ Page({
    */
   handleViewDetail(e) {
     const planId = e.currentTarget.dataset.planId
-    const plan = this.data.plans.find(p => p.plan_id === planId)
 
-    if (!plan) return
+    if (!planId) return
 
-    // 跳转到详情页
+    // 只传递planId，避免URL编码问题和长度限制
     wx.navigateTo({
-      url: `/pages/detail/detail?plan=${encodeURIComponent(JSON.stringify(plan))}`
+      url: `/pages/detail/detail?planId=${planId}`
     })
   },
 
@@ -185,7 +184,7 @@ Page({
    * 确认选择
    */
   handleConfirmSelection() {
-    const { selectedPlanId, plans } = this.data
+    const { selectedPlanId } = this.data
 
     if (!selectedPlanId) {
       wx.showToast({
@@ -195,13 +194,9 @@ Page({
       return
     }
 
-    const selectedPlan = plans.find(p => p.plan_id === selectedPlanId)
-
-    if (!selectedPlan) return
-
-    // 跳转到详情页
+    // 只传递planId，避免URL编码问题和长度限制
     wx.navigateTo({
-      url: `/pages/detail/detail?plan=${encodeURIComponent(JSON.stringify(selectedPlan))}`
+      url: `/pages/detail/detail?planId=${selectedPlanId}`
     })
   },
 

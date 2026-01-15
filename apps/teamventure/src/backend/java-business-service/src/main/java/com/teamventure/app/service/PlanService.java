@@ -578,13 +578,16 @@ public class PlanService {
         List<MapData> maps = new ArrayList<>();
 
         if (routeType == DayRouteType.INTERCITY) {
-            // 生成跨城地图
-            MapData intercityMap = generateIntercityMap(plan);
+            // 检测是否是返程日
+            boolean isReturn = isReturnDay(targetDayMap);
+
+            // 生成跨城地图（返程时方向相反）
+            MapData intercityMap = generateIntercityMap(plan, isReturn);
             if (intercityMap != null) {
                 maps.add(intercityMap);
             }
 
-            // 检查是否还有周边游
+            // 检查是否还有本地路线
             String destinationCity = plan.getDestinationCity();
             if (destinationCity != null) {
                 MapData regionalMap = generateRegionalMap(plan, destinationCity, targetDayMap);
@@ -593,7 +596,7 @@ public class PlanService {
                 }
             }
         } else if (routeType == DayRouteType.REGIONAL) {
-            // 生成周边游地图
+            // 生成本地路线地图
             String destinationCity = plan.getDestinationCity();
             if (destinationCity != null) {
                 MapData regionalMap = generateRegionalMap(plan, destinationCity, targetDayMap);
@@ -1287,9 +1290,34 @@ public class PlanService {
     }
 
     /**
+     * 判断是否是返程日
+     *
+     * @param dayMap 某天的行程数据
+     * @return true表示是返程日
+     */
+    private boolean isReturnDay(Map<String, Object> dayMap) {
+        Object itemsObj = dayMap.get("items");
+        if (!(itemsObj instanceof List<?> itemsRaw) || itemsRaw.isEmpty()) {
+            return false;
+        }
+
+        // 检查最后一个activity是否包含返程关键词
+        Object lastItemObj = itemsRaw.get(itemsRaw.size() - 1);
+        if (lastItemObj instanceof Map<?, ?> lastItemRaw) {
+            Map<String, Object> lastItem = castMap(lastItemRaw);
+            String lastActivity = asString(lastItem.get("activity")).orElse("");
+
+            return lastActivity.contains("返回") || lastActivity.contains("回到") ||
+                   lastActivity.contains("返程") || lastActivity.matches(".*回\\s*\\S+");
+        }
+
+        return false;
+    }
+
+    /**
      * 分析某天的路线类型
      *
-     * 判断该天是跨城、周边游还是无地图
+     * 判断该天是跨城、本地还是无地图
      *
      * @param dayMap 某天的行程数据
      * @param plan 方案PO（包含departure_city和destination_city）
@@ -1337,13 +1365,37 @@ public class PlanService {
         // 3. 判断类型
         String departureCity = plan.getDepartureCity();
         String destinationCity = plan.getDestinationCity();
+        Integer dayNo = asInt(dayMap.get("day")).orElse(null);
+
+        // 特殊处理：第一天且跨城 → 必定是INTERCITY（即使activities中未提到出发城市）
+        if (dayNo != null && dayNo == 1 &&
+            departureCity != null && destinationCity != null &&
+            !departureCity.equals(destinationCity)) {
+            return DayRouteType.INTERCITY;
+        }
+
+        // 特殊处理：检测返程日（最后一个activity包含返程关键词）
+        if (!itemsRaw.isEmpty() && departureCity != null && destinationCity != null &&
+            !departureCity.equals(destinationCity)) {
+            Object lastItemObj = itemsRaw.get(itemsRaw.size() - 1);
+            if (lastItemObj instanceof Map<?, ?> lastItemRaw) {
+                Map<String, Object> lastItem = castMap(lastItemRaw);
+                String lastActivity = asString(lastItem.get("activity")).orElse("");
+
+                // 检测返程关键词
+                if (lastActivity.contains("返回") || lastActivity.contains("回到") ||
+                    lastActivity.contains("返程") || lastActivity.contains("回")) {
+                    return DayRouteType.INTERCITY;
+                }
+            }
+        }
 
         // 包含出发城市且有其他城市 → 跨城
         if (departureCity != null && cities.contains(departureCity) && cities.size() > 1) {
             return DayRouteType.INTERCITY;
         }
 
-        // 只有目的地城市且地点≥2 → 周边游
+        // 只有目的地城市且地点≥2 → 本地路线
         if (cities.size() == 1 &&
             destinationCity != null &&
             cities.contains(destinationCity) &&
@@ -1422,9 +1474,10 @@ public class PlanService {
      * 展示城市间位移（起点城市→终点城市，直线连接）
      *
      * @param plan 方案PO
+     * @param isReturn true表示返程（终点→起点），false表示去程（起点→终点）
      * @return MapData对象，失败返回null
      */
-    private MapData generateIntercityMap(PlanPO plan) {
+    private MapData generateIntercityMap(PlanPO plan, boolean isReturn) {
         String departureCity = plan.getDepartureCity();
         String destinationCity = plan.getDestinationCity();
 
@@ -1440,8 +1493,11 @@ public class PlanService {
             return null; // 地理编码失败
         }
 
-        double[] originCoord = departureLngLat.get();
-        double[] destCoord = destLngLat.get();
+        // 返程时对调起点和终点
+        double[] originCoord = isReturn ? destLngLat.get() : departureLngLat.get();
+        double[] destCoord = isReturn ? departureLngLat.get() : destLngLat.get();
+        String originCity = isReturn ? destinationCity : departureCity;
+        String destCity = isReturn ? departureCity : destinationCity;
 
         // 2. 计算直线距离
         double distanceKm = calculateDistance(originCoord, destCoord);
@@ -1456,15 +1512,15 @@ public class PlanService {
                 "id", 1,
                 "latitude", originCoord[1],
                 "longitude", originCoord[0],
-                "title", departureCity,
-                "iconPath", "/images/marker-start.png" // 绿色起点标
+                "title", originCity,
+                "label", Map.of("content", "起", "color", "#22c55e", "fontSize", 14, "bgColor", "#ffffff", "borderRadius", 4, "padding", 4)
             ),
             Map.of(
                 "id", 2,
                 "latitude", destCoord[1],
                 "longitude", destCoord[0],
-                "title", destinationCity,
-                "iconPath", "/images/marker-end.png" // 红色终点标
+                "title", destCity,
+                "label", Map.of("content", "终", "color", "#ef4444", "fontSize", 14, "bgColor", "#ffffff", "borderRadius", 4, "padding", 4)
             )
         );
 
@@ -1528,7 +1584,7 @@ public class PlanService {
         mapData.mapId = "intercity";
         mapData.mapType = staticMapUrl != null ? "static" : "interactive";
         mapData.displayName = "跨城路线";
-        mapData.description = departureCity + " → " + destinationCity;
+        mapData.description = originCity + " → " + destCity;
         mapData.markers = markers;
         mapData.polyline = polyline;
         mapData.includePoints = pathPoints;
@@ -1554,7 +1610,7 @@ public class PlanService {
     }
 
     /**
-     * 生成周边游地图数据
+     * 生成本地路线地图数据
      *
      * 展示城市内景点详细路线（复用现有路线规划逻辑）
      *
@@ -1610,7 +1666,8 @@ public class PlanService {
         List<double[]> coordinates = new ArrayList<>();
 
         int markerId = 1;
-        for (Map<String, Object> item : regionalItems) {
+        for (int i = 0; i < regionalItems.size(); i++) {
+            Map<String, Object> item = regionalItems.get(i);
             String location = asString(item.get("location")).orElse("");
             String activity = asString(item.get("activity")).orElse("");
             String keyword = !location.isBlank() ? location : activity;
@@ -1623,15 +1680,42 @@ public class PlanService {
             double[] coord = lngLat.get();
             coordinates.add(coord);
 
-            markers.add(Map.of(
-                "id", markerId++,
-                "latitude", coord[1],
-                "longitude", coord[0],
-                "title", !location.isBlank() ? location : activity,
-                "iconPath", markerId == 2 ? "/images/marker-start.png" :
-                           (markerId == regionalItems.size() + 1 ? "/images/marker-end.png" :
-                            "/images/marker-waypoint.png")
-            ));
+            // 判断是起点、终点还是途经点
+            boolean isFirst = (markerId == 1);
+            boolean isLast = (i == regionalItems.size() - 1);
+
+            Map<String, Object> marker;
+            if (isFirst) {
+                // 起点：绿色"起"标记
+                marker = Map.of(
+                    "id", markerId,
+                    "latitude", coord[1],
+                    "longitude", coord[0],
+                    "title", !location.isBlank() ? location : activity,
+                    "label", Map.of("content", "起", "color", "#22c55e", "fontSize", 14, "bgColor", "#ffffff", "borderRadius", 4, "padding", 4)
+                );
+            } else if (isLast) {
+                // 终点：红色"终"标记
+                marker = Map.of(
+                    "id", markerId,
+                    "latitude", coord[1],
+                    "longitude", coord[0],
+                    "title", !location.isBlank() ? location : activity,
+                    "label", Map.of("content", "终", "color", "#ef4444", "fontSize", 14, "bgColor", "#ffffff", "borderRadius", 4, "padding", 4)
+                );
+            } else {
+                // 途经点：蓝色数字标记
+                marker = Map.of(
+                    "id", markerId,
+                    "latitude", coord[1],
+                    "longitude", coord[0],
+                    "title", !location.isBlank() ? location : activity,
+                    "label", Map.of("content", String.valueOf(markerId - 1), "color", "#3b82f6", "fontSize", 12, "bgColor", "#ffffff", "borderRadius", 4, "padding", 4)
+                );
+            }
+
+            markers.add(marker);
+            markerId++;
         }
 
         if (coordinates.size() < 2) {
@@ -1671,7 +1755,7 @@ public class PlanService {
         List<Map<String, Object>> polyline = List.of(
             Map.of(
                 "points", allPoints,
-                "color", "#52C41A",  // 绿色（周边游）
+                "color", "#52C41A",  // 绿色（本地路线）
                 "width", 6
             )
         );
@@ -1695,8 +1779,8 @@ public class PlanService {
         // 8. 构建MapData对象
         MapData mapData = new MapData();
         mapData.mapId = "regional";
-        mapData.mapType = "interactive";  // 周边游使用交互地图（详细路线）
-        mapData.displayName = targetCity + "周边游";
+        mapData.mapType = "interactive";  // 本地路线使用交互地图（详细路线）
+        mapData.displayName = targetCity + "本地路线";
         mapData.description = markers.stream()
             .map(m -> (String) m.get("title"))
             .collect(java.util.stream.Collectors.joining(" → "));
@@ -1707,7 +1791,7 @@ public class PlanService {
         mapData.summary = Map.of(
             "total_distance", totalDistance,
             "total_duration", totalDuration,
-            "transport_mode", "walking"  // 周边游主要是步行
+            "transport_mode", "walking"  // 本地路线主要是步行
         );
         mapData.staticMapUrl = staticMapUrl;
         mapData.zoomLevel = zoom;
@@ -1815,7 +1899,7 @@ public class PlanService {
      */
     private enum DayRouteType {
         INTERCITY,    // 跨城（出发城市 → 目的地城市）
-        REGIONAL,     // 周边游（目的地城市内）
+        REGIONAL,     // 本地路线（目的地城市内）
         NONE          // 无地图（地点<2）
     }
 

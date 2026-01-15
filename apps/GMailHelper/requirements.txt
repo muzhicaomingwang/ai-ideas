@@ -1,0 +1,15 @@
+# GMailHelper - Python Dependencies
+
+# Core dependencies
+python-dotenv>=1.0.0        # Environment variable management
+pyyaml>=6.0.0               # YAML configuration parsing
+
+# AI classification (Claude API)
+anthropic>=0.40.0           # Claude API
+
+# Feishu notification
+requests>=2.31.0            # HTTP requests
+
+# Development dependencies (optional)
+pytest>=7.4.0               # Unit testing
+black>=23.0.0               # Code formatting

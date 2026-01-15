@@ -32,11 +32,18 @@ class Settings(BaseSettings):
     openai_temperature: float = 0.7
     openai_max_tokens: int = 4000
 
+    # AI Mock模式（开发测试时减少token消耗）
+    enable_ai_mock: bool = False  # True=强制使用mock数据，False=优先真实AI
+
     # Redis配置
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_password: str = "redis123456"
     redis_db: int = 0
+
+    # AI缓存配置
+    ai_cache_enabled: bool = True  # 启用AI响应缓存
+    ai_cache_ttl_seconds: int = 86400  # 缓存24小时
 
     # RabbitMQ配置
     rabbitmq_host: str = "localhost"

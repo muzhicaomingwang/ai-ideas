@@ -281,3 +281,38 @@ ideas-status: ## 查看创意生成历史
 	@echo ""
 	@echo "最新创意:"
 	@tail -20 docs/ideas/2026/01/$$(date +%Y-%m-%d).md 2>/dev/null || echo "今日暂无创意"
+
+##@ Token优化
+
+mock-on: ## 启用Mock模式（开发测试，不消耗token）
+	@echo "启用AI Mock模式..."
+	@sed -i.bak 's/ENABLE_AI_MOCK=false/ENABLE_AI_MOCK=true/' src/.env.local
+	@echo "✓ Mock模式已启用（需重启服务: make restart）"
+
+mock-off: ## 关闭Mock模式（使用真实AI）
+	@echo "关闭AI Mock模式..."
+	@sed -i.bak 's/ENABLE_AI_MOCK=true/ENABLE_AI_MOCK=false/' src/.env.local
+	@echo "✓ Mock模式已关闭（需重启服务: make restart）"
+
+cache-clear: ## 清空AI缓存
+	@echo "清空AI响应缓存..."
+	@docker compose exec -T redis redis-cli -a redis123456 --scan --pattern "ai:plan:*" 2>/dev/null | \
+		xargs -I {} docker compose exec -T redis redis-cli -a redis123456 DEL {} 2>/dev/null || true
+	@echo "✓ AI缓存已清空"
+
+cache-stats: ## 查看AI缓存统计
+	@echo "AI缓存统计:"
+	@echo "-----------------------------------"
+	@CACHE_COUNT=$$(docker compose exec -T redis redis-cli -a redis123456 --scan --pattern "ai:plan:*" 2>/dev/null | wc -l); \
+	echo "缓存数量: $$CACHE_COUNT 个"
+	@echo ""
+	@echo "缓存keys（最新10个）:"
+	@docker compose exec -T redis redis-cli -a redis123456 --scan --pattern "ai:plan:*" 2>/dev/null | head -10
+
+token-stats: ## 查看Token使用统计
+	@echo "Token使用统计:"
+	@echo "-----------------------------------"
+	@curl -s http://localhost:8000/metrics 2>/dev/null | grep llm_tokens || echo "⚠️  服务未启动或metrics不可用"
+
+test-optimization: ## 测试Token优化功能
+	@bash src/backend/python-ai-service/scripts/test_token_optimization.sh

@@ -48,17 +48,36 @@ OUTPUT_DIR="$PROJECT_DIR/output/$TODAY"
 echo "📅 生成日期: $TODAY" >> "$LOG_FILE"
 echo "📁 输出目录: $OUTPUT_DIR" >> "$LOG_FILE"
 
+# 步骤0: 重试离线队列中的消息（网络恢复时自动发送）
+echo "" >> "$LOG_FILE"
+echo "🔄 步骤0: 检查并重试离线队列..." >> "$LOG_FILE"
+
+if [ -n "$FEISHU_APP_ID" ] && [ "$FEISHU_APP_ID" != "your_feishu_app_id_here" ]; then
+    $PYTHON scripts/notify_feishu.py --retry-queue >> "$LOG_FILE" 2>&1 || true
+fi
+
 # 步骤1: 生成播客（讲稿+音频）- 使用全天收集的新闻缓存
 echo "" >> "$LOG_FILE"
 echo "🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）..." >> "$LOG_FILE"
 $PYTHON scripts/daily_generate.py --date "$TODAY" --from-cache >> "$LOG_FILE" 2>&1
 
-if [ $? -eq 0 ]; then
-    echo "✅ 播客生成完成" >> "$LOG_FILE"
-else
+if [ $? -ne 0 ]; then
     echo "❌ 播客生成失败" >> "$LOG_FILE"
+
+    # 发送失败通知
+    if [ -n "$FEISHU_APP_ID" ] && [ "$FEISHU_APP_ID" != "your_feishu_app_id_here" ]; then
+        ERROR_MSG=$(tail -20 "$LOG_FILE" | grep -E "(Error|Exception|失败)" | head -5 | tr '\n' '; ')
+        $PYTHON scripts/notify_feishu.py \
+            --date "$TODAY" \
+            --status failed \
+            --error "播客生成失败: $ERROR_MSG" \
+            >> "$LOG_FILE" 2>&1 || true
+    fi
+
     exit 1
 fi
+
+echo "✅ 播客生成完成" >> "$LOG_FILE"
 
 # 步骤2: 生成封面图片
 echo "" >> "$LOG_FILE"
@@ -77,10 +96,19 @@ fi
 
 $PYTHON scripts/generate_cover.py --date "$TODAY" --count "$ARTICLE_COUNT" >> "$LOG_FILE" 2>&1
 
-if [ $? -eq 0 ]; then
-    echo "✅ 封面生成完成" >> "$LOG_FILE"
+if [ $? -ne 0 ]; then
+    echo "⚠️ 封面生成失败（非致命错误，继续流程）" >> "$LOG_FILE"
+
+    # 发送警告通知（不中断流程）
+    if [ -n "$FEISHU_APP_ID" ] && [ "$FEISHU_APP_ID" != "your_feishu_app_id_here" ]; then
+        $PYTHON scripts/notify_feishu.py \
+            --date "$TODAY" \
+            --status failed \
+            --error "封面生成失败（音频正常），请手动生成封面" \
+            >> "$LOG_FILE" 2>&1 || true
+    fi
 else
-    echo "⚠️ 封面生成失败（非致命错误）" >> "$LOG_FILE"
+    echo "✅ 封面生成完成" >> "$LOG_FILE"
 fi
 
 # 输出结果摘要
@@ -97,6 +125,26 @@ fi
 echo "" >> "$LOG_FILE"
 echo "✅ 每日任务完成: $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG_FILE"
 echo "" >> "$LOG_FILE"
+
+# 步骤3: 发送飞书通知（成功通知，失败会自动加入队列）
+echo "" >> "$LOG_FILE"
+echo "📱 步骤3: 发送飞书通知..." >> "$LOG_FILE"
+
+if [ -n "$FEISHU_APP_ID" ] && [ "$FEISHU_APP_ID" != "your_feishu_app_id_here" ]; then
+    $PYTHON scripts/notify_feishu.py \
+        --date "$TODAY" \
+        --article-count "$ARTICLE_COUNT" \
+        --status success \
+        >> "$LOG_FILE" 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "✅ 飞书通知发送成功" >> "$LOG_FILE"
+    else
+        echo "⚠️ 飞书通知发送失败（已加入离线队列，网络恢复后自动重试）" >> "$LOG_FILE"
+    fi
+else
+    echo "ℹ️  跳过飞书通知（未配置 FEISHU_APP_ID）" >> "$LOG_FILE"
+fi
 
 # 输出到终端（用于手动执行时查看）
 echo "✅ 每日播客生成完成！"

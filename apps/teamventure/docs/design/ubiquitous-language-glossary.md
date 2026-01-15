@@ -414,18 +414,21 @@ confirmed → archived (归档)
 | **占位图** | **Placeholder** | `placeholder` | API完全失败时显示的默认图片 | 默认图、兜底图 |
 | **缓存键** | **Cache Key** | `cacheKey` | 基于请求参数生成的MD5哈希（32字符） | 缓存ID、key |
 | **跨城地图** ⭐ v1.6 | **Intercity Map** | `intercityMap` | 展示城市间位移的地图（起点城市→终点城市，直线连接） | 城际地图、跨市地图 |
-| **周边游地图** ⭐ v1.6 | **Regional Map** | `regionalMap` | 展示城市内景点详细路线的地图 | 市内地图、本地地图 |
+| **本地路线地图** ⭐ v1.6 (v1.7更新) | **Regional Map** | `regionalMap` | 展示城市内景点详细路线的地图 | 市内地图、周边游地图 |
 | **地图标识** ⭐ v1.6 | **Map ID** | `map_id` | 区分地图类型的唯一标识（intercity/regional） | 地图ID、地图类型 |
+| **地图展示类型** ⭐ v1.7 | **Map Type** | `map_type` | 区分展示方式的技术类型（static/interactive），与map_id正交 | 地图渲染方式 |
 | **长距离交通方式** ⭐ v1.6 | **Long Distance Transport** | `transportMode` | train(高铁)/flight(飞机)/driving(自驾) | 交通工具、出行方式 |
 
-#### 3.7.2 标注类型枚举
+#### 3.7.2 标注类型枚举（v1.7更新）
 
 | 标注类型 | 中文名 | 样式参数 | 说明 |
 |---------|--------|---------|------|
-| `START` | 起点 | 绿色大标，标签"S" | 行程的第一个地点 |
-| `END` | 终点 | 红色大标，标签"E" | 行程的最后一个地点 |
-| `WAYPOINT` | 途经点 | 蓝色中标，无标签 | 起终点之间的中间地点 |
+| `START` | 起点 | 绿色label，汉字"起" (#22c55e) | 行程的第一个地点 |
+| `END` | 终点 | 红色label，汉字"终" (#ef4444) | 行程的最后一个地点 |
+| `WAYPOINT` | 途经点 | 蓝色label，数字"1"/"2"/"3"... (#3b82f6) | 起终点之间的中间地点 |
 | `SUPPLIER` | 供应商地点 | 橙色小标，标签"$" | 供应商POI（非MVP） |
+
+**注**: v1.7将marker的iconPath改为label（避免图片加载失败），使用小程序原生label属性显示汉字和数字标记。
 
 #### 3.7.3 路径样式枚举（按交通方式）
 
@@ -496,7 +499,7 @@ confirmed → archived (归档)
 | `maps` ⭐ v1.6 | `maps` | Array | 地图数组（0-2张），每张地图包含完整配置 |
 | `maps[].map_id` | `mapId` | String | 地图标识：intercity/regional |
 | `maps[].map_type` | `mapType` | String | static/interactive |
-| `maps[].display_name` | `displayName` | String | 显示名称（如"跨城路线"/"杭州周边游"） |
+| `maps[].display_name` | `displayName` | String | 显示名称（如"跨城路线"/"杭州本地路线"） |
 | `maps[].description` | `description` | String | 描述文本（如"上海市 → 杭州市"） |
 | `maps[].markers` | `markers` | Array | 该地图的标注点 |
 | `maps[].polyline` | `polyline` | Array | 该地图的折线数据 |
@@ -668,3 +671,4 @@ log.info("缓存未命中，调用API");       // 使用"Cache miss, generating 
 | v1.4 | 2026-01-14 | 新增地点选择（LocationPicker）模块完整术语体系：<br>• Section 3.2：地点选择与POI核心术语（11个术语定义）<br>• Section 3.2.2：LocationValue标准数据结构<br>• Section 3.2.3：POI类型枚举（7种类型）<br>• Section 3.2.4：hot_destinations表字段规范<br>• Section 3.2.5：API接口命名规范（suggest/hot-spots/reverse-geocode）<br>• Section 3.2.6：前端组件命名规范<br>• Section 3.2.7：用户界面文案规范（10+条文案标准）<br>• Section 3.2.8：代码注释规范（Java/JavaScript）<br>• Section 3.2.9：日志输出规范<br>• Section 3.2.10：高德地图API术语映射<br>• Section 6：扩充反模式禁用术语（新增8条） |
 | **v1.5** | **2026-01-14** | **新增地图服务（MapService）模块术语体系**：<br>• Section 3.7：地图服务核心术语（10个术语定义）<br>• Section 3.7.2：标注类型枚举（START/END/WAYPOINT/SUPPLIER）<br>• Section 3.7.3：路径样式枚举（driving/walking/cycling/transit）<br>• Section 3.7.4：地图尺寸预设（DETAIL/THUMBNAIL/SHARE/SUPPLIER）<br>• Section 3.7.5：缩放级别映射（zoom 3-17对应不同跨度范围）<br>• Section 3.7.6：降级策略层级（Level 1-4）<br>• Section 3.7.7：三级缓存架构（L1/L2/L3）<br>• Section 3.7.8：static_map_url_cache表字段规范<br>• Section 3.7.9：路线API响应字段<br>• Section 3.7.10：日志输出规范<br>• **术语修正**：代码中"位置"→"地点"（2处） |
 | **v1.6** | **2026-01-14** | **双地图展示功能术语补充**：新增4个术语（跨城地图、周边游地图、地图标识、长距离交通方式）；扩展Section 3.7.9 API响应字段（maps数组，13个新字段）；标记旧字段为deprecated；新增判断规则（跨城=城市名变化、周边游=同城≥2景点）；新增交通方式（train/flight/driving）；新增地图类型（intercity/regional） |
+| **v1.7** | **2026-01-15** | **术语统一性修正**：<br>• 统一regional地图中文名：从"周边游地图"改为"本地路线地图"（Section 3.7.1）<br>• 新增"地图展示类型"术语，明确map_id（业务类型）与map_type（技术类型）的区别<br>• 更新marker标记定义：从iconPath改为label，使用汉字"起"/"终"和数字标记（Section 3.7.2）<br>• 前后端术语完全对齐：跨城路线（intercity）vs 本地路线（regional）<br>• 修复代码注释：所有"周边游"改为"本地路线"（5处） |
