@@ -201,6 +201,25 @@ daily-podcast-ai/
 
 ---
 
+## 核心特性
+
+### ✨ 新增功能：自动发布到小宇宙播客
+
+播客生成后自动发布到RSS.com，并通过RSS订阅同步到小宇宙平台：
+
+- **🎯 完全自动化** - 配置一次，每天自动发布
+- **📡 RSS订阅** - 通过RSS.com托管，支持多平台分发
+- **📱 飞书通知** - 发布成功后自动推送消息
+- **🔄 智能重试** - 多端点重试机制，提高成功率
+
+**快速配置**: 参考 [QUICKSTART_XIAOYUZHOU.md](QUICKSTART_XIAOYUZHOU.md)（5分钟配置）
+
+**详细指南**: 参考 [docs/XIAOYUZHOU_INTEGRATION.md](docs/XIAOYUZHOU_INTEGRATION.md)（完整文档）
+
+**小宇宙播客ID**: `695e1e64e0970c835fb2e784`
+
+---
+
 ## 快速开始
 
 ### 1. 安装依赖

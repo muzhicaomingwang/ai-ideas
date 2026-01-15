@@ -105,7 +105,7 @@ class RSSComPublisher:
 
     def _upload_file(self, file_path: Path) -> str:
         """
-        Upload a file to RSS.com storage
+        Upload a file to RSS.com storage with multi-endpoint retry
 
         Args:
             file_path: Path to file
@@ -116,21 +116,47 @@ class RSSComPublisher:
         Raises:
             requests.HTTPError: If upload fails
         """
+        # Try multiple possible endpoints (actual endpoint depends on RSS.com API version)
+        upload_endpoints = [
+            f"{self.API_BASE_URL}/upload",
+            f"{self.API_BASE_URL}/media",
+            f"{self.API_BASE_URL}/podcasts/{self.podcast_id}/media"
+        ]
+
+        last_error = None
         with open(file_path, "rb") as f:
-            files = {
-                "file": (file_path.name, f, self._get_mime_type(file_path))
-            }
+            file_data = f.read()
 
-            # Note: Actual endpoint may be different - check API docs
-            # This is a common pattern for file upload endpoints
-            response = self.session.post(
-                f"{self.API_BASE_URL}/upload",
-                files=files
-            )
-            response.raise_for_status()
+        for endpoint in upload_endpoints:
+            try:
+                files = {
+                    "file": (file_path.name, file_data, self._get_mime_type(file_path))
+                }
 
-            result = response.json()
-            return result.get("url") or result.get("fileUrl")
+                print(f"  Trying endpoint: {endpoint}")
+                response = self.session.post(endpoint, files=files, timeout=120)
+                response.raise_for_status()
+
+                result = response.json()
+                url = result.get("url") or result.get("fileUrl") or result.get("mediaUrl")
+                if url:
+                    print(f"  ✅ Upload successful: {url[:50]}...")
+                    return url
+
+            except requests.HTTPError as e:
+                last_error = e
+                # If not a 404 (endpoint not found), raise immediately
+                if e.response.status_code != 404:
+                    print(f"  ❌ Upload failed: {e.response.status_code} {e.response.reason}")
+                    raise
+                # For 404, try next endpoint
+                print(f"  ⏭️  Endpoint not found, trying next...")
+                continue
+
+        # All endpoints failed
+        if last_error:
+            raise last_error
+        raise ValueError(f"All upload endpoints failed for {file_path.name}")
 
     @staticmethod
     def _get_mime_type(file_path: Path) -> str:
@@ -255,7 +281,19 @@ def main():
     # Locate episode files
     base_path = Path(args.output_dir) / args.date / "dailyReport"
 
+    # 智能查找音频文件（优先1.0x，回退到1.2x或1.5x）
     audio_file = base_path / f"podcast-{args.date}.mp3"
+    if not audio_file.exists():
+        audio_file_12x = base_path / f"podcast-{args.date}-1.2x.mp3"
+        audio_file_15x = base_path / f"podcast-{args.date}-1.5x.mp3"
+
+        if audio_file_12x.exists():
+            audio_file = audio_file_12x
+            print(f"ℹ️  Using 1.2x speed version: {audio_file.name}")
+        elif audio_file_15x.exists():
+            audio_file = audio_file_15x
+            print(f"ℹ️  Using 1.5x speed version: {audio_file.name}")
+
     cover_file = base_path / f"cover-{args.date}.png"
     script_file = base_path / f"script-{args.date}.md"
 
@@ -299,7 +337,29 @@ def main():
         )
 
         print(f"\n🎉 Publication completed successfully!")
-        print(f"   RSS Feed: https://rss.com/podcasts/{podcast_id}/feed.xml")
+        rss_feed_url = f"https://rss.com/podcasts/{podcast_id}/feed.xml"
+        print(f"   RSS Feed: {rss_feed_url}")
+
+        # 发送飞书通知（可选）
+        try:
+            import subprocess
+            article_count = metadata.get('article_count', '10').split()[0]  # "10篇" -> "10"
+            episode_url = result.get('url', 'N/A')
+
+            notify_cmd = [
+                sys.executable,
+                "scripts/notify_feishu.py",
+                "--date", args.date,
+                "--rss-url", rss_feed_url,
+                "--episode-url", episode_url,
+                "--article-count", str(article_count),
+            ]
+
+            print(f"\n📱 发送飞书通知...")
+            subprocess.run(notify_cmd, check=False, capture_output=True)
+            # 使用 check=False 避免通知失败中断主流程
+        except Exception as notify_error:
+            print(f"   ⚠️  飞书通知失败（不影响发布）: {notify_error}")
 
     except requests.HTTPError as e:
         print(f"\n❌ API Error: {e.response.status_code} {e.response.reason}")
