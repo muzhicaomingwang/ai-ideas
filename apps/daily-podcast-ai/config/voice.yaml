@@ -11,8 +11,8 @@ elevenlabs:
   voice_id: ''
   voice_settings:
     similarity_boost: 0.75
-    stability: 1.0
-    style: 0.0
+    stability: 0.5  # 降低稳定性，增加语音变化和激情度
+    style: 0.5      # 提高风格强度，让表达更有感染力
     use_speaker_boost: true
 output:
   directory: output
@@ -44,11 +44,23 @@ hosts:
     role: "主理人 (Main Host)"
     voice_id: "SKlxpKXGwoM0E8XpnxNs" # 您的克隆声音
     style: "natural, friendly"
+    voice_settings:
+      stability: 0.0      # Creative - 最大情绪波动和激情
+      similarity_boost: 0.75
+      style: 0.8          # 高风格强度
+      use_speaker_boost: true
+      speed: 1.2          # 最快语速
   host_b:
     name: "小雅"
     role: "搭档 (Co-host)"
-    voice_id: "ByhETIclHirOlWnWKhHc" # ElevenLabs 'ShanShan' (标准普通话女声)
+    voice_id: "cgSgspJ2msm6clMCkdW9" # ElevenLabs 'Jessica' (活泼明亮的美式女声)
     style: "lively, clear"
+    voice_settings:
+      stability: 0.5      # 中等稳定性
+      similarity_boost: 0.75
+      style: 0.6          # 中高风格强度
+      use_speaker_boost: true
+      speed: 1.1          # 稍快语速
 voice_cloning:
   mode: instant
   sample_files:

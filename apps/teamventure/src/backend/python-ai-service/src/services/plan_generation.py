@@ -411,6 +411,180 @@ async def _generate_three_plans_stub(
     return plans
 
 
+async def generate_plan_from_markdown(
+    *,
+    plan_request_id: str,
+    user_id: str,
+    markdown_content: str,
+) -> list[dict[str, Any]]:
+    """
+    V2: 从Markdown格式需求生成1套定制化方案
+
+    输入：
+    - markdown_content: 用户填写的Markdown格式需求（包含天数、人数、预算、路线、交通、住宿等）
+
+    输出：
+    - 返回1套完整方案（包含行程、预算明细、亮点等）
+
+    优化机制：
+    1. Mock模式：ENABLE_AI_MOCK=true 时返回确定性示例
+    2. 缓存机制：相同输入24小时内直接返回缓存结果
+    3. Fallback：API key未配置时返回简单示例
+    """
+    # === 1. Mock模式检查 ===
+    if settings.enable_ai_mock:
+        logger.info("AI Mock模式已启用，返回示例方案")
+        return [_create_mock_plan(plan_request_id, user_id)]
+
+    # === 2. 缓存检查 ===
+    cache_key = f"markdown_plan:{hash(markdown_content)}"
+    redis = _get_redis_client()
+    if redis and settings.ai_cache_enabled:
+        try:
+            cached = redis.get(cache_key)
+            if cached:
+                logger.info(f"AI缓存命中 cache_key={cache_key}")
+                cached_plan = json.loads(cached)
+                cached_plan["plan_id"] = new_prefixed_id("plan")
+                cached_plan["plan_request_id"] = plan_request_id
+                cached_plan["user_id"] = user_id
+                return [cached_plan]
+        except Exception as exc:
+            logger.warning(f"读取AI缓存失败: {exc}")
+
+    # === 3. API Key检查 ===
+    client = OpenAIClient()
+    if not client.is_configured():
+        logger.warning("OPENAI_API_KEY not configured; using mock plan")
+        return [_create_mock_plan(plan_request_id, user_id)]
+
+    # === 4. LLM生成 ===
+    prompt = (
+        "根据用户的Markdown需求描述，生成1套完整的团建方案。\n"
+        "返回纯JSON格式（不要包含```json标记）：\n"
+        "{\n"
+        '  "plan_type": "standard",\n'
+        '  "plan_name": "方案名称",\n'
+        '  "summary": "方案简介",\n'
+        '  "highlights": ["亮点1", "亮点2", "亮点3"],\n'
+        '  "itinerary": {\n'
+        '    "days": [\n'
+        '      {\n'
+        '        "day": 1,\n'
+        '        "date": "YYYY-MM-DD",\n'
+        '        "items": [\n'
+        '          {"time_start": "HH:MM", "time_end": "HH:MM", "activity": "活动名称", "location": "地点"}\n'
+        '        ]\n'
+        '      }\n'
+        '    ]\n'
+        '  },\n'
+        '  "budget_breakdown": {\n'
+        '    "total": 总金额数字,\n'
+        '    "per_person": 人均金额数字,\n'
+        '    "categories": [\n'
+        '      {"category": "类别", "subtotal": 金额数字}\n'
+        '    ]\n'
+        '  },\n'
+        '  "transportation": "交通安排描述",\n'
+        '  "accommodation": "住宿安排描述"\n'
+        '}\n'
+        '\n'
+        '用户需求（Markdown格式）：\n'
+        f'{markdown_content}\n'
+        '\n'
+        '约束：\n'
+        '- 严格按照用户提供的天数、人数、预算生成方案\n'
+        '- 如用户指定了具体交通（航班/高铁），优先使用\n'
+        '- 如用户指定了酒店，优先使用\n'
+        '- 预算分配：住宿30%，活动35%，餐饮25%，交通10%\n'
+        '- 每天至少安排3个时间段的活动\n'
+        '- 确保JSON格式完全正确，所有字段都必须存在\n'
+    )
+
+    try:
+        raw = await client.generate_json(prompt)
+        plan = _normalize_single_plan(raw, plan_request_id, user_id, markdown_content)
+
+        # 写入缓存
+        if redis and settings.ai_cache_enabled:
+            try:
+                redis.setex(cache_key, settings.ai_cache_ttl_seconds, json.dumps(plan))
+                logger.info(f"AI结果已缓存 cache_key={cache_key}")
+            except Exception as exc:
+                logger.warning(f"写入AI缓存失败: {exc}")
+
+        return [plan]
+    except Exception as exc:
+        logger.exception("LLM生成失败，降级到mock方案")
+        return [_create_mock_plan(plan_request_id, user_id)]
+
+
+def _create_mock_plan(plan_request_id: str, user_id: str) -> dict[str, Any]:
+    """创建Mock示例方案"""
+    return {
+        "plan_id": new_prefixed_id("plan"),
+        "plan_request_id": plan_request_id,
+        "user_id": user_id,
+        "plan_type": "standard",
+        "plan_name": "团建方案示例",
+        "summary": "这是一个示例方案，请在生产环境配置OPENAI_API_KEY后重新生成",
+        "highlights": ["示例亮点1", "示例亮点2", "示例亮点3"],
+        "itinerary": {
+            "days": [
+                {
+                    "day": 1,
+                    "date": "2026-01-01",
+                    "items": [
+                        {"time_start": "09:00", "time_end": "12:00", "activity": "出发前往目的地", "location": "集合地点"},
+                        {"time_start": "12:00", "time_end": "14:00", "activity": "午餐", "location": "当地餐厅"},
+                        {"time_start": "14:00", "time_end": "17:00", "activity": "团队拓展活动", "location": "活动场地"}
+                    ]
+                }
+            ]
+        },
+        "budget_breakdown": {
+            "total": 25000,
+            "per_person": 500,
+            "categories": [
+                {"category": "住宿", "subtotal": 7500},
+                {"category": "活动", "subtotal": 8750},
+                {"category": "餐饮", "subtotal": 6250},
+                {"category": "交通", "subtotal": 2500}
+            ]
+        },
+        "budget_total": 25000,
+        "budget_per_person": 500,
+        "transportation": "待定",
+        "accommodation": "待定"
+    }
+
+
+def _normalize_single_plan(raw: dict[str, Any], plan_request_id: str, user_id: str, markdown_content: str) -> dict[str, Any]:
+    """标准化单个方案的数据结构"""
+    plan = raw if isinstance(raw, dict) else {}
+
+    # 确保必需字段存在
+    return {
+        "plan_id": new_prefixed_id("plan"),
+        "plan_request_id": plan_request_id,
+        "user_id": user_id,
+        "plan_type": plan.get("plan_type", "standard"),
+        "plan_name": plan.get("plan_name", "团建方案"),
+        "summary": plan.get("summary", ""),
+        "highlights": plan.get("highlights", []),
+        "itinerary": plan.get("itinerary", {"days": []}),
+        "budget_breakdown": plan.get("budget_breakdown", {
+            "total": 0,
+            "per_person": 0,
+            "categories": []
+        }),
+        "budget_total": plan.get("budget_total") or plan.get("budget_breakdown", {}).get("total", 0),
+        "budget_per_person": plan.get("budget_per_person") or plan.get("budget_breakdown", {}).get("per_person", 0),
+        "transportation": plan.get("transportation", "待定"),
+        "accommodation": plan.get("accommodation", "待定")
+    }
+
+
 async def generate_three_plans(
     *,
     plan_request_id: str,

@@ -130,36 +130,21 @@ public class PlanController {
     }
 
     /**
-     * 方案生成请求 DTO
+     * 方案生成请求 DTO - Markdown格式
      *
-     * 字段语义说明：
-     * - departure_city: 出发城市，团队从哪里出发（如公司所在地：上海市）
-     * - destination: 目的地，团建活动举办地点（如：杭州千岛湖）
+     * 用户通过Markdown格式描述团建需求，包括：
+     * - 基本信息（天数、人数、预算）
+     * - 行程路线（出发地、到达地、途径地）
+     * - 交通安排（航班/高铁班次）
+     * - 住宿安排（每日出发/入住酒店）
+     * - 活动偏好、特殊要求等
      *
-     * 前端显示格式："{departure_city} → {destination}"
-     * 示例：上海市 → 杭州千岛湖
+     * AI Agent将直接解析Markdown内容，生成1套定制化方案
      */
     public static class GenerateRequest {
-        /** 参与人数 */
-        @NotNull
-        @JsonAlias("group_size")
-        public Integer people_count;
-        /** 最低预算（元） */
-        @NotNull public BigDecimal budget_min;
-        /** 最高预算（元） */
-        @NotNull public BigDecimal budget_max;
-        /** 开始日期（YYYY-MM-DD） */
-        @NotBlank public String start_date;
-        /** 结束日期（YYYY-MM-DD） */
-        @NotBlank public String end_date;
-        /** 出发城市（团队从哪里出发，如公司所在地：上海市） */
-        @NotBlank public String departure_city;
-        /** 目的地（团建活动举办地点，如：杭州千岛湖，可选） */
-        public String destination;
-        /** 目的地所属行政城市（如：杭州，可选，用于季节/价格配置） */
-        public String destination_city;
-        /** 偏好设置（活动类型、住宿标准、餐饮偏好等） */
-        public Map<String, Object> preferences;
+        /** Markdown格式的行程需求描述 */
+        @NotBlank
+        public String markdown_content;
     }
 
     public static class GenerateResponse {

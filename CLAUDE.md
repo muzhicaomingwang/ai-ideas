@@ -430,3 +430,75 @@ Closes #123
 **监控告警**：
 - 生产环境需配置预算告警（Prometheus + Grafana）
 - 单日超过1000次调用时发送告警
+
+---
+
+## 每日播客生成规范（daily-podcast-ai）
+
+### 标准配置（v2.0）
+**生效日期**: 2026-01-16
+**路径**: `apps/daily-podcast-ai/`
+
+#### 语音参数配置
+位置：`config/voice.yaml`
+
+```yaml
+hosts:
+  host_a:
+    name: "植萌"
+    voice_id: "SKlxpKXGwoM0E8XpnxNs"  # 克隆声音
+    voice_settings:
+      stability: 0.0      # Creative - 最大情绪波动
+      style: 0.8          # 高风格强度，激情饱满
+      speed: 1.2          # 最快语速
+      similarity_boost: 0.75
+      use_speaker_boost: true
+
+  host_b:
+    name: "小雅"
+    voice_id: "cgSgspJ2msm6clMCkdW9"  # Jessica - 活泼女声
+    voice_settings:
+      stability: 0.5      # Natural - 中等稳定性
+      style: 0.6          # 中高风格强度
+      speed: 1.1          # 稍快语速
+      similarity_boost: 0.75
+      use_speaker_boost: true
+```
+
+#### 重要参数说明
+- **stability 仅支持**: 0.0 (Creative), 0.5 (Natural), 1.0 (Robust)
+- **style 范围**: 0.0-1.0，越高越有表现力
+- **speed 范围**: 0.7-1.2，越高越快
+- **similarity_boost**: 保持 0.75 即可
+
+#### 快速执行（推荐）
+```bash
+# 在 apps/daily-podcast-ai/ 目录下
+./scripts/generate_podcast_v2.sh            # 生成今天
+./scripts/generate_podcast_v2.sh 2026-01-17 # 指定日期
+```
+
+#### 手动执行
+```bash
+# 清理旧文件（避免缓存）
+rm -rf output/{date}/dailytechnews/audio
+
+# 生成播客
+python scripts/daily_generate.py \
+    --date {date} \
+    --from-cache \
+    --max-articles 10
+```
+
+#### 常见问题排查
+1. **小雅声音不是女声**
+   - 检查 `config/voice.yaml` 中 `host_b.voice_id` 是否为女声ID
+   - 验证：`ls output/{date}/dailytechnews/audio/*小雅*` 应该有文件
+   - 代码位置：`src/generators/tts_generator.py:327-342`（voice_map映射）
+
+2. **植萌激情度不够**
+   - 确认 `host_a.voice_settings.stability = 0.0`
+   - 确认 `host_a.voice_settings.style >= 0.8`
+
+3. **TTS报错 "invalid_ttd_stability"**
+   - stability 只能是 0.0/0.5/1.0，不能是其他值

@@ -1,0 +1,32 @@
+{
+  "name": "generate-daily-podcast",
+  "description": "生成每日科技播客（双人对话模式，高激情参数）",
+  "version": "1.0.0",
+  "config": {
+    "voice_settings": {
+      "host_a": {
+        "name": "植萌",
+        "voice_id": "SKlxpKXGwoM0E8XpnxNs",
+        "stability": 0.0,
+        "style": 0.8,
+        "speed": 1.2,
+        "description": "主理人 - 最大情绪波动和激情"
+      },
+      "host_b": {
+        "name": "小雅", 
+        "voice_id": "cgSgspJ2msm6clMCkdW9",
+        "stability": 0.5,
+        "style": 0.6,
+        "speed": 1.1,
+        "description": "搭档 - Jessica女声，活泼明亮"
+      }
+    },
+    "generation_params": {
+      "from_cache": true,
+      "max_articles": 10,
+      "use_ai_selection": true,
+      "dialogue_mode": "deep_dive"
+    }
+  },
+  "instructions": "执行每日播客生成任务，使用以下标准：\n\n1. 从缓存读取新闻并AI优选（--from-cache）\n2. 生成10篇文章的播客（--max-articles 10）\n3. 使用Deep Dive双人对话模式\n4. 植萌：stability=0.0（最激情）+ style=0.8 + speed=1.2（最快）\n5. 小雅：Jessica女声 + stability=0.5 + style=0.6 + speed=1.1\n\n执行命令：\npython scripts/daily_generate.py --date {date} --from-cache --max-articles 10\n\n注意事项：\n- 确保config/voice.yaml已正确配置host_a和host_b的voice_settings\n- 生成前清理旧音频：rm -rf output/{date}/dailytechnews/audio\n- 验证小雅使用女声（检查audio目录中的文件）"
+}

@@ -75,13 +75,30 @@ class TTSGenerator:
             }
         }
 
-    def _get_voice_settings(self, speed: Optional[float] = None) -> VoiceSettings:
+    def _get_voice_settings(self, speed: Optional[float] = None, speaker: Optional[str] = None) -> VoiceSettings:
         """获取语音设置"""
         settings = self.tts_config.get("voice_settings", {})
+
+        # 如果指定了speaker，尝试使用speaker专属配置
+        if speaker:
+            host_config = self.config.get("hosts", {})
+            host_a_name = host_config.get("host_a", {}).get("name", "Host A")
+            host_b_name = host_config.get("host_b", {}).get("name", "Host B")
+
+            if speaker == host_a_name:
+                speaker_settings = host_config.get("host_a", {}).get("voice_settings", {})
+            elif speaker == host_b_name:
+                speaker_settings = host_config.get("host_b", {}).get("voice_settings", {})
+            else:
+                speaker_settings = {}
+
+            # 合并配置（speaker配置优先）
+            settings = {**settings, **speaker_settings}
+
         # 获取语速设置（范围 0.7-1.2）
-        speech_speed = speed or self.tts_config.get("speed", 1.0)
+        speech_speed = speed or settings.get("speed", self.tts_config.get("speed", 1.0))
         speech_speed = max(0.7, min(1.2, speech_speed))  # 限制范围
-        
+
         return VoiceSettings(
             stability=settings.get("stability", 0.5),
             similarity_boost=settings.get("similarity_boost", 0.75),
@@ -140,7 +157,8 @@ class TTSGenerator:
         text: str,
         output_path: str,
         voice_id: Optional[str] = None,
-        speed: Optional[float] = None
+        speed: Optional[float] = None,
+        speaker: Optional[str] = None
     ) -> Optional[str]:
         """
         将文本转换为音频
@@ -150,6 +168,7 @@ class TTSGenerator:
             output_path: 输出文件路径
             voice_id: 语音 ID（可选，默认使用配置中的）
             speed: 语速（0.7-1.2，默认使用配置中的）
+            speaker: 主持人名称（用于获取专属语音配置）
 
         Returns:
             生成的音频文件路径，失败返回 None
@@ -166,17 +185,33 @@ class TTSGenerator:
                 text=text,
                 model_id=self.model_id,
                 output_format=self.output_format,
-                voice_settings=self._get_voice_settings(speed)
+                voice_settings=self._get_voice_settings(speed, speaker)
             )
 
             # 确保输出目录存在
             output_file = Path(output_path)
             output_file.parent.mkdir(parents=True, exist_ok=True)
 
-            # 保存音频
+            # 保存音频（检测异常大小）
+            chunk_count = 0
+            total_size = 0
             with open(output_file, "wb") as f:
                 for chunk in audio:
                     f.write(chunk)
+                    chunk_count += 1
+                    total_size += len(chunk)
+
+                    # 检测异常：单个片段不应超过5MB
+                    if total_size > 5 * 1024 * 1024:
+                        print(f"    ⚠️ 检测到异常大小音频 ({total_size/1024/1024:.1f}MB)，停止写入")
+                        break
+
+            # 验证文件大小
+            final_size = output_file.stat().st_size
+            if final_size > 5 * 1024 * 1024:
+                print(f"    ⚠️ 音频文件异常 ({final_size/1024/1024:.1f}MB)，删除并重试")
+                output_file.unlink()
+                return None
 
             return str(output_file)
 
@@ -234,7 +269,29 @@ class TTSGenerator:
             filename = f"{script.date}_{name}.mp3"
             filepath = output_path / filename
 
-            result = self.generate_audio(text, str(filepath))
+            # 尝试最多3次（处理API异常）
+            max_retries = 3
+            result = None
+            for attempt in range(max_retries):
+                result = self.generate_audio(text, str(filepath))
+
+                if result:
+                    # 验证生成的文件大小是否合理
+                    file_size = Path(result).stat().st_size
+                    # 正常片段应该小于2MB（保守估计）
+                    if file_size > 2 * 1024 * 1024:
+                        if show_progress:
+                            print(f"    ⚠️ 第{attempt+1}次生成异常 ({file_size/1024/1024:.1f}MB)，重试...")
+                        Path(result).unlink()
+                        result = None
+                        time.sleep(2)  # 等待2秒后重试
+                        continue
+                    break
+                else:
+                    if attempt < max_retries - 1:
+                        if show_progress:
+                            print(f"    ⚠️ 第{attempt+1}次失败，重试...")
+                        time.sleep(2)
 
             if result:
                 # 获取音频时长（简单估算，实际可用 pydub 计算）
@@ -252,7 +309,7 @@ class TTSGenerator:
                     print(f"    ✅ 完成")
             else:
                 if show_progress:
-                    print(f"    ❌ 失败")
+                    print(f"    ❌ 失败（已重试{max_retries}次）")
 
             # 速率限制
             if i < len(texts) - 1:
@@ -288,28 +345,33 @@ class TTSGenerator:
         
         # 获取主持人配置
         host_config = self.config.get("hosts", {})
+
+        # 根据配置中的主持人名称建立映射
+        host_a_name = host_config.get("host_a", {}).get("name", "Host A")
+        host_b_name = host_config.get("host_b", {}).get("name", "Host B")
+
         voice_map = {
-            "Host A": host_config.get("host_a", {}).get("voice_id", self.voice_id),
-            "Host B": host_config.get("host_b", {}).get("voice_id", "")
+            host_a_name: host_config.get("host_a", {}).get("voice_id", self.voice_id),
+            host_b_name: host_config.get("host_b", {}).get("voice_id", "")
         }
-        
+
         # 如果没有配置 Host B，使用默认列表中的备选或 fallback
-        if not voice_map["Host B"]:
-            print("⚠️ 未配置 Host B 声音 ID，尝试使用默认备选 'Adam'...")
-            voice_map["Host B"] = "pNInz6obpgDQGcFmaJgB" # Default Adam
+        if not voice_map[host_b_name]:
+            print(f"⚠️ 未配置 {host_b_name} 声音 ID，尝试使用默认备选 'Adam'...")
+            voice_map[host_b_name] = "pNInz6obpgDQGcFmaJgB" # Default Adam
             
         rate_limit_delay = self.tts_config.get("rate_limit_delay", 0.5)
         
         if show_progress:
             print(f"\n🎙️ 开始生成双人对话音频，共 {len(dialogue_script.lines)} 句对话")
-            print(f"   Host A Voice: {voice_map['Host A']}")
-            print(f"   Host B Voice: {voice_map['Host B']}")
+            print(f"   {host_a_name} Voice: {voice_map[host_a_name]}")
+            print(f"   {host_b_name} Voice: {voice_map[host_b_name]}")
             print("-" * 40)
             
         for i, line in enumerate(dialogue_script.lines):
             speaker = line.speaker
             text = line.text
-            voice_id = voice_map.get(speaker, voice_map["Host A"])
+            voice_id = voice_map.get(speaker, voice_map[host_a_name])
             
             # 简单的表情处理 (可以通过 stability 调整，暂未深度实现)
             # emotion = line.emotion 
@@ -318,7 +380,7 @@ class TTSGenerator:
             filepath = output_path / filename
             
             if show_progress:
-                speaker_icon = "🗣️" if speaker == "Host A" else "🤖"
+                speaker_icon = "🗣️" if speaker == host_a_name else "🤖"
                 print(f"  [{i+1}/{len(dialogue_script.lines)}] {speaker_icon} {speaker}: {text[:20]}...")
             
             # 检查文件是否已存在 (避免重复生成节省 Credit)
@@ -333,7 +395,7 @@ class TTSGenerator:
                 ))
                 continue
 
-            result = self.generate_audio(text, str(filepath), voice_id=voice_id)
+            result = self.generate_audio(text, str(filepath), voice_id=voice_id, speaker=speaker)
             
             if result:
                 segments.append(AudioSegment(

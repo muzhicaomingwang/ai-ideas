@@ -1,0 +1,396 @@
+=== 解析失败 ===
+时间: 2026-01-16 17:13:11.140830
+错误: Unterminated string starting at: line 391 column 28 (char 13258)
+
+=== 原始响应 ===
+[
+  {
+    "original_title": "氪星晚报｜国内首只千亿黄金ETF诞生；英国通信管理局称将继续调查X平台伪造图像事件；\"十五五\"国网公司固定资产投资预计4万亿元",
+    "original_summary": "大公司：   英国通信管理局称将继续调查X平台伪造图像事件   英国通信管理局表示，对马斯克旗下人工智能公司xAI近期的政策调整表示欢迎，但仍将继续对该公司及其人工智能聊天机器人\"格罗克\"伪造色情图像展开正式调查。   爱立信计划在瑞典裁员近1600人，旨在改善成本状况   爱立信1月15日宣布拟在...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T15:37:26",
+    "link": "https://36kr.com/p/3640550492867714?f=rss",
+    "adaptation_score": 2,
+    "adaptation_reason": "黄金投资与部分理财意识较强的用户相关，但整体偏向财经资讯，需要转化为个人理财视角",
+    "target_demographics": ["理财小白", "投资爱好者", "职场人"],
+    "title_templates": [
+      {
+        "text": "千亿黄金ETF诞生！我研究后发现了这个秘密💰",
+        "style": "第一人称发现",
+        "target_audience": "理财小白",
+        "emoji_suggestion": "💰✨📊"
+      },
+      {
+        "text": "普通人能买黄金ETF吗？亲测告诉你真相🔥",
+        "style": "实测科普",
+        "target_audience": "投资新手",
+        "emoji_suggestion": "🔥💡⚡️"
+      },
+      {
+        "text": "AI造假被查？这对我们普通人意味着什么😱",
+        "style": "热点解读",
+        "target_audience": "AI关注者",
+        "emoji_suggestion": "😱🤔💭"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "小白理财入门",
+        "why_works": "很多人对黄金投资感兴趣但不知道怎么买",
+        "example_outline": "1. 什么是黄金ETF vs 实物黄金\n2. 普通人如何购买（支付宝、银行APP操作截图）\n3. 投资黄金的3个坑要避开\n4. 我的黄金投资心得分享"
+      },
+      {
+        "angle": "AI安全警示录",
+        "why_works": "AI安全问题引发用户对技术风险的担忧",
+        "example_outline": "1. X平台AI造假事件始末\n2. 如何识别AI生成的假图片\n3. 保护自己不被AI诈骗的5个方法\n4. 这些AI工具要谨慎使用"
+      }
+    ],
+    "hashtag_suggestions": ["黄金投资", "理财小白", "ETF基金", "AI安全", "投资避坑"],
+    "image_suggestions": "黄金ETF购买界面截图，或者AI生成图片vs真实图片对比图",
+    "risk_warning": "涉及投资建议，需要添加风险提示，避免给出具体投资建议"
+  },
+  {
+    "original_title": "美股大型科技股盘前普涨，英伟达涨超1%",
+    "original_summary": "36氪获悉，美股大型科技股盘前普涨，截至发稿，英伟达涨超1%，亚马逊涨0.58%，谷歌涨0.53%，特斯拉涨0.47%，微软涨0.4%，Meta涨0.28%，苹果涨0.1%。",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T12:57:38",
+    "link": "https://36kr.com/newsflashes/3640686322372231?f=rss",
+    "adaptation_score": 2,
+    "adaptation_reason": "纯股市资讯，与小红书核心用户关联较弱，需要转化为消费或职业发展角度",
+    "target_demographics": ["科技爱好者", "职场人", "投资小白"],
+    "title_templates": [
+      {
+        "text": "科技股大涨背后，我发现了这些赚钱机会💡",
+        "style": "机会发现",
+        "target_audience": "职场人",
+        "emoji_suggestion": "💡💰🚀"
+      },
+      {
+        "text": "英伟达又涨了！普通人如何蹭上AI红利✨",
+        "style": "普通人视角",
+        "target_audience": "理财小白",
+        "emoji_suggestion": "✨🔥📈"
+      },
+      {
+        "text": "这7家科技巨头涨停，暴露了什么信号？🤔",
+        "style": "趋势解读",
+        "target_audience": "科技关注者",
+        "emoji_suggestion": "🤔💭⚡️"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "职业风向标",
+        "why_works": "科技股涨跌反映行业趋势，关系到求职和跳槽",
+        "example_outline": "1. 科技股上涨说明什么？\n2. 哪些岗位会更吃香\n3. 如何提升自己在AI时代的竞争力\n4. 我的转行心得分享"
+      },
+      {
+        "angle": "消费趋势预测",
+        "why_works": "科技公司股价与其产品创新相关",
+        "example_outline": "1. 从股价看2026年科技新品趋势\n2. 哪些产品值得等等再买\n3. 苹果、特斯拉新品爆料汇总\n4. 省钱购买攻略"
+      }
+    ],
+    "hashtag_suggestions": ["科技股", "AI红利", "职场风向", "投资理财", "科技趋势"],
+    "image_suggestions": "科技公司logo拼图，或者股价上涨的简单图表",
+    "risk_warning": "涉及投资内容，需要风险提示，不能构成投资建议"
+  },
+  {
+    "original_title": "金融监督管理总局：深入整治无序竞争，持续规范行业秩序",
+    "original_summary": "36氪获悉，1月15日，金融监管总局召开2026年监管工作会议。会议要求，切实提高行业高质量发展能力。做好统筹规划，稳妥推进中小金融机构减量提质，合理优化机构布局。深入整治无序竞争，持续规范行业秩序。督促银行保险机构专注主业、错位发展。推进金融高水平对外开放。不断提升金融服务经济社会质效。做好金融\"...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T12:51:21",
+    "link": "https://36kr.com/newsflashes/3640680145489539?f=rss",
+    "adaptation_score": 1,
+    "adaptation_reason": "纯政策监管内容，与小红书用户日常生活关联极弱，很难转化为用户关心的话题",
+    "target_demographics": ["金融从业者"],
+    "title_templates": [
+      {
+        "text": "金融监管新政出台，对我们钱包有啥影响？💰",
+        "style": "政策解读",
+        "target_audience": "理财用户",
+        "emoji_suggestion": "💰🤔📊"
+      },
+      {
+        "text": "银行要\"减量提质\"？我的存款安全吗😰",
+        "style": "安全关切",
+        "target_audience": "普通储户",
+        "emoji_suggestion": "😰💭⚠️"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "个人理财影响分析",
+        "why_works": "政策变化可能影响个人投资理财",
+        "example_outline": "1. 监管政策变化要点解读\n2. 对个人存款、理财产品的影响\n3. 如何选择更安全的银行\n4. 理财策略调整建议"
+      }
+    ],
+    "hashtag_suggestions": ["金融监管", "银行存款", "理财安全", "政策解读"],
+    "image_suggestions": "银行建筑或者存款安全相关图片",
+    "risk_warning": "涉及政策解读和金融监管，需要谨慎表达，避免误导"
+  },
+  {
+    "original_title": "AI时代的全球创作消费平台，出现了一家来自中国的\"隐形冠军\"",
+    "original_summary": "在AIGC狂飙突进的第三年，行业弥漫着一种\"去伪存真\"的集体焦虑。   一边是曾经喧嚣一时的底层\"千模大战\"格局基本固化，参数的边际效应递减；另一边是应用层的迷茫，大量调用基模的效率工具在短暂的流量爆发后，又迅速归于沉寂。   投资人看过了太多像烟花一样绚烂的产品，也开始回归商业的本质。大家都在寻找...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T10:42:30",
+    "link": "https://36kr.com/p/3638895618739335?f=rss",
+    "adaptation_score": 5,
+    "adaptation_reason": "AI创作工具与小红书内容创作者强相关，容易引发'我也要试试'的使用冲动，适合做工具测评",
+    "target_demographics": ["内容创作者", "设计师", "自媒体人", "副业探索者"],
+    "title_templates": [
+      {
+        "text": "发现了一个中国AI神器，创作效率直接翻倍✨",
+        "style": "工具发现",
+        "target_audience": "内容创作者",
+        "emoji_suggestion": "✨🚀💡"
+      },
+      {
+        "text": "实测！这个AI平台让我10分钟做出爆款内容🔥",
+        "style": "实测分享",
+        "target_audience": "自媒体人",
+        "emoji_suggestion": "🔥⚡️📈"
+      },
+      {
+        "text": "AI创作工具大洗牌，我找到了真正好用的💎",
+        "style": "对比评测",
+        "target_audience": "工具控",
+        "emoji_suggestion": "💎✨🎯"
+      },
+      {
+        "text": "副业必备！这个AI工具帮我月入过万💰",
+        "style": "赚钱分享",
+        "target_audience": "副业人群",
+        "emoji_suggestion": "💰🚀📊"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "AI工具实测报告",
+        "why_works": "创作者对提升效率的工具有强烈需求",
+        "example_outline": "1. 传统创作vs AI创作时间对比\n2. 3个实际案例展示创作过程\n3. 详细使用教程和技巧\n4. 付费版vs免费版功能对比\n5. 适合哪些类型的创作者"
+      },
+      {
+        "angle": "AI副业赚钱指南",
+        "why_works": "副业需求旺盛，AI工具降低了创作门槛",
+        "example_outline": "1. 如何用AI工具接单赚钱\n2. 我的接单经历和收入展示\n3. 避坑指南：哪些单子不要接\n4. 新手入门3步走\n5. 月入目标设定和达成方法"
+      },
+      {
+        "angle": "国产AI工具崛起观察",
+        "why_works": "民族自豪感+对国产工具的好奇心",
+        "example_outline": "1. 中国AI工具vs海外工具对比\n2. 为什么国产工具开始超越海外\n3. 推荐5个值得关注的国产AI工具\n4. 支持国产的同时如何避坑"
+      }
+    ],
+    "hashtag_suggestions": ["AI工具", "创作神器", "效率提升", "副业赚钱", "国产AI", "内容创作"],
+    "image_suggestions": "AI工具界面截图对比，创作前后效果展示，或者创作过程的分步骤图片",
+    "risk_warning": null
+  },
+  {
+    "original_title": "第二次外卖大战：平台资本和国家监管的博弈，谁输谁赢？",
+    "original_summary": " 美团、淘宝、京东的外卖大战，我们普通人看到的是三大平台互抢订单、狂撒红包、宣传社保，而在我们看不到的地方，是平台资本和国家监管之间相互摸底线、算筹码、不断试探和博弈的暗战。下载虎嗅APP，第一时间获取深度独到的商业科技资讯，连接更多创新人群与线下活动",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T10:32:58",
+    "link": "http://www.huxiu.com/article/4826742.html?f=wangzhan",
+    "adaptation_score": 5,
+    "adaptation_reason": "外卖与用户日常生活强相关，红包大战直接影响消费支出，容易引发薅羊毛和省钱攻略内容",
+    "target_demographics": ["上班族", "学生党", "宝妈", "省钱达人"],
+    "title_templates": [
+      {
+        "text": "外卖大战又开始了！我薅到了这些羊毛💰",
+        "style": "薅羊毛分享",
+        "target_audience": "省钱党",
+        "emoji_suggestion": "💰🎉✨"
+      },
+      {
+        "text": "美团淘宝京东打架，受益的竟然是我们😂",
+        "style": "吃瓜受益",
+        "target_audience": "普通用户",
+        "emoji_suggestion": "😂🍉💡"
+      },
+      {
+        "text": "外卖平台疯狂撒钱，我总结了最全攻略📝",
+        "style": "攻略总结",
+        "target_audience": "实用主义者",
+        "emoji_suggestion": "📝💡🎯"
+      },
+      {
+        "text": "实测三大外卖平台，哪个最省钱？结果意外🔥",
+        "style": "对比测评",
+        "target_audience": "理性消费者",
+        "emoji_suggestion": "🔥📊⚡️"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "薅羊毛实操指南",
+        "why_works": "直接关系到用户的钱包，实用性极强",
+        "example_outline": "1. 三大平台最新优惠活动汇总\n2. 如何叠加使用各种优惠券\n3. 我的薅羊毛心得和月省金额\n4. 避坑指南：哪些活动是套路\n5. 外卖省钱终极攻略"
+      },
+      {
+        "angle": "平台大战受益者指南",
+        "why_works": "用户喜欢在竞争中获得实惠的感觉",
+        "example_outline": "1. 外卖大战背景简单科普\n2. 普通用户如何从中受益\n3. 各平台的优势和适用场景\n4. 我的多平台使用策略\n5. 预测：大战还会持续多久"
+      },
+      {
+        "angle": "外卖消费理性指南",
+        "why_works": "帮助用户在优惠诱惑中保持理性",
+        "example_outline": "1. 外卖大战中的消费陷阱\n2. 如何避免冲动消费\n3. 制定合理的外卖预算\n4. 健康vs便宜如何平衡\n5. 我的外卖消费心得"
+      }
+    ],
+    "hashtag_suggestions": ["外卖大战", "薅羊毛", "省钱攻略", "美团", "淘宝外卖", "京东外卖", "优惠券"],
+    "image_suggestions": "三大外卖平台logo对比图，优惠券截图拼图，或者外卖订单价格对比",
+    "risk_warning": null
+  },
+  {
+    "original_title": "一支痔疮药的断供，如何折射全球供应链的气候脆弱性",
+    "original_summary": " 气候变化正以前所未有的速度冲击全球供应链，从农业减产到制造业停产，气候风险已演变为企业经营的核心挑战。随着ESG监管趋严和碳中和目标推进，企业亟需将气候风险管理纳入战略核心，从供应链溯源到成本模型重构，构建可持续韧性。本期视频以\"痔疮药停产\"事件为切入点，深度解析气候风险如何通过原料断供、产能波动...",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T10:00:00",
+    "link": "http://www.huxiu.com/article/4826622.html?f=wangzhan",
+    "adaptation_score": 3,
+    "adaptation_reason": "虽然话题偏商业分析，但痔疮药断供与普通人健康相关，可以转化为健康囤货和应急准备内容",
+    "target_demographics": ["健康关注者", "家庭主妇", "中老年人"],
+    "title_templates": [
+      {
+        "text": "痔疮药竟然断货了！我赶紧囤了这些药💊",
+        "style": "紧急囤货",
+        "target_audience": "健康关注者",
+        "emoji_suggestion": "💊😰⚠️"
+      },
+      {
+        "text": "从痔疮药断供看出的问题，太可怕了😱",
+        "style": "危机意识",
+        "target_audience": "风险意识强的人",
+        "emoji_suggestion": "😱💭🤔"
+      },
+      {
+        "text": "家庭药箱必备清单，关键时刻不求人📝",
+        "style": "实用囤货",
+        "target_audience": "家庭主妇",
+        "emoji_suggestion": "📝💡✨"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "家庭应急药品囤货指南",
+        "why_works": "药品断供引发用户对健康保障的担忧",
+        "example_outline": "1. 痔疮药断供事件回顾\n2. 家庭必备药品清单（感冒、肠胃、外伤等）\n3. 如何科学囤药（保质期、存储方法）\n4. 哪些药品容易断供\n5. 药品替代方案推荐"
+      },
+      {
+        "angle": "供应链危机下的生活准备",
+        "why_works": "引发用户对生活保障的思考",
+        "example_outline": "1. 供应链脆弱性对普通人的影响\n2. 日常生活必需品囤货建议\n3. 如何判断哪些商品可能涨价或断货\n4. 我的家庭应急物资清单\n5. 理性囤货vs恐慌性囤货"
+      }
+    ],
+    "hashtag_suggestions": ["家庭药箱", "应急囤货", "健康管理", "药品断供", "家庭必备"],
+    "image_suggestions": "家庭药箱整理图片，或者必备药品摆拍",
+    "risk_warning": "涉及药品推荐，需要提醒用户遵医嘱，不能替代专业医疗建议"
+  },
+  {
+    "original_title": "新玩意 233｜少数派的编辑们最近买了啥？",
+    "original_summary": "很多读者都会好奇少数派的编辑们到底平时都「买了啥」。我们希望通过「编辑部的新玩意」介绍编辑部成员们最近在用的新奇产品，让他们自己来谈谈这些新玩意的使用体验究竟如何。内容声明：《新玩意》栏目如含有商务内 ...查看全文",
+    "source": "少数派",
+    "category": "科技",
+    "published": "2026-01-15T09:32:11",
+    "link": "https://sspai.com/post/105458",
+    "adaptation_score": 5,
+    "adaptation_reason": "数码产品开箱测评是小红书热门内容类型，与用户消费决策直接相关，容易产生种草效果",
+    "target_demographics": ["数码爱好者", "学生党", "职场人", "科技控"],
+    "title_templates": [
+      {
+        "text": "编辑部都在用什么好物？我偷偷告诉你✨",
+        "style": "内部爆料",
+        "target_audience": "好奇心用户",
+        "emoji_suggestion": "✨🤫💡"
+      },
+      {
+        "text": "实测编辑推荐的5个神器，真的绝了🔥",
+        "style": "实测种草",
+        "target_audience": "数码爱好者",
+        "emoji_suggestion": "🔥💎⚡️"
+      },
+      {
+        "text": "跟着科技编辑买买买，踩坑心得分享📝",
+        "style": "避坑分享",
+        "target_audience": "理性消费者",
+        "emoji_suggestion": "📝💡🎯"
+      },
+      {
+        "text": "月薪3k也能买的编辑同款，性价比绝了💰",
+        "style": "平价种草",
+        "target_audience": "学生党",
+        "emoji_suggestion": "💰✨📊"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "编辑同款好物清单",
+        "why_works": "权威推荐+实用性强，容易产生购买冲动",
+        "example_outline": "1. 科技编辑的桌面setup展示\n2. 5个最值得买的编辑同款\n3. 每个产品的详细使用体验\n4. 价格和购买渠道汇总\n5. 哪些人适合买，哪些人不建议"
+      },
+      {
+        "angle": "数码产品避坑指南",
+        "why_works": "帮助用户避免消费决策失误",
+        "example_outline": "1. 编辑们买过的最后悔的产品\n2. 看起来很炫实际很鸡肋的数码产品\n3. 如何判断一个产品是否值得买\n4. 我的数码产品购买决策流程\n5. 年度最值得和最不值得购买清单"
+      },
+      {
+        "angle": "学生党数码好物推荐",
+        "why_works": "针对预算有限但需求旺盛的学生群体",
+        "example_outline": "1. 1000元以下的编辑推荐好物\n2. 学习效率提升神器合集\n3. 宿舍必备数码产品\n4. 如何用有限预算打造高效setup\n5. 学生党购买时机和渠道推荐"
+      }
+    ],
+    "hashtag_suggestions": ["数码好物", "编辑推荐", "科技种草", "学生党必备", "效率工具", "桌面setup"],
+    "image_suggestions": "产品开箱图片，桌面setup展示，或者产品使用场景图",
+    "risk_warning": null
+  },
+  {
+    "original_title": "中国Coding Agent最大融资浮现，蚂蚁、凯辉、锦秋等投了",
+    "original_summary": "文｜周鑫雨   编辑｜苏建勋   2025年2月，OpenAI联合创始人Andrej Karpathy金口一开，他提出的\"Vibe Coding（氛围编程）\"就成了AI创业最性感的赛道。   在这个主打\"忘却代码存在，靠与AI对话创作式编程\"的赛道中，跑出了全球增速最快的AI独角兽，ARR（年化收入...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T08:36:28",
+    "link": "https://36kr.com/p/3640426144812417?f=rss",
+    "adaptation_score": 4,
+    "adaptation_reason": "AI编程工具与程序员群体强相关，也适合想学编程的小白，可以转化为技能提升和副业内容",
+    "target_demographics": ["程序员", "编程学习者", "转行人群", "副业探索者"],
+    "title_templates": [
+      {
+        "text": "不会编程也能写代码？我试了这个AI神器🤖",
+        "style": "小白体验",
+        "target_audience": "编程小白",
+        "emoji_suggestion": "🤖✨💡"
+      },
+      {
+        "text": "AI编程工具融资过亿，程序员要失业了吗😰",
+        "style": "职业焦虑",
+        "target_audience": "程序员",
+        "emoji_suggestion": "😰💭🤔"
+      },
+      {
+        "text": "实测！AI让我10分钟写出小程序💻",
+        "style": "效率展示",
+        "target_audience": "效率追求者",
+        "emoji_suggestion": "💻⚡️🚀"
+      },
+      {
+        "text": "零基础学编程新思路，AI当老师靠谱吗？📚",
+        "style": "学习方法",
+        "target_audience": "学习者",
+        "emoji_suggestion": "📚💡🎯"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "AI编程工具小白体验",
+        "why_works": "降低编程门槛，让更多人觉得编程不再遥不可及",
+        "example_outline": "1. 我这个文科生如何用AI写出第一个程序\n2. 详细操作步骤演示\n3. AI编程vs传统编程的区别\n4. 适合哪些场景和人群\n5. 学习编程是否还有必要"
+      },
+      {
+        "angle": "程序员职业发展思考",
+        "why_works": "AI对程序员工作的影响是热门话题",
+        "example_outline": "1. AI编程工具对程序员的真实影响\n2. 哪些编程工作会被替代\n3. 程序员如何适应AI时代\n4. 我的技

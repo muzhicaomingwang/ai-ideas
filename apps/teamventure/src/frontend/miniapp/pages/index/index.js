@@ -1,99 +1,86 @@
 // pages/index/index.js
 import { post } from '../../utils/request.js'
-import { API_ENDPOINTS, ACTIVITY_TYPES, ACCOMMODATION_LEVELS, TRIP_TYPES, STORAGE_KEYS } from '../../utils/config.js'
-import { formatDate, calculateDays, formatDuration, formatMoney, formatPerPerson } from '../../utils/util.js'
-import { PROVINCES } from '../../utils/cities.js'
+import { API_ENDPOINTS, STORAGE_KEYS } from '../../utils/config.js'
 
 const app = getApp()
 
+// Markdown 模板（预填充示例，用户直接修改即可）
+const MARKDOWN_TEMPLATE = `# 团建行程方案
+
+## 基本信息
+- **天数**: 3天2夜
+- **预算**: ¥500 - ¥800/人
+
+## 行程路线
+- **出发地**: 北京
+- **到达地**: 青岛
+- **途径地**: 济南（可选，不需要请删除）
+
+## 交通安排
+### 去程
+- **方式**: 高铁G123次（北京南 → 青岛北，8:00-12:30）
+- 或: 航班CA1234（如需要请修改）
+
+### 返程
+- **方式**: 高铁G456次（青岛北 → 北京南，15:00-19:30）
+- 或: 航班CA5678（如需要请修改）
+
+## 住宿安排
+### 第一日
+- **入住**: 青岛XX酒店（四星级，海景房优先）
+
+### 第二日
+- **出发**: 青岛XX酒店
+- **入住**: 崂山XX度假村（度假型酒店）
+
+### 第三日
+- **出发**: 崂山XX度假村
+
+## 活动偏好
+- 户外拓展（团队协作类活动）
+- 海边休闲（沙滩运动、篝火晚会）
+- 美食体验（海鲜大餐、特色小吃）
+
+## 特殊要求
+- 有2位老人需要无障碍设施
+- 3人素食（需要准备素食餐）
+- 如无特殊要求请删除此段
+`
+
 /**
- * 方案生成页面
- *
- * 字段语义说明：
- * - departureLocation（前端） → departure_city（API）：出发城市，团队从哪里出发（如公司所在地：上海市）
- * - destination（前端） → destination（API）：目的地，团建活动举办地点（如：杭州千岛湖）
- *
- * 显示格式："{departure_city} → {destination}"
- * 示例：上海市 → 杭州千岛湖
+ * 方案生成页面 - Markdown自由输入模式
  */
 Page({
   data: {
-    currentStep: 1,
-
-    /**
-     * 表单数据
-     * - departureLocation: 出发城市（团队从哪里出发，如公司所在地：上海市）
-     * - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
-     */
     formData: {
-      peopleCount: 50,
-      budgetMin: '',
-      budgetMax: '',
-      startDate: '',
-      endDate: '',
+      markdownContent: MARKDOWN_TEMPLATE // 默认预填充模板
+    },
+    placeholder: '请修改模板中的示例内容为您的实际需求',
 
-      // 新增：行程类型选择器
-      tripType: 'regional', // 默认周边游
-
-      // 新增：分类型的地点信息
-      location: {
-        regional: {
-          departureCity: '',
-          destinationCity: '',
-          destinationLocation: ''
-        },
-        domestic: {
-          departureCity: '',
-          destinationCity: ''
-        },
-        international: {
-          departureCity: '',
-          destinationCountry: '',
-          destinationCity: ''
-        },
-        custom: {
-          description: ''
-        }
-      },
-
-      // 保留旧字段以保持向后兼容
-      departureLocation: '', // 出发城市（映射到API的departure_city）
-      destination: '', // 目的地（团建活动地点）
-
-      preferences: {
-        activityTypes: [],
-        accommodationLevel: 'standard',
-        specialRequirements: ''
-      }
+    // AI填充弹窗
+    showAIFillDialog: false,
+    aiFillData: {
+      days: '',
+      origin: '',
+      destination: ''
     },
 
-    // 选项数据
-    activityTypes: ACTIVITY_TYPES,
-    accommodationLevels: ACCOMMODATION_LEVELS,
-    tripTypes: TRIP_TYPES,
+    // AI生成状态: normal | generating | generated | error
+    aiGenerateStatus: 'normal',
+    generateProgress: 0,
 
-    // 级联选择器状态（用于周边游省市区三级联动）
-    provinceList: [],
-    cityList: [],
-    districtList: [],
-    selectedProvinceIndex: -1,
-    selectedCityIndex: -1,
-    selectedDistrictIndex: -1,
-
-    // 计算字段
-    budgetPerPerson: '',
-    budgetWarning: '',
-    durationDays: '',
-    minDate: formatDate(new Date(), 'YYYY-MM-DD')
+    // 保存原始内容（用于生成失败时恢复）
+    originalContent: ''
   },
 
   // 表单修改标志
   formModified: false,
-  // 初始表单数据（用于对比）
-  initialFormData: null,
+
+  // 进度模拟定时器
+  progressTimer: null,
 
   onLoad(options) {
-    console.log('首页加载', options)
+    console.log('生成方案页面加载', options)
 
     // 检查登录状态
     if (!app.globalData.isLogin) {
@@ -103,24 +90,11 @@ Page({
       return
     }
 
-    // 保存初始表单数据
-    this.initialFormData = JSON.parse(JSON.stringify(this.data.formData))
-
-    // 初始化省份列表（用于周边游的三级联动选择器）
-    this.setData({
-      provinceList: PROVINCES
-    })
-
-    // 尝试恢复上次的输入
+    // 尝试恢复上次的输入（如果有草稿，会覆盖默认模板）
     this.loadLastRequest()
   },
 
   onShow() {
-    // 更新最小日期
-    this.setData({
-      minDate: formatDate(new Date(), 'YYYY-MM-DD')
-    })
-
     // 检查是否有保存的草稿
     this.checkDraft()
   },
@@ -130,23 +104,23 @@ Page({
     this.saveDraft()
   },
 
+  onUnload() {
+    // 页面卸载时清除定时器
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer)
+    }
+  },
+
   /**
    * 加载上次的请求数据
    */
   loadLastRequest() {
     try {
       const lastRequest = wx.getStorageSync(STORAGE_KEYS.LATEST_REQUEST)
-      if (lastRequest) {
-        const merged = {
-          ...this.data.formData,
-          ...lastRequest,
-          preferences: {
-            ...(this.data.formData.preferences || {}),
-            ...(lastRequest.preferences || {})
-          }
-        }
-        this.setData({ formData: this.normalizeFormData(merged) })
-        this.updateCalculatedFields()
+      if (lastRequest && lastRequest.markdownContent) {
+        this.setData({
+          'formData.markdownContent': lastRequest.markdownContent
+        })
       }
     } catch (error) {
       console.error('加载上次请求失败:', error)
@@ -165,417 +139,77 @@ Page({
   },
 
   /**
-   * Step 1: 基础信息输入
+   * Markdown 输入处理
    */
-
-  // 人数变化
-  handlePeopleCountChange(e) {
+  handleMarkdownInput(e) {
     const value = e.detail.value
     this.setData({
-      'formData.peopleCount': value
-    })
-    this.updateBudgetPerPerson()
-    this.markFormModified()
-  },
-
-  // 快捷人数选择
-  handleQuickPeople(e) {
-    const value = parseInt(e.currentTarget.dataset.value)
-    this.setData({
-      'formData.peopleCount': value
-    })
-    this.updateBudgetPerPerson()
-    this.markFormModified()
-  },
-
-  // 行程类型选择
-  handleTripTypeChange(e) {
-    const tripType = e.currentTarget.dataset.value
-    const { formData } = this.data
-
-    // 切换类型时重置对应的location字段
-    formData.tripType = tripType
-    formData.location = {
-      regional: { departureCity: '', destinationProvince: '', destinationCity: '', destinationLocation: '' },
-      domestic: { departureCity: '', destinationCity: '' },
-      international: { departureCity: '', destinationCountry: '', destinationCity: '' },
-      custom: { description: '' }
-    }
-
-    this.setData({
-      formData,
-      // 重置级联选择器状态
-      provinceList: [],
-      cityList: [],
-      districtList: [],
-      selectedProvinceIndex: -1,
-      selectedCityIndex: -1,
-      selectedDistrictIndex: -1
-    })
-    this.markFormModified()
-  },
-
-  // === 周边游：省市区三级联动处理器 ===
-  handleRegionalDepartureCityInput(e) {
-    this.setData({
-      'formData.location.regional.departureCity': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  handleProvinceChange(e) {
-    const index = parseInt(e.detail.value)
-    const { provinceList } = this.data
-    const province = provinceList[index]
-
-    this.setData({
-      selectedProvinceIndex: index,
-      'formData.location.regional.destinationProvince': province.name,
-      cityList: province.cities || [],
-      districtList: [],
-      selectedCityIndex: -1,
-      selectedDistrictIndex: -1,
-      'formData.location.regional.destinationCity': '',
-      'formData.location.regional.destinationLocation': ''
-    })
-    this.markFormModified()
-  },
-
-  handleCityChange(e) {
-    const index = parseInt(e.detail.value)
-    const { cityList } = this.data
-    const city = cityList[index]
-
-    this.setData({
-      selectedCityIndex: index,
-      'formData.location.regional.destinationCity': city.name,
-      districtList: city.districts || [],
-      selectedDistrictIndex: -1,
-      'formData.location.regional.destinationLocation': ''
-    })
-    this.markFormModified()
-  },
-
-  handleDistrictChange(e) {
-    const index = parseInt(e.detail.value)
-    const { districtList } = this.data
-    const district = districtList[index]
-
-    this.setData({
-      selectedDistrictIndex: index,
-      'formData.location.regional.destinationLocation': district.name
-    })
-    this.markFormModified()
-  },
-
-  // === 国内游：出发城市+目的地城市处理器 ===
-  handleDomesticDepartureCityInput(e) {
-    this.setData({
-      'formData.location.domestic.departureCity': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  handleDomesticDestinationCityInput(e) {
-    this.setData({
-      'formData.location.domestic.destinationCity': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  // === 出境游：出发城市+国家+城市处理器 ===
-  handleInternationalDepartureCityInput(e) {
-    this.setData({
-      'formData.location.international.departureCity': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  handleInternationalDestinationCountryInput(e) {
-    this.setData({
-      'formData.location.international.destinationCountry': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  handleInternationalDestinationCityInput(e) {
-    this.setData({
-      'formData.location.international.destinationCity': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  // === 自定义：自由描述处理器 ===
-  handleCustomDescriptionInput(e) {
-    this.setData({
-      'formData.location.custom.description': e.detail.value
-    })
-    this.markFormModified()
-  },
-
-  // 最低预算输入
-  handleBudgetMinInput(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.budgetMin': value
-    })
-    this.updateBudgetPerPerson()
-    this.markFormModified()
-  },
-
-  // 最高预算输入
-  handleBudgetMaxInput(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.budgetMax': value
-    })
-    this.updateBudgetPerPerson()
-    this.markFormModified()
-  },
-
-  // 开始日期变化
-  handleStartDateChange(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.startDate': value
-    })
-    this.updateDurationDays()
-    this.markFormModified()
-  },
-
-  // 结束日期变化
-  handleEndDateChange(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.endDate': value
-    })
-    this.updateDurationDays()
-    this.markFormModified()
-  },
-
-  // 出发城市输入
-  handleDepartureLocationInput(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.departureLocation': value
-    })
-    this.markFormModified()
-  },
-
-  // 目的地输入
-  handleDestinationInput(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.destination': value
+      'formData.markdownContent': value
     })
     this.markFormModified()
   },
 
   /**
-   * Step 2: 偏好选择
+   * 重置为空白模板
    */
-
-  // 活动类型切换
-  handleActivityTypeToggle(e) {
-    const value = e.currentTarget.dataset.value
-    const current = this.data.formData?.preferences?.activityTypes
-    const activityTypes = Array.isArray(current) ? current.slice() : []
-    const index = activityTypes.indexOf(value)
-
-    if (index > -1) {
-      activityTypes.splice(index, 1)
-    } else {
-      activityTypes.push(value)
-    }
-
-    this.setData({
-      'formData.preferences.activityTypes': activityTypes
-    })
-    this.markFormModified()
-  },
-
-  // 住宿标准变化
-  handleAccommodationLevelChange(e) {
-    const value = e.currentTarget.dataset.value
-    this.setData({
-      'formData.preferences.accommodationLevel': value
-    })
-    this.markFormModified()
-  },
-
-  // 特殊需求输入
-  handleSpecialRequirementsInput(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.preferences.specialRequirements': value
-    })
-    this.markFormModified()
-  },
-
-  /**
-   * 步骤导航
-   */
-
-  // 下一步
-  handleNextStep() {
-    if (!this.validateStep1()) {
+  handleShowTemplate() {
+    // 生成中不允许操作
+    if (this.data.aiGenerateStatus === 'generating') {
       return
     }
 
-    this.setData({
-      currentStep: 2
+    wx.showModal({
+      title: '重置模板',
+      content: '确定要重置为空白模板吗？当前内容将被清空。',
+      showCancel: true,
+      confirmText: '重置',
+      cancelText: '取消',
+      confirmColor: '#ff6b35',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            'formData.markdownContent': MARKDOWN_TEMPLATE,
+            aiGenerateStatus: 'normal'
+          })
+          this.markFormModified()
+          wx.showToast({
+            title: '已重置模板',
+            icon: 'success'
+          })
+        }
+      }
     })
-
-    // 保存当前输入
-    this.saveCurrentRequest()
   },
 
-  // 上一步
-  handleBackStep() {
-    this.setData({
-      currentStep: 1
-    })
-  },
+  /**
+   * 表单验证
+   */
+  validateForm() {
+    const { markdownContent } = this.data.formData
 
-  // 验证第一步
-  validateStep1() {
-    const { peopleCount, budgetMin, budgetMax, startDate, endDate, tripType, location } = this.data.formData
-
-    if (!peopleCount || peopleCount < 1) {
-      wx.showToast({ title: '请输入参与人数', icon: 'none' })
+    if (!markdownContent || markdownContent.trim().length === 0) {
+      wx.showToast({ title: '请输入行程描述', icon: 'none' })
       return false
     }
 
-    if (!budgetMin || !budgetMax) {
-      wx.showToast({ title: '请输入预算范围', icon: 'none' })
+    if (markdownContent.trim().length < 50) {
+      wx.showToast({ title: '行程描述至少需要50个字符，请补充更多信息', icon: 'none' })
       return false
-    }
-
-    const min = parseFloat(budgetMin)
-    const max = parseFloat(budgetMax)
-
-    if (min <= 0) {
-      wx.showToast({ title: '最低预算必须大于0', icon: 'none' })
-      return false
-    }
-
-    if (max < min) {
-      wx.showToast({ title: '最高预算不能低于最低预算', icon: 'none' })
-      return false
-    }
-
-    if (!startDate || !endDate) {
-      wx.showToast({ title: '请选择活动日期', icon: 'none' })
-      return false
-    }
-
-    // 验证行程类型已选择
-    if (!tripType) {
-      wx.showToast({ title: '请选择行程类型', icon: 'none' })
-      return false
-    }
-
-    // 根据行程类型验证不同的必填字段
-    switch (tripType) {
-      case 'regional':
-        if (!location.regional.departureCity) {
-          wx.showToast({ title: '请输入出发城市', icon: 'none' })
-          return false
-        }
-        if (!location.regional.destinationProvince) {
-          wx.showToast({ title: '请选择目的地省份', icon: 'none' })
-          return false
-        }
-        if (!location.regional.destinationCity) {
-          wx.showToast({ title: '请选择目的地城市', icon: 'none' })
-          return false
-        }
-        break
-
-      case 'domestic':
-        if (!location.domestic.departureCity) {
-          wx.showToast({ title: '请输入出发城市', icon: 'none' })
-          return false
-        }
-        if (!location.domestic.destinationCity) {
-          wx.showToast({ title: '请输入目的地城市', icon: 'none' })
-          return false
-        }
-        break
-
-      case 'international':
-        if (!location.international.departureCity) {
-          wx.showToast({ title: '请输入出发城市', icon: 'none' })
-          return false
-        }
-        if (!location.international.destinationCountry) {
-          wx.showToast({ title: '请输入目的地国家', icon: 'none' })
-          return false
-        }
-        break
-
-      case 'custom':
-        if (!location.custom.description || location.custom.description.trim().length === 0) {
-          wx.showToast({ title: '请输入行程描述', icon: 'none' })
-          return false
-        }
-        if (location.custom.description.trim().length < 10) {
-          wx.showToast({ title: '行程描述至少需要10个字符', icon: 'none' })
-          return false
-        }
-        break
-
-      default:
-        wx.showToast({ title: '未知的行程类型', icon: 'none' })
-        return false
     }
 
     return true
   },
 
   /**
-   * 映射表单数据到API请求格式
-   * 将新的分类型location结构映射到后端API所需的字段格式
-   */
-  mapFormDataToAPIRequest() {
-    const { formData } = this.data
-    const { tripType, location } = formData
-    console.log('📍 [Mapping Input]', { tripType, location })
-
-    // 根据行程类型映射字段
-    switch (tripType) {
-      case 'regional':
-        formData.departureLocation = location.regional.departureCity
-        formData.destination = location.regional.destinationLocation || location.regional.destinationCity
-        break
-      case 'domestic':
-        formData.departureLocation = location.domestic.departureCity
-        formData.destination = location.domestic.destinationCity
-        break
-      case 'international':
-        formData.departureLocation = location.international.departureCity
-        formData.destination = `${location.international.destinationCountry} ${location.international.destinationCity}`.trim()
-        break
-      case 'custom':
-        // 自定义类型可能没有明确的出发城市
-        formData.destination = location.custom.description
-        break
-    }
-    console.log('📍 [Mapping Output]', { departureLocation: formData.departureLocation, destination: formData.destination })
-
-    this.setData({ formData })
-  },
-
-  /**
    * 生成方案
    */
   async handleGenerate() {
-    const { formData } = this.data
-    console.log('📍 [Before Mapping]', { tripType: formData.tripType, location: formData.location })
+    // 先验证表单
+    if (!this.validateForm()) {
+      return
+    }
 
-    // 映射新的分类型location结构到后端API格式
-    this.mapFormDataToAPIRequest()
-    console.log('📍 [After Mapping]', { departureLocation: formData.departureLocation, destination: formData.destination })
+    const { formData } = this.data
 
     try {
       wx.showLoading({
@@ -584,24 +218,11 @@ Page({
       })
 
       /**
-       * 构建请求数据
-       * 字段映射：
-       * - departure_city: 出发城市（团队从哪里出发，如：上海市）
-       * - destination: 目的地（团建活动举办地点，如：杭州千岛湖）
+       * 构建请求数据 - Markdown格式
+       * 后端将解析Markdown内容提取结构化信息
        */
       const requestData = {
-        people_count: formData.peopleCount,
-        budget_min: parseFloat(formData.budgetMin),
-        budget_max: parseFloat(formData.budgetMax),
-        start_date: formData.startDate,
-        end_date: formData.endDate,
-        departure_city: formData.departureLocation, // 出发城市（团队从哪里出发）
-        destination: formData.destination || '', // 目的地（团建活动举办地点，可选）
-        preferences: {
-          activity_types: formData.preferences.activityTypes,
-          accommodation_level: formData.preferences.accommodationLevel,
-          special_requirements: formData.preferences.specialRequirements
-        }
+        markdown_content: formData.markdownContent
       }
 
       console.log('生成方案请求:', requestData)
@@ -656,51 +277,6 @@ Page({
   },
 
   /**
-   * 更新计算字段
-   */
-
-  updateCalculatedFields() {
-    this.updateBudgetPerPerson()
-    this.updateDurationDays()
-  },
-
-  updateBudgetPerPerson() {
-    const { peopleCount, budgetMin, budgetMax } = this.data.formData
-
-    if (!budgetMin && !budgetMax) {
-      this.setData({ budgetPerPerson: '', budgetWarning: '' })
-      return
-    }
-
-    const min = parseFloat(budgetMin) || 0
-    const max = parseFloat(budgetMax) || 0
-
-    if (min > 0 && max > 0 && peopleCount > 0) {
-      const minPerPerson = Math.round(min / peopleCount)
-      const maxPerPerson = Math.round(max / peopleCount)
-      this.setData({
-        budgetPerPerson: `¥${minPerPerson} - ¥${maxPerPerson}`,
-        budgetWarning: minPerPerson < 300 ? '预算可能偏低，建议适当调整' : ''
-      })
-    } else {
-      this.setData({ budgetPerPerson: '', budgetWarning: '' })
-    }
-  },
-
-  updateDurationDays() {
-    const { startDate, endDate } = this.data.formData
-
-    if (startDate && endDate) {
-      const days = calculateDays(startDate, endDate)
-      this.setData({
-        durationDays: days > 0 ? formatDuration(days) : ''
-      })
-    } else {
-      this.setData({ durationDays: '' })
-    }
-  },
-
-  /**
    * 标记表单已修改
    */
   markFormModified() {
@@ -708,30 +284,22 @@ Page({
   },
 
   /**
-   * 检查表单是否被修改
-   */
-  isFormModified() {
-    if (!this.initialFormData) return false
-
-    const current = JSON.stringify(this.data.formData)
-    const initial = JSON.stringify(this.initialFormData)
-
-    return current !== initial
-  },
-
-  /**
    * 保存草稿
    */
   saveDraft() {
-    // 只有在表单被修改且不在第一步默认状态时才保存
-    if (!this.formModified && !this.isFormModified()) {
+    // 只有在表单被修改时才保存
+    if (!this.formModified) {
+      return
+    }
+
+    // 只有内容不为空时才保存
+    if (!this.data.formData.markdownContent || this.data.formData.markdownContent.trim().length === 0) {
       return
     }
 
     try {
       const draftData = {
         formData: this.data.formData,
-        currentStep: this.data.currentStep,
         timestamp: Date.now()
       }
 
@@ -777,15 +345,8 @@ Page({
    * 检查表单是否为空（初始状态）
    */
   isFormEmpty() {
-    const formData = this.normalizeFormData(this.data.formData)
-    return !formData.budgetMin &&
-           !formData.budgetMax &&
-           !formData.startDate &&
-           !formData.endDate &&
-           !formData.departureLocation &&
-           !formData.destination &&
-           formData.preferences.activityTypes.length === 0 &&
-           !formData.preferences.specialRequirements
+    const { markdownContent } = this.data.formData
+    return !markdownContent || markdownContent.trim().length === 0
   },
 
   /**
@@ -817,11 +378,9 @@ Page({
    */
   recoverDraft(draft) {
     this.setData({
-      formData: this.normalizeFormData(draft.formData),
-      currentStep: draft.currentStep || 1
+      formData: draft.formData || { markdownContent: '' }
     })
 
-    this.updateCalculatedFields()
     this.formModified = true
 
     wx.showToast({
@@ -858,22 +417,328 @@ Page({
     return `${daysAgo}天前`
   },
 
-  normalizeFormData(raw) {
-    const formData = raw && typeof raw === 'object' ? raw : {}
-    const preferences = this.normalizePreferences(formData.preferences)
-    return {
-      ...this.data.formData,
-      ...formData,
-      preferences
+  // ==================== AI填充功能 ====================
+
+  /**
+   * 显示AI填充弹窗
+   */
+  handleShowAIFillDialog() {
+    // 生成中不允许操作
+    if (this.data.aiGenerateStatus === 'generating') {
+      return
     }
+
+    this.setData({
+      showAIFillDialog: true,
+      // 重置填充数据
+      'aiFillData.days': '',
+      'aiFillData.origin': '',
+      'aiFillData.destination': ''
+    })
   },
 
-  normalizePreferences(raw) {
-    const p = raw && typeof raw === 'object' ? raw : {}
-    return {
-      activityTypes: Array.isArray(p.activityTypes) ? p.activityTypes : [],
-      accommodationLevel: typeof p.accommodationLevel === 'string' && p.accommodationLevel ? p.accommodationLevel : 'standard',
-      specialRequirements: typeof p.specialRequirements === 'string' ? p.specialRequirements : ''
+  /**
+   * 关闭AI填充弹窗
+   */
+  handleCloseAIFillDialog() {
+    this.setData({
+      showAIFillDialog: false
+    })
+  },
+
+  /**
+   * 阻止事件冒泡
+   */
+  stopPropagation() {
+    // 阻止点击弹窗内容时关闭
+  },
+
+  /**
+   * 天数输入
+   */
+  handleDaysInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'aiFillData.days': value
+    })
+  },
+
+  /**
+   * 出发地输入
+   */
+  handleOriginInput(e) {
+    this.setData({
+      'aiFillData.origin': e.detail.value
+    })
+  },
+
+  /**
+   * 到达地输入
+   */
+  handleDestinationInput(e) {
+    this.setData({
+      'aiFillData.destination': e.detail.value
+    })
+  },
+
+  /**
+   * 确认AI填充
+   */
+  handleConfirmAIFill() {
+    const { days, origin, destination } = this.data.aiFillData
+
+    // 验证天数
+    if (!days || days.toString().trim().length === 0) {
+      wx.showToast({ title: '请输入天数', icon: 'none' })
+      return
     }
+
+    const daysNum = parseInt(days)
+    if (isNaN(daysNum) || daysNum < 1 || daysNum > 9) {
+      wx.showToast({ title: '天数必须是1-9之间的数字', icon: 'none' })
+      return
+    }
+
+    // 验证出发地
+    if (!origin || origin.trim().length === 0) {
+      wx.showToast({ title: '请输入出发地', icon: 'none' })
+      return
+    }
+
+    // 验证到达地
+    if (!destination || destination.trim().length === 0) {
+      wx.showToast({ title: '请输入到达地', icon: 'none' })
+      return
+    }
+
+    // 保存原始内容（用于失败恢复）
+    this.setData({
+      originalContent: this.data.formData.markdownContent
+    })
+
+    // 关闭弹窗，进入生成状态
+    this.setData({
+      showAIFillDialog: false,
+      aiGenerateStatus: 'generating',
+      generateProgress: 0
+    })
+
+    // 模拟AI生成过程
+    this.simulateAIGeneration(daysNum, origin, destination)
+  },
+
+  /**
+   * 模拟AI生成过程
+   */
+  simulateAIGeneration(days, origin, destination) {
+    // 清除之前的定时器
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer)
+    }
+
+    // 进度条动画（0% → 100%，耗时1.5秒）
+    let progress = 0
+    this.progressTimer = setInterval(() => {
+      progress += 5
+      this.setData({
+        generateProgress: Math.min(progress, 95) // 最多到95%，等真正生成完才到100%
+      })
+
+      if (progress >= 95) {
+        clearInterval(this.progressTimer)
+      }
+    }, 75) // 每75ms增加5%
+
+    // 模拟AI思考时间（1.5秒后生成）
+    setTimeout(() => {
+      try {
+        // 生成AI模板
+        const generatedTemplate = this.generateAITemplate(days, origin, destination)
+
+        // 进度到100%
+        this.setData({
+          generateProgress: 100
+        })
+
+        // 短暂停留让用户看到100%
+        setTimeout(() => {
+          // 填充生成的内容
+          this.setData({
+            'formData.markdownContent': generatedTemplate,
+            aiGenerateStatus: 'generated',
+            generateProgress: 0
+          })
+
+          this.markFormModified()
+
+          wx.showToast({
+            title: 'AI填充完成',
+            icon: 'success',
+            duration: 1500
+          })
+        }, 300)
+      } catch (error) {
+        // 生成失败，恢复原始内容
+        console.error('AI生成失败:', error)
+        this.handleGenerationError()
+      }
+    }, 1500)
+  },
+
+  /**
+   * 处理生成失败
+   */
+  handleGenerationError() {
+    // 清除定时器
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer)
+    }
+
+    // 恢复原始内容
+    this.setData({
+      'formData.markdownContent': this.data.originalContent,
+      aiGenerateStatus: 'normal',
+      generateProgress: 0
+    })
+
+    wx.showToast({
+      title: 'AI生成失败，请重试',
+      icon: 'none',
+      duration: 2000
+    })
+  },
+
+  /**
+   * 生成AI智能模板
+   * @param {number} days - 天数（1-9天）
+   * @param {string} origin - 出发地
+   * @param {string} destination - 到达地
+   * @returns {string} - 生成的Markdown模板
+   */
+  generateAITemplate(days, origin, destination) {
+    // 基础信息
+    const basicInfo = `# 团建行程方案
+
+## 基本信息
+- **天数**: ${days}天${days > 1 ? (days - 1) + '夜' : ''}
+- **预算**: ¥500 - ¥800/人
+
+## 行程路线
+- **出发地**: ${origin}
+- **到达地**: ${destination}`
+
+    // 途经点逻辑
+    let waypoints = ''
+    if (days >= 5 && days <= 6) {
+      waypoints = '\n- **途径地**: （建议第3天，请填写具体城市）'
+    } else if (days === 7 || days === 8) {
+      waypoints = '\n- **途径地1**: （建议第3天，请填写具体城市）\n- **途径地2**: （建议第5天，请填写具体城市）'
+    } else if (days >= 9) {
+      waypoints = '\n- **途径地1**: （建议第3天，请填写具体城市）\n- **途径地2**: （建议第5天，请填写具体城市）\n- **途径地3**: （建议第7天，请填写具体城市）'
+    }
+
+    // 交通安排
+    const transportation = `
+
+## 交通安排
+### 去程
+- **方式**: 高铁/航班（${origin} → ${destination}，请填写具体班次和时间）
+
+### 返程
+- **方式**: 高铁/航班（${destination} → ${origin}，请填写具体班次和时间）`
+
+    // 住宿安排（根据天数生成）
+    const accommodation = this.generateAccommodation(days, origin, destination)
+
+    // 活动偏好（基础模板）
+    const activities = `
+
+## 活动偏好
+- 团队协作（如：拓展训练、团队挑战）
+- 文化体验（如：当地特色、历史古迹）
+- 休闲娱乐（如：美食品鉴、自由活动）
+
+## 特殊要求
+- 如有老人/小孩、饮食限制等特殊需求，请在此填写
+- 如无特殊要求可删除此段`
+
+    return basicInfo + waypoints + transportation + accommodation + activities
+  },
+
+  /**
+   * 生成住宿安排（基于天数和位移-驻留逻辑）
+   * @param {number} days - 天数
+   * @param {string} origin - 出发地
+   * @param {string} destination - 到达地
+   * @returns {string} - 住宿安排Markdown
+   */
+  generateAccommodation(days, origin, destination) {
+    let accommodation = '\n\n## 住宿安排'
+
+    if (days === 1) {
+      // 1天：位移→驻留→位移（无住宿）
+      accommodation += '\n<!-- 1天行程无需住宿安排 -->'
+      return accommodation
+    }
+
+    // 2天及以上：根据位移-驻留逻辑生成
+    for (let day = 1; day <= days; day++) {
+      accommodation += `\n### 第${this.numberToChinese(day)}日`
+
+      if (day === 1) {
+        // 第1天：位移→驻留（入住）
+        accommodation += `\n- **入住**: ${destination}XX酒店（请填写具体酒店名称和星级）`
+      } else if (day === days) {
+        // 最后1天：驻留→位移（离店，无入住）
+        accommodation += `\n- **出发**: ${destination}XX酒店\n<!-- 当日返程，无需入住 -->`
+      } else if (days >= 5 && this.isWaypointDay(day, days)) {
+        // 途经点日（5/7/9天）：驻留→位移→驻留
+        const waypointIndex = this.getWaypointIndex(day, days)
+        accommodation += `\n- **出发**: 前一站酒店`
+        accommodation += `\n- **入住**: 途径地${waypointIndex}XX酒店（请填写具体酒店名称）`
+      } else {
+        // 中间日：驻留（换酒店或续住）
+        accommodation += `\n- **出发**: ${destination}XX酒店`
+        accommodation += `\n- **入住**: ${destination}XX度假村（或续住前一酒店）`
+      }
+    }
+
+    return accommodation
+  },
+
+  /**
+   * 判断是否为途经点日
+   */
+  isWaypointDay(day, totalDays) {
+    if (totalDays >= 5 && totalDays <= 6 && day === 3) return true
+    if ((totalDays === 7 || totalDays === 8) && (day === 3 || day === 5)) return true
+    if (totalDays >= 9 && (day === 3 || day === 5 || day === 7)) return true
+    return false
+  },
+
+  /**
+   * 获取途经点索引
+   */
+  getWaypointIndex(day, totalDays) {
+    if (totalDays >= 5 && totalDays <= 6 && day === 3) return 1
+    if ((totalDays === 7 || totalDays === 8)) {
+      if (day === 3) return 1
+      if (day === 5) return 2
+    }
+    if (totalDays >= 9) {
+      if (day === 3) return 1
+      if (day === 5) return 2
+      if (day === 7) return 3
+    }
+    return 1
+  },
+
+  /**
+   * 数字转中文
+   */
+  numberToChinese(num) {
+    const chinese = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
+    if (num <= 10) return chinese[num - 1]
+    return num.toString()
   }
 })

@@ -1,0 +1,791 @@
+=== 解析失败 ===
+时间: 2026-01-16 17:41:59.594902
+错误: String literal is not terminated
+
+=== 原始响应 ===
+[
+  {
+    "original_title": "氪星晚报｜国内首只千亿黄金ETF诞生；英国通信管理局称将继续调查X平台伪造图像事件；\"十五五\"国网公司固定资产投资预计4万亿元",
+    "original_summary": "大公司：   英国通信管理局称将继续调查X平台伪造图像事件   英国通信管理局表示，对马斯克旗下人工智能公司xAI近期的政策调整表示欢迎，但仍将继续对该公司及其人工智能聊天机器人\"格罗克\"伪造色情图像展开正式调查。   爱立信计划在瑞典裁员近1600人，旨在改善成本状况   爱立信1月15日宣布拟在...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T15:37:26",
+    "link": "https://36kr.com/p/3640550492867714?f=rss",
+    "adaptation_score": 3,
+    "adaptation_reason": "黄金投资和AI伪造图像话题有一定关注度，但偏向财经和科技监管，需要转化为理财攻略或AI安全科普",
+    "target_demographics": ["理财新手", "科技爱好者", "投资小白"],
+    "title_templates": [
+      {
+        "text": "黄金ETF破千亿！我研究了3天发现这个秘密💰",
+        "style": "第一人称发现",
+        "target_audience": "理财新手",
+        "emoji_suggestion": "💰📊✨"
+      },
+      {
+        "text": "AI造假图片被查了？教你3招识别真假✨",
+        "style": "实用技巧",
+        "target_audience": "科技用户",
+        "emoji_suggestion": "✨🔍💡"
+      },
+      {
+        "text": "普通人也能买黄金？这个方法我试了居然赚了🔥",
+        "style": "悬念实测",
+        "target_audience": "投资小白",
+        "emoji_suggestion": "🔥💰📈"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "小白理财攻略",
+        "why_works": "年轻人对理财有需求但缺乏专业知识，黄金ETF门槛低易理解",
+        "example_outline": "1. 什么是黄金ETF vs 实物黄金\n2. 1000元就能入门的操作教程\n3. 风险提示和避坑指南\n4. 我的实操收益展示"
+      },
+      {
+        "angle": "AI安全科普",
+        "why_works": "用户对AI生成内容真假难辨有焦虑，需要识别技巧",
+        "example_outline": "1. AI造假案例震惊展示\n2. 3个肉眼识别假图技巧\n3. 推荐识别工具APP\n4. 如何保护自己不被骗"
+      }
+    ],
+    "hashtag_suggestions": ["理财小白", "黄金投资", "AI科普", "投资理财", "科技前沿"],
+    "image_suggestions": "黄金ETF收益对比图、AI生成图片真假对比、简洁的投资教程截图",
+    "risk_warning": "涉及投资建议，需要添加风险提示声明，避免给出具体投资建议"
+  },
+  {
+    "original_title": "美股大型科技股盘前普涨，英伟达涨超1%",
+    "original_summary": "36氪获悉，美股大型科技股盘前普涨，截至发稿，英伟达涨超1%，亚马逊涨0.58%，谷歌涨0.53%，特斯拉涨0.47%，微软涨0.4%，Meta涨0.28%，苹果涨0.1%。",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T12:57:38",
+    "link": "https://36kr.com/newsflashes/3640686322372231?f=rss",
+    "adaptation_score": 2,
+    "adaptation_reason": "纯股市数据对小红书用户吸引力有限，但可转化为科技股投资科普或美股开户指南",
+    "target_demographics": ["投资新手", "科技爱好者", "海外投资者"],
+    "title_templates": [
+      {
+        "text": "英伟达又涨了！我终于搞懂美股怎么买💰",
+        "style": "第一人称突破",
+        "target_audience": "投资新手",
+        "emoji_suggestion": "💰📈✨"
+      },
+      {
+        "text": "这7只科技股为什么总是一起涨？真相揭秘🔍",
+        "style": "悬念揭秘",
+        "target_audience": "科技投资者",
+        "emoji_suggestion": "🔍💡📊"
+      },
+      {
+        "text": "美股开户实测！3天从小白到下单成功🔥",
+        "style": "实测教程",
+        "target_audience": "海外投资新手",
+        "emoji_suggestion": "🔥✨📱"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "美股开户指南",
+        "why_works": "年轻人对海外投资好奇但不知如何入手，需要详细教程",
+        "example_outline": "1. 美股vs A股优势对比\n2. 开户平台选择和费用\n3. 详细开户流程截图\n4. 首次买入操作演示"
+      },
+      {
+        "angle": "科技股投资逻辑",
+        "why_works": "帮助用户理解为什么这些公司值得关注，培养投资思维",
+        "example_outline": "1. 7大科技巨头业务解析\n2. 它们为什么总是联动\n3. 哪家最值得长期持有\n4. 普通人如何参与投资"
+      }
+    ],
+    "hashtag_suggestions": ["美股投资", "科技股", "投资理财", "海外投资", "理财小白"],
+    "image_suggestions": "美股开户界面截图、科技股涨幅对比图、投资APP操作界面",
+    "risk_warning": "涉及投资内容，需要强调风险提示，不构成投资建议"
+  },
+  {
+    "original_title": "金融监督管理总局：深入整治无序竞争，持续规范行业秩序",
+    "original_summary": "36氪获悉，1月15日，金融监管总局召开2026年监管工作会议。会议要求，切实提高行业高质量发展能力。做好统筹规划，稳妥推进中小金融机构减量提质，合理优化机构布局。深入整治无序竞争，持续规范行业秩序。督促银行保险机构专注主业、错位发展。推进金融高水平对外开放。不断提升金融服务经济社会质效。做好金融\"...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T12:51:21",
+    "link": "https://36kr.com/newsflashes/3640680145489539?f=rss",
+    "adaptation_score": 1,
+    "adaptation_reason": "纯监管政策话题，与小红书用户日常生活关联度极低，难以转化为有趣内容",
+    "target_demographics": ["金融从业者", "财经关注者"],
+    "title_templates": [
+      {
+        "text": "银行又要变了？这些变化和你钱包有关💰",
+        "style": "关联切身利益",
+        "target_audience": "普通储户",
+        "emoji_suggestion": "💰🏦📊"
+      },
+      {
+        "text": "金融监管新规出台，我帮你划了3个重点✨",
+        "style": "第一人称解读",
+        "target_audience": "理财用户",
+        "emoji_suggestion": "✨📋💡"
+      },
+      {
+        "text": "2026年银行业大变革？普通人需要知道这些🔍",
+        "style": "悬念预告",
+        "target_audience": "金融用户",
+        "emoji_suggestion": "🔍📈⚡"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "政策影响解读",
+        "why_works": "将宏观政策转化为对个人理财的具体影响，降低理解门槛",
+        "example_outline": "1. 政策要点通俗解释\n2. 对储蓄利率的可能影响\n3. 对贷款政策的变化\n4. 普通人应该如何应对"
+      },
+      {
+        "angle": "银行选择指南",
+        "why_works": "帮助用户在银行业变化中做出更好的金融服务选择",
+        "example_outline": "1. 大银行vs小银行优劣\n2. 如何选择适合的银行\n3. 哪些银行服务最值得关注\n4. 避坑指南和注意事项"
+      }
+    ],
+    "hashtag_suggestions": ["银行理财", "金融政策", "理财攻略", "银行选择", "财经解读"],
+    "image_suggestions": "政策要点图解、银行对比表格、理财产品收益对比",
+    "risk_warning": "涉及政策解读，需避免过度解读或误导，以客观科普为主"
+  },
+  {
+    "original_title": "AI时代的全球创作消费平台，出现了一家来自中国的\"隐形冠军\"",
+    "original_summary": "在AIGC狂飙突进的第三年，行业弥漫着一种\"去伪存真\"的集体焦虑。   一边是曾经喧嚣一时的底层\"千模大战\"格局基本固化，参数的边际效应递减；另一边是应用层的迷茫，大量调用基模的效率工具在短暂的流量爆发后，又迅速归于沉寂。   投资人看过了太多像烟花一样绚烂的产品，也开始回归商业的本质。大家都在寻找...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T10:42:30",
+    "link": "https://36kr.com/p/3638895618739335?f=rss",
+    "adaptation_score": 4,
+    "adaptation_reason": "AI创作平台与小红书内容创作者高度相关，容易转化为工具推荐和创作效率提升内容",
+    "target_demographics": ["内容创作者", "设计师", "自媒体从业者"],
+    "title_templates": [
+      {
+        "text": "这个中国AI工具火遍全球！我用了3天惊呆了✨",
+        "style": "第一人称震惊",
+        "target_audience": "内容创作者",
+        "emoji_suggestion": "✨🔥🚀"
+      },
+      {
+        "text": "AI创作平台大测评！哪个最适合小红书博主💡",
+        "style": "对比测评",
+        "target_audience": "小红书博主",
+        "emoji_suggestion": "💡📊⚡"
+      },
+      {
+        "text": "从0到爆款！这个AI神器让我创作效率翻10倍🔥",
+        "style": "效果展示",
+        "target_audience": "创作者",
+        "emoji_suggestion": "🔥📈💰"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "AI工具实测",
+        "why_works": "创作者对提升效率的工具有强烈需求，实测结果更有说服力",
+        "example_outline": "1. 传统创作vs AI创作时间对比\n2. 5个实际案例效果展示\n3. 详细使用教程和技巧\n4. 付费版vs免费版功能对比"
+      },
+      {
+        "angle": "创作效率革命",
+        "why_works": "解决创作者最大痛点：时间不够、灵感枯竭、技能不足",
+        "example_outline": "1. AI如何改变创作流程\n2. 哪些环节最值得用AI\n3. 人工+AI的最佳配合方式\n4. 未来创作者必备技能清单"
+      }
+    ],
+    "hashtag_suggestions": ["AI工具", "创作神器", "效率提升", "内容创作", "设计工具"],
+    "image_suggestions": "AI生成作品对比图、创作流程图解、工具界面截图、效率提升数据图",
+    "risk_warning": null
+  },
+  {
+    "original_title": "第二次外卖大战：平台资本和国家监管的博弈，谁输谁赢？",
+    "original_summary": " 美团、淘宝、京东的外卖大战，我们普通人看到的是三大平台互抢订单、狂撒红包、宣传社保，而在我们看不到的地方，是平台资本和国家监管之间相互摸底线、算筹码、不断试探和博弈的暗战。下载虎嗅APP，第一时间获取深度独到的商业科技资讯，连接更多创新人群与线下活动",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T10:32:58",
+    "link": "http://www.huxiu.com/article/4826742.html?f=wangzhan",
+    "adaptation_score": 5,
+    "adaptation_reason": "外卖大战直接关系用户日常生活，红包优惠、配送体验都是高关注话题，容易产生互动",
+    "target_demographics": ["外卖用户", "薅羊毛党", "上班族"],
+    "title_templates": [
+      {
+        "text": "外卖大战又开始了！我实测3平台薅到了500💰",
+        "style": "第一人称实测",
+        "target_audience": "薅羊毛党",
+        "emoji_suggestion": "💰🔥📱"
+      },
+      {
+        "text": "美团淘宝京东抢外卖？这波红包雨我接住了✨",
+        "style": "机会分享",
+        "target_audience": "外卖用户",
+        "emoji_suggestion": "✨💰🎯"
+      },
+      {
+        "text": "外卖平台大战背后真相？受益的竟然是我们🔍",
+        "style": "悬念揭秘",
+        "target_audience": "商业关注者",
+        "emoji_suggestion": "🔍💡📊"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "薅羊毛攻略",
+        "why_works": "用户对省钱有强烈需求，平台大战正是薅羊毛的好时机",
+        "example_outline": "1. 三大平台优惠力度对比\n2. 叠加优惠券的最佳策略\n3. 新用户福利完整攻略\n4. 我的实际省钱账单展示"
+      },
+      {
+        "angle": "平台对比测评",
+        "why_works": "帮助用户选择最适合的外卖平台，解决选择困难症",
+        "example_outline": "1. 配送速度实测对比\n2. 商家丰富度和价格对比\n3. 会员权益性价比分析\n4. 不同场景最优选择建议"
+      }
+    ],
+    "hashtag_suggestions": ["外卖攻略", "薅羊毛", "省钱技巧", "外卖平台", "生活妙招"],
+    "image_suggestions": "三大平台优惠对比图、省钱账单截图、外卖APP界面对比、红包金额展示",
+    "risk_warning": null
+  },
+  {
+    "original_title": "一支痔疮药的断供，如何折射全球供应链的气候脆弱性",
+    "original_summary": " 气候变化正以前所未有的速度冲击全球供应链，从农业减产到制造业停产，气候风险已演变为企业经营的核心挑战。随着ESG监管趋严和碳中和目标推进，企业亟需将气候风险管理纳入战略核心，从供应链溯源到成本模型重构，构建可持续韧性。本期视频以\"痔疮药停产\"事件为切入点，深度解析气候风险如何通过原料断供、产能波动...",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T10:00:00",
+    "link": "http://www.huxiu.com/article/4826622.html?f=wangzhan",
+    "adaptation_score": 2,
+    "adaptation_reason": "供应链话题偏B端，但可转化为日用品涨价、囤货攻略等C端关心的话题",
+    "target_demographics": ["理财用户", "生活达人", "环保关注者"],
+    "title_templates": [
+      {
+        "text": "痔疮药都断货了？我总结了这些囤货清单📋",
+        "style": "实用建议",
+        "target_audience": "生活达人",
+        "emoji_suggestion": "📋💊⚠️"
+      },
+      {
+        "text": "气候变化让药品涨价？3个省钱策略必须知道💰",
+        "style": "省钱攻略",
+        "target_audience": "理财用户",
+        "emoji_suggestion": "💰📈🏥"
+      },
+      {
+        "text": "从痔疮药断供看懂供应链？这个知识太有用了💡",
+        "style": "知识科普",
+        "target_audience": "商业爱好者",
+        "emoji_suggestion": "💡🔍📊"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "家庭囤货指南",
+        "why_works": "用户对日用品断货有焦虑，需要科学囤货建议",
+        "example_outline": "1. 哪些日用品容易断货\n2. 科学囤货的数量和方法\n3. 储存注意事项和保质期\n4. 替代品推荐和购买渠道"
+      },
+      {
+        "angle": "通胀时代省钱术",
+        "why_works": "将宏观经济问题转化为个人理财策略，实用性强",
+        "example_outline": "1. 哪些商品会因气候涨价\n2. 提前购买vs等待降价策略\n3. 批量采购的省钱技巧\n4. 我的月度采购清单分享"
+      }
+    ],
+    "hashtag_suggestions": ["囤货攻略", "省钱技巧", "生活妙招", "通胀应对", "家庭理财"],
+    "image_suggestions": "囤货清单图表、价格对比图、储存方法示意图、省钱账单",
+    "risk_warning": "避免引起恐慌性囤货，强调理性消费和适量储备"
+  },
+  {
+    "original_title": "新玩意 233｜少数派的编辑们最近买了啥？",
+    "original_summary": "很多读者都会好奇少数派的编辑们到底平时都「买了啥」。我们希望通过「编辑部的新玩意」介绍编辑部成员们最近在用的新奇产品，让他们自己来谈谈这些新玩意的使用体验究竟如何。内容声明：《新玩意》栏目如含有商务内 ...查看全文",
+    "source": "少数派",
+    "category": "科技",
+    "published": "2026-01-15T09:32:11",
+    "link": "https://sspai.com/post/105458",
+    "adaptation_score": 5,
+    "adaptation_reason": "数码好物推荐与小红书用户高度匹配，容易产生种草和购买转化，是平台热门内容类型",
+    "target_demographics": ["数码爱好者", "种草用户", "科技达人"],
+    "title_templates": [
+      {
+        "text": "少数派编辑都在用啥？我抄作业买了5件✨",
+        "style": "跟风种草",
+        "target_audience": "数码爱好者",
+        "emoji_suggestion": "✨📱💡"
+      },
+      {
+        "text": "实测！这些科技好物真的值得买吗？🔥",
+        "style": "实测验证",
+        "target_audience": "种草用户",
+        "emoji_suggestion": "🔥📊⚡"
+      },
+      {
+        "text": "科技编辑私藏好物大公开！我心动了💰",
+        "style": "内幕分享",
+        "target_audience": "科技用户",
+        "emoji_suggestion": "💰🎯✨"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "好物测评种草",
+        "why_works": "用户对专业人士推荐的产品有信任感，容易产生购买冲动",
+        "example_outline": "1. 5件编辑推荐产品开箱\n2. 每件产品优缺点实测\n3. 性价比分析和购买建议\n4. 我的使用体验和评分"
+      },
+      {
+        "angle": "数码生活方式",
+        "why_works": "展示科技如何改善生活品质，激发用户对美好生活的向往",
+        "example_outline": "1. 科技达人的一天生活\n2. 哪些数码产品真正有用\n3. 避坑指南：哪些是智商税\n4. 适合不同预算的推荐清单"
+      }
+    ],
+    "hashtag_suggestions": ["数码好物", "科技种草", "好物推荐", "数码测评", "生活好物"],
+    "image_suggestions": "产品开箱图、使用场景图、功能对比图、价格性价比分析图",
+    "risk_warning": null
+  },
+  {
+    "original_title": "中国Coding Agent最大融资浮现，蚂蚁、凯辉、锦秋等投了",
+    "original_summary": "文｜周鑫雨   编辑｜苏建勋   2025年2月，OpenAI联合创始人Andrej Karpathy金口一开，他提出的\"Vibe Coding（氛围编程）\"就成了AI创业最性感的赛道。   在这个主打\"忘却代码存在，靠与AI对话创作式编程\"的赛道中，跑出了全球增速最快的AI独角兽，ARR（年化收入...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T08:36:28",
+    "link": "https://36kr.com/p/3640426144812417?f=rss",
+    "adaptation_score": 3,
+    "adaptation_reason": "编程AI工具对程序员和科技爱好者有吸引力，但受众相对小众，需要转化为技能学习或副业机会",
+    "target_demographics": ["程序员", "科技学习者", "副业探索者"],
+    "title_templates": [
+      {
+        "text": "不会编程也能做程序员？这个AI工具绝了✨",
+        "style": "颠覆认知",
+        "target_audience": "技能学习者",
+        "emoji_suggestion": "✨💻🚀"
+      },
+      {
+        "text": "AI编程工具融资过亿！我试用后发现商机💰",
+        "style": "商机发现",
+        "target_audience": "副业探索者",
+        "emoji_suggestion": "💰📈🔥"
+      },
+      {
+        "text": "程序员要失业了？实测AI编程的真实水平🔍",
+        "style": "实测揭秘",
+        "target_audience": "程序员",
+        "emoji_suggestion": "🔍⚡💡"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "零基础编程入门",
+        "why_works": "降低编程学习门槛，满足用户对新技能的渴望",
+        "example_outline": "1. AI编程工具使用教程\n2. 零基础如何开始编程\n3. 实际项目案例演示\n4. 学习路径和时间规划"
+      },
+      {
+        "angle": "副业赚钱新机会",
+        "why_works": "将技术趋势转化为赚钱机会，激发用户行动力",
+        "example_outline": "1. AI编程接单赚钱攻略\n2. 哪些项目最容易上手\n3. 收入预期和时间投入\n4. 我的第一个月收入展示"
+      }
+    ],
+    "hashtag_suggestions": ["AI编程", "副业赚钱", "技能学习", "程序员", "科技创业"],
+    "image_suggestions": "AI编程界面截图、代码生成过程、收入截图、学习路径图",
+    "risk_warning": null
+  },
+  {
+    "original_title": "我开拓了一趟罗马",
+    "original_summary": " 去之前：有些期待；去时候：非常失望；回来后：还想去。至于为什么，视频里慢慢说......下载虎嗅APP，第一时间获取深度独到的商业科技资讯，连接更多创新人群与线下活动",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T08:00:00",
+    "link": "http://www.huxiu.com/article/4826474.html?f=wangzhan",
+    "adaptation_score": 4,
+    "adaptation_reason": "旅游内容在小红书非常受欢迎，罗马作为热门目的地，期待-失望-回味的情感曲线容易引起共鸣",
+    "target_demographics": ["旅游爱好者", "欧洲旅行者", "文化爱好者"],
+    "title_templates": [
+      {
+        "text": "罗马旅行大型翻车现场！但我还想再去😭",
+        "style": "情感反转",
+        "target_audience": "旅游爱好者",
+        "emoji_suggestion": "😭✈️💔"
+      },
+      {
+        "text": "实探罗马7天！这些坑我都替你踩了🔥",
+        "style": "避坑指南",
+        "target_audience": "欧洲旅行者",
+        "emoji_suggestion": "🔥⚠️📍"
+      },
+      {
+        "text": "从失望到爱上罗马？这个转变我用了3天✨",
+        "style": "心路历程",
+        "target_audience": "文化旅行者",
+        "emoji_suggestion": "✨❤️🏛️"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "罗马避坑攻略",
+        "why_works": "用户对旅游踩坑有强烈恐惧，避坑指南实用价值高",
+        "example_outline": "1. 罗马旅游最大的5个坑\n2. 景点门票预订避坑技巧\n3. 餐厅选择和防宰攻略\n4. 交通和住宿省钱秘籍"
+      },
+      {
+        "angle": "深度文化体验",
+        "why_works": "满足用户对有深度旅行的向往，提升旅行品质",
+        "example_outline": "1. 如何像当地人一样游罗马\n2. 小众但惊艳的景点推荐\n3. 最值得体验的文化活动\n4. 我的罗马情感变化全记录"
+      }
+    ],
+    "hashtag_suggestions": ["罗马旅行", "欧洲旅游", "旅行攻略", "避坑指南", "文化旅行"],
+    "image_suggestions": "罗马景点对比图（期待vs现实）、避坑提示图、美食和景点实拍、情感变化时间线",
+    "risk_warning": null
+  },
+  {
+    "original_title": "RISC-V架构AI芯片公司进迭时空再获数亿元融资，新一代RISC-V AI芯片即将发布｜硬氪首发",
+    "original_summary": "硬氪获悉，基于RISC-V架构研发和销售下一代AI芯片的企业「进迭时空」已完成数亿元B轮融资。我们总结了本轮融资信息和该公司几大亮点：   1. 融资金额及投资机构   融资轮次：B轮   融资规模：数亿元人民币   投资方：包括中国互联网投资基金、农业银行AIC、北京市人工智能产业投资基金、北京国...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T07:30:00",
+    "link": "https://36kr.com/p/3639229542780294?f=rss",
+    "adaptation_score": 2,
+    "adaptation_reason": "芯片技术偏硬核，但可转化为国产科技突破、投资机会或科技科普内容",
+    "target_demographics": ["科技爱好者", "投资关注者", "爱国情怀用户"],
+    "title_templates": [
+      {
+        "text": "中国芯片又有新突破！这次轮到AI芯片了🚀",
+        "style": "爱国自豪",
+        "target_audience": "科技爱好者",
+        "emoji_suggestion": "🚀🇨🇳💪"
+      },
+      {
+        "text": "AI芯片公司融资数亿！普通人能蹭到红利吗💰",
+        "style": "投资机会",
+        "target_audience": "投资用户",
+        "emoji_suggestion": "💰📈🔥"
+      },
+      {
+        "text": "5分钟看懂AI芯片！为什么它这么重要✨",
+        "style": "科普解释",
+        "target_audience": "科技小白",
+        "emoji_suggestion": "✨💡🧠"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "国产科技突破",
+        "why_works": "激发用户民族自豪感，科技自立自强是热门话题",
+        "example_outline": "1. 中国在AI芯片领域的突破\n2. 与国外产品的对比优势\n3. 对普通人生活的影响\n4. 未来发展前景展望"
+      },
+      {
+        "angle": "科技投资机会",
+        "why_works": "将技术新闻转化为投资线索，满足用户理财需求",
+        "example_outline": "1. AI芯片赛道投资价值分析\n2. 相关上市公司梳理\n3. 普通人如何参与投资\n4. 风险提示和时机把握"
+      }
+    ],
+    "hashtag_suggestions": ["国产芯片", "AI科技", "科技投资", "硬科技", "中国制造"],
+    "image_suggestions": "芯片技术对比图、融资信息图解、产业链分析图、投资机会梳理",
+    "risk_warning": "涉及投资内容需要风险提示，避免过度解读融资消息"
+  },
+  {
+    "original_title": "鲍威尔为何成懂王眼中钉？",
+    "original_summary": " 美国司法部居然对鲍威尔动手了，罪名听着特别接地气，说他在美联储大楼翻修工程上乱花钱，搞奢侈装修还涉嫌对着国会撒谎，这理由是不是有点太扯了......下载虎嗅APP，第一时间获取深度独到的商业科技资讯，连接更多创新人群与线下活动",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T06:26:18",
+    "link": "http://www.huxiu.com/article/4825757.html?f=wangzhan",
+    "adaptation_score": 1,
+    "adaptation_reason": "美国政治话题敏感且与中国用户关联度低，不适合小红书平台",
+    "target_demographics": ["财经关注者", "国际新闻爱好者"],
+    "title_templates": [
+      {
+        "text": "美联储主席被调查？这对咱钱包有啥影响💰",
+        "style": "关联个人利益",
+        "target_audience": "理财用户",
+        "emoji_suggestion": "💰📉🤔"
+      },
+      {
+        "text": "从装修费看美国政治？这个瓜有点意思🔍",
+        "style": "吃瓜角度",
+        "target_audience": "国际关注者",
+        "emoji_suggestion": "🔍🍉😏"
+      },
+      {
+        "text": "美联储内斗升级！全球经济要变天了？⚠️",
+        "style": "影响分析",
+        "target_audience": "财经用户",
+        "emoji_suggestion": "⚠️📊🌍"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "汇率影响分析",
+        "why_works": "将国际政治转化为对人民币汇率、海淘等的具体影响",
+        "example_outline": "1. 美联储政策对人民币的影响\n2. 海淘和留学成本变化\n3. 投资理财的应对策略\n4. 普通人需要关注什么"
+      },
+      {
+        "angle": "国际政治八卦",
+        "why_works": "满足用户对国际大事的好奇心，以轻松方式解读严肃话题",
+        "example_outline": "1. 鲍威尔和特朗普的恩怨史\n2. 装修费争议背后的政治博弈\n3. 美联储独立性面临的挑战\n4. 对全球经济的潜在影响"
+      }
+    ],
+    "hashtag_suggestions": ["国际财经", "美联储", "汇率变化", "投资理财", "国际政治"],
+    "image_suggestions": "汇率走势图、美联储政策影响图解、人民币兑美元趋势",
+    "risk_warning": "涉及国际政治敏感话题，需要客观中性表达，避免政治立场"
+  },
+  {
+    "original_title": "一条看懂中西世界\"稀土大战\"",
+    "original_summary": " 美德英法意加日七国想联合减少对中国稀土的依赖，甚至设定价格下限、搞关税和地理限制，可惜他们离摆脱中国还差得远。下载虎嗅APP，第一时间获取深度独到的商业科技资讯，连接更多创新人群与线下活动",
+    "source": "虎嗅",
+    "category": "商业",
+    "published": "2026-01-15T03:10:00",
+    "link": "http://www.huxiu.com/article/4826539.html?f=wangzhan",
+    "adaptation_score": 3,
+    "adaptation_reason": "稀土话题涉及中美贸易和国家实力，可转化为爱国情怀内容或投资机会分析",
+    "target_demographics": ["爱国情怀用户", "投资关注者", "科技爱好者"],
+    "title_templates": [
+      {
+        "text": "7国联合也搞不定中国稀土？我们太强了🚀",
+        "style": "爱国自豪",
+        "target_audience": "爱国用户",
+        "emoji_suggestion": "🚀🇨🇳💪"
+      },
+      {
+        "text": "稀土大战背后的投资机会？我研究了3天💰",
+        "style": "投资发现",
+        "target_audience": "投资用户",
+        "emoji_suggestion": "💰📈🔍"
+      },
+      {
+        "text": "5分钟看懂稀土为啥这么重要？涨知识了✨",
+        "style": "科普解释",
+        "target_audience": "知识用户",
+        "emoji_suggestion": "✨💡🧠"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "国家实力科普",
+        "why_works": "激发民族自豪感，科普中国在关键资源上的优势地位",
+        "example_outline": "1. 稀土在现代科技中的重要性\n2. 中国稀土储量和技术优势\n3. 西方国家的依赖程度分析\n4. 这对中国发展意味着什么"
+      },
+      {
+        "angle": "稀土投资机会",
+        "why_works": "将地缘政治转化为投资线索，满足用户理财需求",
+        "example_outline": "1. 稀土概念股票梳理\n2. 哪些公司最受益\n3. 投资时机和风险分析\n4. 普通人如何参与投资"
+      }
+    ],
+    "hashtag_suggestions": ["稀土资源", "中国制造", "投资机会", "国际贸易", "爱国科普"],
+    "image_suggestions": "稀土储量对比图、相关股票走势、稀土应用场景图解、中外实力对比",
+    "risk_warning": "涉及地缘政治话题，需要客观表达，避免过激言论"
+  },
+  {
+    "original_title": "一年卖出27亿，柠檬茶品牌「林里LINLEE 」获数千万融资｜36氪独家",
+    "original_summary": "36氪获悉，柠檬茶品牌「林里LINLEE 」完成了数千万A轮融资，前海方舟基金为独家投资方，估值近10亿，本轮资金主要用于品牌建设，供应链升级及组织升级。   这是「林里LINLEE 」继 2021 年获得三七互娱数千万天使轮投资后的又一次融资。而品牌现用名 \"LINLEE \" 也正是在这一年正式启...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T02:18:37",
+    "link": "https://36kr.com/p/3640057650842756?f=rss",
+    "adaptation_score": 4,
+    "adaptation_reason": "茶饮品牌与小红书用户生活紧密相关，容易产生种草、探店、测评等内容",
+    "target_demographics": ["茶饮爱好者", "探店达人", "创业关注者"],
+    "title_templates": [
+      {
+        "text": "这个柠檬茶一年卖27亿？我实地探店测评了✨",
+        "style": "实地测评",
+        "target_audience": "茶饮爱好者",
+        "emoji_suggestion": "✨🍋🔥"
+      },
+      {
+        "text": "从0到27亿的柠檬茶品牌！创业密码我找到了💰",
+        "style": "创业启发",
+        "target_audience": "创业者",
+        "emoji_suggestion": "💰📈🚀"
+      },
+      {
+        "text": "又一个茶饮独角兽诞生！这杯柠檬茶凭啥🔍",
+        "style": "商业分析",
+        "target_audience": "商业关注者",
+        "emoji_suggestion": "🔍💡📊"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "茶饮测评种草",
+        "why_works": "用户对新茶饮品牌有强烈好奇心，测评内容容易产生消费转化",
+        "example_outline": "1. 林里柠檬茶全系产品测评\n2. 口味、性价比、颜值打分\n3. 与其他柠檬茶品牌对比\n4. 最值得买的单品推荐"
+      },
+      {
+        "angle": "茶饮创业启示",
+        "why_works": "满足用户对创业成功案例的学习需求，激发创业灵感",
+        "example_outline": "1. 林里成功的3个关键因素\n2. 柠檬茶赛道的机会分析\n3. 小本创业如何选择品类\n4. 我从中学到的创业经验"
+      }
+    ],
+    "hashtag_suggestions": ["柠檬茶", "茶饮测评", "探店打卡", "创业故事", "新茶饮"],
+    "image_suggestions": "茶饮产品实拍、门店环境、口感测评图、品牌对比表、创业时间线",
+    "risk_warning": null
+  },
+  {
+    "original_title": "前泽宝创始人再创业，深耕北美AI高端烹饪，首年营收破两千万美元、毛利超60%｜早期项目",
+    "original_summary": "作者丨欧雪   编辑丨袁斯来   当中国制造出海从铺货模式走向品牌深耕，厨房小家电这个规模超千亿美元的全球市场，正成为技术驱动型公司的新竞技场。   传统格局由两类玩家主导：拥有品牌溢价的欧美老牌，与具备供应链优势的中国制造巨头。   在这之外，一个专注于\"烹饪科学\"的中国初创公司——虎一科技，正以...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T01:15:00",
+    "link": "https://36kr.com/p/3639448562716033?f=rss",
+    "adaptation_score": 4,
+    "adaptation_reason": "AI烹饪设备与小红书美食、生活品质内容高度匹配，容易产生种草和使用分享",
+    "target_demographics": ["美食爱好者", "智能家居用户", "生活品质追求者"],
+    "title_templates": [
+      {
+        "text": "AI做饭机器首年卖2000万美元？我想试试✨",
+        "style": "好奇种草",
+        "target_audience": "美食爱好者",
+        "emoji_suggestion": "✨🍳🤖"
+      },
+      {
+        "text": "懒人福音！这个AI厨师让我秒变大厨🔥",
+        "style": "效果展示",
+        "target_audience": "懒人用户",
+        "emoji_suggestion": "🔥👨‍🍳💡"
+      },
+      {
+        "text": "中国AI烹饪设备火遍北美？科技改变生活💰",
+        "style": "国产骄傲",
+        "target_audience": "科技用户",
+        "emoji_suggestion": "💰🚀🇨🇳"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "智能厨电测评",
+        "why_works": "用户对能提升生活品质的科技产品有强烈兴趣",
+        "example_outline": "1. AI烹饪设备功能详解\n2. 实际使用效果测试\n3. 与传统厨具对比优势\n4. 适合哪些人群和场景"
+      },
+      {
+        "angle": "懒人生活方式",
+        "why_works": "迎合现代人追求便利生活的需求，解决做饭痛点",
+        "example_outline": "1. 懒人做饭的终极解决方案\n2. AI厨师vs外卖成本对比\n3. 营养健康如何保证\n4. 我的智能厨房改造计划"
+      }
+    ],
+    "hashtag_suggestions": ["智能厨电", "AI烹饪", "懒人神器", "智能家居", "生活科技"],
+    "image_suggestions": "AI烹饪设备使用过程、制作的美食成品、智能厨房场景、功能对比图",
+    "risk_warning": null
+  },
+  {
+    "original_title": "国产半导体高端材料公司融资过亿，获头部客户批量导入｜36氪首发",
+    "original_summary": "作者丨欧雪   编辑丨袁斯来   硬氪获悉，中国半导体材料企业——北京序轮科技有限公司（简称\"序轮科技\"）于近日完成总额超亿元的A3、A4轮战略融资。我们总结了最新两轮的融资信息和该公司几大亮点：      &nbsp;   融资金额及领投机构   融资金额：超亿元   融资轮次：A3、A4轮   ...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T01:10:00",
+    "link": "https://36kr.com/p/3639443696110978?f=rss",
+    "adaptation_score": 2,
+    "adaptation_reason": "半导体材料偏B端技术，但可转化为国产科技突破、投资机会或科技科普内容",
+    "target_demographics": ["科技投资者", "爱国情怀用户", "硬科技关注者"],
+    "title_templates": [
+      {
+        "text": "国产半导体材料又突破！这次真的不被卡脖子🚀",
+        "style": "爱国自豪",
+        "target_audience": "科技爱好者",
+        "emoji_suggestion": "🚀🇨🇳💪"
+      },
+      {
+        "text": "半导体材料公司融资过亿？这个赛道有机会💰",
+        "style": "投资机会",
+        "target_audience": "投资用户",
+        "emoji_suggestion": "💰📈🔍"
+      },
+      {
+        "text": "从被卡脖子到自主可控？半导体材料科普✨",
+        "style": "科普教育",
+        "target_audience": "知识用户",
+        "emoji_suggestion": "✨💡🧠"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "国产替代突破",
+        "why_works": "激发民族自豪感，科技自立自强是热门话题",
+        "example_outline": "1. 半导体材料的重要性科普\n2. 中国在该领域的突破意义\n3. 打破国外垄断的进展\n4. 对普通人生活的影响"
+      },
+      {
+        "angle": "硬科技投资机会",
+        "why_works": "将技术突破转化为投资线索，满足用户理财需求",
+        "example_outline": "1. 半导体材料产业链分析\n2. 相关上市公司梳理\n3. 投资逻辑和风险分析\n4. 普通人如何参与投资"
+      }
+    ],
+    "hashtag_suggestions": ["国产半导体", "硬科技", "科技投资", "国产替代", "芯片产业"],
+    "image_suggestions": "半导体产业链图解、技术突破对比、相关股票表现、国产化进程图",
+    "risk_warning": "涉及投资内容需要风险提示，避免过度解读技术突破"
+  },
+  {
+    "original_title": "奔驰、宝马2026年预测不足50万辆，退回十年前｜36氪独家",
+    "original_summary": "2026年中国高端车市场，国产品牌信心十足，德系品牌则沉着冷静。   36氪从多处获悉，奔驰、宝马近期已向国内供应链给出2026年的初步需求预测量。多位知情人士告诉36氪，两家企业国产车型的全年预估量均不足50万辆，几乎已经回到其十年前在华销量水平。   相较之下，中国高端品牌的销量目标则更为激进：...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T00:35:59",
+    "link": "https://36kr.com/p/3638726927092868?f=rss",
+    "adaptation_score": 4,
+    "adaptation_reason": "汽车话题与用户购车决策直接相关，德系豪车vs国产品牌的对比容易引起讨论",
+    "target_demographics": ["汽车爱好者", "潜在购车者", "国产品牌支持者"],
+    "title_templates": [
+      {
+        "text": "奔驰宝马销量腰斩？国产车的机会来了🔥",
+        "style": "趋势分析",
+        "target_audience": "汽车关注者",
+        "emoji_suggestion": "🔥🚗📈"
+      },
+      {
+        "text": "买奔驰还是买国产？我算了一笔账震惊了💰",
+        "style": "对比分析",
+        "target_audience": "购车用户",
+        "emoji_suggestion": "💰🤔📊"
+      },
+      {
+        "text": "德系豪车不香了？实测国产高端车有多强✨",
+        "style": "实测对比",
+        "target_audience": "汽车测评用户",
+        "emoji_suggestion": "✨🏎️💪"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "购车决策指南",
+        "why_works": "帮助用户在德系豪车和国产高端车之间做出理性选择",
+        "example_outline": "1. 奔驰宝马vs国产高端车对比\n2. 性价比、配置、服务分析\n3. 保值率和用车成本计算\n4. 不同预算的购车建议"
+      },
+      {
+        "angle": "国产汽车崛起",
+        "why_works": "激发民族自豪感，展现中国汽车工业的进步",
+        "example_outline": "1. 国产高端车的技术突破\n2. 为什么消费者开始选择国产\n3. 德系豪车面临的挑战\n4. 中国汽车品牌的未来展望"
+      }
+    ],
+    "hashtag_suggestions": ["汽车对比", "购车攻略", "国产汽车", "豪车选择", "汽车测评"],
+    "image_suggestions": "车型对比图表、配置参数对比、价格性价比分析、销量趋势图",
+    "risk_warning": null
+  },
+  {
+    "original_title": "金融监督管理总局：有力有序有效推进中小金融机构风险化解",
+    "original_summary": "36氪获悉，1月15日，金融监管总局召开2026年监管工作会议。会议强调，2026年要有力有序有效推进中小金融机构风险化解。着力处置存量风险，坚决遏制增量风险，牢牢守住不\"爆雷\"底线。严密防范化解相关领域风险。推动城市房地产融资协调机制常态化运行，助力构建房地产发展新模式。依法合规支持融资平台债务风...",
+    "source": "36氪",
+    "category": "科技",
+    "published": "2026-01-15T12:51:05",
+    "link": "https://36kr.com/newsflashes/3640679887638144?f=rss",
+    "adaptation_score": 1,
+    "adaptation_reason": "金融监管政策话题过于专业和宏观，与小红书用户日常关注点差距较大",
+    "target_demographics": ["金融从业者", "投资理财用户"],
+    "title_templates": [
+      {
+        "text": "银行不会爆雷？这个承诺关系你的钱包💰",
+        "style": "关联个人利益",
+        "target_audience": "储蓄用户",
+        "emoji_suggestion": "💰🏦⚠️"
+      },
+      {
+        "text": "金融监管新政出台！我帮你划重点了📋",
+        "style": "政策解读",
+        "target_audience": "理财用户",
+        "emoji_suggestion": "📋💡✨"
+      },
+      {
+        "text": "小银行会有风险吗？教你3招识别方法🔍",
+        "style": "实用技巧",
+        "target_audience": "风险意识用户",
+        "emoji_suggestion": "🔍⚠️💡"
+      }
+    ],
+    "content_angles": [
+      {
+        "angle": "资金安全指南",
+        "why_works": "将监管政策转化为个人资金安全保护策略",
+        "example_outline": "1. 如何判断银行是否安全\n2. 存款保险制度科普\n3. 分散存款的必要性\n4. 我的资金配置建议"
+      },
+      {
+        "angle": "理财产品选择",
+        "why_works": "帮助用户在金融环境变化中做出更好的理财选择",
+        "example_outline": "1. 哪些理财产品更安全\n2. 如何平衡收益和风险\n3. 监管政策对理财的影响\n4. 2026年理财策略调整"
+      }
+    ],
+    "hashtag_suggestions": ["银行安全", "理财攻略", "资金保护", "金融风险", "存款技巧"],
+    "image_suggestions": "银行安全评级、理财产品风险对比、资金配置建议图、政策影响分析",
+    "risk_warning": "涉及金融政策解读，需要客观中性，避免引起不必要恐慌"
+  },
+  {
+    "original_title": "华胜天成：目前涉及AI业务的相关收入占公司整体营业收入的比例较低",
+    "original_summary": "36氪获悉，华胜天成公告，公司关注到市场将公司列入AI相关热点概念。公司目前涉及AI业务的相关收入占公司整体营业收入的比例较低，对公司业绩预计不构成重大影响。除前述情况外，未发现对公司股票交易价格可能产生重大影响的媒体报道、市场传闻或热点概念。经自查，公司目前生产经营活动正常，主营业务未发生重大变化

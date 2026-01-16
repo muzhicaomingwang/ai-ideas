@@ -119,35 +119,19 @@ public class PlanService {
         PlanRequestPO po = new PlanRequestPO();
         po.setPlanRequestId(planRequestId);
         po.setUserId(userId);
-        po.setPeopleCount(req.people_count);
-        po.setBudgetMin(req.budget_min);
-        po.setBudgetMax(req.budget_max);
-        po.setStartDate(req.start_date);
-        po.setEndDate(req.end_date);
-        po.setDepartureCity(req.departure_city);
-        po.setDestination(req.destination);
-        po.setDestinationCity(req.destination_city);
-        po.setPreferencesJson(req.preferences == null ? "{}" : Jsons.toJson(req.preferences));
+        po.setMarkdownContent(req.markdown_content); // 保存原始Markdown内容
         po.setStatus("GENERATING");
         po.setGenerationStartedAt(Instant.now());
         planRequestMapper.insert(po);
 
         recordEvent("PlanRequestCreated", "PlanRequest", planRequestId, userId, Map.of("plan_request_id", planRequestId));
-        // UL v1.3+ (backward compatible): more explicit event name.
         recordEvent("PlanGenerationRequested", "PlanRequest", planRequestId, userId, Map.of("plan_request_id", planRequestId));
 
+        // 发送到MQ，让Python AI服务处理
         Map<String, Object> mq = new HashMap<>();
         mq.put("plan_request_id", planRequestId);
         mq.put("user_id", userId);
-        mq.put("people_count", req.people_count);
-        mq.put("budget_min", req.budget_min);
-        mq.put("budget_max", req.budget_max);
-        mq.put("start_date", req.start_date);
-        mq.put("end_date", req.end_date);
-        mq.put("departure_city", req.departure_city);
-        mq.put("destination", req.destination);
-        mq.put("destination_city", req.destination_city);
-        mq.put("preferences", req.preferences == null ? Map.of() : req.preferences);
+        mq.put("markdown_content", req.markdown_content); // 直接传递Markdown内容给AI Agent
         mq.put("trace_id", IdGenerator.newId("trace"));
 
         rabbitTemplate.convertAndSend(exchange, routingKey, Jsons.toJson(mq));

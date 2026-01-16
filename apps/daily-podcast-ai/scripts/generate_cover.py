@@ -51,6 +51,67 @@ def create_circular_mask(size: int) -> Image.Image:
     return mask
 
 
+# 定义多套颜色方案
+COLOR_SCHEMES = {
+    "ai": {  # AI/人工智能主题
+        "primary": (88, 24, 92),      # 深紫
+        "secondary": (140, 45, 145),   # 中紫
+        "accent": (200, 100, 255),     # 亮紫
+        "light": (220, 200, 255)
+    },
+    "tech": {  # 通用科技主题（默认）
+        "primary": (24, 52, 92),       # 深蓝
+        "secondary": (45, 85, 140),    # 中蓝
+        "accent": (100, 180, 255),     # 亮蓝
+        "light": (200, 220, 255)
+    },
+    "hardware": {  # 硬件/制造主题
+        "primary": (60, 60, 60),       # 深灰
+        "secondary": (100, 100, 100),  # 中灰
+        "accent": (180, 180, 200),     # 亮灰
+        "light": (220, 220, 235)
+    },
+    "business": {  # 商业/金融主题
+        "primary": (92, 52, 24),       # 深橙
+        "secondary": (140, 85, 45),    # 中橙
+        "accent": (255, 150, 80),      # 亮橙
+        "light": (255, 220, 200)
+    },
+    "green": {  # 新能源/环保主题
+        "primary": (24, 70, 40),       # 深绿
+        "secondary": (45, 110, 65),    # 中绿
+        "accent": (100, 200, 130),     # 亮绿
+        "light": (200, 240, 220)
+    }
+}
+
+
+def detect_theme_from_categories(categories: dict) -> str:
+    """
+    根据新闻类别分布检测主题
+
+    Args:
+        categories: 类别统计字典 {"ai": 5, "hardware": 2, ...}
+
+    Returns:
+        主题名称（对应 COLOR_SCHEMES 的key）
+    """
+    if not categories:
+        return "tech"
+
+    # 按优先级检测关键词
+    if categories.get("ai", 0) >= 3:
+        return "ai"
+    elif categories.get("hardware", 0) >= 3 or categories.get("chip", 0) >= 2:
+        return "hardware"
+    elif categories.get("business", 0) >= 4:
+        return "business"
+    elif categories.get("green", 0) >= 2:
+        return "green"
+    else:
+        return "tech"  # 默认科技蓝
+
+
 def create_gradient_background(width: int, height: int, color1: tuple, color2: tuple) -> Image.Image:
     """创建渐变背景"""
     base = Image.new("RGB", (width, height), color1)
@@ -95,7 +156,9 @@ def generate_cover(
     article_count: int = 10,
     width: int = 1400,
     height: int = 1400,
-    logo_path: str = None
+    logo_path: str = None,
+    theme: str = None,
+    category_stats: dict = None
 ) -> str:
     """
     生成播客封面图片
@@ -107,16 +170,26 @@ def generate_cover(
         article_count: 新闻数量
         width: 图片宽度
         height: 图片高度
+        logo_path: 自定义logo路径
+        theme: 主题名称（ai/tech/hardware/business/green）
+        category_stats: 类别统计字典，用于自动检测主题
 
     Returns:
         生成的图片路径
     """
-    # 颜色配置 - 科技蓝渐变
-    color_primary = (24, 52, 92)      # 深蓝
-    color_secondary = (45, 85, 140)    # 中蓝
-    color_accent = (100, 180, 255)     # 亮蓝
+    # 如果提供了类别统计，自动检测主题
+    if category_stats and not theme:
+        theme = detect_theme_from_categories(category_stats)
+        print(f"  🎨 根据新闻内容检测到主题: {theme}")
+
+    # 选择颜色方案
+    theme = theme or "tech"  # 默认科技蓝
+    scheme = COLOR_SCHEMES.get(theme, COLOR_SCHEMES["tech"])
+    color_primary = scheme["primary"]
+    color_secondary = scheme["secondary"]
+    color_accent = scheme["accent"]
+    color_light = scheme["light"]
     color_white = (255, 255, 255)
-    color_light = (200, 220, 255)
 
     # 创建渐变背景
     img = create_gradient_background(width, height, color_primary, color_secondary)

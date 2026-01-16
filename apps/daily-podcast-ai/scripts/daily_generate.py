@@ -613,23 +613,47 @@ def generate_podcast(
     # ========== 步骤 6: 封面生成 ==========
     print("\n🎨 步骤 6/6: 封面生成")
     print("-" * 40)
-    
+
     try:
+        # 统计新闻类别关键词
+        category_keywords = {
+            "ai": ["AI", "人工智能", "大模型", "GPT", "Claude", "智能体", "Agent"],
+            "hardware": ["芯片", "半导体", "RISC-V", "制造", "硬件"],
+            "business": ["融资", "IPO", "上市", "投资", "营收"],
+            "green": ["新能源", "电动", "环保", "气候", "碳中和"],
+            "chip": ["芯片", "晶圆", "封装"]
+        }
+
+        category_stats = {}
+        for article in summarized:
+            # 使用 title 和 summary 进行关键词匹配
+            if isinstance(article, dict):
+                content = article.get("title", "") + article.get("summary", "")
+            else:
+                content = getattr(article, "title", "") + getattr(article, "summary", "")
+
+            for category, keywords in category_keywords.items():
+                if any(kw in content for kw in keywords):
+                    category_stats[category] = category_stats.get(category, 0) + 1
+
+        print(f"  📊 新闻类别分布: {category_stats}")
+
         # 使用 PIL 生成封面（更稳定，无需外部 API）
         from generate_cover import generate_cover as pil_generate_cover
-        
+
         cover_filename = f"cover-{date_str}.png"
         cover_path = str(output_path / cover_filename)
-        
+
         podcast_title = "今日科技早报"
         if deep_dive:
             podcast_title += " Deep Dive"
-            
+
         generated_cover = pil_generate_cover(
             date=target_date,
             output_path=cover_path,
             title=podcast_title,
-            article_count=len(summarized)
+            article_count=len(summarized),
+            category_stats=category_stats
         )
         
         if generated_cover:

@@ -1,404 +1,152 @@
 <!--pages/index/index.wxml-->
 <view class="index-page">
-  <!-- 步骤指示器 -->
-  <view class="steps">
-    <view class="step-item {{currentStep >= 1 ? 'active' : ''}} {{currentStep > 1 ? 'completed' : ''}}">
-      <view class="step-number">1</view>
-      <view class="step-label">基础信息</view>
-    </view>
-    <view class="step-line {{currentStep > 1 ? 'active' : ''}}"></view>
-    <view class="step-item {{currentStep >= 2 ? 'active' : ''}}">
-      <view class="step-number">2</view>
-      <view class="step-label">偏好选择</view>
-    </view>
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="page-title">AI 生成团建方案</view>
+    <view class="page-subtitle">请详细描述您的团建行程需求</view>
   </view>
 
-  <!-- Step 1: 基础信息 -->
-  <view class="form-container" wx:if="{{currentStep === 1}}">
-    <view class="form-title">告诉我们您的团建需求</view>
+  <!-- Markdown 输入区域 -->
+  <view class="form-container">
+    <!-- 填写提示和操作 -->
+    <view class="template-header">
+      <view class="template-hint">
+        <text class="hint-icon">✏️</text>
+        <text class="hint-text">直接修改示例内容为您的实际需求</text>
+      </view>
+      <view class="template-actions">
+        <view class="action-btn ai-fill-btn {{aiGenerateStatus === 'generating' ? 'btn-disabled' : ''}}" bindtap="handleShowAIFillDialog">
+          <text class="btn-icon">✨</text>
+          <text class="btn-text">AI填充</text>
+        </view>
+        <view class="action-btn reset-btn {{aiGenerateStatus === 'generating' ? 'btn-disabled' : ''}}" bindtap="handleShowTemplate">
+          <text class="btn-icon">🔄</text>
+          <text class="btn-text">重置</text>
+        </view>
+      </view>
+    </view>
 
-    <!-- 参与人数 -->
+    <!-- Markdown 输入框 / AI生成状态卡片 -->
     <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">参与人数</text>
-        <text class="required">*</text>
-      </view>
-      <view class="input-group">
-        <stepper
-          value="{{formData.peopleCount}}"
-          min="1"
-          max="500"
-          bindchange="handlePeopleCountChange"
-        ></stepper>
-        <text class="unit">人</text>
-      </view>
-      <!-- 快捷按钮 -->
-      <view class="quick-buttons">
-        <view
-          class="quick-btn {{formData.peopleCount === 20 ? 'active' : ''}}"
-          bindtap="handleQuickPeople"
-          data-value="20"
-        >20人</view>
-        <view
-          class="quick-btn {{formData.peopleCount === 50 ? 'active' : ''}}"
-          bindtap="handleQuickPeople"
-          data-value="50"
-        >50人</view>
-        <view
-          class="quick-btn {{formData.peopleCount === 100 ? 'active' : ''}}"
-          bindtap="handleQuickPeople"
-          data-value="100"
-        >100人</view>
-      </view>
-    </view>
-
-    <!-- 预算范围 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">预算范围</text>
-        <text class="required">*</text>
-      </view>
-      <view class="budget-input-group">
-        <view class="budget-input-item">
-          <text class="currency">¥</text>
-          <input
-            class="budget-input"
-            type="digit"
-            placeholder="最低预算"
-            value="{{formData.budgetMin}}"
-            bindinput="handleBudgetMinInput"
-          />
-        </view>
-        <text class="separator">-</text>
-        <view class="budget-input-item">
-          <text class="currency">¥</text>
-          <input
-            class="budget-input"
-            type="digit"
-            placeholder="最高预算"
-            value="{{formData.budgetMax}}"
-            bindinput="handleBudgetMaxInput"
-          />
-        </view>
-      </view>
-      <view class="budget-hint" wx:if="{{budgetPerPerson}}">
-        人均预算：{{budgetPerPerson}}
-      </view>
-      <view class="budget-warning" wx:if="{{budgetWarning}}">
-        {{budgetWarning}}
-      </view>
-    </view>
-
-    <!-- 活动日期 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">活动日期</text>
-        <text class="required">*</text>
-      </view>
-      <view class="date-input-group">
-        <picker
-          mode="date"
-          value="{{formData.startDate}}"
-          start="{{minDate}}"
-          bindchange="handleStartDateChange"
-        >
-          <view class="date-picker">
-            <text wx:if="{{formData.startDate}}">{{formData.startDate}}</text>
-            <text wx:else class="placeholder">开始日期</text>
-          </view>
-        </picker>
-        <text class="separator">至</text>
-        <picker
-          mode="date"
-          value="{{formData.endDate}}"
-          start="{{formData.startDate || minDate}}"
-          bindchange="handleEndDateChange"
-        >
-          <view class="date-picker">
-            <text wx:if="{{formData.endDate}}">{{formData.endDate}}</text>
-            <text wx:else class="placeholder">结束日期</text>
-          </view>
-        </picker>
-      </view>
-      <view class="date-hint" wx:if="{{durationDays}}">
-        {{durationDays}}
-      </view>
-    </view>
-
-    <!-- 行程类型 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">行程类型</text>
-        <text class="required">*</text>
-      </view>
-      <view class="trip-type-group">
-        <view
-          wx:for="{{tripTypes}}"
-          wx:key="value"
-          class="trip-type-item {{formData.tripType === item.value ? 'selected' : ''}}"
-          bindtap="handleTripTypeChange"
-          data-value="{{item.value}}"
-        >
-          <view class="trip-type-icon">{{item.icon}}</view>
-          <view class="trip-type-label">{{item.label}}</view>
-          <view class="trip-type-desc">{{item.description}}</view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 周边游：省-市-区三级联动 -->
-    <view wx:if="{{formData.tripType === 'regional'}}">
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">出发城市</text>
-          <text class="required">*</text>
-        </view>
-        <input
-          class="text-input"
-          placeholder="请输入出发城市"
-          value="{{formData.location.regional.departureCity}}"
-          bindinput="handleRegionalDepartureCityInput"
-        />
-      </view>
-
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">目的地省份</text>
-          <text class="required">*</text>
-        </view>
-        <picker
-          mode="selector"
-          range="{{provinceList}}"
-          range-key="name"
-          value="{{selectedProvinceIndex}}"
-          bindchange="handleProvinceChange"
-        >
-          <view class="picker-display">
-            <text wx:if="{{formData.location.regional.destinationProvince}}">
-              {{formData.location.regional.destinationProvince}}
-            </text>
-            <text wx:else class="placeholder">请选择省份</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-item" wx:if="{{cityList.length > 0}}">
-        <view class="form-label">
-          <text class="label-text">目的地城市</text>
-          <text class="required">*</text>
-        </view>
-        <picker
-          mode="selector"
-          range="{{cityList}}"
-          range-key="name"
-          value="{{selectedCityIndex}}"
-          bindchange="handleCityChange"
-        >
-          <view class="picker-display">
-            <text wx:if="{{formData.location.regional.destinationCity}}">
-              {{formData.location.regional.destinationCity}}
-            </text>
-            <text wx:else class="placeholder">请选择城市</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-item" wx:if="{{districtList.length > 0}}">
-        <view class="form-label">
-          <text class="label-text">目的地区县/景点</text>
-          <text class="hint-text">（可选）</text>
-        </view>
-        <picker
-          mode="selector"
-          range="{{districtList}}"
-          range-key="name"
-          value="{{selectedDistrictIndex}}"
-          bindchange="handleDistrictChange"
-        >
-          <view class="picker-display">
-            <text wx:if="{{formData.location.regional.destinationLocation}}">
-              {{formData.location.regional.destinationLocation}}
-            </text>
-            <text wx:else class="placeholder">请选择区县/景点</text>
-          </view>
-        </picker>
-      </view>
-    </view>
-
-    <!-- 国内游：出发城市+目的地城市 -->
-    <view wx:if="{{formData.tripType === 'domestic'}}">
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">出发城市</text>
-          <text class="required">*</text>
-        </view>
-        <input
-          class="text-input"
-          placeholder="请输入出发城市"
-          value="{{formData.location.domestic.departureCity}}"
-          bindinput="handleDomesticDepartureCityInput"
-        />
-      </view>
-
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">目的地城市</text>
-          <text class="required">*</text>
-        </view>
-        <input
-          class="text-input"
-          placeholder="请输入目的地城市"
-          value="{{formData.location.domestic.destinationCity}}"
-          bindinput="handleDomesticDestinationCityInput"
-        />
-      </view>
-    </view>
-
-    <!-- 出境游：出发城市+国家/城市 -->
-    <view wx:if="{{formData.tripType === 'international'}}">
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">出发城市</text>
-          <text class="required">*</text>
-        </view>
-        <input
-          class="text-input"
-          placeholder="请输入出发城市"
-          value="{{formData.location.international.departureCity}}"
-          bindinput="handleInternationalDepartureCityInput"
-        />
-      </view>
-
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">目的地国家</text>
-          <text class="required">*</text>
-        </view>
-        <input
-          class="text-input"
-          placeholder="例如：日本、泰国"
-          value="{{formData.location.international.destinationCountry}}"
-          bindinput="handleInternationalDestinationCountryInput"
-        />
-      </view>
-
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">目的地城市</text>
-          <text class="hint-text">（可选）</text>
-        </view>
-        <input
-          class="text-input"
-          placeholder="例如：东京、曼谷"
-          value="{{formData.location.international.destinationCity}}"
-          bindinput="handleInternationalDestinationCityInput"
-        />
-      </view>
-    </view>
-
-    <!-- 自定义：自由描述 -->
-    <view wx:if="{{formData.tripType === 'custom'}}">
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">行程描述</text>
-          <text class="required">*</text>
-        </view>
+      <!-- 正常编辑状态 -->
+      <block wx:if="{{aiGenerateStatus === 'normal' || aiGenerateStatus === 'generated'}}">
         <textarea
-          class="textarea-input"
-          placeholder="请详细描述您的行程需求，包括出发地、目的地、期望的活动内容等（支持Markdown格式）"
-          value="{{formData.location.custom.description}}"
-          bindinput="handleCustomDescriptionInput"
-          maxlength="1024"
+          class="markdown-input"
+          placeholder="{{placeholder}}"
+          value="{{formData.markdownContent}}"
+          bindinput="handleMarkdownInput"
+          maxlength="5000"
+          auto-height
+          disabled="{{aiGenerateStatus === 'generating'}}"
         />
-        <view class="textarea-count">{{formData.location.custom.description.length}}/1024</view>
-      </view>
-    </view>
+        <view class="textarea-count">{{formData.markdownContent.length}}/5000</view>
+      </block>
 
-    <!-- 下一步按钮 -->
-    <view class="form-actions">
-      <button class="btn-next" bindtap="handleNextStep">下一步</button>
-    </view>
-  </view>
-
-  <!-- Step 2: 偏好选择 -->
-  <view class="form-container" wx:if="{{currentStep === 2}}">
-    <view class="form-title">选择您的偏好</view>
-
-    <!-- 活动类型 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">活动类型</text>
-        <text class="hint-text">（可多选）</text>
-      </view>
-      <view class="chips-group">
-        <view
-          wx:for="{{activityTypes}}"
-          wx:key="value"
-          class="chip {{formData.preferences.activityTypes.includes(item.value) ? 'selected' : ''}}"
-          bindtap="handleActivityTypeToggle"
-          data-value="{{item.value}}"
-        >
-          {{item.label}}
-        </view>
-      </view>
-    </view>
-
-    <!-- 住宿标准 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">住宿标准</text>
-      </view>
-      <view class="radio-group">
-        <view
-          wx:for="{{accommodationLevels}}"
-          wx:key="value"
-          class="radio-item {{formData.preferences.accommodationLevel === item.value ? 'selected' : ''}}"
-          bindtap="handleAccommodationLevelChange"
-          data-value="{{item.value}}"
-        >
-          <view class="radio-circle">
-            <view class="radio-dot" wx:if="{{formData.preferences.accommodationLevel === item.value}}"></view>
+      <!-- AI生成中状态 -->
+      <block wx:if="{{aiGenerateStatus === 'generating'}}">
+        <view class="ai-generating-card">
+          <view class="generating-header">
+            <view class="generating-title">
+              <text class="generating-icon loading-spin">⚡</text>
+              <text class="generating-text">AI 生成中</text>
+              <view class="refresh-icon-wrapper">
+                <text class="refresh-icon loading-spin">🔄</text>
+              </view>
+            </view>
+            <view class="generating-progress">
+              <view class="progress-bar">
+                <view class="progress-fill" style="width: {{generateProgress}}%;"></view>
+              </view>
+              <text class="progress-text">{{generateProgress}}%</text>
+            </view>
           </view>
-          <text>{{item.label}}</text>
+          <view class="generating-tips">
+            <text>正在为您生成个性化团建方案</text>
+          </view>
         </view>
-      </view>
-    </view>
-
-    <!-- 特殊需求 -->
-    <view class="form-item">
-      <view class="form-label">
-        <text class="label-text">特殊需求</text>
-        <text class="hint-text">（选填）</text>
-      </view>
-      <textarea
-        class="textarea-input"
-        placeholder="请输入特殊需求，如：有老人或小孩、身体限制等"
-        value="{{formData.preferences.specialRequirements}}"
-        bindinput="handleSpecialRequirementsInput"
-        maxlength="200"
-      />
-      <view class="textarea-count">{{formData.preferences.specialRequirements.length}}/200</view>
+      </block>
     </view>
 
     <!-- 生成说明 -->
     <view class="generate-tips">
       <view class="tip-item">
         <text class="tip-icon">💡</text>
-        <text class="tip-text">点击「生成方案」后，AI将为您生成3套方案供对比</text>
+        <text class="tip-text">点击「生成方案」后，AI将根据您的描述生成定制化方案</text>
       </view>
       <view class="tip-item">
         <text class="tip-icon">⏱️</text>
-        <text class="tip-text">生成时间约15-30秒，请耐心等待</text>
+        <text class="tip-text">生成时间约1-2分钟，请耐心等待</text>
       </view>
     </view>
 
-    <!-- 按钮组 -->
-    <view class="form-actions form-actions-double">
-      <button class="btn-back" bindtap="handleBackStep">上一步</button>
-      <button class="btn-generate" bindtap="handleGenerate">
+    <!-- 生成方案按钮 -->
+    <view class="form-actions">
+      <button class="btn-generate" bindtap="handleGenerate" disabled="{{aiGenerateStatus === 'generating'}}">
         <text class="btn-icon">✨</text>
         <text>AI 生成方案</text>
       </button>
+    </view>
+  </view>
+
+  <!-- AI填充弹窗 -->
+  <view class="ai-fill-modal" wx:if="{{showAIFillDialog}}" catchtap="handleCloseAIFillDialog">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <view class="modal-title">AI 智能填充</view>
+        <view class="modal-close" bindtap="handleCloseAIFillDialog">×</view>
+      </view>
+
+      <view class="modal-body">
+        <view class="modal-hint">只需填写3个核心信息，AI将为您生成完整模板</view>
+
+        <!-- 天数输入 -->
+        <view class="fill-form-item">
+          <view class="fill-label">
+            <text class="label-text">天数（1-9天）</text>
+            <text class="label-required">*</text>
+          </view>
+          <input
+            class="fill-input"
+            type="digit"
+            placeholder="如：3"
+            value="{{aiFillData.days}}"
+            bindinput="handleDaysInput"
+          />
+        </view>
+
+        <!-- 出发地 -->
+        <view class="fill-form-item">
+          <view class="fill-label">
+            <text class="label-text">出发地</text>
+            <text class="label-required">*</text>
+          </view>
+          <input
+            class="fill-input"
+            placeholder="如：北京"
+            value="{{aiFillData.origin}}"
+            bindinput="handleOriginInput"
+          />
+        </view>
+
+        <!-- 到达地 -->
+        <view class="fill-form-item">
+          <view class="fill-label">
+            <text class="label-text">到达地</text>
+            <text class="label-required">*</text>
+          </view>
+          <input
+            class="fill-input"
+            placeholder="如：青岛"
+            value="{{aiFillData.destination}}"
+            bindinput="handleDestinationInput"
+          />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="modal-btn cancel-btn" bindtap="handleCloseAIFillDialog">取消</button>
+        <button class="modal-btn confirm-btn" bindtap="handleConfirmAIFill">确认填充</button>
+      </view>
     </view>
   </view>
 </view>

@@ -127,8 +127,8 @@
             <text class="stat-icon">💰</text>
             <text class="stat-text">¥{{item.budget_total}}</text>
           </view>
-          <view class="stat-divider">|</view>
-          <view class="stat-item">
+          <view class="stat-divider" wx:if="{{item.people_count}}">|</view>
+          <view class="stat-item" wx:if="{{item.people_count}}">
             <text class="stat-icon">👥</text>
             <text class="stat-text">{{item.people_count}}人</text>
           </view>
@@ -141,11 +141,11 @@
 
         <!-- 生成中状态：显示基本信息 -->
         <view class="plan-stats" wx:if="{{item.status === 'generating'}}">
-          <view class="stat-item">
+          <view class="stat-item" wx:if="{{item.people_count}}">
             <text class="stat-icon">👥</text>
-            <text class="stat-text">{{item.people_count || '-'}}人</text>
+            <text class="stat-text">{{item.people_count}}人</text>
           </view>
-          <view class="stat-divider">|</view>
+          <view class="stat-divider" wx:if="{{item.people_count}}">|</view>
           <view class="stat-item">
             <text class="stat-icon">📍</text>
             <text class="stat-text" wx:if="{{item.departure_city && item.destination}}">{{item.departure_city}} → {{item.destination}}</text>
