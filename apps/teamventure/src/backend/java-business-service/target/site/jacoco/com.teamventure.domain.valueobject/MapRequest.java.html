@@ -13,12 +13,12 @@ import org.apache.commons.codec.digest.DigestUtils;
  * @since 2026-01-14
  */
 <span class="nc bnc" id="L15" title="All 62 branches missed.">@Data</span>
-<span class="nc" id="L16">@Builder</span>
+<span class="pc" id="L16">@Builder</span>
 public class MapRequest {
     /**
      * 无参构造函数（用于手动builder）
      */
-<span class="nc" id="L21">    public MapRequest() {}</span>
+<span class="fc" id="L21">    public MapRequest() {}</span>
 
     /**
      * 地图尺寸预设
@@ -136,19 +136,19 @@ public class MapRequest {
     /**
      * 手动添加getter方法（Lombok编译问题临时方案）
      */
-<span class="nc" id="L139">    public MapSizePreset getSize() { return size; }</span>
-<span class="nc" id="L140">    public Integer getZoom() { return zoom; }</span>
-<span class="nc" id="L141">    public Point getCenter() { return center; }</span>
-<span class="nc" id="L142">    public String getMarkers() { return markers; }</span>
+<span class="fc" id="L139">    public MapSizePreset getSize() { return size; }</span>
+<span class="fc" id="L140">    public Integer getZoom() { return zoom; }</span>
+<span class="fc" id="L141">    public Point getCenter() { return center; }</span>
+<span class="fc" id="L142">    public String getMarkers() { return markers; }</span>
 <span class="nc" id="L143">    public String getPaths() { return paths; }</span>
-<span class="nc" id="L144">    public String getStyle() { return style; }</span>
+<span class="fc" id="L144">    public String getStyle() { return style; }</span>
 <span class="nc" id="L145">    public String getFormat() { return format; }</span>
 
     /**
      * 手动添加builder方法（Lombok编译问题临时方案）
      */
     public static MapRequestBuilder builder() {
-<span class="nc" id="L151">        return new MapRequestBuilder();</span>
+<span class="fc" id="L151">        return new MapRequestBuilder();</span>
     }
 
     public static class MapRequestBuilder {
@@ -157,67 +157,67 @@ public class MapRequest {
         private Point center;
         private String markers;
         private String paths;
-<span class="nc" id="L160">        private String style = &quot;normal&quot;;</span>
-<span class="nc" id="L161">        private String format = &quot;png&quot;;</span>
+<span class="fc" id="L160">        private String style = &quot;normal&quot;;</span>
+<span class="fc" id="L161">        private String format = &quot;png&quot;;</span>
 
         public MapRequestBuilder size(MapSizePreset size) {
-<span class="nc" id="L164">            this.size = size;</span>
-<span class="nc" id="L165">            return this;</span>
+<span class="fc" id="L164">            this.size = size;</span>
+<span class="fc" id="L165">            return this;</span>
         }
 
         public MapRequestBuilder zoom(Integer zoom) {
-<span class="nc" id="L169">            this.zoom = zoom;</span>
-<span class="nc" id="L170">            return this;</span>
+<span class="fc" id="L169">            this.zoom = zoom;</span>
+<span class="fc" id="L170">            return this;</span>
         }
 
         public MapRequestBuilder center(Point center) {
-<span class="nc" id="L174">            this.center = center;</span>
-<span class="nc" id="L175">            return this;</span>
+<span class="fc" id="L174">            this.center = center;</span>
+<span class="fc" id="L175">            return this;</span>
         }
 
         public MapRequestBuilder markers(String markers) {
-<span class="nc" id="L179">            this.markers = markers;</span>
-<span class="nc" id="L180">            return this;</span>
+<span class="fc" id="L179">            this.markers = markers;</span>
+<span class="fc" id="L180">            return this;</span>
         }
 
         public MapRequestBuilder paths(String paths) {
-<span class="nc" id="L184">            this.paths = paths;</span>
-<span class="nc" id="L185">            return this;</span>
+<span class="fc" id="L184">            this.paths = paths;</span>
+<span class="fc" id="L185">            return this;</span>
         }
 
         public MapRequestBuilder style(String style) {
-<span class="nc" id="L189">            this.style = style;</span>
-<span class="nc" id="L190">            return this;</span>
+<span class="fc" id="L189">            this.style = style;</span>
+<span class="fc" id="L190">            return this;</span>
         }
 
         public MapRequestBuilder format(String format) {
-<span class="nc" id="L194">            this.format = format;</span>
-<span class="nc" id="L195">            return this;</span>
+<span class="fc" id="L194">            this.format = format;</span>
+<span class="fc" id="L195">            return this;</span>
         }
 
         public MapRequest build() {
-<span class="nc" id="L199">            MapRequest request = new MapRequest();</span>
-<span class="nc" id="L200">            request.size = this.size;</span>
-<span class="nc" id="L201">            request.zoom = this.zoom;</span>
-<span class="nc" id="L202">            request.center = this.center;</span>
-<span class="nc" id="L203">            request.markers = this.markers;</span>
-<span class="nc" id="L204">            request.paths = this.paths;</span>
-<span class="nc" id="L205">            request.style = this.style;</span>
-<span class="nc" id="L206">            request.format = this.format;</span>
-<span class="nc" id="L207">            return request;</span>
+<span class="fc" id="L199">            MapRequest request = new MapRequest();</span>
+<span class="fc" id="L200">            request.size = this.size;</span>
+<span class="fc" id="L201">            request.zoom = this.zoom;</span>
+<span class="fc" id="L202">            request.center = this.center;</span>
+<span class="fc" id="L203">            request.markers = this.markers;</span>
+<span class="fc" id="L204">            request.paths = this.paths;</span>
+<span class="fc" id="L205">            request.style = this.style;</span>
+<span class="fc" id="L206">            request.format = this.format;</span>
+<span class="fc" id="L207">            return request;</span>
         }
     }
 
     /**
      * 坐标点内部类
      */
-<span class="nc bnc" id="L214" title="All 10 branches missed.">    @Data</span>
-<span class="nc" id="L215">    @Builder</span>
+<span class="pc bpc" id="L214" title="5 of 10 branches missed.">    @Data</span>
+<span class="pc" id="L215">    @Builder</span>
     public static class Point {
         /**
          * 无参构造函数（用于手动builder）
          */
-<span class="nc" id="L220">        public Point() {}</span>
+<span class="fc" id="L220">        public Point() {}</span>
 
         private double longitude;  // 经度（GCJ-02坐标系）
         private double latitude;   // 纬度（GCJ-02坐标系）
@@ -230,23 +230,23 @@ public class MapRequest {
          * @return Point对象
          */
         public static Point of(double longitude, double latitude) {
-<span class="nc" id="L233">            return Point.builder()</span>
-<span class="nc" id="L234">                .longitude(longitude)</span>
-<span class="nc" id="L235">                .latitude(latitude)</span>
-<span class="nc" id="L236">                .build();</span>
+<span class="fc" id="L233">            return Point.builder()</span>
+<span class="fc" id="L234">                .longitude(longitude)</span>
+<span class="fc" id="L235">                .latitude(latitude)</span>
+<span class="fc" id="L236">                .build();</span>
         }
 
         /**
          * 手动添加getter方法（Lombok编译问题临时方案）
          */
-<span class="nc" id="L242">        public double getLongitude() { return longitude; }</span>
-<span class="nc" id="L243">        public double getLatitude() { return latitude; }</span>
+<span class="fc" id="L242">        public double getLongitude() { return longitude; }</span>
+<span class="fc" id="L243">        public double getLatitude() { return latitude; }</span>
 
         /**
          * 手动添加builder方法（Lombok编译问题临时方案）
          */
         public static PointBuilder builder() {
-<span class="nc" id="L249">            return new PointBuilder();</span>
+<span class="fc" id="L249">            return new PointBuilder();</span>
         }
 
         public static class PointBuilder {
@@ -254,20 +254,20 @@ public class MapRequest {
             private double latitude;
 
             public PointBuilder longitude(double longitude) {
-<span class="nc" id="L257">                this.longitude = longitude;</span>
-<span class="nc" id="L258">                return this;</span>
+<span class="fc" id="L257">                this.longitude = longitude;</span>
+<span class="fc" id="L258">                return this;</span>
             }
 
             public PointBuilder latitude(double latitude) {
-<span class="nc" id="L262">                this.latitude = latitude;</span>
-<span class="nc" id="L263">                return this;</span>
+<span class="fc" id="L262">                this.latitude = latitude;</span>
+<span class="fc" id="L263">                return this;</span>
             }
 
             public Point build() {
-<span class="nc" id="L267">                Point point = new Point();</span>
-<span class="nc" id="L268">                point.longitude = this.longitude;</span>
-<span class="nc" id="L269">                point.latitude = this.latitude;</span>
-<span class="nc" id="L270">                return point;</span>
+<span class="fc" id="L267">                Point point = new Point();</span>
+<span class="fc" id="L268">                point.longitude = this.longitude;</span>
+<span class="fc" id="L269">                point.latitude = this.latitude;</span>
+<span class="fc" id="L270">                return point;</span>
             }
         }
 

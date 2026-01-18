@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-<span class="nc" id="L21">    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
+<span class="fc" id="L21">    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
     private final Environment env;
 
-<span class="nc" id="L24">    public GlobalExceptionHandler(Environment env) {</span>
-<span class="nc" id="L25">        this.env = env;</span>
-<span class="nc" id="L26">    }</span>
+<span class="fc" id="L24">    public GlobalExceptionHandler(Environment env) {</span>
+<span class="fc" id="L25">        this.env = env;</span>
+<span class="fc" id="L26">    }</span>
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleNotReadable(HttpMessageNotReadableException e) {

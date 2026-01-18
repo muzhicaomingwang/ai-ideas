@@ -21,11 +21,11 @@ public class InternalPlanCallbackService {
     private final PlanMapper planMapper;
     private final DomainEventMapper eventMapper;
 
-<span class="nc" id="L24">    public InternalPlanCallbackService(PlanRequestMapper planRequestMapper, PlanMapper planMapper, DomainEventMapper eventMapper) {</span>
-<span class="nc" id="L25">        this.planRequestMapper = planRequestMapper;</span>
-<span class="nc" id="L26">        this.planMapper = planMapper;</span>
-<span class="nc" id="L27">        this.eventMapper = eventMapper;</span>
-<span class="nc" id="L28">    }</span>
+<span class="fc" id="L24">    public InternalPlanCallbackService(PlanRequestMapper planRequestMapper, PlanMapper planMapper, DomainEventMapper eventMapper) {</span>
+<span class="fc" id="L25">        this.planRequestMapper = planRequestMapper;</span>
+<span class="fc" id="L26">        this.planMapper = planMapper;</span>
+<span class="fc" id="L27">        this.eventMapper = eventMapper;</span>
+<span class="fc" id="L28">    }</span>
 
     @Transactional
     public void handleGeneratedPlans(BatchPlanRequest req) {

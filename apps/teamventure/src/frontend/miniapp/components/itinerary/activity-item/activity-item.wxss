@@ -1,0 +1,147 @@
+/**
+ * activity-item 组件样式
+ */
+
+.activity-item {
+  display: flex;
+  align-items: stretch;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.activity-item:active {
+  background: #f0f0f0;
+}
+
+.activity-item.dragging {
+  opacity: 0.6;
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.3);
+}
+
+/* 活动内容区域 */
+.activity-content {
+  flex: 1;
+  display: flex;
+  padding: 20rpx;
+  gap: 20rpx;
+}
+
+/* 时间区域 */
+.activity-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100rpx;
+  padding-right: 20rpx;
+  border-right: 2rpx solid #e8e8e8;
+}
+
+.time-text {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #1890ff;
+}
+
+.time-separator {
+  font-size: 20rpx;
+  color: #bbb;
+  margin: 4rpx 0;
+}
+
+/* 详情区域 */
+.activity-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  overflow: hidden;
+}
+
+.activity-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-location {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.icon-location {
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+
+.location-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-note {
+  margin-top: 4rpx;
+}
+
+.note-text {
+  font-size: 24rpx;
+  color: #999;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+/* 操作按钮区域 */
+.activity-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 12rpx;
+  background: #f0f0f0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.action-btn.small {
+  width: 44rpx;
+  height: 44rpx;
+  background: #fff;
+  border-radius: 8rpx;
+}
+
+.action-btn.small .icon {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.action-btn.small.danger .icon {
+  color: #ff4d4f;
+}
+
+.action-btn.small:active {
+  background: #e6e6e6;
+  transform: scale(0.95);
+}
+
+.action-btn.small.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}

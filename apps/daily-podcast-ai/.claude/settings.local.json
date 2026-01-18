@@ -11,7 +11,8 @@
       "Bash(scripts/notify_feishu.py )",
       "Bash(QUICKSTART_XIAOYUZHOU.md )",
       "Bash(docs/XIAOYUZHOU_INTEGRATION.md)",
-      "WebFetch(domain:xh.newrank.cn)"
+      "WebFetch(domain:xh.newrank.cn)",
+      "Bash(./scripts/generate_podcast_v2.sh:*)"
     ]
   }
 }

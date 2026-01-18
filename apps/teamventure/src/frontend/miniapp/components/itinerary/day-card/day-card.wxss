@@ -1,0 +1,231 @@
+/**
+ * day-card 组件样式
+ */
+
+.day-card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 天数头部 */
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+  color: #fff;
+}
+
+.day-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.day-number {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.day-date {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+}
+
+.icon-calendar {
+  font-size: 24rpx;
+}
+
+.day-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.2s;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.action-btn.danger {
+  background: rgba(255, 77, 79, 0.8);
+}
+
+.action-btn .icon {
+  font-size: 28rpx;
+}
+
+/* 活动列表 */
+.activities-list {
+  padding: 20rpx;
+}
+
+.empty-activities {
+  padding: 40rpx;
+  text-align: center;
+}
+
+.empty-activities .hint {
+  color: #999;
+  font-size: 26rpx;
+}
+
+/* 活动项容器 */
+.activity-item-wrapper {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 16rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.activity-item-wrapper.dragging {
+  opacity: 0.6;
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 20rpx rgba(24, 144, 255, 0.3);
+}
+
+.activity-content {
+  flex: 1;
+  display: flex;
+  padding: 20rpx;
+  gap: 20rpx;
+}
+
+/* 活动时间 */
+.activity-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100rpx;
+  padding-right: 20rpx;
+  border-right: 2rpx solid #e8e8e8;
+}
+
+.time-text {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #1890ff;
+}
+
+.time-separator {
+  font-size: 20rpx;
+  color: #bbb;
+  margin: 4rpx 0;
+}
+
+/* 活动详情 */
+.activity-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.activity-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.activity-location {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.icon-location {
+  font-size: 22rpx;
+}
+
+.activity-note {
+  margin-top: 4rpx;
+}
+
+.note-text {
+  font-size: 24rpx;
+  color: #999;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 活动操作按钮 */
+.activity-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 12rpx;
+  background: #f0f0f0;
+}
+
+.action-btn.small {
+  width: 44rpx;
+  height: 44rpx;
+  background: #fff;
+  border-radius: 8rpx;
+}
+
+.action-btn.small .icon {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.action-btn.small.danger .icon {
+  color: #ff4d4f;
+}
+
+.action-btn.small:active {
+  background: #e6e6e6;
+}
+
+/* 添加活动按钮 */
+.add-activity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 24rpx;
+  margin-top: 12rpx;
+  border: 2rpx dashed #d9d9d9;
+  border-radius: 12rpx;
+  color: #1890ff;
+  font-size: 28rpx;
+  transition: all 0.2s;
+}
+
+.add-activity-btn:active {
+  background: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.add-activity-btn .icon {
+  font-size: 32rpx;
+  font-weight: bold;
+}

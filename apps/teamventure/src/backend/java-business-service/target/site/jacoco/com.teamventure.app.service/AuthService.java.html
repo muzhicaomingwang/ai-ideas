@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
-<span class="nc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AuthService.class);</span>
+<span class="fc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AuthService.class);</span>
     private static final long EXPIRES_SECONDS = 604800L; // 7 days
     private static final long REFRESH_THRESHOLD_SECONDS = 43200L; // Refresh when &lt; 12 hours remaining
 
@@ -34,12 +34,12 @@ public class AuthService {
             StringRedisTemplate redis,
             @Value(&quot;${teamventure.jwt.secret:change-me-change-me-change-me-change-me}&quot;) String jwtSecret,
             OssService ossService
-<span class="nc" id="L37">    ) {</span>
-<span class="nc" id="L38">        this.userMapper = userMapper;</span>
-<span class="nc" id="L39">        this.redis = redis;</span>
-<span class="nc" id="L40">        this.jwt = new JwtSupport(jwtSecret);</span>
-<span class="nc" id="L41">        this.ossService = ossService;</span>
-<span class="nc" id="L42">    }</span>
+<span class="fc" id="L37">    ) {</span>
+<span class="fc" id="L38">        this.userMapper = userMapper;</span>
+<span class="fc" id="L39">        this.redis = redis;</span>
+<span class="fc" id="L40">        this.jwt = new JwtSupport(jwtSecret);</span>
+<span class="fc" id="L41">        this.ossService = ossService;</span>
+<span class="fc" id="L42">    }</span>
 
     public LoginResponse loginWithWeChat(String code, String nickname, String avatarUrl) {
 <span class="nc" id="L45">        String openid = pseudoOpenId(code);</span>

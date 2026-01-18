@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XiaohongshuImportService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">XiaohongshuImportService.java</span></div><h1>XiaohongshuImportService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.teamventure.adapter.web.imports.XiaohongshuImportController.ParseResponse;
+import com.teamventure.app.support.BizException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+@Service
+public class XiaohongshuImportService {
+<span class="fc" id="L22">    private static final Logger log = LoggerFactory.getLogger(XiaohongshuImportService.class);</span>
+
+<span class="fc" id="L24">    private static final Pattern URL_PATTERN = Pattern.compile(&quot;(https?://\\S+)&quot;);</span>
+<span class="fc" id="L25">    private static final Pattern TITLE_TAG_PATTERN = Pattern.compile(&quot;&lt;title&gt;(.*?)&lt;/title&gt;&quot;, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);</span>
+<span class="fc" id="L26">    private static final Pattern DAY_HEADER_LINE_PATTERN =</span>
+<span class="fc" id="L27">            Pattern.compile(&quot;(?m)^\\s*(?:[\\p{So}\\p{Sk}\\p{Cn}\\p{Punct}\\p{M}]{0,8}\\s*)?(D\\s*\\d+|第[一二三四五六七八九十\\d]+天|day\\s*\\d+)\\s*[:：]?\\s*([^\\n]*)$&quot;,</span>
+                    Pattern.CASE_INSENSITIVE);
+
+<span class="fc" id="L30">    private static final Pattern DAYS_PATTERN = Pattern.compile(&quot;(\\d{1,2})\\s*天&quot;);</span>
+<span class="fc" id="L31">    private static final Pattern DAY_MARKER_PATTERN =</span>
+<span class="fc" id="L32">            Pattern.compile(&quot;(?:^|\\n)\\s*(?:[\\p{So}\\p{Sk}\\p{Cn}\\p{Punct}\\p{M}]{0,8}\\s*)?(?:D\\s*\\d+|第[一二三四五六七八九十\\d]+天|day\\s*\\d+)\\b&quot;,</span>
+                    Pattern.CASE_INSENSITIVE);
+<span class="fc" id="L34">    private static final Pattern ITINERARY_KEYWORDS_PATTERN = Pattern.compile(&quot;(行程|路线|路书|攻略|安排|出行|旅行|游玩|打卡|景点|酒店|住宿|交通|高铁|航班|车次|集合|出发)&quot;, Pattern.CASE_INSENSITIVE);</span>
+
+    private final HttpClient http;
+    private final HtmlFetcher htmlFetcher;
+
+    @FunctionalInterface
+    interface HtmlFetcher {
+        String fetch(String url) throws Exception;
+    }
+
+<span class="fc" id="L44">    public XiaohongshuImportService() {</span>
+<span class="fc" id="L45">        this.http = HttpClient.newBuilder()</span>
+<span class="fc" id="L46">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
+<span class="fc" id="L47">                .connectTimeout(Duration.ofSeconds(10))</span>
+<span class="fc" id="L48">                .build();</span>
+<span class="fc" id="L49">        this.htmlFetcher = this::fetchHtml;</span>
+<span class="fc" id="L50">    }</span>
+
+<span class="fc" id="L52">    XiaohongshuImportService(HtmlFetcher htmlFetcher) {</span>
+<span class="fc" id="L53">        this.http = HttpClient.newBuilder()</span>
+<span class="fc" id="L54">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
+<span class="fc" id="L55">                .connectTimeout(Duration.ofSeconds(10))</span>
+<span class="fc" id="L56">                .build();</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;</span>
+<span class="fc" id="L58">    }</span>
+
+    public ParseResponse parse(String linkOrText) {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        String input = linkOrText == null ? &quot;&quot; : linkOrText.trim();</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L63">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;link is empty&quot;);</span>
+        }
+
+<span class="fc" id="L66">        Optional&lt;String&gt; extractedUrl = extractUrl(input);</span>
+<span class="fc" id="L67">        String sourceUrl = extractedUrl.orElse(&quot;&quot;);</span>
+
+        String rawContent;
+<span class="fc" id="L70">        String title = &quot;&quot;;</span>
+<span class="fc" id="L71">        String desc = &quot;&quot;;</span>
+        try {
+            // 仅做“内容解析”：
+            // - 如果输入包含小红书 URL：优先抓取 URL 内容并提取正文
+            // - 如果抓取失败：回退到用户粘贴的文本（可能包含正文）
+            // - 不做“是否行程”的业务判断
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            if (sourceUrl.startsWith(&quot;http&quot;)) {</span>
+<span class="fc" id="L78">                String html = htmlFetcher.fetch(sourceUrl);</span>
+<span class="fc" id="L79">                title = extractTitleFromHtml(html).orElse(&quot;&quot;);</span>
+<span class="fc" id="L80">                desc = extractJsonStringField(html, &quot;desc&quot;).orElse(&quot;&quot;);</span>
+
+                // Some pages only expose JSON title, try field extract fallback
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">                if (title.isBlank()) {</span>
+<span class="nc" id="L84">                    title = extractJsonStringField(html, &quot;title&quot;).orElse(&quot;&quot;);</span>
+                }
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">                rawContent = (desc == null ? &quot;&quot; : desc.trim());</span>
+<span class="pc bpc" id="L88" title="3 of 4 branches missed.">                if (rawContent.isBlank()) rawContent = (title == null ? &quot;&quot; : title.trim());</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">                if (rawContent.isBlank()) rawContent = &quot;(empty)&quot;;</span>
+<span class="fc" id="L90">            } else {</span>
+                // Treat pasted share text as raw content
+<span class="fc" id="L92">                rawContent = input;</span>
+<span class="fc" id="L93">                title = firstNonEmptyLine(rawContent).orElse(&quot;&quot;);</span>
+            }
+<span class="fc" id="L95">        } catch (Exception e) {</span>
+<span class="fc" id="L96">            log.warn(&quot;xhs parse failed&quot;, e);</span>
+            // fallback to user text if available
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (input.length() &gt;= 20) {</span>
+<span class="fc" id="L99">                rawContent = input;</span>
+<span class="fc" id="L100">                title = firstNonEmptyLine(rawContent).orElse(&quot;&quot;);</span>
+            } else {
+<span class="nc" id="L102">                throw new BizException(&quot;PARSE_FAILED&quot;, &quot;无法获取或解析内容，请稍后重试（建议粘贴分享口令全文）&quot;);</span>
+            }
+<span class="fc" id="L104">        }</span>
+
+<span class="fc" id="L106">        ParseResponse resp = new ParseResponse();</span>
+<span class="fc" id="L107">        resp.is_itinerary = false;</span>
+<span class="fc" id="L108">        resp.title = normalizeTitle(title);</span>
+<span class="fc" id="L109">        resp.destination = &quot;&quot;;</span>
+<span class="fc" id="L110">        resp.days = null;</span>
+<span class="fc" id="L111">        resp.source_url = sourceUrl;</span>
+<span class="fc" id="L112">        resp.raw_content = truncate(rawContent, 20000);</span>
+        // Frontend uses this field to fill the document box; keep it as the extracted content.
+<span class="fc" id="L114">        resp.generatedMarkdown = resp.raw_content;</span>
+<span class="fc" id="L115">        return resp;</span>
+    }
+
+    private String buildImportedContentMarkdown(ParseResponse resp, String rawContentForMarkdown) {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        String title = resp.title == null ? &quot;&quot; : resp.title.trim();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        String headerTitle = !title.isBlank() ? title : &quot;小红书导入内容&quot;;</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">        String source = (resp.source_url == null || resp.source_url.isBlank()) ? &quot;（无）&quot; : resp.source_url;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        String raw = rawContentForMarkdown == null ? &quot;&quot; : rawContentForMarkdown.trim();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (raw.isBlank()) raw = &quot;（无）&quot;;</span>
+
+<span class="nc" id="L125">        return &quot;&quot;&quot;</span>
+                # %s
+
+                ## 导入来源
+                - **链接**: %s
+
+                ## 原文内容
+                %s
+<span class="nc" id="L133">                &quot;&quot;&quot;.formatted(headerTitle, source, raw).trim() + &quot;\n&quot;;</span>
+    }
+
+    private boolean hasStrongDayMarkers(String input) {
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (input == null) return false;</span>
+<span class="nc" id="L138">        String normalized = normalizeForDetection(input);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (normalized.isBlank()) return false;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (countDayMarkers(normalized) &lt; 2) return false;</span>
+<span class="nc" id="L141">        return hasDaySectionsWithContent(normalized);</span>
+    }
+
+    private boolean looksLikeShareText(String input, String extractedUrl) {
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (input == null) return false;</span>
+<span class="nc" id="L146">        String s = input.trim();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (s.isEmpty()) return false;</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (extractedUrl == null) return false;</span>
+
+        // If there's more than just a URL (multi-line / contains typical share words), treat as share text.
+<span class="nc" id="L151">        boolean multiLine = s.contains(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L152" title="All 8 branches missed.">        boolean hasShareKeywords = s.contains(&quot;小红书&quot;) || s.contains(&quot;复制&quot;) || s.contains(&quot;打开&quot;) || s.contains(&quot;分享&quot;);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        boolean hasExtraContent = s.length() &gt;= extractedUrl.length() + 40;</span>
+<span class="nc bnc" id="L154" title="All 8 branches missed.">        return (multiLine &amp;&amp; hasExtraContent) || (hasShareKeywords &amp;&amp; hasExtraContent);</span>
+    }
+
+    private Optional&lt;String&gt; extractUrl(String text) {
+<span class="fc" id="L158">        Matcher m = URL_PATTERN.matcher(text);</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (!m.find()) return Optional.empty();</span>
+<span class="fc" id="L160">        return Optional.ofNullable(m.group(1));</span>
+    }
+
+    private String fetchHtml(String url) throws IOException, InterruptedException, URISyntaxException {
+<span class="fc" id="L164">        URI uri = new URI(url);</span>
+<span class="fc" id="L165">        HttpRequest req = HttpRequest.newBuilder(uri)</span>
+<span class="fc" id="L166">                .timeout(Duration.ofSeconds(15))</span>
+<span class="fc" id="L167">                .header(&quot;User-Agent&quot;, &quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36&quot;)</span>
+<span class="fc" id="L168">                .header(&quot;Accept&quot;, &quot;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&quot;)</span>
+<span class="fc" id="L169">                .GET()</span>
+<span class="fc" id="L170">                .build();</span>
+
+<span class="nc" id="L172">        HttpResponse&lt;byte[]&gt; res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());</span>
+<span class="nc bnc" id="L173" title="All 4 branches missed.">        if (res.statusCode() &lt; 200 || res.statusCode() &gt;= 300) {</span>
+<span class="nc" id="L174">            throw new IOException(&quot;unexpected status: &quot; + res.statusCode());</span>
+        }
+<span class="nc" id="L176">        byte[] body = res.body();</span>
+        // XHS typically serves UTF-8
+<span class="nc" id="L178">        return new String(body, StandardCharsets.UTF_8);</span>
+    }
+
+    private Optional&lt;String&gt; extractTitleFromHtml(String html) {
+<span class="fc" id="L182">        Matcher m = TITLE_TAG_PATTERN.matcher(html);</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        if (!m.find()) return Optional.empty();</span>
+<span class="fc" id="L184">        return Optional.of(stripHtml(m.group(1)));</span>
+    }
+
+    /**
+     * Extract a JSON string field value from a larger HTML blob.
+     * This is a best-effort extractor that respects escaped quotes in string values.
+     */
+    Optional&lt;String&gt; extractJsonStringField(String html, String fieldName) {
+<span class="pc bpc" id="L192" title="3 of 6 branches missed.">        if (html == null || fieldName == null || fieldName.isBlank()) return Optional.empty();</span>
+<span class="fc" id="L193">        String needle = &quot;\&quot;&quot; + fieldName + &quot;\&quot;&quot;;</span>
+<span class="fc" id="L194">        int idx = html.indexOf(needle);</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if (idx &lt; 0) return Optional.empty();</span>
+
+        // Find ':' after the field name
+<span class="fc" id="L198">        int colon = html.indexOf(':', idx + needle.length());</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        if (colon &lt; 0) return Optional.empty();</span>
+
+        // Find first quote after colon
+<span class="fc" id="L202">        int startQuote = html.indexOf('&quot;', colon + 1);</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        if (startQuote &lt; 0) return Optional.empty();</span>
+
+<span class="fc" id="L205">        String raw = extractJsonStringLiteral(html, startQuote);</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (raw == null) return Optional.empty();</span>
+<span class="fc" id="L207">        String unescaped = unescapeJsonStringDeep(raw);</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        if (unescaped.isBlank()) return Optional.empty();</span>
+<span class="fc" id="L209">        return Optional.of(unescaped);</span>
+    }
+
+    /**
+     * Given a string and the index of the opening quote, extract the raw JSON string contents
+     * (without the surrounding quotes), respecting escape sequences.
+     */
+    String extractJsonStringLiteral(String s, int openingQuoteIndex) {
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        if (s == null) return null;</span>
+<span class="pc bpc" id="L218" title="2 of 4 branches missed.">        if (openingQuoteIndex &lt; 0 || openingQuoteIndex &gt;= s.length()) return null;</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (s.charAt(openingQuoteIndex) != '&quot;') return null;</span>
+
+<span class="fc" id="L221">        StringBuilder out = new StringBuilder(256);</span>
+<span class="fc" id="L222">        boolean escaping = false;</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">        for (int i = openingQuoteIndex + 1; i &lt; s.length(); i++) {</span>
+<span class="fc" id="L224">            char c = s.charAt(i);</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">            if (escaping) {</span>
+                // Keep escapes as-is (e.g. \\n, \\u1234) for later unescapeJsonString()
+<span class="fc" id="L227">                out.append('\\').append(c);</span>
+<span class="fc" id="L228">                escaping = false;</span>
+<span class="fc" id="L229">                continue;</span>
+            }
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            if (c == '\\') {</span>
+<span class="fc" id="L232">                escaping = true;</span>
+<span class="fc" id="L233">                continue;</span>
+            }
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            if (c == '&quot;') {</span>
+<span class="fc" id="L236">                return out.toString();</span>
+            }
+<span class="fc" id="L238">            out.append(c);</span>
+        }
+<span class="nc" id="L240">        return null;</span>
+    }
+
+    private ItinerarySignals detectItinerary(String raw) {
+<span class="nc" id="L244">        String normalized = normalizeForDetection(raw);</span>
+<span class="nc" id="L245">        int days = -1;</span>
+
+<span class="nc" id="L247">        Matcher mDays = DAYS_PATTERN.matcher(normalized);</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if (mDays.find()) {</span>
+<span class="nc" id="L249">            days = safeParseInt(mDays.group(1), -1);</span>
+        }
+
+<span class="nc" id="L252">        int dayMarkers = countDayMarkers(normalized);</span>
+<span class="nc" id="L253">        boolean hasKeywords = ITINERARY_KEYWORDS_PATTERN.matcher(normalized).find();</span>
+<span class="nc" id="L254">        boolean hasStructure = hasDaySectionsWithContent(normalized);</span>
+
+        // 严格模式（先严后松的第一版）：
+        // - 必须出现 &gt;=2 个“分天标记”（D1/D2/第X天…）
+        // - 且每个分天块后有实际内容（避免仅出现“D1 D2”标题）
+        // - 且包含常见行程关键词（降低误判为营销/碎片信息）
+        // - 且文本长度达到阈值（降低误判）
+<span class="nc bnc" id="L261" title="All 6 branches missed.">        boolean isItinerary =</span>
+                dayMarkers &gt;= 2
+                        &amp;&amp; hasStructure
+                        &amp;&amp; hasKeywords
+<span class="nc bnc" id="L265" title="All 2 branches missed.">                        &amp;&amp; normalized.length() &gt;= 80;</span>
+
+        // Best-effort destination guess from title/content
+<span class="nc" id="L268">        String destination = guessDestination(normalized);</span>
+
+<span class="nc bnc" id="L270" title="All 4 branches missed.">        if (days == -1 &amp;&amp; dayMarkers &gt; 0) {</span>
+            // If days not explicitly present, infer from markers (cap 9 for template consistency)
+<span class="nc" id="L272">            days = Math.min(dayMarkers, 9);</span>
+        }
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        if (days == -1) days = DEFAULT_DAYS();</span>
+
+<span class="nc" id="L276">        return new ItinerarySignals(isItinerary, destination, days);</span>
+    }
+
+    private int DEFAULT_DAYS() {
+<span class="nc" id="L280">        return 3;</span>
+    }
+
+    private String normalizeForDetection(String raw) {
+<span class="nc bnc" id="L284" title="All 2 branches missed.">        if (raw == null) return &quot;&quot;;</span>
+<span class="nc" id="L285">        String s = raw.replace(&quot;\r\n&quot;, &quot;\n&quot;).replace(&quot;\r&quot;, &quot;\n&quot;);</span>
+<span class="nc" id="L286">        s = s.replace('\u00A0', ' '); // nbsp</span>
+<span class="nc" id="L287">        return s.trim();</span>
+    }
+
+    private int countDayMarkers(String text) {
+<span class="nc" id="L291">        int count = 0;</span>
+<span class="nc" id="L292">        Matcher m = DAY_MARKER_PATTERN.matcher(text);</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        while (m.find()) {</span>
+<span class="nc" id="L294">            count++;</span>
+            // still count fully; useful for inferred days
+        }
+<span class="nc" id="L297">        return count;</span>
+    }
+
+    private boolean hasDaySectionsWithContent(String text) {
+        // Find each marker position; ensure within next few lines there is meaningful content.
+<span class="nc" id="L302">        Matcher m = DAY_MARKER_PATTERN.matcher(text);</span>
+<span class="nc" id="L303">        int found = 0;</span>
+<span class="nc" id="L304">        int valid = 0;</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">        while (m.find()) {</span>
+<span class="nc" id="L306">            found++;</span>
+<span class="nc" id="L307">            int start = m.end();</span>
+<span class="nc" id="L308">            String tail = text.substring(Math.min(start, text.length()));</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">            if (hasMeaningfulLineSoon(tail)) {</span>
+<span class="nc" id="L310">                valid++;</span>
+            }
+<span class="nc bnc" id="L312" title="All 2 branches missed.">            if (found &gt;= 3) break; // only need evidence; keep it cheap</span>
+<span class="nc" id="L313">        }</span>
+<span class="nc bnc" id="L314" title="All 4 branches missed.">        return found &gt;= 2 &amp;&amp; valid &gt;= 2;</span>
+    }
+
+    private boolean hasMeaningfulLineSoon(String tail) {
+<span class="nc bnc" id="L318" title="All 4 branches missed.">        if (tail == null || tail.isBlank()) return false;</span>
+<span class="nc" id="L319">        String[] lines = tail.split(&quot;\\n&quot;, 8); // look at a small window</span>
+<span class="nc" id="L320">        int checked = 0;</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">            if (checked++ &gt;= 6) break;</span>
+<span class="nc" id="L323">            String s = line.trim();</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">            if (s.isEmpty()) continue;</span>
+            // ignore another marker immediately
+<span class="nc bnc" id="L326" title="All 2 branches missed.">            if (DAY_MARKER_PATTERN.matcher(s).find()) continue;</span>
+            // must have some content beyond punctuation
+<span class="nc bnc" id="L328" title="All 2 branches missed.">            if (s.length() &gt;= 4) return true;</span>
+        }
+<span class="nc" id="L330">        return false;</span>
+    }
+
+    private String guessDestination(String raw) {
+        // Heuristic: pick first 2-6 consecutive CJK chars followed by &quot;攻略/旅行/行程/团建/游&quot;
+<span class="nc" id="L335">        Pattern p = Pattern.compile(&quot;([\\p{IsHan}]{2,6})(?:\\s*)(?:攻略|旅行|行程|团建|游)&quot;);</span>
+<span class="nc" id="L336">        Matcher m = p.matcher(raw);</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (m.find()) return m.group(1);</span>
+
+        // Fallback: if title line contains &quot;·&quot; or &quot;-&quot; split and take first segment
+<span class="nc" id="L340">        String firstLine = firstNonEmptyLine(raw).orElse(&quot;&quot;);</span>
+<span class="nc" id="L341">        String cleaned = firstLine.replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim();</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">        if (cleaned.contains(&quot;·&quot;)) return cleaned.split(&quot;·&quot;)[0].trim();</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (cleaned.contains(&quot;-&quot;)) return cleaned.split(&quot;-&quot;)[0].trim();</span>
+<span class="nc" id="L344">        return &quot;&quot;;</span>
+    }
+
+    private String buildMarkdown(ParseResponse resp, String rawContentForMarkdown) {
+<span class="nc bnc" id="L348" title="All 2 branches missed.">        String title = resp.title == null ? &quot;&quot; : resp.title.trim();</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">        String destination = resp.destination == null ? &quot;&quot; : resp.destination.trim();</span>
+<span class="nc" id="L350">        Integer days = resp.days;</span>
+
+<span class="nc bnc" id="L352" title="All 2 branches missed.">        String headerTitle = !title.isBlank() ? title : &quot;团建行程方案（由小红书导入）&quot;;</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        String d = destination.isBlank() ? &quot;（待确认）&quot; : destination;</span>
+<span class="nc bnc" id="L354" title="All 4 branches missed.">        String daysText = days == null ? &quot;（待确认）&quot; : (days + &quot;天&quot; + (days &gt; 1 ? (days - 1) + &quot;夜&quot; : &quot;&quot;));</span>
+
+<span class="nc" id="L356">        String itinerary = buildItineraryMarkdown(rawContentForMarkdown);</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        if (itinerary.isBlank()) {</span>
+<span class="nc" id="L358">            itinerary = &quot;&quot;&quot;</span>
+                    ## 行程安排
+                    &gt; （未能抽取分天行程，请参考下方“原文要点”手动整理）
+<span class="nc" id="L361">                    &quot;&quot;&quot;.trim();</span>
+        }
+
+<span class="nc" id="L364">        return &quot;&quot;&quot;</span>
+                # %s
+
+                ## 基本信息
+                - **天数**: %s
+
+                ## 行程路线
+                - **到达地**: %s
+
+                %s
+
+                ## 导入来源
+                - **链接**: %s
+
+                ## 原文要点（供校对）
+                %s
+<span class="nc" id="L380">                &quot;&quot;&quot;.formatted(</span>
+                headerTitle,
+                daysText,
+                d,
+                itinerary,
+<span class="nc bnc" id="L385" title="All 4 branches missed.">                (resp.source_url == null || resp.source_url.isBlank()) ? &quot;（无）&quot; : resp.source_url,</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">                toBlockQuoteLines(resp.raw_content == null ? &quot;&quot; : resp.raw_content)</span>
+<span class="nc" id="L387">        ).trim() + &quot;\n&quot;;</span>
+    }
+
+    private String buildItineraryMarkdown(String raw) {
+<span class="nc" id="L391">        String text = normalizeForDetection(raw);</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">        if (text.isBlank()) return &quot;&quot;;</span>
+
+<span class="nc" id="L394">        Matcher m = DAY_HEADER_LINE_PATTERN.matcher(text);</span>
+<span class="nc" id="L395">        int count = 0;</span>
+<span class="nc" id="L396">        int[] starts = new int[16];</span>
+<span class="nc" id="L397">        int[] headerEnds = new int[16];</span>
+<span class="nc" id="L398">        String[] headerMarkers = new String[16];</span>
+<span class="nc" id="L399">        String[] headerRests = new String[16];</span>
+
+<span class="nc bnc" id="L401" title="All 2 branches missed.">        while (m.find()) {</span>
+<span class="nc bnc" id="L402" title="All 2 branches missed.">            if (count &gt;= starts.length) break;</span>
+<span class="nc" id="L403">            starts[count] = m.start();</span>
+<span class="nc" id="L404">            headerEnds[count] = m.end();</span>
+<span class="nc" id="L405">            headerMarkers[count] = m.group(1);</span>
+<span class="nc" id="L406">            headerRests[count] = m.group(2);</span>
+<span class="nc" id="L407">            count++;</span>
+        }
+
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        if (count &lt; 2) return &quot;&quot;;</span>
+
+<span class="nc" id="L412">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L413">        sb.append(&quot;## 行程安排\n&quot;);</span>
+
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L416">            int sectionStart = headerEnds[i];</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">            int sectionEnd = (i + 1 &lt; count) ? starts[i + 1] : text.length();</span>
+<span class="nc" id="L418">            String sectionBody = text.substring(Math.min(sectionStart, text.length()), Math.min(sectionEnd, text.length()));</span>
+
+<span class="nc" id="L420">            String marker = normalizeDayMarker(headerMarkers[i]);</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">            String rest = headerRests[i] == null ? &quot;&quot; : headerRests[i].trim();</span>
+<span class="nc" id="L422">            String[] restParts = splitDayRest(rest);</span>
+
+<span class="nc" id="L424">            String heading = marker;</span>
+<span class="nc" id="L425">            StringBuilder composite = new StringBuilder();</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">            if (restParts.length &gt; 0) {</span>
+<span class="nc" id="L427">                heading = marker + &quot; &quot; + restParts[0];</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">                for (int r = 1; r &lt; restParts.length; r++) {</span>
+<span class="nc" id="L429">                    composite.append(restParts[r]).append(&quot;\n&quot;);</span>
+                }
+            }
+<span class="nc" id="L432">            composite.append(sectionBody);</span>
+
+<span class="nc" id="L434">            sb.append(&quot;\n### &quot;).append(heading.trim()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L435">            String bullets = toBullets(composite.toString());</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">            if (bullets.isBlank()) {</span>
+<span class="nc" id="L437">                sb.append(&quot;- （无）\n&quot;);</span>
+            } else {
+<span class="nc" id="L439">                sb.append(bullets).append(&quot;\n&quot;);</span>
+            }
+        }
+
+<span class="nc" id="L443">        return sb.toString().trim();</span>
+    }
+
+    private String normalizeDayMarker(String marker) {
+<span class="nc bnc" id="L447" title="All 2 branches missed.">        String m = marker == null ? &quot;&quot; : marker.trim();</span>
+<span class="nc bnc" id="L448" title="All 4 branches missed.">        if (!m.isBlank() &amp;&amp; m.matches(&quot;(?i)^D\\s*\\d+\\b.*&quot;)) {</span>
+<span class="nc" id="L449">            m = m.toUpperCase().replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L450" title="All 4 branches missed.">        } else if (!m.isBlank() &amp;&amp; m.toLowerCase().startsWith(&quot;day&quot;)) {</span>
+<span class="nc" id="L451">            String digits = m.replaceAll(&quot;(?i)day&quot;, &quot;&quot;).replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">            m = digits.isBlank() ? &quot;Day1&quot; : (&quot;Day&quot; + digits);</span>
+        }
+<span class="nc bnc" id="L454" title="All 2 branches missed.">        return m.isBlank() ? &quot;D1&quot; : m;</span>
+    }
+
+    private String[] splitDayRest(String rest) {
+<span class="nc bnc" id="L458" title="All 2 branches missed.">        if (rest == null) return new String[0];</span>
+<span class="nc" id="L459">        String s = rest.trim();</span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">        if (s.isBlank()) return new String[0];</span>
+        // Common separators inside a day line: &quot;｜&quot; / &quot;|&quot; / &quot;·&quot;
+<span class="nc" id="L462">        String normalized = s.replace('｜', '|');</span>
+<span class="nc" id="L463">        String[] parts = normalized.split(&quot;\\|&quot;);</span>
+<span class="nc" id="L464">        int nonEmpty = 0;</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">        for (String p : parts) {</span>
+<span class="nc bnc" id="L466" title="All 4 branches missed.">            if (p != null &amp;&amp; !p.trim().isEmpty()) nonEmpty++;</span>
+        }
+<span class="nc bnc" id="L468" title="All 2 branches missed.">        if (nonEmpty &lt;= 1) return new String[] { s };</span>
+
+<span class="nc" id="L470">        String[] out = new String[nonEmpty];</span>
+<span class="nc" id="L471">        int idx = 0;</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">        for (String p : parts) {</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">            if (p == null) continue;</span>
+<span class="nc" id="L474">            String t = p.trim();</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">            if (t.isEmpty()) continue;</span>
+<span class="nc" id="L476">            out[idx++] = t;</span>
+        }
+<span class="nc" id="L478">        return out;</span>
+    }
+
+    private String toBullets(String sectionBody) {
+<span class="nc bnc" id="L482" title="All 2 branches missed.">        if (sectionBody == null) return &quot;&quot;;</span>
+<span class="nc" id="L483">        String[] lines = sectionBody.split(&quot;\\R&quot;);</span>
+<span class="nc" id="L484">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L485">        int added = 0;</span>
+<span class="nc bnc" id="L486" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">            String s = line == null ? &quot;&quot; : line.trim();</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">            if (s.isEmpty()) continue;</span>
+            // skip typical share guidance noise
+<span class="nc bnc" id="L490" title="All 2 branches missed.">            if (s.contains(&quot;打开小红书&quot;)) continue;</span>
+<span class="nc bnc" id="L491" title="All 4 branches missed.">            if (s.contains(&quot;复制&quot;) &amp;&amp; s.contains(&quot;小红书&quot;)) continue;</span>
+<span class="nc" id="L492">            String bullet = normalizeToBullet(s);</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">            if (bullet.isBlank()) continue;</span>
+<span class="nc" id="L494">            sb.append(bullet).append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">            if (++added &gt;= 30) break;</span>
+        }
+<span class="nc" id="L497">        return sb.toString().trim();</span>
+    }
+
+    private String normalizeToBullet(String line) {
+<span class="nc" id="L501">        String s = line.trim();</span>
+        // avoid treating a new day marker line as a bullet
+<span class="nc bnc" id="L503" title="All 4 branches missed.">        if (DAY_HEADER_LINE_PATTERN.matcher(s).find() || DAY_MARKER_PATTERN.matcher(&quot;\n&quot; + s).find()) return &quot;&quot;;</span>
+<span class="nc bnc" id="L504" title="All 4 branches missed.">        if (s.startsWith(&quot;-&quot;)) return s.startsWith(&quot;- &quot;) ? s : &quot;- &quot; + s.substring(1).trim();</span>
+<span class="nc bnc" id="L505" title="All 2 branches missed.">        if (s.startsWith(&quot;*&quot;)) return &quot;- &quot; + s.substring(1).trim();</span>
+<span class="nc bnc" id="L506" title="All 4 branches missed.">        if (s.startsWith(&quot;•&quot;) || s.startsWith(&quot;·&quot;)) return &quot;- &quot; + s.substring(1).trim();</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">        if (s.matches(&quot;^\\d+\\s*[\\.|、】【、].+&quot;)) return &quot;- &quot; + s;</span>
+<span class="nc" id="L508">        return &quot;- &quot; + s;</span>
+    }
+
+    private String toBlockQuoteLines(String text) {
+<span class="nc bnc" id="L512" title="All 2 branches missed.">        String t = text == null ? &quot;&quot; : text.trim();</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">        if (t.isBlank()) return &quot;&gt; （无）&quot;;</span>
+<span class="nc" id="L514">        String[] lines = t.split(&quot;\\R&quot;);</span>
+<span class="nc" id="L515">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L517">            String s = line.trim();</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">            if (s.isEmpty()) continue;</span>
+<span class="nc" id="L519">            sb.append(&quot;&gt; &quot;).append(truncate(s, 200)).append(&quot;\n&quot;);</span>
+        }
+<span class="nc bnc" id="L521" title="All 2 branches missed.">        if (sb.length() == 0) return &quot;&gt; （无）&quot;;</span>
+<span class="nc" id="L522">        return sb.toString().trim();</span>
+    }
+
+    private Optional&lt;String&gt; firstNonEmptyLine(String text) {
+<span class="pc bpc" id="L526" title="1 of 2 branches missed.">        if (text == null) return Optional.empty();</span>
+<span class="pc bpc" id="L527" title="1 of 2 branches missed.">        for (String line : text.split(&quot;\\R&quot;)) {</span>
+<span class="fc" id="L528">            String s = line.trim();</span>
+<span class="pc bpc" id="L529" title="1 of 2 branches missed.">            if (!s.isEmpty()) return Optional.of(s);</span>
+        }
+<span class="nc" id="L531">        return Optional.empty();</span>
+    }
+
+    private String stripHtml(String s) {
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">        if (s == null) return &quot;&quot;;</span>
+<span class="fc" id="L536">        return s.replaceAll(&quot;&lt;[^&gt;]+&gt;&quot;, &quot;&quot;).replace(&quot;&amp;amp;&quot;, &quot;&amp;&quot;).replace(&quot;&amp;lt;&quot;, &quot;&lt;&quot;).replace(&quot;&amp;gt;&quot;, &quot;&gt;&quot;).trim();</span>
+    }
+
+    private String unescapeJsonString(String s) {
+<span class="pc bpc" id="L540" title="1 of 2 branches missed.">        if (s == null) return &quot;&quot;;</span>
+<span class="fc" id="L541">        StringBuilder out = new StringBuilder(s.length());</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">        for (int i = 0; i &lt; s.length(); i++) {</span>
+<span class="fc" id="L543">            char c = s.charAt(i);</span>
+<span class="fc bfc" id="L544" title="All 2 branches covered.">            if (c != '\\') {</span>
+<span class="fc" id="L545">                out.append(c);</span>
+<span class="fc" id="L546">                continue;</span>
+            }
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">            if (i + 1 &gt;= s.length()) break;</span>
+<span class="fc" id="L549">            char n = s.charAt(++i);</span>
+<span class="pc bpc" id="L550" title="8 of 10 branches missed.">            switch (n) {</span>
+<span class="nc" id="L551">                case '&quot;': out.append('&quot;'); break;</span>
+<span class="fc" id="L552">                case '\\': out.append('\\'); break;</span>
+<span class="nc" id="L553">                case '/': out.append('/'); break;</span>
+<span class="nc" id="L554">                case 'b': out.append('\b'); break;</span>
+<span class="nc" id="L555">                case 'f': out.append('\f'); break;</span>
+<span class="fc" id="L556">                case 'n': out.append('\n'); break;</span>
+<span class="nc" id="L557">                case 'r': out.append('\r'); break;</span>
+<span class="nc" id="L558">                case 't': out.append('\t'); break;</span>
+                case 'u':
+<span class="nc bnc" id="L560" title="All 2 branches missed.">                    if (i + 4 &lt; s.length()) {</span>
+<span class="nc" id="L561">                        String hex = s.substring(i + 1, i + 5);</span>
+                        try {
+<span class="nc" id="L563">                            int code = Integer.parseInt(hex, 16);</span>
+<span class="nc" id="L564">                            out.append((char) code);</span>
+<span class="nc" id="L565">                            i += 4;</span>
+<span class="nc" id="L566">                        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L567">                            out.append(&quot;\\u&quot;).append(hex);</span>
+<span class="nc" id="L568">                            i += 4;</span>
+<span class="nc" id="L569">                        }</span>
+<span class="nc" id="L570">                    } else {</span>
+<span class="nc" id="L571">                        out.append(&quot;\\u&quot;);</span>
+                    }
+<span class="nc" id="L573">                    break;</span>
+                default:
+<span class="nc" id="L575">                    out.append(n);</span>
+            }
+        }
+<span class="fc" id="L578">        return out.toString().trim();</span>
+    }
+
+    private String unescapeJsonStringDeep(String s) {
+<span class="fc" id="L582">        String once = unescapeJsonString(s);</span>
+        // Some pages embed JSON inside another JSON/JS string, leading to double-escaped sequences (e.g. &quot;\\n&quot;).
+<span class="pc bpc" id="L584" title="7 of 8 branches missed.">        if (once.contains(&quot;\\n&quot;) || once.contains(&quot;\\r&quot;) || once.contains(&quot;\\t&quot;) || once.contains(&quot;\\u&quot;)) {</span>
+<span class="fc" id="L585">            return unescapeJsonString(once);</span>
+        }
+<span class="nc" id="L587">        return once;</span>
+    }
+
+    private int safeParseInt(String s, int fallback) {
+        try {
+<span class="nc" id="L592">            return Integer.parseInt(s);</span>
+<span class="nc" id="L593">        } catch (Exception e) {</span>
+<span class="nc" id="L594">            return fallback;</span>
+        }
+    }
+
+    private String normalizeTitle(String title) {
+<span class="pc bpc" id="L599" title="1 of 2 branches missed.">        if (title == null) return &quot;&quot;;</span>
+<span class="fc" id="L600">        String t = title.trim();</span>
+<span class="fc" id="L601">        t = t.replaceAll(&quot;\\s+&quot;, &quot; &quot;);</span>
+        // Some &lt;title&gt; include suffixes like &quot;_小红书&quot;
+<span class="fc" id="L603">        t = t.replaceAll(&quot;[-_ ]*小红书\\s*$&quot;, &quot;&quot;);</span>
+<span class="fc" id="L604">        return t.trim();</span>
+    }
+
+    private String truncate(String s, int max) {
+<span class="pc bpc" id="L608" title="1 of 2 branches missed.">        if (s == null) return &quot;&quot;;</span>
+<span class="pc bpc" id="L609" title="1 of 2 branches missed.">        if (s.length() &lt;= max) return s;</span>
+<span class="nc" id="L610">        return s.substring(0, max) + &quot;...&quot;;</span>
+    }
+
+    private static class ItinerarySignals {
+        final boolean isItinerary;
+        final String destination;
+        final Integer days;
+
+<span class="nc" id="L618">        ItinerarySignals(boolean isItinerary, String destination, Integer days) {</span>
+<span class="nc" id="L619">            this.isItinerary = isItinerary;</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">            this.destination = destination == null ? &quot;&quot; : destination;</span>
+<span class="nc" id="L621">            this.days = days;</span>
+<span class="nc" id="L622">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

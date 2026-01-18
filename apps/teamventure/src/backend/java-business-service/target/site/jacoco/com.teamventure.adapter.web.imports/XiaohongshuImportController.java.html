@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XiaohongshuImportController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.adapter.web.imports</a> &gt; <span class="el_source">XiaohongshuImportController.java</span></div><h1>XiaohongshuImportController.java</h1><pre class="source lang-java linenums">package com.teamventure.adapter.web.imports;
+
+import com.teamventure.adapter.web.common.ApiResponse;
+import com.teamventure.app.service.AuthService;
+import com.teamventure.app.service.XiaohongshuImportService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/v1/import/xiaohongshu&quot;)
+public class XiaohongshuImportController {
+
+    private final AuthService authService;
+    private final XiaohongshuImportService importService;
+
+<span class="nc" id="L17">    public XiaohongshuImportController(AuthService authService, XiaohongshuImportService importService) {</span>
+<span class="nc" id="L18">        this.authService = authService;</span>
+<span class="nc" id="L19">        this.importService = importService;</span>
+<span class="nc" id="L20">    }</span>
+
+    @PostMapping(&quot;/parse&quot;)
+    public ApiResponse&lt;ParseResponse&gt; parse(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+                                            @Valid @RequestBody ParseRequest req) {
+        // Require login (consistent with other APIs)
+<span class="nc" id="L26">        authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L27">        return ApiResponse.success(importService.parse(req.link));</span>
+    }
+
+<span class="nc" id="L30">    public static class ParseRequest {</span>
+        @NotBlank
+        public String link;
+    }
+
+<span class="fc" id="L35">    public static class ParseResponse {</span>
+        public boolean is_itinerary;
+        public String title;
+        public String destination;
+        public Integer days;
+        public String source_url;
+        public String raw_content;
+        public String generatedMarkdown;
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

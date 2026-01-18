@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class OssService {
-<span class="nc" id="L21">    private static final Logger log = LoggerFactory.getLogger(OssService.class);</span>
+<span class="fc" id="L21">    private static final Logger log = LoggerFactory.getLogger(OssService.class);</span>
 
 <span class="nc" id="L23">    public enum Category {</span>
 <span class="nc" id="L24">        AVATAR,</span>
@@ -53,16 +53,16 @@ public class OssService {
             @Value(&quot;${MINIO_BUCKET_AVATARS_PUBLIC:0}&quot;) int avatarsPublic,
             @Value(&quot;${TEAMVENTURE_OSS_PUBLIC_BASE_URL:http://api.teamventure.com/oss}&quot;) String publicBaseUrl,
             @Value(&quot;${TEAMVENTURE_OSS_PRESIGN_EXPIRY_SECONDS:3600}&quot;) int presignExpirySeconds
-<span class="nc" id="L56">    ) {</span>
-<span class="nc" id="L57">        this.minio = MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build();</span>
-<span class="nc bnc" id="L58" title="All 4 branches missed.">        String p = (presignEndpoint == null || presignEndpoint.isBlank()) ? endpoint : presignEndpoint;</span>
-<span class="nc" id="L59">        this.presignClient = MinioClient.builder().endpoint(p).credentials(accessKey, secretKey).build();</span>
-<span class="nc" id="L60">        this.bucketAvatars = bucketAvatars;</span>
-<span class="nc" id="L61">        this.bucketItinerary = bucketItinerary;</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        this.publicBaseUrl = publicBaseUrl.endsWith(&quot;/&quot;) ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1) : publicBaseUrl;</span>
-<span class="nc" id="L63">        this.presignExpirySeconds = presignExpirySeconds;</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        this.avatarsPublic = avatarsPublic == 1;</span>
-<span class="nc" id="L65">    }</span>
+<span class="fc" id="L56">    ) {</span>
+<span class="fc" id="L57">        this.minio = MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build();</span>
+<span class="pc bpc" id="L58" title="2 of 4 branches missed.">        String p = (presignEndpoint == null || presignEndpoint.isBlank()) ? endpoint : presignEndpoint;</span>
+<span class="fc" id="L59">        this.presignClient = MinioClient.builder().endpoint(p).credentials(accessKey, secretKey).build();</span>
+<span class="fc" id="L60">        this.bucketAvatars = bucketAvatars;</span>
+<span class="fc" id="L61">        this.bucketItinerary = bucketItinerary;</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        this.publicBaseUrl = publicBaseUrl.endsWith(&quot;/&quot;) ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1) : publicBaseUrl;</span>
+<span class="fc" id="L63">        this.presignExpirySeconds = presignExpirySeconds;</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        this.avatarsPublic = avatarsPublic == 1;</span>
+<span class="fc" id="L65">    }</span>
 
     public UploadResult uploadImage(String userId, Category category, MultipartFile file, String scope) {
 <span class="nc bnc" id="L68" title="All 4 branches missed.">        if (file == null || file.isEmpty()) {</span>

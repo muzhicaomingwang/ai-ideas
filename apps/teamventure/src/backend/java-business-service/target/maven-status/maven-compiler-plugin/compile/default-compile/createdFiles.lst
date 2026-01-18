@@ -1,4 +1,5 @@
 com/teamventure/infrastructure/persistence/po/StaticMapUrlPO.class
+com/teamventure/app/service/XiaohongshuImportService$HtmlFetcher.class
 com/teamventure/infrastructure/persistence/mapper/PlanMapper.class
 com/teamventure/adapter/web/users/UserController$UpdateAvatarRequest.class
 com/teamventure/infrastructure/persistence/po/DomainEventPO.class
@@ -26,12 +27,14 @@ com/teamventure/infrastructure/map/PathStyleConfig$PathSegment$PathSegmentBuilde
 com/teamventure/adapter/web/media/MediaController.class
 com/teamventure/infrastructure/persistence/po/SupplierPO.class
 com/teamventure/infrastructure/persistence/po/PlanRequestPO.class
+com/teamventure/adapter/web/imports/XiaohongshuImportController$ParseRequest.class
 com/teamventure/app/service/OssService$Category.class
 com/teamventure/adapter/web/internal/InternalPlanController.class
 com/teamventure/adapter/web/common/ApiResponse.class
 com/teamventure/infrastructure/config/MapConfig.class
 com/teamventure/infrastructure/map/ZoomCalculator.class
 com/teamventure/app/service/PlanService$DayRouteType.class
+com/teamventure/adapter/web/imports/XiaohongshuImportController.class
 com/teamventure/adapter/web/users/UserController.class
 com/teamventure/TeamVentureApplication.class
 com/teamventure/app/service/PlanService$RouteSegment.class
@@ -56,8 +59,10 @@ com/teamventure/adapter/web/plans/PlanController$GenerateResponse.class
 com/teamventure/infrastructure/cache/StaticMapUrlCache.class
 com/teamventure/adapter/web/plans/PlanController.class
 com/teamventure/adapter/web/media/MediaController$UploadResponse.class
+com/teamventure/app/service/XiaohongshuImportService$ItinerarySignals.class
 com/teamventure/domain/valueobject/MapRequest$Point$PointBuilder.class
 com/teamventure/infrastructure/persistence/po/PlanPO.class
+com/teamventure/app/service/XiaohongshuImportService.class
 com/teamventure/infrastructure/persistence/mapper/SupplierContactLogMapper.class
 com/teamventure/infrastructure/persistence/mapper/DomainEventMapper.class
 com/teamventure/domain/valueobject/MapSizePreset.class
@@ -65,6 +70,7 @@ com/teamventure/app/service/InternalPlanCallbackService.class
 com/teamventure/adapter/web/auth/AuthController.class
 com/teamventure/app/service/OssService$UploadResult.class
 com/teamventure/app/service/PlanService$1.class
+com/teamventure/adapter/web/imports/XiaohongshuImportController$ParseResponse.class
 com/teamventure/infrastructure/persistence/po/UserPO.class
 com/teamventure/infrastructure/persistence/mapper/StaticMapUrlMapper.class
 com/teamventure/domain/valueobject/MapRequest$Point.class

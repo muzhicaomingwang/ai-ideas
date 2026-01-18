@@ -1,0 +1,110 @@
+<!--
+  activity-editor 组件 - 活动编辑弹窗
+  Props:
+    - visible: boolean
+    - mode: 'add' | 'edit'
+    - activity: object (编辑模式时传入)
+    - activityIndex: number
+    - dayIndex: number
+  Events:
+    - save: { mode, dayIndex, activityIndex, activity }
+    - close
+-->
+<view class="editor-mask" wx:if="{{visible}}" bindtap="onClose">
+  <view class="editor-container" catchtap="preventTap">
+    <!-- 标题栏 -->
+    <view class="editor-header">
+      <text class="editor-title">{{mode === 'add' ? '添加活动' : '编辑活动'}}</text>
+      <view class="close-btn" bindtap="onClose">
+        <text class="icon">✕</text>
+      </view>
+    </view>
+
+    <!-- 表单内容 -->
+    <scroll-view class="editor-body" scroll-y>
+      <!-- 活动名称（必填） -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">活动名称</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="form-input {{errors.activity ? 'error' : ''}}"
+          placeholder="请输入活动名称"
+          value="{{formData.activity}}"
+          data-field="activity"
+          bindinput="onInputChange"
+        />
+        <text class="error-hint" wx:if="{{errors.activity}}">{{errors.activity}}</text>
+      </view>
+
+      <!-- 时间选择 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">活动时间</text>
+        </view>
+        <view class="time-picker-row">
+          <picker
+            mode="time"
+            value="{{formData.time_start}}"
+            bindchange="onStartTimeChange"
+          >
+            <view class="time-picker-btn">
+              <text class="time-value">{{formData.time_start}}</text>
+              <text class="icon-arrow">▼</text>
+            </view>
+          </picker>
+          <text class="time-separator">至</text>
+          <picker
+            mode="time"
+            value="{{formData.time_end}}"
+            bindchange="onEndTimeChange"
+          >
+            <view class="time-picker-btn">
+              <text class="time-value">{{formData.time_end}}</text>
+              <text class="icon-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+        <text class="error-hint" wx:if="{{errors.time}}">{{errors.time}}</text>
+      </view>
+
+      <!-- 活动地点 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">活动地点</text>
+        </view>
+        <input
+          class="form-input"
+          placeholder="请输入活动地点（选填）"
+          value="{{formData.location}}"
+          data-field="location"
+          bindinput="onInputChange"
+        />
+      </view>
+
+      <!-- 备注 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">备注</text>
+        </view>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入备注信息（选填）"
+          value="{{formData.note}}"
+          data-field="note"
+          bindinput="onInputChange"
+          maxlength="200"
+          auto-height
+        />
+        <text class="char-count">{{formData.note.length || 0}}/200</text>
+      </view>
+    </scroll-view>
+
+    <!-- 底部按钮 -->
+    <view class="editor-footer">
+      <button class="btn btn-cancel" bindtap="onClose">取消</button>
+      <button class="btn btn-save" bindtap="onSave">保存</button>
+    </view>
+  </view>
+</view>

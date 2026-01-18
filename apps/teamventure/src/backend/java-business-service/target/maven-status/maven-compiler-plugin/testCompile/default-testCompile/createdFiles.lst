@@ -6,8 +6,7 @@ com/teamventure/app/service/AuthServiceTest.class
 com/teamventure/infrastructure/config/MapConfigTest.class
 com/teamventure/infrastructure/map/CityNameExtractorTest.class
 com/teamventure/infrastructure/cache/StaticMapUrlCacheTest.class
-com/teamventure/app/service/PlanServiceDualMapTest.class
 com/teamventure/infrastructure/map/ZoomCalculatorTest.class
 com/teamventure/app/support/JwtSupportTest.class
 com/teamventure/infrastructure/map/PathStyleConfigTest.class
-com/teamventure/app/service/PlanServiceDualMapIntegrationTest.class
+com/teamventure/app/service/XiaohongshuImportServiceTest.class

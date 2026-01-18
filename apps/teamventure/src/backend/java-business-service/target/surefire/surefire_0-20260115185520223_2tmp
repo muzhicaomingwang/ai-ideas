@@ -1,5 +1,0 @@
-#surefire_0
-#Thu Jan 15 18:55:20 CST 2026
-basedir=/Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service
-localRepository=/Users/qitmac001395/.m2/repository
-test=PlanServiceDualMapIntegrationTest

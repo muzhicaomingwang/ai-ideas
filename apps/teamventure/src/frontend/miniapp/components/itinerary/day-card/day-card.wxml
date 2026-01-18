@@ -1,0 +1,102 @@
+<!--
+  day-card 组件 - 单日行程卡片
+  Props:
+    - dayData: { day, date, items[] }
+    - dayIndex: number
+    - canDelete: boolean
+    - isDragging: boolean
+    - draggingItemIndex: number
+  Events:
+    - datechange, deleteday, addactivity, editactivity, deleteactivity, copyactivity, moveactivity
+-->
+<view class="day-card">
+  <!-- 天数头部 -->
+  <view class="day-header">
+    <view class="day-info">
+      <view class="day-number">第{{dayData.day}}天</view>
+      <picker mode="date" value="{{dayData.date}}" bindchange="onDateChange">
+        <view class="day-date">
+          <text>{{dayData.date || '选择日期'}}</text>
+          <text class="icon-calendar">📅</text>
+        </view>
+      </picker>
+    </view>
+    <view class="day-actions">
+      <view class="action-btn danger"
+            bindtap="onDeleteDay"
+            wx:if="{{canDelete}}">
+        <text class="icon">🗑</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 活动列表 -->
+  <view class="activities-list">
+    <!-- 空活动提示 -->
+    <view class="empty-activities" wx:if="{{dayData.items.length === 0}}">
+      <text class="hint">暂无活动安排，点击下方添加</text>
+    </view>
+
+    <!-- 活动项 -->
+    <view class="activity-item-wrapper {{isDragging && draggingItemIndex === index ? 'dragging' : ''}}"
+          wx:for="{{dayData.items}}"
+          wx:key="id"
+          wx:for-index="index">
+      <view class="activity-content"
+            bindtap="onEditActivity"
+            data-item-index="{{index}}">
+        <!-- 时间 -->
+        <view class="activity-time">
+          <text class="time-text">{{item.time_start || '--:--'}}</text>
+          <text class="time-separator">-</text>
+          <text class="time-text">{{item.time_end || '--:--'}}</text>
+        </view>
+        <!-- 详情 -->
+        <view class="activity-details">
+          <view class="activity-name">{{item.activity || '未命名活动'}}</view>
+          <view class="activity-location" wx:if="{{item.location}}">
+            <text class="icon-location">📍</text>
+            <text>{{item.location}}</text>
+          </view>
+          <view class="activity-note" wx:if="{{item.note}}">
+            <text class="note-text">{{item.note}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 活动操作按钮 -->
+      <view class="activity-actions">
+        <view class="action-btn small"
+              bindtap="onMoveActivity"
+              data-item-index="{{index}}"
+              data-direction="up"
+              wx:if="{{index > 0}}">
+          <text class="icon">↑</text>
+        </view>
+        <view class="action-btn small"
+              bindtap="onMoveActivity"
+              data-item-index="{{index}}"
+              data-direction="down"
+              wx:if="{{index < dayData.items.length - 1}}">
+          <text class="icon">↓</text>
+        </view>
+        <view class="action-btn small"
+              bindtap="onCopyActivity"
+              data-item-index="{{index}}">
+          <text class="icon">📋</text>
+        </view>
+        <view class="action-btn small danger"
+              bindtap="onDeleteActivity"
+              data-item-index="{{index}}">
+          <text class="icon">✕</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 添加活动按钮 -->
+    <view class="add-activity-btn" bindtap="onAddActivity">
+      <text class="icon">+</text>
+      <text>添加活动</text>
+    </view>
+  </view>
+</view>

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @since 2026-01-14
  */
 @Component
-<span class="nc" id="L20">public class PathStyleConfig {</span>
+<span class="fc" id="L20">public class PathStyleConfig {</span>
 
     @Value(&quot;${teamventure.map.style.path.color:0x1890FF}&quot;)
     private String defaultColor;
@@ -31,34 +31,34 @@ import java.util.stream.Collectors;
     /**
      * 路径样式枚举（按交通方式区分）
      */
-<span class="nc" id="L34">    public enum PathStyle {</span>
-<span class="nc" id="L35">        DRIVING(&quot;0x1890FF&quot;, 6, 1.0, &quot;驾车&quot;),      // 蓝色粗线</span>
-<span class="nc" id="L36">        WALKING(&quot;0x52C41A&quot;, 4, 0.8, &quot;步行&quot;),      // 绿色中线</span>
-<span class="nc" id="L37">        CYCLING(&quot;0xFFA500&quot;, 5, 0.9, &quot;骑行&quot;),      // 橙色中线</span>
-<span class="nc" id="L38">        TRANSIT(&quot;0x722ED1&quot;, 5, 0.9, &quot;公交&quot;);      // 紫色中线</span>
+<span class="fc" id="L34">    public enum PathStyle {</span>
+<span class="fc" id="L35">        DRIVING(&quot;0x1890FF&quot;, 6, 1.0, &quot;驾车&quot;),      // 蓝色粗线</span>
+<span class="fc" id="L36">        WALKING(&quot;0x52C41A&quot;, 4, 0.8, &quot;步行&quot;),      // 绿色中线</span>
+<span class="fc" id="L37">        CYCLING(&quot;0xFFA500&quot;, 5, 0.9, &quot;骑行&quot;),      // 橙色中线</span>
+<span class="fc" id="L38">        TRANSIT(&quot;0x722ED1&quot;, 5, 0.9, &quot;公交&quot;);      // 紫色中线</span>
 
         private final String color;
         private final int weight;
         private final double transparency;
         private final String description;
 
-<span class="nc" id="L45">        PathStyle(String color, int weight, double transparency, String description) {</span>
-<span class="nc" id="L46">            this.color = color;</span>
-<span class="nc" id="L47">            this.weight = weight;</span>
-<span class="nc" id="L48">            this.transparency = transparency;</span>
-<span class="nc" id="L49">            this.description = description;</span>
-<span class="nc" id="L50">        }</span>
+<span class="fc" id="L45">        PathStyle(String color, int weight, double transparency, String description) {</span>
+<span class="fc" id="L46">            this.color = color;</span>
+<span class="fc" id="L47">            this.weight = weight;</span>
+<span class="fc" id="L48">            this.transparency = transparency;</span>
+<span class="fc" id="L49">            this.description = description;</span>
+<span class="fc" id="L50">        }</span>
 
         public String getColor() {
-<span class="nc" id="L53">            return color;</span>
+<span class="fc" id="L53">            return color;</span>
         }
 
         public int getWeight() {
-<span class="nc" id="L57">            return weight;</span>
+<span class="fc" id="L57">            return weight;</span>
         }
 
         public double getTransparency() {
-<span class="nc" id="L61">            return transparency;</span>
+<span class="fc" id="L61">            return transparency;</span>
         }
 
         public String getDescription() {
@@ -87,26 +87,26 @@ import java.util.stream.Collectors;
      * @return 高德API paths参数
      */
     public String generatePathsParam(List&lt;Point&gt; points, PathStyle style) {
-<span class="nc bnc" id="L90" title="All 4 branches missed.">        if (points == null || points.size() &lt; 2) {</span>
-<span class="nc" id="L91">            return &quot;&quot;;  // 至少需要2个点才能画路径</span>
+<span class="fc bfc" id="L90" title="All 4 branches covered.">        if (points == null || points.size() &lt; 2) {</span>
+<span class="fc" id="L91">            return &quot;&quot;;  // 至少需要2个点才能画路径</span>
         }
 
         // 简化路径点（避免URL过长）
-<span class="nc" id="L95">        List&lt;Point&gt; simplified = simplifyPath(points, 50);</span>
+<span class="fc" id="L95">        List&lt;Point&gt; simplified = simplifyPath(points, 50);</span>
 
         // 生成坐标串
-<span class="nc" id="L98">        String coords = simplified.stream()</span>
-<span class="nc" id="L99">            .map(p -&gt; String.format(&quot;%.6f,%.6f&quot;,</span>
-<span class="nc" id="L100">                p.getLongitude(),</span>
-<span class="nc" id="L101">                p.getLatitude()</span>
+<span class="fc" id="L98">        String coords = simplified.stream()</span>
+<span class="fc" id="L99">            .map(p -&gt; String.format(&quot;%.6f,%.6f&quot;,</span>
+<span class="fc" id="L100">                p.getLongitude(),</span>
+<span class="fc" id="L101">                p.getLatitude()</span>
             ))
-<span class="nc" id="L103">            .collect(Collectors.joining(&quot;;&quot;));</span>
+<span class="fc" id="L103">            .collect(Collectors.joining(&quot;;&quot;));</span>
 
         // 拼接样式参数
-<span class="nc" id="L106">        return String.format(&quot;%d,%s,%.1f:%s&quot;,</span>
-<span class="nc" id="L107">            style.getWeight(),</span>
-<span class="nc" id="L108">            style.getColor(),</span>
-<span class="nc" id="L109">            style.getTransparency(),</span>
+<span class="fc" id="L106">        return String.format(&quot;%d,%s,%.1f:%s&quot;,</span>
+<span class="fc" id="L107">            style.getWeight(),</span>
+<span class="fc" id="L108">            style.getColor(),</span>
+<span class="fc" id="L109">            style.getTransparency(),</span>
             coords
         );
     }
@@ -118,23 +118,23 @@ import java.util.stream.Collectors;
      * @return 高德API paths参数
      */
     public String generateDefaultPathsParam(List&lt;Point&gt; points) {
-<span class="nc bnc" id="L121" title="All 4 branches missed.">        if (points == null || points.size() &lt; 2) {</span>
+<span class="pc bpc" id="L121" title="2 of 4 branches missed.">        if (points == null || points.size() &lt; 2) {</span>
 <span class="nc" id="L122">            return &quot;&quot;;</span>
         }
 
-<span class="nc" id="L125">        List&lt;Point&gt; simplified = simplifyPath(points, 50);</span>
+<span class="fc" id="L125">        List&lt;Point&gt; simplified = simplifyPath(points, 50);</span>
 
-<span class="nc" id="L127">        String coords = simplified.stream()</span>
-<span class="nc" id="L128">            .map(p -&gt; String.format(&quot;%.6f,%.6f&quot;,</span>
-<span class="nc" id="L129">                p.getLongitude(),</span>
-<span class="nc" id="L130">                p.getLatitude()</span>
+<span class="fc" id="L127">        String coords = simplified.stream()</span>
+<span class="fc" id="L128">            .map(p -&gt; String.format(&quot;%.6f,%.6f&quot;,</span>
+<span class="fc" id="L129">                p.getLongitude(),</span>
+<span class="fc" id="L130">                p.getLatitude()</span>
             ))
-<span class="nc" id="L132">            .collect(Collectors.joining(&quot;;&quot;));</span>
+<span class="fc" id="L132">            .collect(Collectors.joining(&quot;;&quot;));</span>
 
-<span class="nc" id="L134">        return String.format(&quot;%d,%s,%.1f:%s&quot;,</span>
-<span class="nc" id="L135">            defaultWidth,</span>
+<span class="fc" id="L134">        return String.format(&quot;%d,%s,%.1f:%s&quot;,</span>
+<span class="fc" id="L135">            defaultWidth,</span>
             defaultColor,
-<span class="nc" id="L137">            defaultTransparency,</span>
+<span class="fc" id="L137">            defaultTransparency,</span>
             coords
         );
     }
@@ -149,25 +149,25 @@ import java.util.stream.Collectors;
      * @return 简化后的路径点列表
      */
     private List&lt;Point&gt; simplifyPath(List&lt;Point&gt; points, int maxPoints) {
-<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (points.size() &lt;= maxPoints) {</span>
-<span class="nc" id="L153">            return points;</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (points.size() &lt;= maxPoints) {</span>
+<span class="fc" id="L153">            return points;</span>
         }
 
         // 简单实现：等间隔采样（生产环境可用Douglas-Peucker算法）
-<span class="nc" id="L157">        int step = points.size() / (maxPoints - 1);</span>
-<span class="nc" id="L158">        List&lt;Point&gt; simplified = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L157">        int step = points.size() / (maxPoints - 1);</span>
+<span class="fc" id="L158">        List&lt;Point&gt; simplified = new ArrayList&lt;&gt;();</span>
 
-<span class="nc bnc" id="L160" title="All 2 branches missed.">        for (int i = 0; i &lt; points.size(); i += step) {</span>
-<span class="nc" id="L161">            simplified.add(points.get(i));</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        for (int i = 0; i &lt; points.size(); i += step) {</span>
+<span class="fc" id="L161">            simplified.add(points.get(i));</span>
         }
 
         // 确保终点被包含
-<span class="nc" id="L165">        Point lastPoint = points.get(points.size() - 1);</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (!simplified.get(simplified.size() - 1).equals(lastPoint)) {</span>
-<span class="nc" id="L167">            simplified.add(lastPoint);</span>
+<span class="fc" id="L165">        Point lastPoint = points.get(points.size() - 1);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (!simplified.get(simplified.size() - 1).equals(lastPoint)) {</span>
+<span class="fc" id="L167">            simplified.add(lastPoint);</span>
         }
 
-<span class="nc" id="L170">        return simplified;</span>
+<span class="fc" id="L170">        return simplified;</span>
     }
 
     /**
@@ -179,20 +179,20 @@ import java.util.stream.Collectors;
      * @return paths参数（用|连接多段）
      */
     public String generateMultiSegmentPaths(List&lt;PathSegment&gt; segments) {
-<span class="nc bnc" id="L182" title="All 4 branches missed.">        if (segments == null || segments.isEmpty()) {</span>
+<span class="pc bpc" id="L182" title="2 of 4 branches missed.">        if (segments == null || segments.isEmpty()) {</span>
 <span class="nc" id="L183">            return &quot;&quot;;</span>
         }
 
-<span class="nc" id="L186">        return segments.stream()</span>
-<span class="nc" id="L187">            .map(seg -&gt; generatePathsParam(seg.getPoints(), seg.getStyle()))</span>
-<span class="nc" id="L188">            .collect(Collectors.joining(&quot;|&quot;));</span>
+<span class="fc" id="L186">        return segments.stream()</span>
+<span class="fc" id="L187">            .map(seg -&gt; generatePathsParam(seg.getPoints(), seg.getStyle()))</span>
+<span class="fc" id="L188">            .collect(Collectors.joining(&quot;|&quot;));</span>
     }
 
     /**
      * 路径分段数据结构
      */
 <span class="nc bnc" id="L194" title="All 22 branches missed.">    @lombok.Data</span>
-<span class="nc" id="L195">    @lombok.Builder</span>
+<span class="pc" id="L195">    @lombok.Builder</span>
     public static class PathSegment {
         private List&lt;Point&gt; points;
         private PathStyle style;
@@ -200,8 +200,8 @@ import java.util.stream.Collectors;
         /**
          * 手动添加getter方法（Lombok编译问题临时方案）
          */
-<span class="nc" id="L203">        public List&lt;Point&gt; getPoints() { return points; }</span>
-<span class="nc" id="L204">        public PathStyle getStyle() { return style; }</span>
+<span class="fc" id="L203">        public List&lt;Point&gt; getPoints() { return points; }</span>
+<span class="fc" id="L204">        public PathStyle getStyle() { return style; }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

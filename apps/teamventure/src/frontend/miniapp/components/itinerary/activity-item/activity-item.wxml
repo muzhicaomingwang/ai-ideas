@@ -1,0 +1,60 @@
+<!--
+  activity-item 组件 - 单个活动项
+  Props:
+    - activity: { id, time_start, time_end, activity, location, note }
+    - itemIndex: number
+    - isFirst: boolean
+    - isLast: boolean
+    - isDragging: boolean
+  Events:
+    - edit, delete, copy, move, dragstart
+-->
+<view class="activity-item {{isDragging ? 'dragging' : ''}}"
+      bindtap="onTapActivity"
+      bindlongpress="onLongPress">
+  <!-- 活动内容区域 -->
+  <view class="activity-content">
+    <!-- 时间区域 -->
+    <view class="activity-time">
+      <text class="time-text">{{activity.time_start || '--:--'}}</text>
+      <text class="time-separator">-</text>
+      <text class="time-text">{{activity.time_end || '--:--'}}</text>
+    </view>
+
+    <!-- 详情区域 -->
+    <view class="activity-details">
+      <view class="activity-name">{{activity.activity || '未命名活动'}}</view>
+      <view class="activity-location" wx:if="{{activity.location}}">
+        <text class="icon-location">📍</text>
+        <text class="location-text">{{activity.location}}</text>
+      </view>
+      <view class="activity-note" wx:if="{{activity.note}}">
+        <text class="note-text">{{activity.note}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮区域 -->
+  <view class="activity-actions">
+    <!-- 上移 -->
+    <view class="action-btn small {{isFirst ? 'disabled' : ''}}"
+          catchtap="onMoveUp"
+          wx:if="{{!isFirst}}">
+      <text class="icon">↑</text>
+    </view>
+    <!-- 下移 -->
+    <view class="action-btn small {{isLast ? 'disabled' : ''}}"
+          catchtap="onMoveDown"
+          wx:if="{{!isLast}}">
+      <text class="icon">↓</text>
+    </view>
+    <!-- 复制 -->
+    <view class="action-btn small" catchtap="onCopy">
+      <text class="icon">📋</text>
+    </view>
+    <!-- 删除 -->
+    <view class="action-btn small danger" catchtap="onDelete">
+      <text class="icon">✕</text>
+    </view>
+  </view>
+</view>

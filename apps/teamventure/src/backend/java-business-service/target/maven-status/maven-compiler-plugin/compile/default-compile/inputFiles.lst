@@ -4,6 +4,7 @@
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/app/service/SupplierService.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/TeamVentureApplication.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/app/service/OssService.java
+/Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/adapter/web/imports/XiaohongshuImportController.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/adapter/web/media/MediaController.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/mapper/DomainEventMapper.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/po/PlanPO.java
@@ -32,6 +33,7 @@
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/adapter/web/common/ApiResponse.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/config/MapConfig.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/adapter/web/users/UserController.java
+/Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/app/service/XiaohongshuImportService.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/po/StaticMapUrlPO.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/po/SupplierContactLogPO.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/domain/valueobject/MapRequest.java

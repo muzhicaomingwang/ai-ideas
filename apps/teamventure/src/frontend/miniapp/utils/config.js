@@ -75,7 +75,10 @@ export const API_ENDPOINTS = {
   // 供应商相关
   SUPPLIER_SEARCH: '/suppliers/search',
   SUPPLIER_DETAIL: '/suppliers/:id',
-  SUPPLIER_CONTACT: '/suppliers/:id/contact'
+  SUPPLIER_CONTACT: '/suppliers/:id/contact',
+
+  // 导入相关
+  XHS_PARSE: '/import/xiaohongshu/parse'
 }
 
 // 请求超时时间（毫秒）

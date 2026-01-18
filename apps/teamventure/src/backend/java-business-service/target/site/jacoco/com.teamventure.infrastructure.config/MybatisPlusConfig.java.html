@@ -6,13 +6,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-<span class="nc" id="L9">public class MybatisPlusConfig {</span>
+<span class="fc" id="L9">public class MybatisPlusConfig {</span>
 
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
-<span class="nc" id="L13">        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();</span>
-<span class="nc" id="L14">        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());</span>
-<span class="nc" id="L15">        return interceptor;</span>
+<span class="fc" id="L13">        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();</span>
+<span class="fc" id="L14">        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());</span>
+<span class="fc" id="L15">        return interceptor;</span>
     }
 }
 

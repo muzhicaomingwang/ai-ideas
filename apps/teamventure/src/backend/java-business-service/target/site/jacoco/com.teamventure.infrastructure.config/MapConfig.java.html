@@ -17,7 +17,7 @@ import java.time.Duration;
  * @since 2026-01-14
  */
 @Configuration
-<span class="nc" id="L20">public class MapConfig {</span>
+<span class="fc" id="L20">public class MapConfig {</span>
 
     /**
      * 配置高德地图API的熔断器
@@ -32,26 +32,26 @@ import java.time.Duration;
      */
     @Bean
     public CircuitBreaker mapCircuitBreaker() {
-<span class="nc" id="L35">        CircuitBreakerConfig config = CircuitBreakerConfig.custom()</span>
-<span class="nc" id="L36">            .failureRateThreshold(50)  // 失败率阈值50%</span>
-<span class="nc" id="L37">            .waitDurationInOpenState(Duration.ofSeconds(30))  // 熔断后等待30秒</span>
-<span class="nc" id="L38">            .slidingWindowSize(10)  // 滑动窗口大小10次请求</span>
-<span class="nc" id="L39">            .minimumNumberOfCalls(5)  // 至少5次调用才计算失败率</span>
-<span class="nc" id="L40">            .permittedNumberOfCallsInHalfOpenState(3)  // 半开状态允许3次调用</span>
-<span class="nc" id="L41">            .automaticTransitionFromOpenToHalfOpenEnabled(true)  // 自动从开启转半开</span>
-<span class="nc" id="L42">            .recordExceptions(</span>
+<span class="fc" id="L35">        CircuitBreakerConfig config = CircuitBreakerConfig.custom()</span>
+<span class="fc" id="L36">            .failureRateThreshold(50)  // 失败率阈值50%</span>
+<span class="fc" id="L37">            .waitDurationInOpenState(Duration.ofSeconds(30))  // 熔断后等待30秒</span>
+<span class="fc" id="L38">            .slidingWindowSize(10)  // 滑动窗口大小10次请求</span>
+<span class="fc" id="L39">            .minimumNumberOfCalls(5)  // 至少5次调用才计算失败率</span>
+<span class="fc" id="L40">            .permittedNumberOfCallsInHalfOpenState(3)  // 半开状态允许3次调用</span>
+<span class="fc" id="L41">            .automaticTransitionFromOpenToHalfOpenEnabled(true)  // 自动从开启转半开</span>
+<span class="fc" id="L42">            .recordExceptions(</span>
                 java.net.SocketTimeoutException.class,
                 java.net.ConnectException.class,
                 java.io.IOException.class
             )
-<span class="nc" id="L47">            .ignoreExceptions(IllegalArgumentException.class)  // 参数错误不计入失败率</span>
-<span class="nc" id="L48">            .build();</span>
+<span class="fc" id="L47">            .ignoreExceptions(IllegalArgumentException.class)  // 参数错误不计入失败率</span>
+<span class="fc" id="L48">            .build();</span>
 
-<span class="nc" id="L50">        CircuitBreaker circuitBreaker = CircuitBreaker.of(&quot;amap-static-api&quot;, config);</span>
+<span class="fc" id="L50">        CircuitBreaker circuitBreaker = CircuitBreaker.of(&quot;amap-static-api&quot;, config);</span>
 
         // 注册事件监听（用于监控和告警）
-<span class="nc" id="L53">        circuitBreaker.getEventPublisher()</span>
-<span class="nc" id="L54">            .onStateTransition(event -&gt; {</span>
+<span class="fc" id="L53">        circuitBreaker.getEventPublisher()</span>
+<span class="fc" id="L54">            .onStateTransition(event -&gt; {</span>
                 // 熔断状态变化时记录日志
 <span class="nc" id="L56">                org.slf4j.LoggerFactory.getLogger(MapConfig.class)</span>
 <span class="nc" id="L57">                    .warn(&quot;CircuitBreaker state changed: {} -&gt; {}&quot;,</span>
@@ -59,7 +59,7 @@ import java.time.Duration;
 <span class="nc" id="L59">                        event.getStateTransition().getToState()</span>
                     );
 <span class="nc" id="L61">            })</span>
-<span class="nc" id="L62">            .onFailureRateExceeded(event -&gt; {</span>
+<span class="fc" id="L62">            .onFailureRateExceeded(event -&gt; {</span>
                 // 失败率超过阈值时告警
 <span class="nc" id="L64">                org.slf4j.LoggerFactory.getLogger(MapConfig.class)</span>
 <span class="nc" id="L65">                    .error(&quot;CircuitBreaker failure rate exceeded: {}%&quot;,</span>
@@ -67,7 +67,7 @@ import java.time.Duration;
                     );
 <span class="nc" id="L68">            });</span>
 
-<span class="nc" id="L70">        return circuitBreaker;</span>
+<span class="fc" id="L70">        return circuitBreaker;</span>
     }
 
     /**
@@ -77,8 +77,8 @@ import java.time.Duration;
      */
     @Bean
     public CircuitBreakerRegistry circuitBreakerRegistry() {
-<span class="nc" id="L80">        return CircuitBreakerRegistry.of(</span>
-<span class="nc" id="L81">            CircuitBreakerConfig.ofDefaults()</span>
+<span class="fc" id="L80">        return CircuitBreakerRegistry.of(</span>
+<span class="fc" id="L81">            CircuitBreakerConfig.ofDefaults()</span>
         );
     }
 }

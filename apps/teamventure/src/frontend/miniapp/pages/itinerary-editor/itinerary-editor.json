@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "编辑行程",
+  "usingComponents": {
+    "day-card": "/components/itinerary/day-card/day-card",
+    "activity-item": "/components/itinerary/activity-item/activity-item",
+    "activity-editor": "/components/itinerary/activity-editor/activity-editor",
+    "time-picker": "/components/itinerary/time-picker/time-picker"
+  },
+  "enablePullDownRefresh": false,
+  "disableScroll": false
+}

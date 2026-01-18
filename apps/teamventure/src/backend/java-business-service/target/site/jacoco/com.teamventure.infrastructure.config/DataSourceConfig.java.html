@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-<span class="nc" id="L11">public class DataSourceConfig {</span>
+<span class="fc" id="L11">public class DataSourceConfig {</span>
 
     @Bean
     @Primary
     @ConfigurationProperties(prefix = &quot;spring.datasource.druid.master&quot;)
     public DataSource dataSource() {
-<span class="nc" id="L17">        return new DruidDataSource();</span>
+<span class="fc" id="L17">        return new DruidDataSource();</span>
     }
 }
 

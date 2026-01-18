@@ -1,152 +1,75 @@
 <!--pages/index/index.wxml-->
 <view class="index-page">
-  <!-- 页面标题 -->
   <view class="page-header">
-    <view class="page-title">AI 生成团建方案</view>
-    <view class="page-subtitle">请详细描述您的团建行程需求</view>
+    <view class="header-title-row">
+      <view class="header-title">生成团建方案（MVP）</view>
+      <view class="version-badge">V0.0.1</view>
+    </view>
+    <view class="header-subtitle">仅支持小红书链接/口令导入生成 Markdown</view>
   </view>
 
-  <!-- Markdown 输入区域 -->
-  <view class="form-container">
-    <!-- 填写提示和操作 -->
-    <view class="template-header">
-      <view class="template-hint">
-        <text class="hint-icon">✏️</text>
-        <text class="hint-text">直接修改示例内容为您的实际需求</text>
-      </view>
-      <view class="template-actions">
-        <view class="action-btn ai-fill-btn {{aiGenerateStatus === 'generating' ? 'btn-disabled' : ''}}" bindtap="handleShowAIFillDialog">
-          <text class="btn-icon">✨</text>
-          <text class="btn-text">AI填充</text>
-        </view>
-        <view class="action-btn reset-btn {{aiGenerateStatus === 'generating' ? 'btn-disabled' : ''}}" bindtap="handleShowTemplate">
-          <text class="btn-icon">🔄</text>
-          <text class="btn-text">重置</text>
-        </view>
-      </view>
-    </view>
+  <view class="content">
+    <view class="card">
+      <view class="card-title">小红书导入</view>
+      <view class="hint">粘贴分享链接/口令后，系统会解析并返回笔记内容，自动填入下方文档框。</view>
 
-    <!-- Markdown 输入框 / AI生成状态卡片 -->
-    <view class="form-item">
-      <!-- 正常编辑状态 -->
-      <block wx:if="{{aiGenerateStatus === 'normal' || aiGenerateStatus === 'generated'}}">
+      <view class="xhs-input-row">
         <textarea
-          class="markdown-input"
-          placeholder="{{placeholder}}"
-          value="{{formData.markdownContent}}"
-          bindinput="handleMarkdownInput"
-          maxlength="5000"
+          class="xhs-input"
+          placeholder="粘贴小红书链接或分享口令..."
+          value="{{xhsLink}}"
+          bindinput="handleXhsLinkInput"
+          maxlength="20000"
           auto-height
-          disabled="{{aiGenerateStatus === 'generating'}}"
         />
-        <view class="textarea-count">{{formData.markdownContent.length}}/5000</view>
+        <view class="xhs-paste" bindtap="handlePasteXhsLink">粘贴</view>
+      </view>
+
+      <view class="xhs-actions">
+        <button class="btn-secondary" bindtap="handleResetXhsImport" disabled="{{xhsImportStatus === 'parsing'}}">清空</button>
+        <button class="btn-primary" bindtap="handleStartXhsParse" disabled="{{!xhsLink || xhsImportStatus === 'parsing'}}">开始解析</button>
+      </view>
+
+      <block wx:if="{{xhsImportStatus === 'parsing'}}">
+        <view class="xhs-parsing">
+          <view class="xhs-parsing-title">正在解析...</view>
+          <view class="xhs-progress">
+            <view class="xhs-progress-bar">
+              <view class="xhs-progress-fill" style="width: {{xhsParseProgress}}%;"></view>
+            </view>
+            <view class="xhs-progress-text">{{xhsParseProgress}}%</view>
+          </view>
+          <view class="xhs-parsing-sub">首次解析可能较慢，请稍等</view>
+        </view>
       </block>
 
-      <!-- AI生成中状态 -->
-      <block wx:if="{{aiGenerateStatus === 'generating'}}">
-        <view class="ai-generating-card">
-          <view class="generating-header">
-            <view class="generating-title">
-              <text class="generating-icon loading-spin">⚡</text>
-              <text class="generating-text">AI 生成中</text>
-              <view class="refresh-icon-wrapper">
-                <text class="refresh-icon loading-spin">🔄</text>
-              </view>
-            </view>
-            <view class="generating-progress">
-              <view class="progress-bar">
-                <view class="progress-fill" style="width: {{generateProgress}}%;"></view>
-              </view>
-              <text class="progress-text">{{generateProgress}}%</text>
-            </view>
-          </view>
-          <view class="generating-tips">
-            <text>正在为您生成个性化团建方案</text>
+      <block wx:if="{{xhsImportStatus === 'error'}}">
+        <view class="xhs-error">
+          <view class="xhs-error-title">解析失败</view>
+          <view class="xhs-error-msg">{{xhsParseError}}</view>
+          <view class="xhs-error-hint" wx:if="{{xhsParseErrorCode === 'PARSE_FAILED'}}">URL 抓取正文可能受限，建议粘贴“分享口令全文/正文文本”再试。</view>
+          <view class="xhs-error-hint" wx:else>建议粘贴“分享口令全文/正文文本”，或用模板补全分天信息。</view>
+          <view class="xhs-action-row" wx:if="{{xhsParseErrorCode === 'PARSE_FAILED'}}">
+            <view class="xhs-action-btn secondary" bindtap="handleCopyXhsPasteGuide">复制粘贴指南</view>
+            <view class="xhs-action-btn" bindtap="handleFillXhsItineraryTemplate">用补全模板填入</view>
           </view>
         </view>
       </block>
     </view>
 
-    <!-- 生成说明 -->
-    <view class="generate-tips">
-      <view class="tip-item">
-        <text class="tip-icon">💡</text>
-        <text class="tip-text">点击「生成方案」后，AI将根据您的描述生成定制化方案</text>
-      </view>
-      <view class="tip-item">
-        <text class="tip-icon">⏱️</text>
-        <text class="tip-text">生成时间约1-2分钟，请耐心等待</text>
-      </view>
+    <view class="card" wx:if="{{formData.markdownContent}}">
+      <view class="card-title">生成的 Markdown</view>
+      <textarea class="markdown-preview" value="{{formData.markdownContent}}" disabled="true" auto-height />
     </view>
 
-    <!-- 生成方案按钮 -->
-    <view class="form-actions">
-      <button class="btn-generate" bindtap="handleGenerate" disabled="{{aiGenerateStatus === 'generating'}}">
-        <text class="btn-icon">✨</text>
-        <text>AI 生成方案</text>
-      </button>
+    <view class="helper">
+      <text>点击「生成方案」后会异步生成（约 1-2 分钟），可在「我的方案」查看结果。</text>
     </view>
   </view>
 
-  <!-- AI填充弹窗 -->
-  <view class="ai-fill-modal" wx:if="{{showAIFillDialog}}" catchtap="handleCloseAIFillDialog">
-    <view class="modal-content" catchtap="stopPropagation">
-      <view class="modal-header">
-        <view class="modal-title">AI 智能填充</view>
-        <view class="modal-close" bindtap="handleCloseAIFillDialog">×</view>
-      </view>
-
-      <view class="modal-body">
-        <view class="modal-hint">只需填写3个核心信息，AI将为您生成完整模板</view>
-
-        <!-- 天数输入 -->
-        <view class="fill-form-item">
-          <view class="fill-label">
-            <text class="label-text">天数（1-9天）</text>
-            <text class="label-required">*</text>
-          </view>
-          <input
-            class="fill-input"
-            type="digit"
-            placeholder="如：3"
-            value="{{aiFillData.days}}"
-            bindinput="handleDaysInput"
-          />
-        </view>
-
-        <!-- 出发地 -->
-        <view class="fill-form-item">
-          <view class="fill-label">
-            <text class="label-text">出发地</text>
-            <text class="label-required">*</text>
-          </view>
-          <input
-            class="fill-input"
-            placeholder="如：北京"
-            value="{{aiFillData.origin}}"
-            bindinput="handleOriginInput"
-          />
-        </view>
-
-        <!-- 到达地 -->
-        <view class="fill-form-item">
-          <view class="fill-label">
-            <text class="label-text">到达地</text>
-            <text class="label-required">*</text>
-          </view>
-          <input
-            class="fill-input"
-            placeholder="如：青岛"
-            value="{{aiFillData.destination}}"
-            bindinput="handleDestinationInput"
-          />
-        </view>
-      </view>
-
-      <view class="modal-footer">
-        <button class="modal-btn cancel-btn" bindtap="handleCloseAIFillDialog">取消</button>
-        <button class="modal-btn confirm-btn" bindtap="handleConfirmAIFill">确认填充</button>
-      </view>
-    </view>
+  <view class="bottom-bar">
+    <button class="btn-primary" bindtap="handleGenerate" disabled="{{isSubmitting || !formData.markdownContent}}">
+      生成方案
+    </button>
   </view>
 </view>

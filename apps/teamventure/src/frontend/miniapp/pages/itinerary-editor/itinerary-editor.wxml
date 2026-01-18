@@ -1,0 +1,217 @@
+<!--
+  行程编辑器页面 - 表单化可视化编辑
+  支持：添加/删除天数、活动管理、时间冲突检测、撤销/重做
+-->
+<view class="container">
+  <!-- 顶部操作栏 -->
+  <view class="header">
+    <view class="header-left">
+      <view class="back-btn" bindtap="goBack">
+        <text class="icon-back">‹</text>
+        <text>返回</text>
+      </view>
+    </view>
+    <view class="header-title">{{planTitle || '编辑行程'}}</view>
+    <view class="header-right">
+      <view class="undo-redo">
+        <view class="icon-btn {{historyIndex <= 0 ? 'disabled' : ''}}" bindtap="undo">
+          <text class="icon">↶</text>
+        </view>
+        <view class="icon-btn {{historyIndex >= historyStack.length - 1 ? 'disabled' : ''}}" bindtap="redo">
+          <text class="icon">↷</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 验证错误提示 -->
+  <view class="validation-errors" wx:if="{{validationErrors.length > 0}}">
+    <view class="error-item" wx:for="{{validationErrors}}" wx:key="index">
+      <text class="error-icon">⚠</text>
+      <text class="error-text">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 行程内容 -->
+  <scroll-view class="content" scroll-y="true" enhanced="true" show-scrollbar="false">
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{itinerary.days.length === 0}}">
+      <view class="empty-icon">📅</view>
+      <view class="empty-text">暂无行程安排</view>
+      <view class="empty-hint">点击下方按钮添加第一天行程</view>
+    </view>
+
+    <!-- 天数列表 -->
+    <view class="days-list" wx:else>
+      <view class="day-card" wx:for="{{itinerary.days}}" wx:key="day" wx:for-index="dayIndex">
+        <!-- 天数头部 -->
+        <view class="day-header">
+          <view class="day-info">
+            <view class="day-number">第{{item.day}}天</view>
+            <picker mode="date" value="{{item.date}}" bindchange="onDateChange" data-day-index="{{dayIndex}}">
+              <view class="day-date">
+                <text>{{item.date || '选择日期'}}</text>
+                <text class="icon-calendar">📅</text>
+              </view>
+            </picker>
+          </view>
+          <view class="day-actions">
+            <view class="action-btn danger" bindtap="deleteDay" data-day-index="{{dayIndex}}" wx:if="{{itinerary.days.length > 1}}">
+              <text class="icon">🗑</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 活动列表 -->
+        <view class="activities-list">
+          <!-- 空活动提示 -->
+          <view class="empty-activities" wx:if="{{item.items.length === 0}}">
+            <text class="hint">暂无活动安排，点击下方添加</text>
+          </view>
+
+          <!-- 活动项 -->
+          <view class="activity-item {{dragInfo.isDragging && dragInfo.dayIndex === dayIndex && dragInfo.itemIndex === itemIndex ? 'dragging' : ''}}"
+                wx:for="{{item.items}}" wx:for-item="activity" wx:for-index="itemIndex" wx:key="id">
+            <view class="activity-content" bindtap="editActivity" data-day-index="{{dayIndex}}" data-item-index="{{itemIndex}}">
+              <!-- 时间 -->
+              <view class="activity-time">
+                <text class="time-text">{{activity.time_start || '--:--'}}</text>
+                <text class="time-separator">-</text>
+                <text class="time-text">{{activity.time_end || '--:--'}}</text>
+              </view>
+              <!-- 详情 -->
+              <view class="activity-details">
+                <view class="activity-name">{{activity.activity || '未命名活动'}}</view>
+                <view class="activity-location" wx:if="{{activity.location}}">
+                  <text class="icon-location">📍</text>
+                  <text>{{activity.location}}</text>
+                </view>
+                <view class="activity-note" wx:if="{{activity.note}}">
+                  <text class="note-text">{{activity.note}}</text>
+                </view>
+              </view>
+            </view>
+
+            <!-- 活动操作按钮 -->
+            <view class="activity-actions">
+              <view class="action-btn small" bindtap="moveActivity" data-day-index="{{dayIndex}}" data-item-index="{{itemIndex}}" data-direction="up" wx:if="{{itemIndex > 0}}">
+                <text class="icon">↑</text>
+              </view>
+              <view class="action-btn small" bindtap="moveActivity" data-day-index="{{dayIndex}}" data-item-index="{{itemIndex}}" data-direction="down" wx:if="{{itemIndex < item.items.length - 1}}">
+                <text class="icon">↓</text>
+              </view>
+              <view class="action-btn small" bindtap="copyActivity" data-day-index="{{dayIndex}}" data-item-index="{{itemIndex}}">
+                <text class="icon">📋</text>
+              </view>
+              <view class="action-btn small danger" bindtap="deleteActivity" data-day-index="{{dayIndex}}" data-item-index="{{itemIndex}}">
+                <text class="icon">✕</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 添加活动按钮 -->
+          <view class="add-activity-btn" bindtap="addActivity" data-day-index="{{dayIndex}}">
+            <text class="icon">+</text>
+            <text>添加活动</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 添加天数按钮 -->
+    <view class="add-day-section">
+      <view class="add-day-btn" bindtap="addDay">
+        <text class="icon">+</text>
+        <text>添加新的一天</text>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="footer">
+    <view class="footer-left">
+      <view class="status-indicator {{hasChanges ? 'unsaved' : 'saved'}}">
+        <text class="status-dot"></text>
+        <text class="status-text">{{hasChanges ? '有未保存的更改' : '已保存'}}</text>
+      </view>
+    </view>
+    <view class="footer-right">
+      <button class="btn btn-secondary" bindtap="preview">预览</button>
+      <button class="btn btn-primary {{isSaving ? 'loading' : ''}}" bindtap="save" disabled="{{isSaving || !hasChanges}}">
+        <text wx:if="{{isSaving}}">保存中...</text>
+        <text wx:else>保存</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 活动编辑弹窗 -->
+  <view class="modal-mask" wx:if="{{showActivityEditor}}" bindtap="closeActivityEditor"></view>
+  <view class="activity-editor-modal {{showActivityEditor ? 'show' : ''}}">
+    <view class="modal-header">
+      <text class="modal-title">{{editingItemIndex === -1 ? '添加活动' : '编辑活动'}}</text>
+      <view class="modal-close" bindtap="closeActivityEditor">✕</view>
+    </view>
+
+    <view class="modal-content">
+      <!-- 时间选择 -->
+      <view class="form-group">
+        <view class="form-label">时间</view>
+        <view class="time-range-picker">
+          <picker mode="time" value="{{editingActivity.time_start}}" bindchange="onActivityFieldChange" data-field="time_start">
+            <view class="time-picker-btn">
+              <text>{{editingActivity.time_start || '开始时间'}}</text>
+            </view>
+          </picker>
+          <text class="time-separator">至</text>
+          <picker mode="time" value="{{editingActivity.time_end}}" bindchange="onActivityFieldChange" data-field="time_end">
+            <view class="time-picker-btn">
+              <text>{{editingActivity.time_end || '结束时间'}}</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 活动名称 -->
+      <view class="form-group">
+        <view class="form-label required">活动名称</view>
+        <input class="form-input"
+               placeholder="请输入活动名称"
+               value="{{editingActivity.activity}}"
+               bindinput="onActivityFieldChange"
+               data-field="activity"
+               maxlength="50" />
+      </view>
+
+      <!-- 地点 -->
+      <view class="form-group">
+        <view class="form-label">地点</view>
+        <input class="form-input"
+               placeholder="请输入活动地点（选填）"
+               value="{{editingActivity.location}}"
+               bindinput="onActivityFieldChange"
+               data-field="location"
+               maxlength="100" />
+      </view>
+
+      <!-- 备注 -->
+      <view class="form-group">
+        <view class="form-label">备注</view>
+        <textarea class="form-textarea"
+                  placeholder="添加备注信息（选填）"
+                  value="{{editingActivity.note}}"
+                  bindinput="onActivityFieldChange"
+                  data-field="note"
+                  maxlength="200"
+                  auto-height="true" />
+      </view>
+    </view>
+
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="closeActivityEditor">取消</button>
+      <button class="btn btn-primary" bindtap="saveActivityEdit">确定</button>
+    </view>
+  </view>
+</view>
