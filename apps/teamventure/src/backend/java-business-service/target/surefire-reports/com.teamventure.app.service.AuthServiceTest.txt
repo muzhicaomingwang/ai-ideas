@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 Test set: com.teamventure.app.service.AuthServiceTest
 -------------------------------------------------------------------------------
-Tests run: 13, Failures: 0, Errors: 13, Skipped: 0, Time elapsed: 0.021 s <<< FAILURE! -- in com.teamventure.app.service.AuthServiceTest
+Tests run: 13, Failures: 0, Errors: 13, Skipped: 0, Time elapsed: 0.016 s <<< FAILURE! -- in com.teamventure.app.service.AuthServiceTest
 com.teamventure.app.service.AuthServiceTest.testLoginWithWeChat_RedisUnavailable -- Time elapsed: 0.005 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
@@ -28,7 +28,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -104,7 +104,7 @@ Caused by: java.lang.IllegalStateException: Could not self-attach to current VM 
 	at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<clinit>(InlineDelegateByteBuddyMockMaker.java:133)
 	... 49 more
 
-com.teamventure.app.service.AuthServiceTest.testGetUserIdFromAuthorization_MissingBearer -- Time elapsed: 0.001 s <<< ERROR!
+com.teamventure.app.service.AuthServiceTest.testGetUserIdFromAuthorization_MissingBearer -- Time elapsed: 0 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
 	at jdk.proxy2/jdk.proxy2.$Proxy104.isTypeMockable(Unknown Source)
@@ -130,7 +130,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -206,7 +206,7 @@ Caused by: java.lang.IllegalStateException: Could not self-attach to current VM 
 	at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<clinit>(InlineDelegateByteBuddyMockMaker.java:133)
 	... 49 more
 
-com.teamventure.app.service.AuthServiceTest.testRefreshTokenIfNeeded_InvalidToken -- Time elapsed: 0.001 s <<< ERROR!
+com.teamventure.app.service.AuthServiceTest.testRefreshTokenIfNeeded_InvalidToken -- Time elapsed: 0 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
 	at jdk.proxy2/jdk.proxy2.$Proxy104.isTypeMockable(Unknown Source)
@@ -232,7 +232,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -308,7 +308,7 @@ Caused by: java.lang.IllegalStateException: Could not self-attach to current VM 
 	at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<clinit>(InlineDelegateByteBuddyMockMaker.java:133)
 	... 49 more
 
-com.teamventure.app.service.AuthServiceTest.testRefreshTokenIfNeeded_UserNotFound -- Time elapsed: 0.001 s <<< ERROR!
+com.teamventure.app.service.AuthServiceTest.testRefreshTokenIfNeeded_UserNotFound -- Time elapsed: 0 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
 	at jdk.proxy2/jdk.proxy2.$Proxy104.isTypeMockable(Unknown Source)
@@ -334,7 +334,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -410,7 +410,7 @@ Caused by: java.lang.IllegalStateException: Could not self-attach to current VM 
 	at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<clinit>(InlineDelegateByteBuddyMockMaker.java:133)
 	... 49 more
 
-com.teamventure.app.service.AuthServiceTest.testLoginWithWeChat_NewUser_DefaultNickname -- Time elapsed: 0.001 s <<< ERROR!
+com.teamventure.app.service.AuthServiceTest.testLoginWithWeChat_NewUser_DefaultNickname -- Time elapsed: 0 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
 	at jdk.proxy2/jdk.proxy2.$Proxy104.isTypeMockable(Unknown Source)
@@ -436,7 +436,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -538,7 +538,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -640,7 +640,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -716,7 +716,7 @@ Caused by: java.lang.IllegalStateException: Could not self-attach to current VM 
 	at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<clinit>(InlineDelegateByteBuddyMockMaker.java:133)
 	... 49 more
 
-com.teamventure.app.service.AuthServiceTest.testGetUserIdFromAuthorization_Null -- Time elapsed: 0.001 s <<< ERROR!
+com.teamventure.app.service.AuthServiceTest.testGetUserIdFromAuthorization_Null -- Time elapsed: 0 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
 	at jdk.proxy2/jdk.proxy2.$Proxy104.isTypeMockable(Unknown Source)
@@ -742,7 +742,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -818,7 +818,7 @@ Caused by: java.lang.IllegalStateException: Could not self-attach to current VM 
 	at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<clinit>(InlineDelegateByteBuddyMockMaker.java:133)
 	... 49 more
 
-com.teamventure.app.service.AuthServiceTest.testLoginWithWeChat_NewUser -- Time elapsed: 0.001 s <<< ERROR!
+com.teamventure.app.service.AuthServiceTest.testLoginWithWeChat_NewUser -- Time elapsed: 0 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:84)
 	at jdk.proxy2/jdk.proxy2.$Proxy104.isTypeMockable(Unknown Source)
@@ -844,7 +844,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -946,7 +946,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -1048,7 +1048,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -1150,7 +1150,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)
@@ -1252,7 +1252,7 @@ java.lang.IllegalStateException: Could not initialize plugin: interface org.mock
 	Suppressed: java.lang.NullPointerException: Cannot invoke "java.util.Set.forEach(java.util.function.Consumer)" because the return value of "org.junit.jupiter.api.extension.ExtensionContext$Store.remove(Object, java.lang.Class)" is null
 		at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:190)
 		... 2 more
-Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@3086155a
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockMaker implementation declared in java.lang.CompoundEnumeration@387c5d79
 	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpl(PluginInitializer.java:56)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:65)
 	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugin(PluginLoader.java:50)

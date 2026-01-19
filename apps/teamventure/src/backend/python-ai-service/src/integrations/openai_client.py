@@ -30,20 +30,30 @@ class OpenAIClient:
     def is_configured(self) -> bool:
         return bool(self._api_key and not self._api_key.startswith("sk-xxxx"))
 
-    async def generate_json(self, prompt: str) -> dict[str, Any]:
+    async def generate_json(
+        self,
+        prompt: str,
+        *,
+        model: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
         if not self.is_configured():
             raise RuntimeError("OPENAI_API_KEY is not configured")
 
         client = AsyncOpenAI(api_key=self._api_key)
         start_time = time.perf_counter()
 
+        model_to_use = model or self._model
+        temperature_to_use = self._temperature if temperature is None else temperature
+        max_tokens_to_use = self._max_tokens if max_tokens is None else max_tokens
+
         try:
-            response = await client.chat.completions.create(
-                model=self._model,
-                temperature=self._temperature,
-                max_tokens=self._max_tokens,
-                response_format={"type": "json_object"},
-                messages=[
+            kwargs: dict[str, Any] = {
+                "model": model_to_use,
+                "temperature": temperature_to_use,
+                "response_format": {"type": "json_object"},
+                "messages": [
                     {
                         "role": "system",
                         "content": (
@@ -54,7 +64,15 @@ class OpenAIClient:
                     },
                     {"role": "user", "content": prompt},
                 ],
-            )
+            }
+
+            # Some newer models (e.g. gpt-5.*) reject `max_tokens` and require `max_completion_tokens`.
+            if isinstance(model_to_use, str) and model_to_use.startswith(("gpt-5", "o")):
+                kwargs["max_completion_tokens"] = max_tokens_to_use
+            else:
+                kwargs["max_tokens"] = max_tokens_to_use
+
+            response = await client.chat.completions.create(**kwargs)
             duration = time.perf_counter() - start_time
 
             # Record metrics
@@ -63,7 +81,7 @@ class OpenAIClient:
             output_tokens = usage.completion_tokens if usage else 0
 
             record_llm_call(
-                model=self._model,
+                model=model_to_use,
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 duration_seconds=duration,
@@ -72,7 +90,7 @@ class OpenAIClient:
 
             logger.info(
                 "OpenAI call completed: model=%s, input_tokens=%d, output_tokens=%d, duration=%.2fs",
-                self._model,
+                model_to_use,
                 input_tokens,
                 output_tokens,
                 duration,
@@ -81,7 +99,7 @@ class OpenAIClient:
         except Exception:
             duration = time.perf_counter() - start_time
             record_llm_call(
-                model=self._model,
+                model=model_to_use,
                 input_tokens=0,
                 output_tokens=0,
                 duration_seconds=duration,

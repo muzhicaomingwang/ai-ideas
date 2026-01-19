@@ -163,6 +163,25 @@
   text-overflow: ellipsis;
 }
 
+.plan-id {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.2;
+}
+
+.plan-version {
+  display: inline-block;
+  margin-top: 8rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #1890ff;
+  background: rgba(24, 144, 255, 0.12);
+}
+
 .status-badge {
   padding: 8rpx 16rpx;
   border-radius: 4rpx;

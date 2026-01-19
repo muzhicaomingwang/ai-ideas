@@ -84,9 +84,10 @@ public class PlanController {
 
     @PutMapping("/{planId}/submit-review")
     public ApiResponse<Void> submitReview(@RequestHeader(value = "Authorization", required = false) String authorization,
-                                          @PathVariable String planId) {
+                                          @PathVariable String planId,
+                                          @RequestBody(required = false) SubmitReviewRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.submitReview(userId, planId);
+        planService.submitReview(userId, planId, req);
         return ApiResponse.success();
     }
 
@@ -145,6 +146,9 @@ public class PlanController {
         /** Markdown格式的行程需求描述 */
         @NotBlank
         public String markdown_content;
+
+        /** 可选：用户指定的方案名称（用于覆盖AI生成名称） */
+        public String plan_name;
     }
 
     public static class GenerateResponse {
@@ -166,5 +170,11 @@ public class PlanController {
     public static class UpdateItineraryRequest {
         @NotNull public Map<String, Object> itinerary;
         @NotNull public Integer base_version;
+    }
+
+    public static class SubmitReviewRequest {
+        /** 用户确认的出发日期（YYYY-MM-DD） */
+        @JsonAlias({"start_date", "startDate"})
+        public String start_date;
     }
 }

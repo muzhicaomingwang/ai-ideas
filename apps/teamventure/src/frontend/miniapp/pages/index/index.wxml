@@ -3,14 +3,17 @@
   <view class="page-header">
     <view class="header-title-row">
       <view class="header-title">生成团建方案（MVP）</view>
-      <view class="version-badge">V0.0.1</view>
+      <view class="version-badge">V0.0.5</view>
     </view>
-    <view class="header-subtitle">仅支持小红书链接/口令导入生成 Markdown</view>
+    <view class="header-subtitle">仅支持小红书链接/口令导入 → 解析内容 → 转 Markdown</view>
   </view>
 
   <view class="content">
     <view class="card">
-      <view class="card-title">小红书导入</view>
+      <view class="card-title-row">
+        <view class="card-title">小红书导入</view>
+        <view class="clear-link {{xhsImportStatus === 'parsing' ? 'disabled' : ''}}" bindtap="handleResetXhsImport">清空</view>
+      </view>
       <view class="hint">粘贴分享链接/口令后，系统会解析并返回笔记内容，自动填入下方文档框。</view>
 
       <view class="xhs-input-row">
@@ -26,7 +29,6 @@
       </view>
 
       <view class="xhs-actions">
-        <button class="btn-secondary" bindtap="handleResetXhsImport" disabled="{{xhsImportStatus === 'parsing'}}">清空</button>
         <button class="btn-primary" bindtap="handleStartXhsParse" disabled="{{!xhsLink || xhsImportStatus === 'parsing'}}">开始解析</button>
       </view>
 
@@ -57,19 +59,67 @@
       </block>
     </view>
 
-    <view class="card" wx:if="{{formData.markdownContent}}">
-      <view class="card-title">生成的 Markdown</view>
-      <textarea class="markdown-preview" value="{{formData.markdownContent}}" disabled="true" auto-height />
+    <view class="card">
+      <view class="card-title-row">
+        <view class="card-title">解析内容</view>
+        <view class="clear-link" bindtap="handleClearParsedContent">清空</view>
+      </view>
+      <textarea
+        class="parsed-content"
+        value="{{formData.parsedContent}}"
+        bindinput="handleParsedContentInput"
+        maxlength="20000"
+        show-confirm-bar="false"
+        placeholder="解析结果会自动填入这里；也可以手动粘贴/编辑原文内容..."
+      />
+      <button class="btn-primary btn-wide" bindtap="handleConvertToMarkdown" disabled="{{!formData.parsedContent || isConverting}}">
+        {{isConverting ? '转换中...' : '将解析内容转化为Markdown'}}
+      </button>
+    </view>
+
+    <view class="card">
+      <view class="card-title-row">
+        <view class="card-title">Markdown 内容</view>
+        <view class="md-version-badge">v0.0.2</view>
+        <view class="clear-link" bindtap="handleClearMarkdownContent">清空</view>
+      </view>
+      <textarea
+        class="markdown-content"
+        value="{{formData.markdownContent}}"
+        bindinput="handleMarkdownContentInput"
+        maxlength="20000"
+        show-confirm-bar="false"
+        placeholder="点击上方按钮后，会在这里生成 Markdown；也可以手动调整..."
+      />
+      <button
+        class="btn-primary btn-save"
+        bindtap="handleSaveWithAiOptimize"
+        disabled="{{isSubmitting || !formData.parsedContent}}"
+      >
+        AI优化并保存方案
+      </button>
     </view>
 
     <view class="helper">
-      <text>点击「生成方案」后会异步生成（约 1-2 分钟），可在「我的方案」查看结果。</text>
+      <text>点击下方按钮后会异步生成（约 1-2 分钟），可在「我的方案」查看结果。</text>
     </view>
   </view>
 
-  <view class="bottom-bar">
-    <button class="btn-primary" bindtap="handleGenerate" disabled="{{isSubmitting || !formData.markdownContent}}">
-      生成方案
-    </button>
+  <!-- 方案名称弹窗 -->
+  <view class="dialog-mask" wx:if="{{planNameDialog.visible}}" catchtap="handlePlanNameCancel">
+    <view class="dialog" catchtap="noop">
+      <view class="dialog-title">设置方案名称</view>
+      <input
+        class="dialog-input"
+        value="{{planNameDialog.value}}"
+        bindinput="handlePlanNameInput"
+        maxlength="30"
+        placeholder="例如：上海三日团建方案"
+      />
+      <view class="dialog-actions">
+        <view class="dialog-btn dialog-btn-cancel" bindtap="handlePlanNameCancel">取消</view>
+        <view class="dialog-btn dialog-btn-ok" bindtap="handlePlanNameConfirm">确认</view>
+      </view>
+    </view>
   </view>
 </view>

@@ -168,6 +168,26 @@
   justify-content: center;
 }
 
+.itinerary-save-pill {
+  height: 48rpx;
+  line-height: 48rpx;
+  padding: 0 16rpx;
+  font-size: 24rpx;
+  border-radius: 999rpx;
+  background: rgba(24, 144, 255, 0.12);
+  color: #1890ff;
+  border: 2rpx solid rgba(24, 144, 255, 0.30);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.itinerary-save-pill.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .toggle-icon {
   font-size: 24rpx;
   color: #999;
@@ -184,115 +204,31 @@
   max-height: 5000rpx;
 }
 
-/* 地图路线 */
-.map-panel {
-  padding: 24rpx;
-  background: linear-gradient(145deg, #f0f8ff 0%, #e6f7ff 100%);
-  border-radius: 16rpx;
-  border: 3rpx solid #91d5ff;
-  box-shadow: 0 4rpx 16rpx rgba(24, 144, 255, 0.12);
+/* 行程（Day 纵列 + 横向卡片） */
+.itinerary-day-list {
+  padding: 28rpx 32rpx 32rpx;
 }
 
-.day-tabs {
-  white-space: nowrap;
-  margin-bottom: 16rpx;
+.itinerary-day {
+  margin-bottom: 40rpx;
 }
 
-.day-tabs-inner {
-  display: inline-flex;
-  gap: 12rpx;
-}
-
-.day-tab {
-  padding: 10rpx 20rpx;
-  border-radius: 999rpx;
-  font-size: 24rpx;
-  background: #f5f5f5;
-  color: #666;
-  border: 2rpx solid #eee;
-}
-
-.day-tab.active {
-  background: #e6f7ff;
-  color: #1890ff;
-  border-color: #91d5ff;
-}
-
-/* 地图类型tabs（跨城/本地） */
-.map-type-tabs {
-  white-space: nowrap;
-  margin-bottom: 16rpx;
-}
-
-.map-type-tabs-inner {
-  display: inline-flex;
-  gap: 12rpx;
-}
-
-.map-type-tab {
-  padding: 8rpx 24rpx;
-  border-radius: 999rpx;
-  font-size: 24rpx;
-  background: #ffffff;
-  color: #666;
-  border: 2rpx solid #d9d9d9;
-}
-
-.map-type-tab.active {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
-  color: #ffffff;
-  border-color: #1890ff;
-  font-weight: 500;
-}
-
-.route-map {
-  width: 100%;
-  height: 520rpx;
-  border-radius: 12rpx;
-  overflow: hidden;
-}
-
-.route-map-static {
-  width: 100%;
-  height: 520rpx;
-  border-radius: 12rpx;
-  overflow: hidden;
-  display: block;
-}
-
-.map-loading,
-.map-empty {
-  padding: 32rpx 0;
-  text-align: center;
-  color: #999;
-  font-size: 26rpx;
-}
-
-/* 行程时间轴 */
-.itinerary-timeline {
-  padding: 32rpx;
-}
-
-.timeline-day {
-  margin-bottom: 48rpx;
-}
-
-.timeline-day:last-child {
+.itinerary-day:last-child {
   margin-bottom: 0;
 }
 
 .day-header {
   display: flex;
   align-items: baseline;
-  margin-bottom: 24rpx;
-  padding-bottom: 16rpx;
+  margin-bottom: 18rpx;
+  padding-bottom: 14rpx;
   border-bottom: 2rpx solid #e8e8e8;
 }
 
 .day-title {
   font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #222;
   margin-right: 12rpx;
 }
 
@@ -301,68 +237,94 @@
   color: #999;
 }
 
-.timeline-items {
-  padding-left: 32rpx;
+.cards-scroll {
+  width: 100%;
 }
 
-.timeline-item {
-  position: relative;
-  padding-left: 48rpx;
-  padding-bottom: 32rpx;
+.cards-row {
+  display: flex;
+  align-items: stretch;
+  gap: 16rpx;
+  padding: 10rpx 0 6rpx;
 }
 
-.timeline-item:last-child {
-  padding-bottom: 0;
+.it-card {
+  width: 142rpx;
+  flex-shrink: 0;
+  border-radius: 16rpx;
+  padding: 18rpx 18rpx 16rpx;
+  border: 2rpx solid #e8e8e8;
+  background: #fff;
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.06);
+  min-height: 214rpx;
+  display: flex;
+  flex-direction: column;
 }
 
-.time-dot {
-  position: absolute;
-  left: 0;
-  top: 8rpx;
-  width: 16rpx;
-  height: 16rpx;
-  background-color: #1890ff;
-  border-radius: 50%;
-  border: 4rpx solid #e6f7ff;
+.it-card-transport {
+  border-color: rgba(24, 144, 255, 0.35);
+  background: rgba(24, 144, 255, 0.06);
 }
 
-.time-line {
-  position: absolute;
-  left: 7rpx;
-  top: 24rpx;
-  bottom: 0;
-  width: 2rpx;
-  background-color: #e8e8e8;
+.it-card-nearby {
+  border-color: rgba(82, 196, 26, 0.35);
+  background: rgba(82, 196, 26, 0.06);
 }
 
-.time-content {
-  padding-left: 16rpx;
+.it-card-accommodation {
+  border-color: rgba(114, 46, 209, 0.35);
+  background: rgba(114, 46, 209, 0.06);
 }
 
-.time-range {
-  font-size: 24rpx;
-  color: #1890ff;
-  margin-bottom: 8rpx;
+.it-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-bottom: 12rpx;
 }
 
-.activity-name {
-  font-size: 28rpx;
-  font-weight: 500;
+.it-badge {
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.it-badge-type {
+  background: rgba(0, 0, 0, 0.06);
   color: #333;
+}
+
+.it-card-time {
+  font-size: 22rpx;
+  color: #1890ff;
+  font-weight: 700;
   margin-bottom: 8rpx;
 }
 
-.activity-location {
+.it-card-title {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #111;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.it-card-sub {
+  margin-top: 8rpx;
   font-size: 24rpx;
   color: #666;
-  margin-bottom: 8rpx;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
 }
 
-.activity-note {
-  font-size: 24rpx;
-  color: #999;
-  font-style: italic;
-}
 
 /* 底部操作栏 */
 .bottom-actions {
@@ -441,6 +403,172 @@
 
 .btn-action:active {
   opacity: 0.9;
+}
+
+/* 通晒日期确认弹窗 */
+.dialog-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 620rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 28rpx 26rpx 22rpx;
+  box-sizing: border-box;
+}
+
+.dialog-wide {
+  max-width: 680rpx;
+}
+
+.dialog-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 10rpx;
+}
+
+.dialog-sub {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+}
+
+.dialog-picker {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid #e8e8e8;
+  background: #fafafa;
+  padding: 0 18rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  color: #111;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 20rpx;
+}
+
+.dialog-btn {
+  flex: 1;
+  height: 84rpx;
+  line-height: 84rpx;
+  text-align: center;
+  border-radius: 42rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.dialog-btn-cancel {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.dialog-btn-ok {
+  background: #1890ff;
+  color: #fff;
+}
+
+/* 卡片编辑器 */
+.type-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin: 12rpx 0 18rpx;
+}
+
+.type-tab {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  border-radius: 14rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  background: #f5f5f5;
+  color: #333;
+  border: 2rpx solid #e8e8e8;
+  box-sizing: border-box;
+}
+
+.type-tab.active {
+  background: rgba(24, 144, 255, 0.12);
+  color: #1890ff;
+  border-color: rgba(24, 144, 255, 0.35);
+}
+
+.dialog-field {
+  margin-top: 14rpx;
+}
+
+.field-label {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+  font-weight: 700;
+}
+
+.field-input {
+  width: 100%;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid #e8e8e8;
+  background: #fafafa;
+  padding: 0 18rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  color: #111;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.time-input {
+  flex: 1;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid #e8e8e8;
+  background: #fafafa;
+  padding: 0 18rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  color: #111;
+}
+
+.time-sep {
+  width: 36rpx;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+  font-weight: 800;
+}
+
+.field-hint {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #999;
 }
 
 .btn-confirmed {

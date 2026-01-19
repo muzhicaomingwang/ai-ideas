@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarkdownOptimizeService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">MarkdownOptimizeService.java</span></div><h1>MarkdownOptimizeService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamventure.app.support.BizException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
+public class MarkdownOptimizeService {
+<span class="nc" id="L19">    private static final Logger log = LoggerFactory.getLogger(MarkdownOptimizeService.class);</span>
+
+    private final HttpClient http;
+<span class="nc" id="L22">    private final ObjectMapper objectMapper = new ObjectMapper();</span>
+
+    @Value(&quot;${teamventure.ai-service.url:}&quot;)
+    private String aiServiceUrl;
+
+    @Value(&quot;${teamventure.ai-service.normalize-model:gpt-5.2}&quot;)
+    private String optimizeModel;
+
+<span class="nc" id="L30">    public MarkdownOptimizeService() {</span>
+<span class="nc" id="L31">        this.http = HttpClient.newBuilder()</span>
+<span class="nc" id="L32">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
+<span class="nc" id="L33">                .connectTimeout(Duration.ofSeconds(10))</span>
+<span class="nc" id="L34">                .version(HttpClient.Version.HTTP_1_1)</span>
+<span class="nc" id="L35">                .build();</span>
+<span class="nc" id="L36">    }</span>
+
+    public String convertFromParsed(String parsedContent) {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        String input = parsedContent == null ? &quot;&quot; : parsedContent.trim();</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (input.isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;parsed_content is empty&quot;);</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">        if (aiServiceUrl == null || aiServiceUrl.isBlank()) return input;</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        String endpoint = aiServiceUrl.endsWith(&quot;/&quot;)</span>
+<span class="nc" id="L44">                ? (aiServiceUrl.substring(0, aiServiceUrl.length() - 1) + &quot;/api/v1/markdown/convert&quot;)</span>
+<span class="nc" id="L45">                : (aiServiceUrl + &quot;/api/v1/markdown/convert&quot;);</span>
+
+        try {
+<span class="nc" id="L48">            String body = objectMapper.createObjectNode()</span>
+<span class="nc" id="L49">                    .put(&quot;parsed_content&quot;, input)</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                    .put(&quot;model&quot;, optimizeModel == null ? &quot;&quot; : optimizeModel)</span>
+<span class="nc" id="L51">                    .toString();</span>
+<span class="nc" id="L52">            byte[] payload = body.getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L53">            log.debug(&quot;markdown convert request prepared: endpoint={} bytes={}&quot;, endpoint, payload.length);</span>
+
+<span class="nc" id="L55">            HttpRequest req = HttpRequest.newBuilder(URI.create(endpoint))</span>
+<span class="nc" id="L56">                    .timeout(Duration.ofSeconds(45))</span>
+<span class="nc" id="L57">                    .header(&quot;Content-Type&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L58">                    .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L59">                    .POST(HttpRequest.BodyPublishers.ofByteArray(payload))</span>
+<span class="nc" id="L60">                    .build();</span>
+
+<span class="nc" id="L62">            HttpResponse&lt;byte[]&gt; res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (res.statusCode() &lt; 200 || res.statusCode() &gt;= 300) {</span>
+<span class="nc" id="L64">                String details = safeSnippet(res.body());</span>
+<span class="nc" id="L65">                log.warn(&quot;markdown convert via AI failed: status={} details={}&quot;, res.statusCode(), details);</span>
+<span class="nc" id="L66">                return input;</span>
+            }
+
+<span class="nc" id="L69">            JsonNode root = objectMapper.readTree(res.body());</span>
+<span class="nc" id="L70">            String content = root.path(&quot;markdown_content&quot;).asText(&quot;&quot;).trim();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            return content.isBlank() ? input : content;</span>
+<span class="nc" id="L72">        } catch (Exception e) {</span>
+<span class="nc" id="L73">            log.warn(&quot;markdown convert via AI failed, fallback to input&quot;, e);</span>
+<span class="nc" id="L74">            return input;</span>
+        }
+    }
+
+    public String optimize(String markdownContent) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        String input = markdownContent == null ? &quot;&quot; : markdownContent.trim();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (input.isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;markdown_content is empty&quot;);</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (aiServiceUrl == null || aiServiceUrl.isBlank()) return input;</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        String endpoint = aiServiceUrl.endsWith(&quot;/&quot;)</span>
+<span class="nc" id="L84">                ? (aiServiceUrl.substring(0, aiServiceUrl.length() - 1) + &quot;/api/v1/markdown/optimize&quot;)</span>
+<span class="nc" id="L85">                : (aiServiceUrl + &quot;/api/v1/markdown/optimize&quot;);</span>
+
+        try {
+<span class="nc" id="L88">            String body = objectMapper.createObjectNode()</span>
+<span class="nc" id="L89">                    .put(&quot;markdown_content&quot;, input)</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                    .put(&quot;model&quot;, optimizeModel == null ? &quot;&quot; : optimizeModel)</span>
+<span class="nc" id="L91">                    .toString();</span>
+<span class="nc" id="L92">            byte[] payload = body.getBytes(StandardCharsets.UTF_8);</span>
+
+<span class="nc" id="L94">            HttpRequest req = HttpRequest.newBuilder(URI.create(endpoint))</span>
+<span class="nc" id="L95">                    .timeout(Duration.ofSeconds(45))</span>
+<span class="nc" id="L96">                    .header(&quot;Content-Type&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L97">                    .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L98">                    .POST(HttpRequest.BodyPublishers.ofByteArray(payload))</span>
+<span class="nc" id="L99">                    .build();</span>
+
+<span class="nc" id="L101">            HttpResponse&lt;byte[]&gt; res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">            if (res.statusCode() &lt; 200 || res.statusCode() &gt;= 300) {</span>
+<span class="nc" id="L103">                String details = safeSnippet(res.body());</span>
+<span class="nc" id="L104">                log.warn(&quot;markdown optimize via AI failed: status={} details={}&quot;, res.statusCode(), details);</span>
+<span class="nc" id="L105">                return input;</span>
+            }
+
+<span class="nc" id="L108">            JsonNode root = objectMapper.readTree(res.body());</span>
+<span class="nc" id="L109">            String content = root.path(&quot;markdown_content&quot;).asText(&quot;&quot;).trim();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            return content.isBlank() ? input : content;</span>
+<span class="nc" id="L111">        } catch (Exception e) {</span>
+<span class="nc" id="L112">            log.warn(&quot;markdown optimize via AI failed, fallback to input&quot;, e);</span>
+<span class="nc" id="L113">            return input;</span>
+        }
+    }
+
+    private String safeSnippet(byte[] body) {
+<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (body == null || body.length == 0) return &quot;&quot;;</span>
+        try {
+<span class="nc" id="L120">            String s = new String(body, StandardCharsets.UTF_8).trim();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (s.length() &gt; 240) s = s.substring(0, 240) + &quot;...&quot;;</span>
+<span class="nc" id="L122">            return s;</span>
+<span class="nc" id="L123">        } catch (Exception ignore) {</span>
+<span class="nc" id="L124">            return &quot;&quot;;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

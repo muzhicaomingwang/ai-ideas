@@ -1,6 +1,6 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 TeamVenture Business Service,com.teamventure.infrastructure.cache,StaticMapUrlCache,341,0,12,0,96,0,20,0,14,0
-TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService,1272,478,262,48,217,127,169,23,18,15
+TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService,3455,0,652,0,639,0,386,0,56,0
 TeamVenture Business Service,com.teamventure.app.service,Jsons,73,0,12,0,20,0,12,0,6,0
 TeamVenture Business Service,com.teamventure.app.service,PlanService.RouteSegment,15,0,0,0,6,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.app.service,Jsons.new TypeReference() {...},3,0,0,0,1,0,1,0,1,0
@@ -10,6 +10,8 @@ TeamVenture Business Service,com.teamventure.app.service,Jsons.new TypeReference
 TeamVenture Business Service,com.teamventure.app.service,PlanService.DayRouteType,21,0,0,0,4,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.app.service,PlanService.new LinkedHashMap() {...},14,0,2,0,2,0,3,0,2,0
 TeamVenture Business Service,com.teamventure.app.service,PlanService.new LinkedHashMap() {...},14,0,2,0,2,0,3,0,2,0
+TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ScrapedNote,17,0,4,0,4,0,3,0,1,0
+TeamVenture Business Service,com.teamventure.app.service,MarkdownOptimizeService,339,0,42,0,72,0,26,0,5,0
 TeamVenture Business Service,com.teamventure.app.service,SupplierService,59,0,10,0,14,0,8,0,3,0
 TeamVenture Business Service,com.teamventure.app.service,PlanService,4851,0,507,0,1009,0,306,0,51,0
 TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ItinerarySignals,16,0,2,0,5,0,2,0,1,0
@@ -21,6 +23,10 @@ TeamVenture Business Service,com.teamventure.app.service,InternalPlanCallbackSer
 TeamVenture Business Service,com.teamventure.app.support,BizException,5,10,0,0,2,4,1,2,1,2
 TeamVenture Business Service,com.teamventure.app.support,JwtSupport,0,67,0,2,0,20,0,7,0,6
 TeamVenture Business Service,com.teamventure.app.support,IdGenerator,9,0,0,0,2,0,2,0,2,0
+TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownController,43,0,0,0,10,0,3,0,3,0
+TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownController.OptimizeRequest,3,0,0,0,1,0,1,0,1,0
+TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownController.OptimizeResponse,6,0,0,0,3,0,1,0,1,0
+TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownController.ConvertRequest,3,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.users,UserController.UpdateAvatarRequest,6,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.users,UserController.UserInfo,21,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.users,UserController,93,0,4,0,24,0,5,0,3,0

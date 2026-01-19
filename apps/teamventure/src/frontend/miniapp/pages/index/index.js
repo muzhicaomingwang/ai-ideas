@@ -4,12 +4,25 @@ import { API_ENDPOINTS, STORAGE_KEYS } from '../../utils/config.js'
 
 const app = getApp()
 
+const API_ENDPOINTS_LOCAL = {
+  MARKDOWN_CONVERT: '/markdown/convert',
+  MARKDOWN_OPTIMIZE: '/markdown/optimize'
+}
+
+const OPENAI_MODEL = 'gpt-5.2'
+
 Page({
   data: {
     formData: {
+      parsedContent: '',
       markdownContent: ''
     },
+    planNameDialog: {
+      visible: false,
+      value: ''
+    },
     isSubmitting: false,
+    isConverting: false,
 
     // 小红书导入
     xhsImportStatus: 'idle', // idle | parsing | error
@@ -42,12 +55,15 @@ Page({
     }
   },
 
+  noop() {},
+
   loadLastRequest() {
     try {
       const lastRequest = wx.getStorageSync(STORAGE_KEYS.LATEST_REQUEST)
-      if (lastRequest?.markdownContent) {
+      if (lastRequest?.markdownContent || lastRequest?.parsedContent) {
         this.setData({
-          'formData.markdownContent': lastRequest.markdownContent
+          'formData.parsedContent': lastRequest.parsedContent || '',
+          'formData.markdownContent': lastRequest.markdownContent || ''
         })
       }
     } catch (error) {
@@ -59,6 +75,7 @@ Page({
     try {
       wx.setStorageSync(STORAGE_KEYS.LATEST_REQUEST, {
         mode: 'markdown',
+        parsedContent: this.data.formData.parsedContent,
         markdownContent: this.data.formData.markdownContent
       })
     } catch (error) {
@@ -68,13 +85,15 @@ Page({
 
   saveDraft() {
     try {
+      const parsedContent = (this.data.formData.parsedContent || '').trim()
       const markdown = (this.data.formData.markdownContent || '').trim()
       const link = (this.data.xhsLink || '').trim()
-      if (!markdown && !link) return
+      if (!parsedContent && !markdown && !link) return
 
       wx.setStorageSync(STORAGE_KEYS.DRAFT_REQUEST, {
         timestamp: Date.now(),
         xhsLink: link,
+        parsedContent,
         markdownContent: markdown
       })
     } catch (error) {
@@ -107,6 +126,56 @@ Page({
       xhsParseError: '',
       xhsParseErrorCode: ''
     })
+  },
+
+  handleParsedContentInput(e) {
+    this.setData({ 'formData.parsedContent': e.detail.value })
+  },
+
+  handleMarkdownContentInput(e) {
+    this.setData({ 'formData.markdownContent': e.detail.value })
+  },
+
+  handleClearParsedContent() {
+    this.setData({ 'formData.parsedContent': '' })
+    this.saveCurrentRequest()
+  },
+
+  handleClearMarkdownContent() {
+    this.setData({ 'formData.markdownContent': '' })
+    this.saveCurrentRequest()
+  },
+
+  async handleConvertToMarkdown() {
+    if (this.data.isConverting) return
+    const parsed = (this.data.formData.parsedContent || '').trim()
+    if (!parsed) return
+
+    this.setData({ isConverting: true })
+    try {
+      wx.showLoading({ title: 'AI转换中...', mask: true })
+      const res = await post(
+        API_ENDPOINTS_LOCAL.MARKDOWN_CONVERT,
+        { parsed_content: parsed, model: OPENAI_MODEL },
+        { showLoading: false, timeout: 45000 }
+      )
+      const md = (res?.markdown_content || '').toString().trim()
+      if (!md) {
+        throw new Error('未获取到 Markdown 内容')
+      }
+      this.setData({ 'formData.markdownContent': md })
+      this.saveCurrentRequest()
+      wx.showToast({ title: '已生成 Markdown', icon: 'success' })
+    } catch (e) {
+      wx.showModal({
+        title: '转换失败',
+        content: e?.message || '请稍后重试',
+        showCancel: false
+      })
+    } finally {
+      wx.hideLoading()
+      this.setData({ isConverting: false })
+    }
   },
 
   buildXhsItineraryTemplate() {
@@ -189,7 +258,7 @@ D2 ________
     }, 120)
 
     try {
-      const result = await post(API_ENDPOINTS.XHS_PARSE, { link }, { showLoading: false, timeout: 45000 })
+      const result = await post(API_ENDPOINTS.XHS_PARSE, { link }, { showLoading: false, timeout: 90000 })
 
       if (this.progressTimer) {
         clearInterval(this.progressTimer)
@@ -206,7 +275,8 @@ D2 ________
 
       this.setData({
         xhsImportStatus: 'idle',
-        'formData.markdownContent': markdown
+        'formData.parsedContent': markdown,
+        'formData.markdownContent': ''
       })
       this.saveCurrentRequest()
     } catch (error) {
@@ -227,7 +297,7 @@ D2 ________
   validateMarkdown() {
     const markdown = (this.data.formData.markdownContent || '').trim()
     if (!markdown) {
-      wx.showToast({ title: '请先导入生成Markdown', icon: 'none' })
+      wx.showToast({ title: '请先生成/填写 Markdown', icon: 'none' })
       return false
     }
     if (markdown.length < 50) {
@@ -237,20 +307,74 @@ D2 ________
     return true
   },
 
-  async handleGenerate() {
+  async handleSaveWithAiOptimize() {
     if (this.data.isSubmitting) return
+    const defaultName = this.suggestPlanName()
+    this.setData({
+      planNameDialog: { visible: true, value: defaultName }
+    })
+  },
+
+  suggestPlanName() {
+    const md = (this.data.formData.markdownContent || '').trim()
+    const parsed = (this.data.formData.parsedContent || '').trim()
+    const source = md || parsed
+    if (!source) return '团建方案'
+    const firstLine = source.split('\n').map(s => s.trim()).find(Boolean) || ''
+    const cleaned = firstLine.replace(/^#+\s*/, '').slice(0, 30)
+    return cleaned || '团建方案'
+  },
+
+  handlePlanNameInput(e) {
+    this.setData({ 'planNameDialog.value': e.detail.value })
+  },
+
+  handlePlanNameCancel() {
+    this.setData({ planNameDialog: { ...this.data.planNameDialog, visible: false } })
+  },
+
+  handlePlanNameConfirm() {
+    const v = (this.data.planNameDialog.value || '').trim()
+    if (!v) {
+      wx.showToast({ title: '请填写方案名称', icon: 'none' })
+      return
+    }
+    this.setData({ planNameDialog: { ...this.data.planNameDialog, visible: false } })
+    this.submitWithAiOptimize(v)
+  },
+
+  async submitWithAiOptimize(planName) {
+    if (this.data.isSubmitting) return
+
+    if (!this.data.formData.markdownContent && this.data.formData.parsedContent) {
+      wx.showLoading({ title: 'AI转换中...', mask: true })
+      const converted = await post(
+        API_ENDPOINTS_LOCAL.MARKDOWN_CONVERT,
+        { parsed_content: this.data.formData.parsedContent, model: OPENAI_MODEL },
+        { showLoading: false, timeout: 45000 }
+      )
+      const md = (converted?.markdown_content || '').toString().trim()
+      if (md) this.setData({ 'formData.markdownContent': md })
+    }
     if (!this.validateMarkdown()) return
 
     this.setData({ isSubmitting: true })
     try {
-      wx.showLoading({ title: '正在生成方案...', mask: true })
+      wx.showLoading({ title: 'AI优化中...', mask: true })
+      const optimized = await post(
+        API_ENDPOINTS_LOCAL.MARKDOWN_OPTIMIZE,
+        { markdown_content: this.data.formData.markdownContent, model: OPENAI_MODEL },
+        { showLoading: false, timeout: 45000 }
+      )
+      const md = (optimized?.markdown_content || optimized?.content || '').toString().trim()
+      if (md) this.setData({ 'formData.markdownContent': md })
 
-      const requestData = { markdown_content: this.data.formData.markdownContent }
+      wx.showLoading({ title: '正在保存方案...', mask: true })
+      const requestData = { markdown_content: this.data.formData.markdownContent, plan_name: planName }
       await post(API_ENDPOINTS.PLAN_GENERATE, requestData, { showLoading: false, timeout: 120000 })
 
       wx.hideLoading()
       this.saveCurrentRequest()
-
       wx.showModal({
         title: '提交成功',
         content: 'AI正在为您生成方案，预计需要1-2分钟。请在"我的方案"中查看结果。',
@@ -263,13 +387,13 @@ D2 ________
     } catch (error) {
       wx.hideLoading()
       wx.showModal({
-        title: '生成失败',
+        title: '保存失败',
         content: error?.message || '请稍后重试',
         showCancel: true,
         confirmText: '重试',
         cancelText: '取消',
         success: (res) => {
-          if (res.confirm) this.handleGenerate()
+          if (res.confirm) this.submitWithAiOptimize(planName)
         }
       })
     } finally {

@@ -33,6 +33,7 @@ async def run_generation_workflow(message: dict[str, Any]) -> GenerationState:
                 plan_request_id=state["plan_request_id"],
                 user_id=state["user_id"],
                 markdown_content=message["markdown_content"],
+                plan_name=message.get("plan_name"),
             )
         else:
             # V1: 旧版结构化输入，生成3套方案（向后兼容）

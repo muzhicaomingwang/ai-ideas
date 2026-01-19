@@ -132,6 +132,9 @@ public class PlanService {
         mq.put("plan_request_id", planRequestId);
         mq.put("user_id", userId);
         mq.put("markdown_content", req.markdown_content); // 直接传递Markdown内容给AI Agent
+        if (req.plan_name != null && !req.plan_name.isBlank()) {
+            mq.put("plan_name", req.plan_name.trim());
+        }
         mq.put("trace_id", IdGenerator.newId("trace"));
 
         rabbitTemplate.convertAndSend(exchange, routingKey, Jsons.toJson(mq));
@@ -261,6 +264,7 @@ public class PlanService {
                 item.put("plan_name", plan.getPlanName());
                 item.put("status", plan.getStatus());
                 item.put("plan_type", plan.getPlanType());
+                item.put("itinerary_version", plan.getItineraryVersion());
                 item.put("budget_total", plan.getBudgetTotal());
                 item.put("duration_days", plan.getDurationDays());
                 item.put("trip_duration", plan.getDurationDays()); // UL v1.3 alias (non-breaking)
@@ -464,7 +468,7 @@ public class PlanService {
      * 提交通晒：draft → reviewing
      * 将方案从"制定完成"状态提交到"通晒中"状态
      */
-    public void submitReview(String userId, String planId) {
+    public void submitReview(String userId, String planId, com.teamventure.adapter.web.plans.PlanController.SubmitReviewRequest req) {
         PlanPO plan = planMapper.selectById(planId);
         if (plan == null) {
             throw new BizException("NOT_FOUND", "plan not found");
@@ -478,10 +482,37 @@ public class PlanService {
         if (!"draft".equalsIgnoreCase(plan.getStatus())) {
             throw new BizException("INVALID_STATUS", "只有制定完成状态的方案才能提交通晒");
         }
+
+        String startDate = req == null ? null : req.start_date;
+        if (startDate == null || startDate.isBlank()) {
+            throw new BizException("VALIDATION_ERROR", "start_date is required");
+        }
+
+        // Persist confirmed dates onto plan_request (plans table doesn't store dates)
+        String planRequestId = plan.getPlanRequestId();
+        if (planRequestId != null && !planRequestId.isBlank()) {
+            int durationDays = plan.getDurationDays() == null || plan.getDurationDays() <= 0 ? 1 : plan.getDurationDays();
+            String endDate = addDays(startDate.trim(), durationDays - 1);
+            UpdateWrapper<PlanRequestPO> uw = new UpdateWrapper<PlanRequestPO>()
+                    .eq("plan_request_id", planRequestId)
+                    .set("start_date", startDate.trim())
+                    .set("end_date", endDate);
+            planRequestMapper.update(null, uw);
+        }
+
         plan.setStatus("reviewing");
         plan.setReviewStartedAt(Instant.now());
         planMapper.updateById(plan);
         recordEvent("PlanSubmittedForReview", "Plan", planId, userId, Map.of("plan_id", planId));
+    }
+
+    private static String addDays(String startDate, int plusDays) {
+        try {
+            java.time.LocalDate d = java.time.LocalDate.parse(startDate);
+            return d.plusDays(Math.max(0, plusDays)).toString();
+        } catch (Exception e) {
+            return startDate;
+        }
     }
 
     /**

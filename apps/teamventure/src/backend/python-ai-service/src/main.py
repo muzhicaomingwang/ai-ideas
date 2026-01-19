@@ -22,13 +22,18 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.models.config import settings
 from src.scheduler.scheduler import start_scheduler, stop_scheduler
 from src.services.mq_consumer import start_mq_consumer, stop_mq_consumer
+from src.services.markdown_converter import MarkdownConverter
+from src.services.markdown_optimizer import MarkdownOptimizer
+from src.services.xhs_normalizer import XhsNormalizer
 
 # Import and initialize LLM metrics with Prometheus REGISTRY
 from src.utils.llm_metrics import init_metrics as init_llm_metrics
@@ -153,6 +158,82 @@ async def generate_plan_http(request: dict):
             "note": "生产环境请使用MQ方式",
         },
     )
+
+
+class XhsNormalizeRequest(BaseModel):
+    url: str = Field(default="", description="XHS share URL")
+    title: str = Field(default="", description="Extracted title")
+    extracted_text: str = Field(default="", description="Extracted note text")
+    model: str | None = Field(default=None, description="Optional OpenAI model override (e.g. gpt-5.2)")
+
+
+class XhsNormalizeResponse(BaseModel):
+    content: str
+
+
+@app.post("/api/v1/import/xiaohongshu/normalize", tags=["Import"])
+async def normalize_xhs_text(req: XhsNormalizeRequest):
+    """
+    Normalize XHS extracted text via GPT (two-stage flow).
+
+    Returns plain text content only; if OPENAI_API_KEY is missing, returns extracted_text as-is.
+    """
+    normalizer = XhsNormalizer()
+    content = await normalizer.normalize_original_text(
+        url=req.url,
+        title=req.title,
+        extracted_text=req.extracted_text,
+        model=req.model,
+    )
+    return XhsNormalizeResponse(content=content)
+
+
+class MarkdownOptimizeRequest(BaseModel):
+    markdown_content: str = Field(default="", description="Markdown draft to optimize")
+    model: str | None = Field(default=None, description="Optional OpenAI model override (e.g. gpt-5.2)")
+
+
+class MarkdownOptimizeResponse(BaseModel):
+    markdown_content: str
+
+
+@app.post("/api/v1/markdown/optimize", tags=["Markdown"])
+async def optimize_markdown(req: MarkdownOptimizeRequest):
+    """
+    Optimize markdown formatting via GPT.
+
+    If OPENAI_API_KEY is missing, returns markdown_content as-is.
+    """
+    optimizer = MarkdownOptimizer()
+    content = await optimizer.optimize_markdown(markdown_content=req.markdown_content, model=req.model)
+    return MarkdownOptimizeResponse(markdown_content=content)
+
+
+class MarkdownConvertRequest(BaseModel):
+    parsed_content: str = Field(default="", description="Plain text parsed from XHS")
+    model: str | None = Field(default=None, description="Optional OpenAI model override (e.g. gpt-5.2)")
+
+
+class MarkdownConvertResponse(BaseModel):
+    markdown_content: str
+
+
+@app.post("/api/v1/markdown/convert", tags=["Markdown"])
+async def convert_to_markdown(req: MarkdownConvertRequest):
+    """
+    Convert parsed plain text into markdown via GPT.
+
+    This endpoint requires OPENAI_API_KEY; conversion is done by the LLM to handle free-form user text.
+    """
+    converter = MarkdownConverter()
+    try:
+        content = await converter.convert_parsed_text_to_markdown(parsed_content=req.parsed_content, model=req.model)
+        return MarkdownConvertResponse(markdown_content=content)
+    except RuntimeError as e:
+        msg = str(e) or "Markdown convert failed"
+        if "OPENAI_API_KEY" in msg:
+            raise HTTPException(status_code=503, detail="AI is not configured (missing OPENAI_API_KEY)")
+        raise HTTPException(status_code=502, detail=msg)
 
 
 if __name__ == "__main__":

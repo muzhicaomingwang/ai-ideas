@@ -2,19 +2,26 @@ package com.teamventure.app.service;
 
 import com.teamventure.adapter.web.imports.XiaohongshuImportController.ParseResponse;
 import com.teamventure.app.support.BizException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,6 +33,8 @@ public class XiaohongshuImportService {
     private static final Pattern DAY_HEADER_LINE_PATTERN =
             Pattern.compile("(?m)^\\s*(?:[\\p{So}\\p{Sk}\\p{Cn}\\p{Punct}\\p{M}]{0,8}\\s*)?(D\\s*\\d+|第[一二三四五六七八九十\\d]+天|day\\s*\\d+)\\s*[:：]?\\s*([^\\n]*)$",
                     Pattern.CASE_INSENSITIVE);
+    private static final Pattern NOTE_ID_PATTERN = Pattern.compile("(?:/explore/|/discovery/item/)([0-9a-fA-F]{24})");
+    private static final Pattern SHARE_PREVIEW_TITLE_PATTERN = Pattern.compile("(发了一篇超赞的笔记|快点来看|小红书\\s*-\\s*你的生活兴趣社区|你的生活兴趣社区)", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern DAYS_PATTERN = Pattern.compile("(\\d{1,2})\\s*天");
     private static final Pattern DAY_MARKER_PATTERN =
@@ -35,10 +44,32 @@ public class XiaohongshuImportService {
 
     private final HttpClient http;
     private final HtmlFetcher htmlFetcher;
+    private final RapidApiFetcher rapidApiFetcher;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${teamventure.ai-service.url:}")
+    private String aiServiceUrl;
+
+    @Value("${teamventure.ai-service.normalize-model:gpt-5.2}")
+    private String aiNormalizeModel;
+
+    @Value("${teamventure.import.xhs.rapidapi.base-url:}")
+    private String xhsRapidApiBaseUrl;
+
+    @Value("${teamventure.import.xhs.rapidapi.host:}")
+    private String xhsRapidApiHost;
+
+    @Value("${teamventure.import.xhs.rapidapi.key:}")
+    private String xhsRapidApiKey;
 
     @FunctionalInterface
     interface HtmlFetcher {
         String fetch(String url) throws Exception;
+    }
+
+    @FunctionalInterface
+    interface RapidApiFetcher {
+        Optional<ScrapedNote> fetchByNoteId(String noteId) throws Exception;
     }
 
     public XiaohongshuImportService() {
@@ -47,6 +78,7 @@ public class XiaohongshuImportService {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
         this.htmlFetcher = this::fetchHtml;
+        this.rapidApiFetcher = this::fetchViaRapidApi;
     }
 
     XiaohongshuImportService(HtmlFetcher htmlFetcher) {
@@ -55,6 +87,16 @@ public class XiaohongshuImportService {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
         this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
+        this.rapidApiFetcher = this::fetchViaRapidApi;
+    }
+
+    XiaohongshuImportService(HtmlFetcher htmlFetcher, RapidApiFetcher rapidApiFetcher) {
+        this.http = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+        this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
+        this.rapidApiFetcher = rapidApiFetcher == null ? this::fetchViaRapidApi : rapidApiFetcher;
     }
 
     public ParseResponse parse(String linkOrText) {
@@ -68,39 +110,30 @@ public class XiaohongshuImportService {
 
         String rawContent;
         String title = "";
-        String desc = "";
         try {
-            // 仅做“内容解析”：
-            // - 如果输入包含小红书 URL：优先抓取 URL 内容并提取正文
-            // - 如果抓取失败：回退到用户粘贴的文本（可能包含正文）
-            // - 不做“是否行程”的业务判断
-            if (sourceUrl.startsWith("http")) {
-                String html = htmlFetcher.fetch(sourceUrl);
-                title = extractTitleFromHtml(html).orElse("");
-                desc = extractJsonStringField(html, "desc").orElse("");
-
-                // Some pages only expose JSON title, try field extract fallback
-                if (title.isBlank()) {
-                    title = extractJsonStringField(html, "title").orElse("");
-                }
-
-                rawContent = (desc == null ? "" : desc.trim());
-                if (rawContent.isBlank()) rawContent = (title == null ? "" : title.trim());
-                if (rawContent.isBlank()) rawContent = "(empty)";
-            } else {
-                // Treat pasted share text as raw content
-                rawContent = input;
-                title = firstNonEmptyLine(rawContent).orElse("");
+            // Only keep:
+            // 1) RapidAPI fetch note content by noteId
+            // 4) GPT normalize (pure original content)
+            if (!sourceUrl.startsWith("http")) {
+                throw new BizException("VALIDATION_ERROR", "link must be a valid xiaohongshu URL");
             }
+
+            Optional<String> noteId = extractNoteId(input);
+            if (noteId.isEmpty()) {
+                throw new BizException("PARSE_FAILED", "无法从链接中提取 noteId（需包含 /explore/<id> 或 /discovery/item/<id>）");
+            }
+
+            Optional<ScrapedNote> fromRapid = rapidApiFetcher.fetchByNoteId(noteId.get());
+            if (fromRapid.isEmpty() || fromRapid.get().content.isBlank()) {
+                throw new BizException("PARSE_FAILED", "RapidAPI 未返回有效正文内容");
+            }
+
+            title = fromRapid.get().title;
+            rawContent = fromRapid.get().content;
         } catch (Exception e) {
             log.warn("xhs parse failed", e);
-            // fallback to user text if available
-            if (input.length() >= 20) {
-                rawContent = input;
-                title = firstNonEmptyLine(rawContent).orElse("");
-            } else {
-                throw new BizException("PARSE_FAILED", "无法获取或解析内容，请稍后重试（建议粘贴分享口令全文）");
-            }
+            if (e instanceof BizException be) throw be;
+            throw new BizException("PARSE_FAILED", "无法获取或解析内容，请稍后重试");
         }
 
         ParseResponse resp = new ParseResponse();
@@ -109,10 +142,354 @@ public class XiaohongshuImportService {
         resp.destination = "";
         resp.days = null;
         resp.source_url = sourceUrl;
-        resp.raw_content = truncate(rawContent, 20000);
-        // Frontend uses this field to fill the document box; keep it as the extracted content.
+        String normalized = normalizeWithAi(sourceUrl, resp.title, rawContent).orElse(rawContent);
+        resp.raw_content = truncate(normalized, 20000);
+        // Frontend fills the document box with this field; return original content text.
         resp.generatedMarkdown = resp.raw_content;
         return resp;
+    }
+
+    private Optional<String> normalizeWithAi(String url, String title, String extractedText) {
+        if (aiServiceUrl == null || aiServiceUrl.isBlank()) return Optional.empty();
+        String text = extractedText == null ? "" : extractedText.trim();
+        if (text.isBlank()) return Optional.of("");
+
+        String endpoint = aiServiceUrl.endsWith("/")
+                ? (aiServiceUrl.substring(0, aiServiceUrl.length() - 1) + "/api/v1/import/xiaohongshu/normalize")
+                : (aiServiceUrl + "/api/v1/import/xiaohongshu/normalize");
+
+        try {
+            String body = objectMapper.createObjectNode()
+                    .put("url", url == null ? "" : url)
+                    .put("title", title == null ? "" : title)
+                    .put("extracted_text", text)
+                    .put("model", aiNormalizeModel == null ? "" : aiNormalizeModel)
+                    .toString();
+
+            HttpRequest req = HttpRequest.newBuilder(URI.create(endpoint))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<byte[]> res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());
+            if (res.statusCode() < 200 || res.statusCode() >= 300) return Optional.empty();
+
+            JsonNode root = objectMapper.readTree(res.body());
+            String content = root.path("content").asText("").trim();
+            if (content.isBlank()) return Optional.empty();
+            return Optional.of(content);
+        } catch (Exception e) {
+            log.warn("xhs normalize via AI failed, fallback to extracted text", e);
+            return Optional.empty();
+        }
+    }
+
+    private Optional<String> extractNoteId(String input) {
+        if (input == null) return Optional.empty();
+        Matcher m = NOTE_ID_PATTERN.matcher(input);
+        if (m.find()) return Optional.ofNullable(m.group(1));
+        return Optional.empty();
+    }
+
+    private boolean isRapidApiConfigured() {
+        return xhsRapidApiBaseUrl != null && !xhsRapidApiBaseUrl.isBlank()
+                && xhsRapidApiHost != null && !xhsRapidApiHost.isBlank()
+                && xhsRapidApiKey != null && !xhsRapidApiKey.isBlank();
+    }
+
+    private Optional<ScrapedNote> fetchViaRapidApi(String noteId) throws Exception {
+        if (!isRapidApiConfigured()) {
+            throw new BizException("PARSE_FAILED", "RapidAPI 未配置：请设置 TEAMVENTURE_IMPORT_XHS_RAPIDAPI_* 环境变量");
+        }
+        if (noteId == null || noteId.isBlank()) return Optional.empty();
+
+        String base = xhsRapidApiBaseUrl.endsWith("/")
+                ? xhsRapidApiBaseUrl.substring(0, xhsRapidApiBaseUrl.length() - 1)
+                : xhsRapidApiBaseUrl;
+
+        String encoded = URLEncoder.encode(noteId.trim(), StandardCharsets.UTF_8);
+        String url = base + "/api/xiaohongshu/get-note-detail/v1?noteId=" + encoded;
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            HttpRequest req = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("x-rapidapi-key", xhsRapidApiKey)
+                    .header("x-rapidapi-host", xhsRapidApiHost)
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<byte[]> res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());
+            if (res.statusCode() < 200 || res.statusCode() >= 300) {
+                String details = extractRapidApiErrorDetails(res.body()).orElse("");
+                log.warn("xhs rapidapi status={} noteId={} details={}", res.statusCode(), noteId, details);
+                String msg = "RapidAPI 请求失败: HTTP " + res.statusCode() + (details.isBlank() ? "" : (" - " + details));
+                if (attempt < 3 && isRetryableRapidApiStatus(res.statusCode())) {
+                    log.warn("xhs rapidapi retryable status, will retry: noteId={} attempt={} status={}", noteId, attempt, res.statusCode());
+                    sleepSilently(500L * attempt);
+                    continue;
+                }
+                throw new BizException("PARSE_FAILED", msg);
+            }
+
+            JsonNode root = objectMapper.readTree(res.body());
+            String title = extractTitleFromRapidApi(root);
+
+            String content = extractBestTextByKeys(root, Set.of(
+                    "content", "desc", "description", "note_desc", "noteDesc", "noteContent", "note_content", "text", "shareContent", "share_content"
+            )).orElse("");
+
+            title = normalizeRapidApiText(title);
+            content = normalizeRapidApiText(content);
+            title = fixMojibakeIfNeeded(title);
+            content = fixMojibakeIfNeeded(content);
+
+            String merged;
+            if (looksLikeNoteTitle(title) && !content.isBlank() && !content.startsWith(title)) {
+                merged = (title + "\n" + content).trim();
+            } else if (!content.isBlank()) {
+                merged = content.trim();
+            } else {
+                merged = "";
+            }
+
+            if (!merged.isBlank()) {
+                log.info("xhs rapidapi parsed noteId={} attempt={} titleLen={} contentLen={}", noteId, attempt, title.length(), merged.length());
+                return Optional.of(new ScrapedNote(title, merged));
+            }
+
+            log.warn("xhs rapidapi empty extracted content, will retry: noteId={} attempt={}", noteId, attempt);
+            if (attempt < 3) {
+                sleepSilently(300L * attempt);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean isRetryableRapidApiStatus(int status) {
+        return status == 500 || status == 502 || status == 503 || status == 504;
+    }
+
+    private void sleepSilently(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String extractTitleFromRapidApi(JsonNode root) {
+        if (root == null || root.isMissingNode() || root.isNull()) return "";
+        String[] orderedKeys = new String[] { "noteTitle", "note_title", "displayTitle", "display_title", "title", "name" };
+
+        String best = "";
+        for (String key : orderedKeys) {
+            List<JsonNode> candidates = new ArrayList<>();
+            collectNodesByKey(root, Set.of(key), candidates, 0);
+            for (JsonNode candidate : candidates) {
+                String extracted = normalizeRapidApiText(flattenText(candidate, 0));
+                if (!looksLikeNoteTitle(extracted)) continue;
+                // Prefer the first "title-like" candidate from higher-priority keys.
+                return extracted;
+            }
+            for (JsonNode candidate : candidates) {
+                String extracted = normalizeRapidApiText(flattenText(candidate, 0));
+                if (extracted.length() > best.length()) best = extracted;
+            }
+        }
+        return best;
+    }
+
+    private boolean looksLikeNoteTitle(String title) {
+        if (title == null) return false;
+        String s = title.trim();
+        if (s.isEmpty()) return false;
+        if (s.length() > 80) return false;
+        if (s.startsWith("http")) return false;
+        if (s.startsWith("@") && SHARE_PREVIEW_TITLE_PATTERN.matcher(s).find()) return false;
+        if (SHARE_PREVIEW_TITLE_PATTERN.matcher(s).find()) return false;
+        return true;
+    }
+
+    private Optional<String> extractRapidApiErrorDetails(byte[] body) {
+        if (body == null || body.length == 0) return Optional.empty();
+        try {
+            JsonNode root = objectMapper.readTree(body);
+            String message = root.path("message").asText("").trim();
+            if (!message.isBlank()) return Optional.of(message);
+            String error = root.path("error").asText("").trim();
+            if (!error.isBlank()) return Optional.of(error);
+            String detail = root.path("detail").asText("").trim();
+            if (!detail.isBlank()) return Optional.of(detail);
+        } catch (Exception ignore) {
+            // fallthrough to raw snippet
+        }
+        String snippet = new String(body, StandardCharsets.UTF_8).trim();
+        if (snippet.isEmpty()) return Optional.empty();
+        if (snippet.length() > 160) snippet = snippet.substring(0, 160) + "...";
+        return Optional.of(snippet);
+    }
+
+    private Optional<String> extractBestTextByKeys(JsonNode root, Set<String> keys) {
+        if (root == null || root.isMissingNode() || root.isNull()) return Optional.empty();
+        if (keys == null || keys.isEmpty()) return Optional.empty();
+
+        List<JsonNode> candidates = new ArrayList<>();
+        collectNodesByKey(root, keys, candidates, 0);
+
+        String best = "";
+        for (JsonNode candidate : candidates) {
+            String extracted = flattenText(candidate, 0).trim();
+            extracted = normalizeRapidApiText(extracted);
+            if (extracted.length() > best.length()) best = extracted;
+        }
+
+        if (best.isBlank()) return Optional.empty();
+        return Optional.of(best);
+    }
+
+    private void collectNodesByKey(JsonNode node, Set<String> keys, List<JsonNode> out, int depth) {
+        if (node == null || node.isMissingNode() || node.isNull()) return;
+        if (depth > 10) return;
+        if (node.isObject()) {
+            var fields = node.fields();
+            while (fields.hasNext()) {
+                var e = fields.next();
+                String key = e.getKey();
+                JsonNode val = e.getValue();
+                if (keys.contains(key)) out.add(val);
+                collectNodesByKey(val, keys, out, depth + 1);
+            }
+        } else if (node.isArray()) {
+            for (JsonNode child : node) collectNodesByKey(child, keys, out, depth + 1);
+        }
+    }
+
+    private String flattenText(JsonNode node, int depth) {
+        if (node == null || node.isMissingNode() || node.isNull()) return "";
+        if (depth > 10) return "";
+
+        if (node.isTextual()) return node.asText("");
+        if (node.isNumber() || node.isBoolean()) return "";
+
+        if (node.isArray()) {
+            StringBuilder sb = new StringBuilder();
+            for (JsonNode child : node) {
+                String part = flattenText(child, depth + 1).trim();
+                if (!part.isEmpty()) {
+                    if (!sb.isEmpty()) sb.append("\n");
+                    sb.append(part);
+                }
+                if (sb.length() > 40000) break;
+            }
+            return sb.toString();
+        }
+
+        if (node.isObject()) {
+            // Prefer common text-like keys to avoid merging unrelated fields (images, ids, etc.)
+            String[] preferred = new String[] { "text", "desc", "content", "description", "note_desc", "noteDesc", "noteContent", "note_content" };
+            for (String k : preferred) {
+                JsonNode v = node.get(k);
+                if (v != null && !v.isNull()) {
+                    String part = flattenText(v, depth + 1).trim();
+                    if (!part.isEmpty()) return part;
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            var fields = node.fields();
+            while (fields.hasNext()) {
+                var e = fields.next();
+                String part = flattenText(e.getValue(), depth + 1).trim();
+                if (!part.isEmpty()) {
+                    if (!sb.isEmpty()) sb.append("\n");
+                    sb.append(part);
+                }
+                if (sb.length() > 40000) break;
+            }
+            return sb.toString();
+        }
+
+        return "";
+    }
+
+    private String normalizeRapidApiText(String text) {
+        String s = text == null ? "" : text;
+        s = s.replace("\r\n", "\n").replace("\r", "\n");
+        s = s.replaceAll("\\n{3,}", "\n\n");
+        return s.trim();
+    }
+
+    private String fixMojibakeIfNeeded(String s) {
+        if (s == null) return "";
+        String raw = s.trim();
+        if (raw.isEmpty()) return raw;
+
+        int cjk = countCjk(raw);
+        if (cjk > 0) return raw;
+
+        // Heuristic: RapidAPI occasionally returns UTF-8 bytes mis-decoded as ISO-8859-1.
+        int suspicious = countMojibakeChars(raw);
+        if (raw.length() < 12) return raw;
+        if (suspicious < Math.max(3, raw.length() / 12)) return raw;
+
+        try {
+            String fixed = new String(raw.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8).trim();
+            if (fixed.isEmpty()) return raw;
+            if (countCjk(fixed) > 0) return fixed;
+            return raw;
+        } catch (Exception ignore) {
+            return raw;
+        }
+    }
+
+    private int countCjk(String s) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+            if (block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                    || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                    || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+                    || block == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                    || block == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+                    || block == Character.UnicodeBlock.HIRAGANA
+                    || block == Character.UnicodeBlock.KATAKANA
+                    || block == Character.UnicodeBlock.HANGUL_SYLLABLES) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countMojibakeChars(String s) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            // Common mojibake letters when UTF-8 is misread as Latin-1.
+            if (c == 'Ã' || c == 'Â' || c == 'â' || c == 'ä' || c == 'å' || c == 'ç' || c == 'è' || c == 'é' || c == 'ê'
+                    || c == 'ì' || c == 'í' || c == 'î' || c == 'ï' || c == 'ñ' || c == 'ò' || c == 'ó' || c == 'ô' || c == 'ö'
+                    || c == 'ù' || c == 'ú' || c == 'û' || c == 'ü' || c == 'ý' || c == 'ÿ') {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private Optional<ScrapedNote> fetchViaXhsScraper(String url) {
+        return Optional.empty();
+    }
+
+    static class ScrapedNote {
+        final String title;
+        final String content;
+
+        ScrapedNote(String title, String content) {
+            this.title = title == null ? "" : title;
+            this.content = content == null ? "" : content;
+        }
     }
 
     private String buildImportedContentMarkdown(ParseResponse resp, String rawContentForMarkdown) {
@@ -130,7 +507,7 @@ public class XiaohongshuImportService {
 
                 ## 原文内容
                 %s
-                """.formatted(headerTitle, source, raw).trim() + "\n";
+                """.formatted(headerTitle, source, toBlockQuoteLines(raw)).trim() + "\n";
     }
 
     private boolean hasStrongDayMarkers(String input) {
@@ -207,6 +584,119 @@ public class XiaohongshuImportService {
         String unescaped = unescapeJsonStringDeep(raw);
         if (unescaped.isBlank()) return Optional.empty();
         return Optional.of(unescaped);
+    }
+
+    Optional<String> extractJsonStringFieldBest(String html, String fieldName) {
+        if (html == null || fieldName == null || fieldName.isBlank()) return Optional.empty();
+        String needle = "\"" + fieldName + "\"";
+
+        int idx = 0;
+        String best = "";
+        while (idx >= 0 && idx < html.length()) {
+            idx = html.indexOf(needle, idx);
+            if (idx < 0) break;
+
+            int colon = html.indexOf(':', idx + needle.length());
+            if (colon < 0) {
+                idx = idx + needle.length();
+                continue;
+            }
+
+            int startQuote = html.indexOf('"', colon + 1);
+            if (startQuote < 0) {
+                idx = idx + needle.length();
+                continue;
+            }
+
+            String raw = extractJsonStringLiteral(html, startQuote);
+            if (raw != null) {
+                String unescaped = unescapeJsonStringDeep(raw);
+                if (!unescaped.isBlank() && unescaped.length() > best.length()) {
+                    best = unescaped;
+                }
+            }
+
+            idx = startQuote + 1;
+        }
+
+        if (best.isBlank()) return Optional.empty();
+        return Optional.of(best);
+    }
+
+    private Optional<String> extractBestNoteText(String html) {
+        if (html == null || html.isBlank()) return Optional.empty();
+
+        // XHS note text fields vary across pages; try multiple known candidates and pick the longest.
+        String[] candidates = new String[] { "desc", "content", "note_content", "noteContent", "shareContent", "text" };
+
+        String best = "";
+        for (String field : candidates) {
+            String val = extractJsonStringFieldBest(html, field).orElse("");
+            String v = val == null ? "" : val.trim();
+            if (v.length() > best.length()) best = v;
+        }
+
+        String meta = extractMetaDescription(html).orElse("").trim();
+        if (meta.length() > best.length()) best = meta;
+
+        String joinedText = extractAndJoinRepeatedTextFields(html).orElse("").trim();
+        if (joinedText.length() > best.length()) best = joinedText;
+
+        best = normalizeExtractedNoteText(best);
+        if (best.isBlank()) return Optional.empty();
+        return Optional.of(best);
+    }
+
+    private Optional<String> extractMetaDescription(String html) {
+        // Try og:description and description meta tags as a fallback.
+        Pattern og = Pattern.compile("<meta\\s+[^>]*property\\s*=\\s*\"og:description\"[^>]*content\\s*=\\s*\"([^\"]*)\"[^>]*>",
+                Pattern.CASE_INSENSITIVE);
+        Matcher mog = og.matcher(html);
+        if (mog.find()) return Optional.of(stripHtml(mog.group(1)));
+
+        Pattern desc = Pattern.compile("<meta\\s+[^>]*name\\s*=\\s*\"description\"[^>]*content\\s*=\\s*\"([^\"]*)\"[^>]*>",
+                Pattern.CASE_INSENSITIVE);
+        Matcher mdesc = desc.matcher(html);
+        if (mdesc.find()) return Optional.of(stripHtml(mdesc.group(1)));
+        return Optional.empty();
+    }
+
+    private Optional<String> extractAndJoinRepeatedTextFields(String html) {
+        // Some XHS pages store content as a list of rich-text nodes, e.g. {"text":"..."} repeated.
+        Pattern p = Pattern.compile("\"text\"\\s*:\\s*\"", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(html);
+        StringBuilder sb = new StringBuilder();
+        int found = 0;
+        int idx = 0;
+        while (m.find(idx)) {
+            int startQuote = m.end() - 1; // points at the opening quote
+            String raw = extractJsonStringLiteral(html, startQuote);
+            if (raw != null) {
+                String unescaped = unescapeJsonStringDeep(raw);
+                String line = unescaped == null ? "" : unescaped.trim();
+                if (!line.isEmpty()) {
+                    sb.append(line).append("\n");
+                    found++;
+                    if (sb.length() > 24000) break;
+                    if (found >= 200) break;
+                }
+            }
+            idx = m.end();
+        }
+        String joined = sb.toString().trim();
+        if (joined.isBlank()) return Optional.empty();
+        return Optional.of(joined);
+    }
+
+    private String normalizeExtractedNoteText(String text) {
+        String s = text == null ? "" : text;
+        s = s.replace("\r\n", "\n").replace("\r", "\n");
+        // Add line breaks before common markers to improve readability when XHS flattens content.
+        s = s.replaceAll("(?i)(\\s*)(day\\s*\\d+\\s*[:：])", "\n$2");
+        s = s.replaceAll("(\\s*)(D\\s*\\d+\\s*[:：])", "\n$2");
+        s = s.replaceAll("(\\s*)(第[一二三四五六七八九十\\d]+天\\s*[:：])", "\n$2");
+        s = s.replaceAll("\\n{3,}", "\n\n");
+        return s.trim();
     }
 
     /**

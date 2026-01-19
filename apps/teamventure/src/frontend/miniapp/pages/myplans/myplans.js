@@ -1,7 +1,7 @@
 // pages/myplans/myplans.js
 import { get, post, del } from '../../utils/request.js'
 import { API_ENDPOINTS, PLAN_STATUS_NAMES } from '../../utils/config.js'
-import { formatRelativeTime, formatDuration, calculateDays } from '../../utils/util.js'
+import { formatRelativeTime, formatDuration, calculateDays, formatDate } from '../../utils/util.js'
 
 const app = getApp()
 
@@ -15,7 +15,7 @@ Page({
       { key: 'confirmed', name: '已确认' },
       { key: 'generating', name: '生成中' }
     ],
-    currentTab: 'draft', // 默认选中"制定完成"
+    currentTab: '', // 默认选中"全部"（包含生成中方案）
 
     // 方案列表
     plans: [],
@@ -80,6 +80,7 @@ Page({
 
     try {
       if (page > 1) {
+        // 先置为 true，避免触底多次触发导致并发加载与重复数据
         this.setData({ loadingMore: true })
       }
 
@@ -100,7 +101,7 @@ Page({
       const newPlans = this.processPlans(result.plans || [])
 
       this.setData({
-        plans: (plans || []).concat(newPlans || []),
+        plans: this.mergePlans(plans || [], newPlans || []),
         hasMore: result.hasMore !== false,
         loading: false,
         loadingMore: false
@@ -130,15 +131,60 @@ Page({
                      ? calculateDays(plan.start_date, plan.end_date)
                      : 2)
 
+      const planId = String(plan.plan_id || plan.plan_request_id || '')
+      const createdAt = plan.created_at || plan.generated_at
+      const createdAtText = createdAt ? formatDate(createdAt, 'YYYY-MM-DD HH:mm') : ''
+
       return {
         ...plan,
+        plan_id_display: planId ? `ID: ${planId}` : '',
         status_label: PLAN_STATUS_NAMES[plan.status] || '草稿',
         budget_total: this.formatNumber(plan.budget_total),
         duration: formatDuration(days),
-        relative_time: formatRelativeTime(plan.created_at || plan.generated_at),
+        // 绝对时间用于“真实创建时间”；相对时间仅作为辅助（可选展示）
+        created_time: createdAtText,
+        relative_time: formatRelativeTime(createdAt),
         translateX: 0 // 左滑位移
       }
     })
+  },
+
+  /**
+   * 合并并去重（避免 wx:key 重复导致渲染异常）
+   */
+  mergePlans(existingPlans, incomingPlans) {
+    const list = Array.isArray(existingPlans) ? existingPlans.slice() : []
+    const indexById = new Map()
+
+    list.forEach((p, i) => {
+      const id = p?.plan_id || p?.plan_request_id || p?.id
+      if (id) indexById.set(id, i)
+    })
+
+    for (const p of incomingPlans || []) {
+      const id = p?.plan_id || p?.plan_request_id || p?.id
+      if (!id) {
+        list.push(p)
+        continue
+      }
+      const existingIndex = indexById.get(id)
+      if (existingIndex === undefined) {
+        indexById.set(id, list.length)
+        list.push(p)
+        continue
+      }
+
+      const prev = list[existingIndex] || {}
+      list[existingIndex] = {
+        ...prev,
+        ...p,
+        // 保留 UI 状态字段
+        translateX: prev.translateX || 0,
+        refreshing: prev.refreshing || false
+      }
+    }
+
+    return list
   },
 
   /**

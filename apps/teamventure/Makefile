@@ -107,6 +107,14 @@ build-python: ## 构建 Python 服务镜像
 
 rebuild: down build up ## 完全重建并启动服务
 
+deploy-java: ## 构建并强制重建 Java 服务容器（让后端改动立即生效）
+	@$(COMPOSE) --env-file $(ENV_FILE) up -d --no-deps --build --force-recreate java-business-service
+	@$(COMPOSE) ps java-business-service
+
+deploy-python: ## 构建并强制重建 Python 服务容器（让后端改动立即生效）
+	@$(COMPOSE) --env-file $(ENV_FILE) up -d --no-deps --build --force-recreate python-ai-service
+	@$(COMPOSE) ps python-ai-service
+
 ##@ 日志查看
 
 logs: ## 查看所有服务日志 (可选: SERVICE=服务名)

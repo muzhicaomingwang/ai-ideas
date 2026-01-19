@@ -103,7 +103,7 @@ mybatis-plus:
 
 # 服务器配置
 server:
-  port: 8082
+  port: 8080
   servlet:
     context-path: /
   compression:
@@ -149,6 +149,14 @@ teamventure:
     url: http://localhost:8000
     timeout: 300000 # 5分钟
     callback-secret: change-this-in-production
+    normalize-model: gpt-5.2
+
+  import:
+    xhs:
+      rapidapi:
+        base-url: ${TEAMVENTURE_IMPORT_XHS_RAPIDAPI_BASE_URL:}
+        host: ${TEAMVENTURE_IMPORT_XHS_RAPIDAPI_HOST:}
+        key: ${TEAMVENTURE_IMPORT_XHS_RAPIDAPI_KEY:}
 
   # RabbitMQ Exchange/Queue配置
   mq:

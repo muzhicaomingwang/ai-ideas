@@ -14,16 +14,6 @@
 
     <view class="overview-stats">
       <view class="stat-item">
-        <text class="stat-value">¥{{plan.budget_total}}</text>
-        <text class="stat-label">总预算</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <text class="stat-value">{{plan.budget_per_person}}</text>
-        <text class="stat-label">人均</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
         <text class="stat-value">{{plan.duration}}</text>
         <text class="stat-label">天数</text>
       </view>
@@ -42,119 +32,50 @@
       <view class="panel-title-row">
         <text class="panel-title">行程安排</text>
         <view class="itinerary-change-pill" catchtap="goItineraryChange">行程变更</view>
+        <view
+          class="itinerary-save-pill {{itineraryEdit.saving ? 'disabled' : ''}}"
+          wx:if="{{itineraryEdit.dirty}}"
+          catchtap="handleSaveItineraryEdits"
+        >
+          {{itineraryEdit.saving ? '保存中' : '保存改动'}}
+        </view>
         <text class="panel-version">v{{plan.itinerary_version || 1}}</text>
       </view>
       <text class="toggle-icon">{{sections.itinerary ? '▼' : '▶'}}</text>
     </view>
     <view class="panel-content {{sections.itinerary ? 'expanded' : ''}}">
-      <view class="itinerary-timeline">
+      <view class="itinerary-day-list">
         <view
-          wx:for="{{plan.itinerary.days}}"
+          wx:for="{{itineraryUi.days}}"
           wx:key="day"
-          class="timeline-day"
+          class="itinerary-day"
         >
           <view class="day-header">
             <text class="day-title">Day {{item.day}}</text>
-            <text class="day-date" wx:if="{{item.date}}">（{{item.date}}）</text>
+            <text class="day-date" wx:if="{{item.dateLabel}}">（{{item.dateLabel}}）</text>
           </view>
-          <view class="timeline-items">
-            <view
-              wx:for="{{item.items}}"
-              wx:for-item="timeItem"
-              wx:key="time_start"
-              class="timeline-item"
-            >
-              <view class="time-dot"></view>
-              <view class="time-line" wx:if="{{index < item.items.length - 1}}"></view>
-              <view class="time-content">
-                <view class="time-range">{{timeItem.time_start}} - {{timeItem.time_end}}</view>
-                <view class="activity-name">{{timeItem.activity}}</view>
-                <view class="activity-location" wx:if="{{timeItem.location}}">
-                  📍 {{timeItem.location}}
+
+          <scroll-view class="cards-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+            <view class="cards-row">
+              <view
+                wx:for="{{item.cards}}"
+                wx:for-item="item2"
+                wx:key="_key"
+                class="it-card it-card-{{item2.type}}"
+                catchtap="openCardActionSheet"
+                data-day="{{item.day}}"
+                data-index="{{item2.itemIndex}}"
+              >
+                <view class="it-card-badges">
+                  <text class="it-badge it-badge-type">{{item2.typeLabel}}</text>
                 </view>
-                <view class="activity-note" wx:if="{{timeItem.note}}">
-                  {{timeItem.note}}
-                </view>
+                <view class="it-card-time" wx:if="{{item2.time}}">{{item2.time}}</view>
+                <view class="it-card-title">{{item2.title}}</view>
+                <view class="it-card-sub" wx:if="{{item2.subtitle}}">{{item2.subtitle}}</view>
               </view>
             </view>
-          </view>
+          </scroll-view>
         </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 地图路线 -->
-  <view class="section-panel">
-    <view class="panel-header" bindtap="toggleSection" data-section="map">
-      <text class="panel-title">地图路线</text>
-      <text class="toggle-icon">{{sections.map ? '▼' : '▶'}}</text>
-    </view>
-    <view class="panel-content {{sections.map ? 'expanded' : ''}}">
-      <view class="map-panel">
-        <!-- Day选择器 -->
-        <scroll-view
-          class="day-tabs"
-          scroll-x="true"
-          wx:if="{{plan.itinerary && plan.itinerary.days && plan.itinerary.days.length > 1}}"
-        >
-          <view class="day-tabs-inner">
-            <view
-              wx:for="{{plan.itinerary.days}}"
-              wx:key="day"
-              class="day-tab {{selectedDay === item.day ? 'active' : ''}}"
-              bindtap="handleSelectDay"
-              data-day="{{item.day}}"
-            >
-              Day {{item.day}}
-            </view>
-          </view>
-        </scroll-view>
-
-        <!-- 地图类型选择器（跨城/本地） -->
-        <scroll-view
-          class="map-type-tabs"
-          scroll-x="true"
-          wx:if="{{availableMapTypes.length > 1}}"
-        >
-          <view class="map-type-tabs-inner">
-            <view
-              wx:for="{{availableMapTypes}}"
-              wx:key="id"
-              class="map-type-tab {{selectedMapType === item.id ? 'active' : ''}}"
-              bindtap="handleSelectMapType"
-              data-type="{{item.id}}"
-            >
-              {{item.name}}
-            </view>
-          </view>
-        </scroll-view>
-
-        <view class="map-loading" wx:if="{{routeLoading}}">
-          <text>路线加载中...</text>
-        </view>
-        <view class="map-empty" wx:elif="{{!routeLoading && (!route || ((!route.markers || route.markers.length === 0) && !route.staticMapUrl))}}">
-          <text>暂无可定位的路线点位</text>
-        </view>
-
-        <image
-          wx:elif="{{route.mapType === 'static' && route.staticMapUrl}}"
-          class="route-map-static"
-          src="{{route.staticMapUrl}}"
-          mode="aspectFill"
-          show-menu-by-longpress="true"
-        />
-
-        <map
-          wx:else
-          class="route-map"
-          longitude="{{route.markers[0].longitude}}"
-          latitude="{{route.markers[0].latitude}}"
-          scale="{{mapScale}}"
-          markers="{{route.markers}}"
-          polyline="{{route.polyline}}"
-          include-points="{{route.include_points}}"
-          show-location="true"
-        />
       </view>
     </view>
   </view>
@@ -181,5 +102,67 @@
     >
       ✓ 已确认
     </button>
+  </view>
+</view>
+
+<!-- 通晒：确认出发日期 -->
+<view class="dialog-mask" wx:if="{{confirmDateDialog.visible}}" catchtap="handleConfirmDateCancel">
+  <view class="dialog" catchtap="noop">
+    <view class="dialog-title">确认出发日期</view>
+    <view class="dialog-sub">通晒前请确认具体出发日期（确认后将显示每天日期）。</view>
+    <picker mode="date" value="{{confirmDateDialog.startDate}}" bindchange="handleConfirmDateChange">
+      <view class="dialog-picker">{{confirmDateDialog.startDate}}</view>
+    </picker>
+    <view class="dialog-actions">
+      <view class="dialog-btn dialog-btn-cancel" bindtap="handleConfirmDateCancel">取消</view>
+      <view class="dialog-btn dialog-btn-ok" bindtap="handleConfirmDateOk">确认</view>
+    </view>
+  </view>
+</view>
+
+<!-- 卡片编辑器 -->
+<view class="dialog-mask" wx:if="{{cardEditor.visible}}" catchtap="closeCardEditor">
+  <view class="dialog dialog-wide" catchtap="noop">
+    <view class="dialog-title">
+      <text wx:if="{{cardEditor.mode === 'edit'}}">修改卡片</text>
+      <text wx:elif="{{cardEditor.mode === 'insert_left'}}">左侧新增卡片</text>
+      <text wx:else>右侧新增卡片</text>
+    </view>
+
+    <view class="type-tabs">
+      <view class="type-tab {{cardEditor.type === 'transport' ? 'active' : ''}}" catchtap="handleCardEditorTypeSelect" data-type="transport">交通</view>
+      <view class="type-tab {{cardEditor.type === 'nearby' ? 'active' : ''}}" catchtap="handleCardEditorTypeSelect" data-type="nearby">周边游</view>
+      <view class="type-tab {{cardEditor.type === 'accommodation' ? 'active' : ''}}" catchtap="handleCardEditorTypeSelect" data-type="accommodation">住宿</view>
+    </view>
+
+    <view class="dialog-field">
+      <view class="field-label">内容</view>
+      <input class="field-input" value="{{cardEditor.activity}}" bindinput="handleCardEditorInput" data-field="activity" placeholder="例如：外滩 / 入住酒店 / 大巴前往..." />
+    </view>
+
+    <view class="dialog-field">
+      <view class="field-label">地点（可选）</view>
+      <input class="field-input" value="{{cardEditor.location}}" bindinput="handleCardEditorInput" data-field="location" placeholder="例如：黄浦区 / 某酒店 / 集合点..." />
+    </view>
+
+    <view class="dialog-field">
+      <view class="field-label">时间（可选）</view>
+      <view class="time-row">
+        <input class="time-input" value="{{cardEditor.time_start}}" bindinput="handleCardEditorInput" data-field="time_start" placeholder="09:00" />
+        <view class="time-sep">-</view>
+        <input class="time-input" value="{{cardEditor.time_end}}" bindinput="handleCardEditorInput" data-field="time_end" placeholder="10:30" />
+      </view>
+      <view class="field-hint">可只填大致时间范围，不填也可以</view>
+    </view>
+
+    <view class="dialog-field">
+      <view class="field-label">备注（可选）</view>
+      <input class="field-input" value="{{cardEditor.note}}" bindinput="handleCardEditorInput" data-field="note" placeholder="补充说明..." />
+    </view>
+
+    <view class="dialog-actions">
+      <view class="dialog-btn dialog-btn-cancel" bindtap="closeCardEditor">取消</view>
+      <view class="dialog-btn dialog-btn-ok" bindtap="handleCardEditorConfirm">确认</view>
+    </view>
   </view>
 </view>

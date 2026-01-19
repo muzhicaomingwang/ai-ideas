@@ -67,6 +67,8 @@
         <view class="card-header">
           <view class="plan-title">
             <text class="plan-name">{{item.plan_name}}</text>
+            <text class="plan-id" wx:if="{{item.plan_id_display}}">{{item.plan_id_display}}</text>
+            <text class="plan-version" wx:if="{{item.itinerary_version}}">v{{item.itinerary_version}}</text>
           </view>
           <view class="status-badge status-{{item.status}}">
             <text wx:if="{{item.status === 'generating'}}" class="generating-icon">⏳</text>
@@ -162,7 +164,8 @@
 
         <!-- 时间戳 -->
         <view class="plan-time">
-          {{item.relative_time}}
+          <text wx:if="{{item.created_time}}">{{item.created_time}}</text>
+          <text wx:elif="{{item.relative_time}}">{{item.relative_time}}</text>
         </view>
       </view>
     </view>

@@ -1,6 +1,8 @@
 com/teamventure/infrastructure/persistence/po/StaticMapUrlPO.class
 com/teamventure/app/service/XiaohongshuImportService$HtmlFetcher.class
+com/teamventure/adapter/web/markdown/MarkdownController$OptimizeRequest.class
 com/teamventure/infrastructure/persistence/mapper/PlanMapper.class
+com/teamventure/app/service/XiaohongshuImportService$RapidApiFetcher.class
 com/teamventure/adapter/web/users/UserController$UpdateAvatarRequest.class
 com/teamventure/infrastructure/persistence/po/DomainEventPO.class
 com/teamventure/app/service/SupplierService.class
@@ -13,6 +15,7 @@ com/teamventure/app/service/Jsons$1.class
 com/teamventure/adapter/web/common/GlobalExceptionHandler.class
 com/teamventure/infrastructure/config/DataSourceConfig.class
 com/teamventure/app/service/Jsons.class
+com/teamventure/app/service/MarkdownOptimizeService.class
 com/teamventure/infrastructure/map/ZoomCalculator$1.class
 com/teamventure/infrastructure/map/ZoomCalculator$BoundingBox.class
 com/teamventure/infrastructure/persistence/mapper/SupplierMapper.class
@@ -28,6 +31,7 @@ com/teamventure/adapter/web/media/MediaController.class
 com/teamventure/infrastructure/persistence/po/SupplierPO.class
 com/teamventure/infrastructure/persistence/po/PlanRequestPO.class
 com/teamventure/adapter/web/imports/XiaohongshuImportController$ParseRequest.class
+com/teamventure/app/service/XiaohongshuImportService$ScrapedNote.class
 com/teamventure/app/service/OssService$Category.class
 com/teamventure/adapter/web/internal/InternalPlanController.class
 com/teamventure/adapter/web/common/ApiResponse.class
@@ -47,7 +51,9 @@ com/teamventure/adapter/web/suppliers/SupplierController.class
 com/teamventure/app/service/Jsons$3.class
 com/teamventure/infrastructure/map/MarkerStyleConfig.class
 com/teamventure/infrastructure/persistence/mapper/UserMapper.class
+com/teamventure/adapter/web/markdown/MarkdownController$OptimizeResponse.class
 com/teamventure/domain/valueobject/MapRequest.class
+com/teamventure/adapter/web/markdown/MarkdownController.class
 com/teamventure/adapter/web/media/MediaController$PresignResponse.class
 com/teamventure/adapter/web/plans/PlanController$GenerateRequest.class
 com/teamventure/app/support/IdGenerator.class
@@ -69,6 +75,7 @@ com/teamventure/domain/valueobject/MapSizePreset.class
 com/teamventure/app/service/InternalPlanCallbackService.class
 com/teamventure/adapter/web/auth/AuthController.class
 com/teamventure/app/service/OssService$UploadResult.class
+com/teamventure/adapter/web/markdown/MarkdownController$ConvertRequest.class
 com/teamventure/app/service/PlanService$1.class
 com/teamventure/adapter/web/imports/XiaohongshuImportController$ParseResponse.class
 com/teamventure/infrastructure/persistence/po/UserPO.class
