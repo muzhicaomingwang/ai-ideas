@@ -1,6 +1,6 @@
 // pages/myplans/myplans.js
 import { get, post, del } from '../../utils/request.js'
-import { API_ENDPOINTS, PLAN_STATUS_NAMES } from '../../utils/config.js'
+import { API_ENDPOINTS, PLAN_STATUS_NAMES, STORAGE_KEYS } from '../../utils/config.js'
 import { formatRelativeTime, formatDuration, calculateDays, formatDate } from '../../utils/util.js'
 
 const app = getApp()
@@ -35,7 +35,18 @@ Page({
   },
 
   onShow() {
-    // 每次显示时重新加载
+    // 每次显示时重新加载；支持从生成页跳转后自动定位到“制定完成”tab
+    try {
+      const jumpTab = wx.getStorageSync(STORAGE_KEYS.MYPLANS_JUMP_TAB)
+      if (jumpTab) {
+        wx.removeStorageSync(STORAGE_KEYS.MYPLANS_JUMP_TAB)
+        if (jumpTab !== this.data.currentTab) {
+          this.setData({ currentTab: jumpTab })
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
     this.resetAndLoad()
   },
 

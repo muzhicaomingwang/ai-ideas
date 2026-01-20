@@ -39,25 +39,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException e) {
-        String msg = "Validation failed";
-        if (env != null && env.acceptsProfiles(org.springframework.core.env.Profiles.of("dev", "local"))) {
-            msg = e.getBindingResult().getFieldErrors().stream()
-                    .map(fe -> fe.getField() + ": " + (fe.getDefaultMessage() == null ? "" : fe.getDefaultMessage()))
-                    .collect(Collectors.joining("; "));
-            if (msg.isBlank()) msg = "Validation failed";
-        }
+        String msg = e.getBindingResult().getFieldErrors().stream()
+                .map(fe -> fe.getField() + ": " + (fe.getDefaultMessage() == null ? "" : fe.getDefaultMessage()))
+                .collect(Collectors.joining("; "))
+                .trim();
+        if (msg.isBlank()) msg = "Validation failed";
+        if (msg.length() > 240) msg = msg.substring(0, 240) + "...";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure("BAD_REQUEST", msg.trim()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException e) {
-        String msg = "Validation failed";
-        if (env != null && env.acceptsProfiles(org.springframework.core.env.Profiles.of("dev", "local"))) {
-            msg = e.getConstraintViolations().stream()
-                    .map(ConstraintViolation::getMessage)
-                    .collect(Collectors.joining("; "));
-            if (msg.isBlank()) msg = "Validation failed";
-        }
+        String msg = e.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining("; "))
+                .trim();
+        if (msg.isBlank()) msg = "Validation failed";
+        if (msg.length() > 240) msg = msg.substring(0, 240) + "...";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure("BAD_REQUEST", msg.trim()));
     }
 

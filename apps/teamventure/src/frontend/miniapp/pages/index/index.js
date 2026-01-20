@@ -1,6 +1,7 @@
 // pages/index/index.js
 import { post } from '../../utils/request.js'
 import { API_ENDPOINTS, STORAGE_KEYS } from '../../utils/config.js'
+import { filterItineraryMarkdownLines, validateItineraryMarkdown } from '../../utils/itinerary-markdown.js'
 
 const app = getApp()
 
@@ -33,6 +34,43 @@ Page({
   },
 
   progressTimer: null,
+
+  sanitizeItineraryText(text) {
+    const s = (text || '').toString().replace(/\r/g, '')
+    if (!s) return ''
+    const lines = s.split('\n')
+    const out = []
+    for (const line of lines) {
+      const raw = (line || '').toString()
+      const trimmed = raw.trim()
+
+      // Strip concrete dates in day headings: "## Day 1（2023-10-01）" -> "## Day 1"
+      const m = trimmed.match(/^(##\s*Day\s*\d+)\s*（[^）]*）\s*$/)
+      if (m) {
+        out.push(m[1])
+        continue
+      }
+
+      // Drop placeholder-time rows like: "- - | 北戴河/阿那亚 |  |"
+      if (trimmed.startsWith('- ')) {
+        const body = trimmed.slice(2)
+        const parts = body.split('|')
+        if (parts.length >= 2) {
+          const time = (parts[0] || '').trim()
+          const normalized = time
+            .replace(/[—–－‐‑‒―−~〜～﹣]/g, '-')
+            .replace(/\s+/g, '')
+          if (normalized && normalized.replace(/-/g, '') === '') {
+            continue
+          }
+        }
+      }
+
+      out.push(raw)
+    }
+
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').trim()
+  },
 
   onLoad() {
     // 检查登录状态
@@ -157,13 +195,21 @@ Page({
       const res = await post(
         API_ENDPOINTS_LOCAL.MARKDOWN_CONVERT,
         { parsed_content: parsed, model: OPENAI_MODEL },
-        { showLoading: false, timeout: 45000 }
+        { showLoading: false, timeout: 180000 }
       )
-      const md = (res?.markdown_content || '').toString().trim()
-      if (!md) {
-        throw new Error('未获取到 Markdown 内容')
+      const md = this.sanitizeItineraryText((res?.markdown_content || '').toString())
+      if (!md) throw new Error('未获取到 Markdown 内容')
+
+      // ✅ 与方案页（itinerary-change）使用同一套 Markdown 校验逻辑
+      // 自动修复闭环已下沉到 Java 服务端，这里只做一次兜底校验。
+      const candidate = md
+      const check = validateItineraryMarkdown(candidate)
+      if (!check.valid) {
+        const msg = (check.errors || []).slice(0, 10).join('\n') || '格式不合规'
+        throw new Error(`解析错误已经识别，请自行进行修改后再次进行尝试：\n${msg}`)
       }
-      this.setData({ 'formData.markdownContent': md })
+
+      this.setData({ 'formData.markdownContent': candidate })
       this.saveCurrentRequest()
       wx.showToast({ title: '已生成 Markdown', icon: 'success' })
     } catch (e) {
@@ -258,6 +304,23 @@ D2 ________
     }, 120)
 
     try {
+      // If user pasted an xhslink short-link, do a fast capability check and surface a clearer error
+      // when the gateway is not pointing to the updated backend.
+      if (/(^|\s)https?:\/\/xhslink\.com\//i.test(link)) {
+        try {
+          await post(API_ENDPOINTS.XHS_RESOLVE_NOTE_ID, { link }, { showLoading: false, timeout: 15000 })
+        } catch (e) {
+          // If backend doesn't support the resolver endpoint (404) or returns a legacy error,
+          // tell the user to switch to the local gateway / redeploy.
+          const msg = (e?.message || '').toString()
+          if ((e?.code || '') === 'NOT_FOUND' || msg.includes('Not Found') || msg.includes('404')) {
+            const err = new Error('当前后端未更新（不支持 xhslink 分享短链解析），请切换到本地网关或重启后端容器后重试')
+            err.code = 'PARSE_FAILED'
+            throw err
+          }
+        }
+      }
+
       const result = await post(API_ENDPOINTS.XHS_PARSE, { link }, { showLoading: false, timeout: 90000 })
 
       if (this.progressTimer) {
@@ -266,7 +329,7 @@ D2 ________
       }
       this.setData({ xhsParseProgress: 100 })
 
-      const markdown = (result?.generatedMarkdown || result?.raw_content || '').toString()
+      const markdown = this.sanitizeItineraryText((result?.generatedMarkdown || result?.raw_content || '').toString())
       if (!markdown || markdown.trim().length === 0) {
         const err = new Error('未获取到可导入的内容，请重试')
         err.code = 'PARSE_FAILED'
@@ -304,10 +367,20 @@ D2 ________
       wx.showToast({ title: '内容过少，请导入更完整的行程', icon: 'none' })
       return false
     }
+
+    const result = validateItineraryMarkdown(markdown)
+    if (!result.valid) {
+      wx.showModal({
+        title: '格式不合规',
+        content: (result.errors || []).slice(0, 10).join('\n') || 'Markdown 格式不合规',
+        showCancel: false
+      })
+      return false
+    }
     return true
   },
 
-  async handleSaveWithAiOptimize() {
+  handleSave() {
     if (this.data.isSubmitting) return
     const defaultName = this.suggestPlanName()
     this.setData({
@@ -340,50 +413,55 @@ D2 ________
       return
     }
     this.setData({ planNameDialog: { ...this.data.planNameDialog, visible: false } })
-    this.submitWithAiOptimize(v)
+    this.submitPlan(v)
   },
 
-  async submitWithAiOptimize(planName) {
+  async submitPlan(planName) {
     if (this.data.isSubmitting) return
-
-    if (!this.data.formData.markdownContent && this.data.formData.parsedContent) {
-      wx.showLoading({ title: 'AI转换中...', mask: true })
-      const converted = await post(
-        API_ENDPOINTS_LOCAL.MARKDOWN_CONVERT,
-        { parsed_content: this.data.formData.parsedContent, model: OPENAI_MODEL },
-        { showLoading: false, timeout: 45000 }
-      )
-      const md = (converted?.markdown_content || '').toString().trim()
-      if (md) this.setData({ 'formData.markdownContent': md })
-    }
     if (!this.validateMarkdown()) return
 
     this.setData({ isSubmitting: true })
     try {
-      wx.showLoading({ title: 'AI优化中...', mask: true })
-      const optimized = await post(
-        API_ENDPOINTS_LOCAL.MARKDOWN_OPTIMIZE,
-        { markdown_content: this.data.formData.markdownContent, model: OPENAI_MODEL },
-        { showLoading: false, timeout: 45000 }
-      )
-      const md = (optimized?.markdown_content || optimized?.content || '').toString().trim()
-      if (md) this.setData({ 'formData.markdownContent': md })
+      const originalMarkdown = (this.data.formData.markdownContent || '').toString()
 
-      wx.showLoading({ title: '正在保存方案...', mask: true })
-      const requestData = { markdown_content: this.data.formData.markdownContent, plan_name: planName }
-      await post(API_ENDPOINTS.PLAN_GENERATE, requestData, { showLoading: false, timeout: 120000 })
+      // 1) 过 GPT-5.2 一次：整理行程规划（后端 /markdown/optimize）
+      wx.showLoading({ title: '整理行程中...', mask: true })
+      const optimizedRes = await post(
+        API_ENDPOINTS_LOCAL.MARKDOWN_OPTIMIZE,
+        { markdown_content: originalMarkdown, model: OPENAI_MODEL },
+        { showLoading: false, timeout: 180000, showError: false }
+      )
+      wx.hideLoading()
+
+      const optimized = this.sanitizeItineraryText((optimizedRes?.markdown_content || originalMarkdown).toString())
+
+      // 2) Markdown 校验（按行）：非「##Day」或「时间行」直接删除
+      const filtered = filterItineraryMarkdownLines(optimized)
+
+      // 让用户看到最终将要保存的版本
+      if (filtered && filtered !== originalMarkdown) {
+        this.setData({ 'formData.markdownContent': filtered })
+      }
+
+      // 3) 最终按共享 v2 规则做一次严格校验
+      const baseCheck = validateItineraryMarkdown(filtered)
+      if (!baseCheck.valid) {
+        const msg = (baseCheck.errors || []).slice(0, 10).join('\n') || '格式不合规'
+        throw new Error(`格式不合规，无法保存：\n${msg}`)
+      }
+
+      wx.showLoading({ title: '正在保存...', mask: true })
+      const requestData = { markdown_content: filtered, plan_name: planName }
+      await post(API_ENDPOINTS.PLAN_SAVE, requestData, { showLoading: false, timeout: 45000 })
 
       wx.hideLoading()
       this.saveCurrentRequest()
-      wx.showModal({
-        title: '提交成功',
-        content: 'AI正在为您生成方案，预计需要1-2分钟。请在"我的方案"中查看结果。',
-        showCancel: false,
-        confirmText: '去查看',
-        success: () => {
-          wx.switchTab({ url: '/pages/myplans/myplans' })
-        }
-      })
+      wx.setStorageSync(STORAGE_KEYS.MYPLANS_JUMP_TAB, 'draft')
+
+      wx.showToast({ title: '已保存', icon: 'success', duration: 1200 })
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/myplans/myplans' })
+      }, 300)
     } catch (error) {
       wx.hideLoading()
       wx.showModal({
@@ -393,7 +471,7 @@ D2 ________
         confirmText: '重试',
         cancelText: '取消',
         success: (res) => {
-          if (res.confirm) this.submitWithAiOptimize(planName)
+          if (res.confirm) this.submitPlan(planName)
         }
       })
     } finally {

@@ -2,10 +2,8 @@
 
 import com.teamventure.adapter.web.common.ApiResponse;
 import com.teamventure.app.service.InternalPlanCallbackService;
+import com.teamventure.app.service.dto.BatchPlanCallbackRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,27 +17,19 @@ public class InternalPlanController {
     public InternalPlanController(
             InternalPlanCallbackService callbackService,
             @Value(&quot;${teamventure.ai-service.callback-secret}&quot;) String internalSecret
-<span class="nc" id="L22">    ) {</span>
-<span class="nc" id="L23">        this.callbackService = callbackService;</span>
-<span class="nc" id="L24">        this.internalSecret = internalSecret;</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc" id="L20">    ) {</span>
+<span class="nc" id="L21">        this.callbackService = callbackService;</span>
+<span class="nc" id="L22">        this.internalSecret = internalSecret;</span>
+<span class="nc" id="L23">    }</span>
 
     @PostMapping(&quot;/plans/batch&quot;)
     public ApiResponse&lt;Void&gt; createPlans(@RequestHeader(&quot;X-Internal-Secret&quot;) String secret,
-                                         @Valid @RequestBody BatchPlanRequest req) {
-<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (!internalSecret.equals(secret)) {</span>
-<span class="nc" id="L31">            return ApiResponse.failure(&quot;UNAUTHORIZED&quot;, &quot;invalid internal secret&quot;);</span>
+                                         @Valid @RequestBody BatchPlanCallbackRequest req) {
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        if (!internalSecret.equals(secret)) {</span>
+<span class="nc" id="L29">            return ApiResponse.failure(&quot;UNAUTHORIZED&quot;, &quot;invalid internal secret&quot;);</span>
         }
-<span class="nc" id="L33">        callbackService.handleGeneratedPlans(req);</span>
-<span class="nc" id="L34">        return ApiResponse.success();</span>
-    }
-
-<span class="nc" id="L37">    public static class BatchPlanRequest {</span>
-        @NotBlank public String plan_request_id;
-        @NotBlank public String user_id;
-        public List&lt;Map&lt;String, Object&gt;&gt; plans;
-        public String trace_id;
+<span class="nc" id="L31">        callbackService.handleGeneratedPlans(req);</span>
+<span class="nc" id="L32">        return ApiResponse.success();</span>
     }
 }
-
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

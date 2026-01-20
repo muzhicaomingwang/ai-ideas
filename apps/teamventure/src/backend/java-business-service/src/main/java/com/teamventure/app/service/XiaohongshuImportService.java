@@ -2,6 +2,7 @@ package com.teamventure.app.service;
 
 import com.teamventure.adapter.web.imports.XiaohongshuImportController.ParseResponse;
 import com.teamventure.app.support.BizException;
+import com.teamventure.app.support.ItineraryMarkdownSanitizer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -33,7 +34,8 @@ public class XiaohongshuImportService {
     private static final Pattern DAY_HEADER_LINE_PATTERN =
             Pattern.compile("(?m)^\\s*(?:[\\p{So}\\p{Sk}\\p{Cn}\\p{Punct}\\p{M}]{0,8}\\s*)?(D\\s*\\d+|第[一二三四五六七八九十\\d]+天|day\\s*\\d+)\\s*[:：]?\\s*([^\\n]*)$",
                     Pattern.CASE_INSENSITIVE);
-    private static final Pattern NOTE_ID_PATTERN = Pattern.compile("(?:/explore/|/discovery/item/)([0-9a-fA-F]{24})");
+    private static final Pattern NOTE_ID_PATTERN = Pattern.compile("(?:/explore/|/discovery/item/)([0-9a-fA-F]{16,32})");
+    private static final Pattern XHS_SHORT_LINK_PATTERN = Pattern.compile("https?://xhslink\\.com/\\S+", Pattern.CASE_INSENSITIVE);
     private static final Pattern SHARE_PREVIEW_TITLE_PATTERN = Pattern.compile("(发了一篇超赞的笔记|快点来看|小红书\\s*-\\s*你的生活兴趣社区|你的生活兴趣社区)", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern DAYS_PATTERN = Pattern.compile("(\\d{1,2})\\s*天");
@@ -43,8 +45,10 @@ public class XiaohongshuImportService {
     private static final Pattern ITINERARY_KEYWORDS_PATTERN = Pattern.compile("(行程|路线|路书|攻略|安排|出行|旅行|游玩|打卡|景点|酒店|住宿|交通|高铁|航班|车次|集合|出发)", Pattern.CASE_INSENSITIVE);
 
     private final HttpClient http;
+    private final HttpClient redirectHttp;
     private final HtmlFetcher htmlFetcher;
     private final RapidApiFetcher rapidApiFetcher;
+    private final ShortLinkResolver shortLinkResolver;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${teamventure.ai-service.url:}")
@@ -72,13 +76,23 @@ public class XiaohongshuImportService {
         Optional<ScrapedNote> fetchByNoteId(String noteId) throws Exception;
     }
 
+    @FunctionalInterface
+    interface ShortLinkResolver {
+        Optional<String> resolveToUrl(String shortLink) throws Exception;
+    }
+
     public XiaohongshuImportService() {
         this.http = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
+        this.redirectHttp = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
         this.htmlFetcher = this::fetchHtml;
         this.rapidApiFetcher = this::fetchViaRapidApi;
+        this.shortLinkResolver = this::resolveShortLinkViaRedirects;
     }
 
     XiaohongshuImportService(HtmlFetcher htmlFetcher) {
@@ -86,8 +100,13 @@ public class XiaohongshuImportService {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
+        this.redirectHttp = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
         this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
         this.rapidApiFetcher = this::fetchViaRapidApi;
+        this.shortLinkResolver = this::resolveShortLinkViaRedirects;
     }
 
     XiaohongshuImportService(HtmlFetcher htmlFetcher, RapidApiFetcher rapidApiFetcher) {
@@ -95,8 +114,27 @@ public class XiaohongshuImportService {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
+        this.redirectHttp = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
         this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
         this.rapidApiFetcher = rapidApiFetcher == null ? this::fetchViaRapidApi : rapidApiFetcher;
+        this.shortLinkResolver = this::resolveShortLinkViaRedirects;
+    }
+
+    XiaohongshuImportService(HtmlFetcher htmlFetcher, RapidApiFetcher rapidApiFetcher, ShortLinkResolver shortLinkResolver) {
+        this.http = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+        this.redirectHttp = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
+        this.rapidApiFetcher = rapidApiFetcher == null ? this::fetchViaRapidApi : rapidApiFetcher;
+        this.shortLinkResolver = shortLinkResolver == null ? this::resolveShortLinkViaRedirects : shortLinkResolver;
     }
 
     public ParseResponse parse(String linkOrText) {
@@ -106,30 +144,55 @@ public class XiaohongshuImportService {
         }
 
         Optional<String> extractedUrl = extractUrl(input);
-        String sourceUrl = extractedUrl.orElse("");
+        ResolveNoteIdResult resolved = resolveNoteIdFromInput(input, extractedUrl.orElse(null));
+        String sourceUrl = resolved.resolvedUrl == null ? (extractedUrl.orElse("")) : resolved.resolvedUrl;
 
         String rawContent;
         String title = "";
         try {
-            // Only keep:
-            // 1) RapidAPI fetch note content by noteId
-            // 4) GPT normalize (pure original content)
             if (!sourceUrl.startsWith("http")) {
                 throw new BizException("VALIDATION_ERROR", "link must be a valid xiaohongshu URL");
             }
 
-            Optional<String> noteId = extractNoteId(input);
-            if (noteId.isEmpty()) {
-                throw new BizException("PARSE_FAILED", "无法从链接中提取 noteId（需包含 /explore/<id> 或 /discovery/item/<id>）");
+            if (resolved.noteId == null || resolved.noteId.isBlank()) {
+                throw new BizException("PARSE_FAILED", "无法从链接中提取 noteId（支持客户端分享短链 xhslink.com 及 /explore/<id>、/discovery/item/<id>）");
             }
 
-            Optional<ScrapedNote> fromRapid = rapidApiFetcher.fetchByNoteId(noteId.get());
-            if (fromRapid.isEmpty() || fromRapid.get().content.isBlank()) {
-                throw new BizException("PARSE_FAILED", "RapidAPI 未返回有效正文内容");
+            Optional<ScrapedNote> fromRapid = Optional.empty();
+            Exception rapidErr = null;
+            try {
+                fromRapid = rapidApiFetcher.fetchByNoteId(resolved.noteId);
+            } catch (Exception e) {
+                rapidErr = e;
+                log.warn("xhs rapidapi fetch failed, will try html fallback: noteId={}", resolved.noteId, e);
             }
 
-            title = fromRapid.get().title;
-            rawContent = fromRapid.get().content;
+            if (fromRapid.isPresent() && !fromRapid.get().content.isBlank()) {
+                title = fromRapid.get().title;
+                rawContent = fromRapid.get().content;
+            } else {
+                // Fallback: fetch the web page and extract meta description / embedded text
+                Exception htmlErr = null;
+                String fallbackTitle = "";
+                String fallbackContent = "";
+                try {
+                    String html = htmlFetcher.fetch(sourceUrl);
+                    fallbackTitle = extractTitleFromHtml(html).orElse("");
+                    fallbackContent = extractBestNoteText(html).orElse("");
+                } catch (Exception e) {
+                    htmlErr = e;
+                    log.warn("xhs html fallback failed: url={}", sourceUrl, e);
+                }
+
+                if (fallbackContent.isBlank()) {
+                    if (rapidErr instanceof BizException be) throw be;
+                    if (htmlErr instanceof BizException be) throw be;
+                    throw new BizException("PARSE_FAILED", "无法获取正文内容（RapidAPI/网页兜底均失败）");
+                }
+
+                title = fallbackTitle;
+                rawContent = fallbackContent;
+            }
         } catch (Exception e) {
             log.warn("xhs parse failed", e);
             if (e instanceof BizException be) throw be;
@@ -142,11 +205,36 @@ public class XiaohongshuImportService {
         resp.destination = "";
         resp.days = null;
         resp.source_url = sourceUrl;
+        resp.note_id = resolved.noteId;
         String normalized = normalizeWithAi(sourceUrl, resp.title, rawContent).orElse(rawContent);
+        normalized = sanitizeImportedMarkdownIfPresent(normalized);
         resp.raw_content = truncate(normalized, 20000);
         // Frontend fills the document box with this field; return original content text.
         resp.generatedMarkdown = resp.raw_content;
         return resp;
+    }
+
+    public ResolveNoteIdResult resolveNoteId(String linkOrText) {
+        String input = linkOrText == null ? "" : linkOrText.trim();
+        if (input.isEmpty()) {
+            throw new BizException("VALIDATION_ERROR", "link is empty");
+        }
+        Optional<String> extractedUrl = extractUrl(input);
+        ResolveNoteIdResult result = resolveNoteIdFromInput(input, extractedUrl.orElse(null));
+        if (result.noteId == null || result.noteId.isBlank()) {
+            throw new BizException("PARSE_FAILED", "无法从链接中提取 noteId（支持客户端分享短链 xhslink.com 及 /explore/<id>、/discovery/item/<id>）");
+        }
+        return result;
+    }
+
+    public static class ResolveNoteIdResult {
+        public final String noteId;
+        public final String resolvedUrl;
+
+        ResolveNoteIdResult(String noteId, String resolvedUrl) {
+            this.noteId = noteId == null ? "" : noteId;
+            this.resolvedUrl = resolvedUrl == null ? "" : resolvedUrl;
+        }
     }
 
     private Optional<String> normalizeWithAi(String url, String title, String extractedText) {
@@ -185,11 +273,123 @@ public class XiaohongshuImportService {
         }
     }
 
+    private String sanitizeImportedMarkdownIfPresent(String text) {
+        String s = text == null ? "" : text;
+        s = s.replace("\r\n", "\n").replace("\r", "\n");
+        if (!s.contains("## Day")) return s.trim();
+        return ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(s).trim();
+    }
+
     private Optional<String> extractNoteId(String input) {
         if (input == null) return Optional.empty();
         Matcher m = NOTE_ID_PATTERN.matcher(input);
         if (m.find()) return Optional.ofNullable(m.group(1));
         return Optional.empty();
+    }
+
+    private ResolveNoteIdResult resolveNoteIdFromInput(String rawInput, String extractedUrl) {
+        String input = rawInput == null ? "" : rawInput.trim();
+        if (input.isEmpty()) return new ResolveNoteIdResult("", "");
+
+        Optional<String> direct = extractNoteId(input);
+        if (direct.isPresent()) {
+            return new ResolveNoteIdResult(direct.get(), extractedUrl == null ? "" : extractedUrl);
+        }
+
+        String url = extractedUrl == null ? "" : extractedUrl.trim();
+        if (url.isBlank()) {
+            // Try to locate an xhslink even if extractUrl() failed due to punctuation.
+            Optional<String> shortLink = extractXhsShortLink(input);
+            if (shortLink.isEmpty()) return new ResolveNoteIdResult("", "");
+            url = shortLink.get();
+        }
+        url = cleanUrl(url);
+
+        Optional<String> inUrl = extractNoteId(url);
+        if (inUrl.isPresent()) {
+            return new ResolveNoteIdResult(inUrl.get(), url);
+        }
+
+        if (isXhsShortLink(url)) {
+            try {
+                Optional<String> resolvedUrl = shortLinkResolver.resolveToUrl(url);
+                if (resolvedUrl.isPresent()) {
+                    String longUrl = cleanUrl(resolvedUrl.get());
+                    Optional<String> id = extractNoteId(longUrl);
+                    if (id.isPresent()) {
+                        return new ResolveNoteIdResult(id.get(), longUrl);
+                    }
+                    return new ResolveNoteIdResult("", longUrl);
+                }
+            } catch (Exception e) {
+                log.warn("xhs shortlink resolve failed: {}", url, e);
+            }
+        }
+
+        return new ResolveNoteIdResult("", url);
+    }
+
+    private boolean isXhsShortLink(String url) {
+        if (url == null) return false;
+        return XHS_SHORT_LINK_PATTERN.matcher(url.trim()).find();
+    }
+
+    private Optional<String> extractXhsShortLink(String text) {
+        if (text == null) return Optional.empty();
+        Matcher m = XHS_SHORT_LINK_PATTERN.matcher(text);
+        if (!m.find()) return Optional.empty();
+        return Optional.ofNullable(m.group());
+    }
+
+    private String cleanUrl(String url) {
+        if (url == null) return "";
+        String s = url.trim();
+        while (!s.isEmpty()) {
+            char last = s.charAt(s.length() - 1);
+            if (last == ')' || last == ']' || last == '}' || last == ',' || last == '.' || last == ';' || last == '，' || last == '。'
+                    || last == '；' || last == '！' || last == '!' || last == '」' || last == '》' || last == '>' || last == '”') {
+                s = s.substring(0, s.length() - 1).trim();
+                continue;
+            }
+            break;
+        }
+        return s;
+    }
+
+    private Optional<String> resolveShortLinkViaRedirects(String shortLink) throws Exception {
+        if (shortLink == null || shortLink.isBlank()) return Optional.empty();
+        URI uri;
+        try {
+            uri = URI.create(shortLink.trim());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
+        for (int hop = 0; hop < 6; hop++) {
+            HttpRequest req = HttpRequest.newBuilder(uri)
+                    .timeout(Duration.ofSeconds(5))
+                    .header("User-Agent", "Mozilla/5.0")
+                    .GET()
+                    .build();
+
+            HttpResponse<Void> res = redirectHttp.send(req, HttpResponse.BodyHandlers.discarding());
+            int status = res.statusCode();
+
+            if (status >= 300 && status < 400) {
+                String location = res.headers().firstValue("Location").orElse("");
+                if (location.isBlank()) return Optional.empty();
+                try {
+                    uri = uri.resolve(location.trim());
+                    continue;
+                } catch (Exception e) {
+                    return Optional.empty();
+                }
+            }
+
+            return Optional.ofNullable(res.uri()).map(URI::toString);
+        }
+
+        return Optional.of(uri.toString());
     }
 
     private boolean isRapidApiConfigured() {

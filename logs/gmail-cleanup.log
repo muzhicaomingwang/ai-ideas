@@ -122,3 +122,13 @@ Gmail 批量清理工具 v2.0 (支持Token自动刷新)
 ❌ 请求异常: <urlopen error timed out>
 ❌ 获取邮件列表失败: <urlopen error timed out>
 ✅ 收件箱已经是空的！
+============================================================
+Gmail 批量清理工具 v2.0 (支持Token自动刷新)
+============================================================
+开始时间: 2026-01-20 09:00:14
+
+✅ Token 加载成功
+📧 正在获取未读邮件列表...
+❌ 请求异常: <urlopen error [Errno 65] No route to host>
+❌ 获取邮件列表失败: <urlopen error [Errno 65] No route to host>
+✅ 收件箱已经是空的！

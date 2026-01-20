@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -31,6 +30,13 @@ public class PlanController {
                                                  @Valid @RequestBody GenerateRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
         return ApiResponse.success(planService.createPlanRequestAndPublish(userId, req));
+    }
+
+    @PostMapping("/save")
+    public ApiResponse<Map<String, Object>> save(@RequestHeader(value = "Authorization", required = false) String authorization,
+                                                 @Valid @RequestBody SaveRequest req) {
+        String userId = authService.getUserIdFromAuthorization(authorization);
+        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name));
     }
 
     @GetMapping
@@ -148,6 +154,16 @@ public class PlanController {
         public String markdown_content;
 
         /** 可选：用户指定的方案名称（用于覆盖AI生成名称） */
+        public String plan_name;
+    }
+
+    public static class SaveRequest {
+        /** Markdown格式的行程内容（直接保存为制定完成 draft 方案） */
+        @NotBlank
+        public String markdown_content;
+
+        /** 用户指定的方案名称 */
+        @NotBlank
         public String plan_name;
     }
 

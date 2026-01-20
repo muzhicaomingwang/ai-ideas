@@ -3,8 +3,11 @@ com/teamventure/infrastructure/map/MapDegradationHandlerTest.class
 com/teamventure/infrastructure/map/MarkerStyleConfigTest.class
 com/teamventure/TestApplication.class
 com/teamventure/app/service/AuthServiceTest.class
+com/teamventure/app/support/ItineraryMarkdownValidatorTest.class
+com/teamventure/app/support/ItineraryMarkdownSanitizerTest.class
 com/teamventure/infrastructure/config/MapConfigTest.class
 com/teamventure/infrastructure/map/CityNameExtractorTest.class
+com/teamventure/app/service/MarkdownOptimizeServiceTest.class
 com/teamventure/infrastructure/cache/StaticMapUrlCacheTest.class
 com/teamventure/infrastructure/map/ZoomCalculatorTest.class
 com/teamventure/app/support/JwtSupportTest.class

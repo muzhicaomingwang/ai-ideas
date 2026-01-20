@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItineraryMarkdownValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.support</a> &gt; <span class="el_source">ItineraryMarkdownValidator.java</span></div><h1>ItineraryMarkdownValidator.java</h1><pre class="source lang-java linenums">package com.teamventure.app.support;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Backend mirror of miniapp utils/itinerary-markdown.js validation logic.
+ * Normalizes common model/IME artifacts (fullwidth pipes, invisible chars, dash variants)
+ * and validates the v2 markdown structure.
+ */
+public final class ItineraryMarkdownValidator {
+    private ItineraryMarkdownValidator() {}
+
+<span class="fc" id="L16">    private static final Pattern DAY_HEADING = Pattern.compile(&quot;^##\\s*Day\\s*(\\d+)\\s*(?:（(.*)）)?\\s*$&quot;);</span>
+<span class="fc" id="L17">    private static final Pattern TIME_RANGE = Pattern.compile(&quot;^(\\d{1,2}:\\d{2})\\s*-\\s*(\\d{0,2}:?\\d{0,2})\\s*$&quot;);</span>
+
+    public static String normalizeMarkdown(String markdown) {
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        if (markdown == null) return &quot;&quot;;</span>
+<span class="fc" id="L21">        String s = markdown.replace(&quot;\r&quot;, &quot;&quot;);</span>
+<span class="fc" id="L22">        s = normalizePipes(s);</span>
+<span class="fc" id="L23">        s = stripInvisible(s);</span>
+<span class="fc" id="L24">        return s;</span>
+    }
+
+    public static ItineraryMarkdownValidationResult validate(String markdown) {
+<span class="fc" id="L28">        String normalized = normalizeMarkdown(markdown);</span>
+<span class="fc" id="L29">        String[] rawLines = normalized.split(&quot;\n&quot;, -1);</span>
+
+<span class="fc" id="L31">        List&lt;String&gt; errors = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L33">        int days = 0;</span>
+<span class="fc" id="L34">        int totalItems = 0;</span>
+
+<span class="fc" id="L36">        boolean inDay = false;</span>
+<span class="fc" id="L37">        boolean currentDayHasItem = false;</span>
+<span class="fc" id="L38">        Integer currentDayNumber = null;</span>
+
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        for (int i = 0; i &lt; rawLines.length; i++) {</span>
+<span class="fc" id="L41">            String line = normalizeLine(rawLines[i]);</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">            if (line.isEmpty()) continue;</span>
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (line.startsWith(&quot;# &quot;)) continue;</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (line.startsWith(&quot;&gt;&quot;)) continue;</span>
+
+<span class="fc" id="L47">            Matcher day = DAY_HEADING.matcher(line);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (day.matches()) {</span>
+                // finalize previous day
+<span class="pc bpc" id="L50" title="5 of 6 branches missed.">                if (inDay &amp;&amp; !currentDayHasItem &amp;&amp; currentDayNumber != null) {</span>
+<span class="nc" id="L51">                    errors.add(&quot;Day &quot; + currentDayNumber + &quot; 下未找到任何行项目（以 \&quot;-\&quot; 开头）&quot;);</span>
+                }
+<span class="fc" id="L53">                inDay = true;</span>
+<span class="fc" id="L54">                currentDayHasItem = false;</span>
+<span class="fc" id="L55">                currentDayNumber = safeParseInt(day.group(1));</span>
+<span class="fc" id="L56">                days++;</span>
+<span class="fc" id="L57">                continue;</span>
+            }
+
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if (line.startsWith(&quot;- &quot;)) {</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">                if (!inDay || currentDayNumber == null) {</span>
+<span class="fc" id="L62">                    errors.add(&quot;第 &quot; + (i + 1) + &quot; 行：行项目必须放在某个 Day 标题下方&quot;);</span>
+<span class="fc" id="L63">                    continue;</span>
+                }
+<span class="fc" id="L65">                String err = validateItemLine(line);</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                if (err != null) {</span>
+<span class="nc" id="L67">                    errors.add(&quot;第 &quot; + (i + 1) + &quot; 行：&quot; + err);</span>
+<span class="nc" id="L68">                    continue;</span>
+                }
+<span class="fc" id="L70">                currentDayHasItem = true;</span>
+<span class="fc" id="L71">                totalItems++;</span>
+<span class="fc" id="L72">                continue;</span>
+            }
+
+<span class="nc" id="L75">            errors.add(&quot;第 &quot; + (i + 1) + &quot; 行：无法识别的内容（请使用 Day 标题或 \&quot;-\&quot; 行项目）&quot;);</span>
+        }
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (days == 0) {</span>
+<span class="fc" id="L79">            errors.add(&quot;未找到任何 Day 标题（例如：## Day 1（日期））&quot;);</span>
+<span class="pc bpc" id="L80" title="4 of 6 branches missed.">        } else if (inDay &amp;&amp; !currentDayHasItem &amp;&amp; currentDayNumber != null) {</span>
+<span class="nc" id="L81">            errors.add(&quot;Day &quot; + currentDayNumber + &quot; 下未找到任何行项目（以 \&quot;-\&quot; 开头）&quot;);</span>
+        }
+
+<span class="fc" id="L84">        return new ItineraryMarkdownValidationResult(errors.isEmpty(), errors, days, totalItems);</span>
+    }
+
+    private static String validateItemLine(String line) {
+<span class="fc" id="L88">        String trimmed = normalizePipes(line).replaceFirst(&quot;^\\-\\s*&quot;, &quot;&quot;);</span>
+<span class="fc" id="L89">        String[] parts = trimmed.split(&quot;\\|&quot;, -1);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (parts.length &lt; 2) return &quot;行项目格式错误：需要至少包含「时间 | 活动」&quot;;</span>
+
+<span class="fc" id="L92">        String timeRange = normalizeTimeRange(parts[0].trim());</span>
+<span class="fc" id="L93">        String activity = stripInvisible(parts[1]).trim();</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (activity.isEmpty()) return &quot;活动不能为空&quot;;</span>
+
+<span class="fc" id="L96">        Matcher m = TIME_RANGE.matcher(timeRange);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (!m.matches()) return &quot;时间格式错误：应为「HH:MM - HH:MM」（结束时间可留空）&quot;;</span>
+
+<span class="fc" id="L99">        return null;</span>
+    }
+
+    private static String normalizeLine(String line) {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        return stripInvisible(String.valueOf(line == null ? &quot;&quot; : line)).trim();</span>
+    }
+
+    private static String normalizePipes(String s) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        return String.valueOf(s == null ? &quot;&quot; : s).replace('｜', '|');</span>
+    }
+
+    private static String normalizeTimeRange(String timeRange) {
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (timeRange == null) return &quot;&quot;;</span>
+<span class="fc" id="L112">        String s = stripInvisible(timeRange);</span>
+<span class="fc" id="L113">        s = s.replace('：', ':');</span>
+        // Common dash variants: em/en/minus/fullwidth, plus tildes.
+<span class="fc" id="L115">        s = s.replaceAll(&quot;[—–－‐‑‒―−~〜～﹣]&quot;, &quot;-&quot;);</span>
+<span class="fc" id="L116">        s = s.replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim();</span>
+<span class="fc" id="L117">        return s;</span>
+    }
+
+    private static String stripInvisible(String s) {
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (s == null) return &quot;&quot;;</span>
+        // Remove common invisible characters that can break regex matching.
+<span class="fc" id="L123">        return s.replaceAll(&quot;[\\u200B-\\u200F\\u202A-\\u202E\\u2060\\uFEFF]&quot;, &quot;&quot;);</span>
+    }
+
+    private static Integer safeParseInt(String s) {
+        try {
+<span class="fc" id="L128">            return Integer.parseInt(String.valueOf(s));</span>
+<span class="nc" id="L129">        } catch (Exception ignore) {</span>
+<span class="nc" id="L130">            return null;</span>
+        }
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

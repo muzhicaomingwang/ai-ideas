@@ -93,15 +93,15 @@
       />
       <button
         class="btn-primary btn-save"
-        bindtap="handleSaveWithAiOptimize"
-        disabled="{{isSubmitting || !formData.parsedContent}}"
+        bindtap="handleSave"
+        disabled="{{isSubmitting || !formData.markdownContent}}"
       >
-        AI优化并保存方案
+        保存
       </button>
     </view>
 
     <view class="helper">
-      <text>点击下方按钮后会异步生成（约 1-2 分钟），可在「我的方案」查看结果。</text>
+      <text>点击保存后将把当前 Markdown 内容同步保存为「制定完成」方案，并跳转到「我的方案」。</text>
     </view>
   </view>
 

@@ -6,6 +6,8 @@ from typing import Any
 from src.langgraph.state import GenerationState
 from src.services.plan_generation import generate_three_plans, generate_plan_from_markdown
 from src.services.requirement_parser import parse_requirements
+from src.services.itinerary_markdown_enforcer import ensure_valid_itinerary_markdown
+from src.services.itinerary_markdown_v2 import itinerary_to_markdown_v2
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +53,23 @@ async def run_generation_workflow(message: dict[str, Any]) -> GenerationState:
             state["plan_request_id"],
             len(state.get("generated_plans") or []),
         )
+
+        # Post-process: build itinerary markdown and enforce v2 schema via validate->fix loop.
+        # If still invalid after retries, fall back to the pre-generation input markdown.
+        plans = state.get("generated_plans") or []
+        if isinstance(plans, list) and plans:
+            fallback_markdown = str(message.get("markdown_content") or "").strip()
+            for plan in plans:
+                if not isinstance(plan, dict):
+                    continue
+                md0 = itinerary_to_markdown_v2(plan.get("itinerary"))
+                enforced = await ensure_valid_itinerary_markdown(
+                    initial_markdown=md0,
+                    fallback_markdown=fallback_markdown or md0,
+                    max_attempts=5,
+                )
+                plan["itinerary_markdown"] = enforced["markdown"]
+
         return state
     except Exception as exc:
         logger.exception("Generation workflow failed")

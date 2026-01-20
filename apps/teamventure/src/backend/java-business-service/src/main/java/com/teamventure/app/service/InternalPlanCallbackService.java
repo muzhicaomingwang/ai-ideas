@@ -1,6 +1,6 @@
 package com.teamventure.app.service;
 
-import com.teamventure.adapter.web.internal.InternalPlanController.BatchPlanRequest;
+import com.teamventure.app.service.dto.BatchPlanCallbackRequest;
 import com.teamventure.app.support.BizException;
 import com.teamventure.app.support.IdGenerator;
 import com.teamventure.infrastructure.persistence.mapper.DomainEventMapper;
@@ -28,7 +28,7 @@ public class InternalPlanCallbackService {
     }
 
     @Transactional
-    public void handleGeneratedPlans(BatchPlanRequest req) {
+    public void handleGeneratedPlans(BatchPlanCallbackRequest req) {
         PlanRequestPO planRequest = planRequestMapper.selectById(req.plan_request_id);
         if (planRequest == null) {
             throw new BizException("NOT_FOUND", "plan request not found");

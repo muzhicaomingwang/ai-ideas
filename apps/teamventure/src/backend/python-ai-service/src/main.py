@@ -29,6 +29,7 @@ from pydantic import BaseModel, Field
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.models.config import settings
+from src.langgraph.workflow import run_generation_workflow
 from src.scheduler.scheduler import start_scheduler, stop_scheduler
 from src.services.mq_consumer import start_mq_consumer, stop_mq_consumer
 from src.services.markdown_converter import MarkdownConverter
@@ -146,16 +147,30 @@ async def root():
 @app.post("/api/v1/plans/generate", tags=["Plans"])
 async def generate_plan_http(request: dict):
     """
-    HTTP方式生成方案（调试用）
+    HTTP方式同步生成方案（备用/调试/同步链路）
 
-    生产环境主要使用MQ异步方式
+    说明：
+    - 该接口会同步调用 LangGraph 工作流生成方案，并直接返回 plans 列表。
+    - 生产环境仍可继续使用MQ异步方式；Java侧如需同步链路，可调用此接口。
     """
+    payload = request or {}
+    state = await run_generation_workflow(payload)
+    if state.get("error"):
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": state.get("error") or "generation failed",
+                "plan_request_id": payload.get("plan_request_id"),
+            },
+        )
+
     return JSONResponse(
         status_code=200,
         content={
-            "message": "Plan generation request received",
-            "request_id": request.get("plan_request_id"),
-            "note": "生产环境请使用MQ方式",
+            "plan_request_id": state.get("plan_request_id"),
+            "user_id": state.get("user_id"),
+            "plans": state.get("generated_plans", []),
+            "trace_id": payload.get("trace_id"),
         },
     )
 

@@ -6,8 +6,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.teamventure.adapter.web.plans.PlanController.GenerateRequest;
 import com.teamventure.adapter.web.plans.PlanController.GenerateResponse;
 import com.teamventure.adapter.web.plans.PlanController.SupplierContactRequest;
+import com.teamventure.app.service.dto.BatchPlanCallbackRequest;
 import com.teamventure.app.support.BizException;
 import com.teamventure.app.support.IdGenerator;
+import com.teamventure.app.support.ItineraryMarkdownParser;
+import com.teamventure.app.support.ItineraryMarkdownSanitizer;
+import com.teamventure.app.support.ItineraryMarkdownValidator;
 import com.teamventure.infrastructure.persistence.mapper.DomainEventMapper;
 import com.teamventure.infrastructure.persistence.mapper.PlanMapper;
 import com.teamventure.infrastructure.persistence.mapper.PlanRequestMapper;
@@ -22,6 +26,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,6 +50,8 @@ public class PlanService {
     private final String routingKey;
     private final String amapApiKey;
     private final HttpClient httpClient;
+    private final InternalPlanCallbackService callbackService;
+    private final String aiServiceUrl;
 
     // 新增：地图相关组件
     private final com.teamventure.infrastructure.map.ZoomCalculator zoomCalculator;
@@ -87,6 +94,8 @@ public class PlanService {
             RabbitTemplate rabbitTemplate,
             @Value("${teamventure.mq.exchange.plan-generation}") String exchange,
             @Value("${teamventure.mq.routing-key.plan-request}") String routingKey,
+            InternalPlanCallbackService callbackService,
+            @Value("${teamventure.ai-service.url:}") String aiServiceUrl,
             @Value("${AMAP_API_KEY:}") String amapApiKey,
             com.teamventure.infrastructure.map.ZoomCalculator zoomCalculator,
             com.teamventure.infrastructure.cache.StaticMapUrlCache staticMapUrlCache,
@@ -101,6 +110,8 @@ public class PlanService {
         this.rabbitTemplate = rabbitTemplate;
         this.exchange = exchange;
         this.routingKey = routingKey;
+        this.callbackService = callbackService;
+        this.aiServiceUrl = aiServiceUrl == null ? "" : aiServiceUrl.trim();
         this.amapApiKey = amapApiKey == null ? "" : amapApiKey;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(java.time.Duration.ofSeconds(3))
@@ -115,11 +126,22 @@ public class PlanService {
     }
 
     public GenerateResponse createPlanRequestAndPublish(String userId, GenerateRequest req) {
+        String markdown = req.markdown_content == null ? "" : req.markdown_content.trim();
+        if (markdown.contains("## Day")) {
+            String sanitized = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(markdown).trim();
+            var res = ItineraryMarkdownValidator.validate(sanitized);
+            if (!res.valid) {
+                throw new BizException("VALIDATION_ERROR",
+                        "Markdown 格式不合规：\n" + String.join("\n", res.errors.stream().limit(10).toList()));
+            }
+            markdown = sanitized;
+        }
+
         String planRequestId = IdGenerator.newId("plan_req");
         PlanRequestPO po = new PlanRequestPO();
         po.setPlanRequestId(planRequestId);
         po.setUserId(userId);
-        po.setMarkdownContent(req.markdown_content); // 保存原始Markdown内容
+        po.setMarkdownContent(markdown); // 保存Markdown内容（对行程类内容做清洗+校验）
         po.setStatus("GENERATING");
         po.setGenerationStartedAt(Instant.now());
         planRequestMapper.insert(po);
@@ -127,18 +149,128 @@ public class PlanService {
         recordEvent("PlanRequestCreated", "PlanRequest", planRequestId, userId, Map.of("plan_request_id", planRequestId));
         recordEvent("PlanGenerationRequested", "PlanRequest", planRequestId, userId, Map.of("plan_request_id", planRequestId));
 
-        // 发送到MQ，让Python AI服务处理
-        Map<String, Object> mq = new HashMap<>();
-        mq.put("plan_request_id", planRequestId);
-        mq.put("user_id", userId);
-        mq.put("markdown_content", req.markdown_content); // 直接传递Markdown内容给AI Agent
-        if (req.plan_name != null && !req.plan_name.isBlank()) {
-            mq.put("plan_name", req.plan_name.trim());
+        // 同步调用 Python AI 服务生成方案，生成完成后再返回（前端可在本页等待完成后跳转）
+        if (aiServiceUrl.isBlank()) {
+            markPlanRequestFailed(planRequestId, "AI_SERVICE_NOT_CONFIGURED", "AI 服务未配置（teamventure.ai-service.url）");
+            throw new BizException("AI_SERVICE_NOT_CONFIGURED", "AI service is not configured");
         }
-        mq.put("trace_id", IdGenerator.newId("trace"));
 
-        rabbitTemplate.convertAndSend(exchange, routingKey, Jsons.toJson(mq));
-        return new GenerateResponse(planRequestId, "generating");
+        String endpoint = aiServiceUrl.endsWith("/")
+                ? (aiServiceUrl.substring(0, aiServiceUrl.length() - 1) + "/api/v1/plans/generate")
+                : (aiServiceUrl + "/api/v1/plans/generate");
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("plan_request_id", planRequestId);
+        payload.put("user_id", userId);
+        payload.put("markdown_content", markdown);
+        if (req.plan_name != null && !req.plan_name.isBlank()) {
+            payload.put("plan_name", req.plan_name.trim());
+        }
+        payload.put("trace_id", IdGenerator.newId("trace"));
+
+        try {
+            byte[] body = Jsons.toJson(payload).getBytes(StandardCharsets.UTF_8);
+            HttpRequest httpReq = HttpRequest.newBuilder(URI.create(endpoint))
+                    .timeout(Duration.ofSeconds(180))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(body))
+                    .build();
+
+            HttpResponse<byte[]> httpRes = httpClient.send(httpReq, HttpResponse.BodyHandlers.ofByteArray());
+            if (httpRes.statusCode() < 200 || httpRes.statusCode() >= 300) {
+                String details = new String(httpRes.body() == null ? new byte[0] : httpRes.body(), StandardCharsets.UTF_8);
+                if (details.length() > 500) details = details.substring(0, 500) + "...";
+                markPlanRequestFailed(planRequestId, "AI_HTTP_ERROR", "AI 服务请求失败：" + httpRes.statusCode());
+                throw new BizException("GENERATION_FAILED", "AI service failed: " + details);
+            }
+
+            String text = new String(httpRes.body() == null ? new byte[0] : httpRes.body(), StandardCharsets.UTF_8);
+            Map<String, Object> res = Jsons.toMap(text);
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> plans = (List<Map<String, Object>>) res.get("plans");
+            if (plans == null) plans = List.of();
+
+            BatchPlanCallbackRequest cb = new BatchPlanCallbackRequest();
+            cb.plan_request_id = planRequestId;
+            cb.user_id = userId;
+            cb.plans = plans;
+            cb.trace_id = (String) res.getOrDefault("trace_id", payload.get("trace_id"));
+            callbackService.handleGeneratedPlans(cb);
+
+            return new GenerateResponse(planRequestId, "completed");
+        } catch (BizException e) {
+            throw e;
+        } catch (Exception e) {
+            markPlanRequestFailed(planRequestId, "GENERATION_FAILED", "方案生成失败");
+            throw new BizException("GENERATION_FAILED", "方案生成失败，请稍后重试");
+        }
+    }
+
+    public Map<String, Object> saveDraftPlanFromMarkdown(String userId, String markdownContent, String planName) {
+        String markdown = markdownContent == null ? "" : markdownContent;
+        String name = planName == null ? "" : planName.trim();
+        if (name.isBlank()) throw new BizException("VALIDATION_ERROR", "plan_name is empty");
+        if (markdown.trim().isEmpty()) throw new BizException("VALIDATION_ERROR", "markdown_content is empty");
+
+        // Align with miniapp "line-based validation" behavior:
+        // keep only Day headings and time rows, then validate with the shared v2 validator.
+        String sanitized = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(markdown);
+        String filtered = ItineraryMarkdownSanitizer.filterDayAndTimeLines(sanitized);
+
+        var check = ItineraryMarkdownValidator.validate(filtered);
+        if (!check.valid) {
+            throw new BizException("VALIDATION_ERROR",
+                    "Markdown 格式不合规：\n" + String.join("\n", check.errors.stream().limit(10).toList()));
+        }
+
+        Map<String, Object> itinerary = ItineraryMarkdownParser.parseToItinerary(filtered);
+        int durationDays = 0;
+        Object daysObj = itinerary.get("days");
+        if (daysObj instanceof List<?> list) durationDays = list.size();
+
+        PlanPO plan = new PlanPO();
+        plan.setPlanId(IdGenerator.newId("plan"));
+        plan.setPlanRequestId(IdGenerator.newId("plan_req"));
+        plan.setUserId(userId);
+        plan.setPlanType("standard");
+        plan.setPlanName(name);
+        plan.setSummary("");
+        plan.setHighlights(Jsons.toJson(List.of()));
+        plan.setItinerary(Jsons.toJson(itinerary));
+        plan.setItineraryVersion(1);
+        plan.setBudgetBreakdown(Jsons.toJson(Map.of()));
+        plan.setSupplierSnapshots(Jsons.toJson(List.of()));
+        plan.setBudgetTotal(java.math.BigDecimal.ZERO);
+        plan.setBudgetPerPerson(java.math.BigDecimal.ZERO);
+        plan.setDurationDays(durationDays <= 0 ? 1 : durationDays);
+        plan.setDepartureCity("");
+        plan.setDestination("");
+        plan.setDestinationCity("");
+        plan.setStatus("draft");
+        planMapper.insert(plan);
+
+        recordEvent("PlanSaved", "Plan", plan.getPlanId(), userId, Map.of("plan_id", plan.getPlanId()));
+
+        return Map.of(
+                "plan_id", plan.getPlanId(),
+                "status", "draft"
+        );
+    }
+
+    private void markPlanRequestFailed(String planRequestId, String code, String message) {
+        PlanRequestPO po = planRequestMapper.selectById(planRequestId);
+        if (po == null) return;
+        po.setStatus("FAILED");
+        po.setErrorCode(code);
+        po.setErrorMessage(message);
+        po.setGenerationCompletedAt(Instant.now());
+        planRequestMapper.updateById(po);
+        recordEvent("PlanGenerationFailed", "PlanRequest", planRequestId, po.getUserId(), Map.of(
+                "plan_request_id", planRequestId,
+                "error_code", code,
+                "error_message", message
+        ));
     }
 
     private static final int GENERATION_TIMEOUT_MINUTES = 5;

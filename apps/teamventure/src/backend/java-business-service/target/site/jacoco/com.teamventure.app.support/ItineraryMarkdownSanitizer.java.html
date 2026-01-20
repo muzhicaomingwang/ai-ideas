@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItineraryMarkdownSanitizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.support</a> &gt; <span class="el_source">ItineraryMarkdownSanitizer.java</span></div><h1>ItineraryMarkdownSanitizer.java</h1><pre class="source lang-java linenums">package com.teamventure.app.support;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Sanitizes itinerary markdown for the &quot;draft/unscheduled&quot; phase:
+ * - Removes concrete dates in Day headings (e.g. &quot;## Day 1（2023-10-01）&quot; -&gt; &quot;## Day 1&quot;)
+ * - Drops placeholder rows that have no time (e.g. &quot;- - | 北戴河 |  |&quot;)
+ */
+public final class ItineraryMarkdownSanitizer {
+    private ItineraryMarkdownSanitizer() {}
+
+<span class="nc" id="L14">    private static final Pattern DAY_HEADING_WITH_PAREN =</span>
+<span class="nc" id="L15">            Pattern.compile(&quot;^(##\\s*Day\\s*\\d+)\\s*[（(][^）)]*[）)]\\s*$&quot;);</span>
+<span class="nc" id="L16">    private static final Pattern VERSION_LINE =</span>
+<span class="nc" id="L17">            Pattern.compile(&quot;^&gt;\\s*版本\\s*:\\s*.*$&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="nc" id="L18">    private static final Pattern DAY_HEADING =</span>
+<span class="nc" id="L19">            Pattern.compile(&quot;^##\\s*Day\\b&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="nc" id="L20">    private static final Pattern TIME_START =</span>
+<span class="nc" id="L21">            Pattern.compile(&quot;^(\\d{1,2}[:：]\\d{2})\\b&quot;);</span>
+
+    public static String sanitizeDraftItineraryMarkdown(String text) {
+<span class="nc bnc" id="L24" title="All 6 branches missed.">        if (text == null || text.isBlank()) return text == null ? &quot;&quot; : text;</span>
+
+<span class="nc" id="L26">        String s = ItineraryMarkdownValidator.normalizeMarkdown(text);</span>
+<span class="nc" id="L27">        String[] lines = s.replace(&quot;\r&quot;, &quot;&quot;).split(&quot;\n&quot;, -1);</span>
+<span class="nc" id="L28">        StringBuilder sb = new StringBuilder(s.length());</span>
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">            String raw = line == null ? &quot;&quot; : line;</span>
+<span class="nc" id="L32">            String trimmed = raw.trim();</span>
+
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            if (VERSION_LINE.matcher(trimmed).matches()) {</span>
+                // Avoid confusion: itinerary schema version is not the validator version.
+<span class="nc" id="L36">                continue;</span>
+            }
+
+<span class="nc" id="L39">            Matcher m = DAY_HEADING_WITH_PAREN.matcher(trimmed);</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">            if (m.matches()) {</span>
+<span class="nc" id="L41">                sb.append(m.group(1)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L42">                continue;</span>
+            }
+
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (trimmed.startsWith(&quot;- &quot;)) {</span>
+<span class="nc" id="L46">                String body = trimmed.substring(2);</span>
+<span class="nc" id="L47">                String[] parts = body.split(&quot;\\|&quot;, -1);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                if (parts.length &gt;= 2) {</span>
+<span class="nc" id="L49">                    String time = parts[0].trim();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                    if (isPlaceholderTimeRange(time)) {</span>
+<span class="nc" id="L51">                        continue;</span>
+                    }
+                }
+            }
+
+<span class="nc" id="L56">            sb.append(raw).append(&quot;\n&quot;);</span>
+        }
+
+<span class="nc" id="L59">        return sb.toString().trim() + &quot;\n&quot;;</span>
+    }
+
+    /**
+     * Line-based &quot;validation&quot; cleanup:
+     * - Split by '\n' (折行算一行)
+     * - Keep only lines whose trimmed form starts with:
+     *   1) &quot;##Day&quot;/&quot;## Day&quot;
+     *   2) a time (optionally prefixed by &quot;- &quot; / &quot;* &quot;)
+     * - Delete all other lines.
+     *
+     * If a time line has no list marker, prefix &quot;- &quot; so it remains parsable by v2 validator/parser.
+     */
+    public static String filterDayAndTimeLines(String text) {
+<span class="nc bnc" id="L73" title="All 6 branches missed.">        if (text == null || text.isBlank()) return text == null ? &quot;&quot; : text.trim() + &quot;\n&quot;;</span>
+<span class="nc" id="L74">        String s = ItineraryMarkdownValidator.normalizeMarkdown(text).replace(&quot;\r&quot;, &quot;&quot;);</span>
+<span class="nc" id="L75">        String[] lines = s.split(&quot;\n&quot;, -1);</span>
+<span class="nc" id="L76">        StringBuilder sb = new StringBuilder(s.length());</span>
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            String raw = line == null ? &quot;&quot; : line;</span>
+<span class="nc" id="L80">            String trimmed = ItineraryMarkdownValidator.normalizeMarkdown(raw).trim();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (trimmed.isBlank()) continue;</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (DAY_HEADING.matcher(trimmed).find()) {</span>
+<span class="nc" id="L84">                sb.append(trimmed).append(&quot;\n&quot;);</span>
+<span class="nc" id="L85">                continue;</span>
+            }
+
+<span class="nc" id="L88">            String withoutBullet = trimmed.replaceFirst(&quot;^[\\-*]\\s*&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (TIME_START.matcher(withoutBullet).find()) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if (trimmed.startsWith(&quot;- &quot;)) {</span>
+<span class="nc" id="L91">                    sb.append(trimmed).append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                } else if (trimmed.startsWith(&quot;* &quot;)) {</span>
+<span class="nc" id="L93">                    sb.append(&quot;- &quot;).append(trimmed.substring(2).trim()).append(&quot;\n&quot;);</span>
+                } else {
+<span class="nc" id="L95">                    sb.append(&quot;- &quot;).append(withoutBullet).append(&quot;\n&quot;);</span>
+                }
+            }
+        }
+
+<span class="nc" id="L100">        return sb.toString().trim() + &quot;\n&quot;;</span>
+    }
+
+    private static boolean isPlaceholderTimeRange(String time) {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (time == null) return true;</span>
+<span class="nc" id="L105">        String s = time.trim();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (s.isBlank()) return true;</span>
+
+<span class="nc" id="L108">        s = s.replace('：', ':');</span>
+        // Normalize dash variants to &quot;-&quot;
+<span class="nc" id="L110">        s = s.replaceAll(&quot;[—–－‐‑‒―−~〜～﹣]&quot;, &quot;-&quot;);</span>
+        // Remove whitespace
+<span class="nc" id="L112">        s = s.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+        // If only hyphens remain, treat as placeholder (e.g. &quot;-&quot;, &quot;--&quot;, &quot;- - -&quot;)
+<span class="nc" id="L114">        String withoutHyphens = s.replace(&quot;-&quot;, &quot;&quot;);</span>
+<span class="nc" id="L115">        return withoutHyphens.isBlank();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

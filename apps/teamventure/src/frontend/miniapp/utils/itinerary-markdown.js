@@ -1,7 +1,25 @@
 // utils/itinerary-markdown.js
 
 function normalizeLine(line) {
-  return (line || '').replace(/\r/g, '').trim()
+  return stripInvisible((line || '').replace(/\r/g, '')).trim()
+}
+
+function stripInvisible(s) {
+  // Remove common invisible characters that can break regex matching.
+  return String(s || '').replace(/[\u200B-\u200F\u202A-\u202E\u2060\uFEFF]/g, '')
+}
+
+function normalizePipes(line) {
+  // Some IMEs/models output fullwidth pipes.
+  return stripInvisible(String(line || '')).replace(/｜/g, '|')
+}
+
+function normalizeTimeRange(timeRange) {
+  return stripInvisible(String(timeRange || ''))
+    .replace(/：/g, ':')
+    .replace(/[—–－‐‑‒―−~〜～﹣]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export function itineraryToMarkdown(itinerary, itineraryVersion = 1) {
@@ -53,11 +71,11 @@ function parseDayHeading(line) {
 }
 
 function parseItemLine(line) {
-  const trimmed = line.replace(/^\-\s*/, '')
+  const trimmed = normalizePipes(line).replace(/^\-\s*/, '')
   const parts = trimmed.split('|').map(s => s.trim())
   if (parts.length < 2) return { error: '行项目格式错误：需要至少包含「时间 | 活动」' }
 
-  const timeRange = parts[0]
+  const timeRange = normalizeTimeRange(parts[0])
   const activity = parts[1] || ''
   const location = parts[2] || ''
   const note = parts[3] || ''
@@ -82,7 +100,7 @@ function parseItemLine(line) {
 
 export function parseItineraryMarkdown(markdown) {
   const errors = []
-  const lines = String(markdown || '').replace(/\r/g, '').split('\n')
+  const lines = normalizePipes(String(markdown || '')).replace(/\r/g, '').split('\n')
 
   const days = []
   let currentDay = null
@@ -146,3 +164,43 @@ export function validateItineraryMarkdown(markdown) {
   }
 }
 
+/**
+ * Line-based cleanup:
+ * - Treat every '\n' as a line (折行算一行)
+ * - Keep only:
+ *   1) Day headings: lines starting with "##Day" / "## Day"
+ *   2) Time rows: lines starting with a time (optionally prefixed by "- " / "* ")
+ * - Delete everything else.
+ *
+ * Notes:
+ * - For time rows without a list marker, we prefix "- " so it can be parsed by the shared validator/parser.
+ */
+export function filterItineraryMarkdownLines(markdown) {
+  const text = normalizePipes(String(markdown || '')).replace(/\r/g, '')
+  const lines = text.split('\n')
+  const out = []
+
+  const dayRe = /^##\s*Day\b/i
+  const timeStartRe = /^(\d{1,2}[:：]\d{2})\b/
+
+  for (const raw of lines) {
+    const line = stripInvisible(String(raw || '')).trim()
+    if (!line) continue
+
+    if (dayRe.test(line)) {
+      out.push(line)
+      continue
+    }
+
+    const withoutBullet = line.replace(/^[-*]\s*/, '')
+    if (timeStartRe.test(withoutBullet)) {
+      if (/^[-*]\s+/.test(line)) {
+        out.push(line.replace(/^[-*]\s+/, '- '))
+      } else {
+        out.push(`- ${withoutBullet}`)
+      }
+    }
+  }
+
+  return out.join('\n').trim()
+}

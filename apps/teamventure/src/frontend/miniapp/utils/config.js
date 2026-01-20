@@ -19,6 +19,10 @@ function detectEnv() {
     const override = wx.getStorageSync('apiEnv')
     if (override) return override
 
+    // WeChat DevTools should default to local gateway for faster iteration.
+    const sys = wx.getSystemInfoSync?.()
+    if (sys?.platform === 'devtools') return 'local'
+
     const info = wx.getAccountInfoSync?.()
     const envVersion = info?.miniProgram?.envVersion
 
@@ -62,6 +66,7 @@ export const API_ENDPOINTS = {
 
   // 方案相关
   PLAN_GENERATE: '/plans/generate',
+  PLAN_SAVE: '/plans/save',
   PLAN_LIST: '/plans',
   PLAN_DETAIL: '/plans/:id',
   PLAN_EXPORT: '/plans/:id/export',
@@ -78,7 +83,8 @@ export const API_ENDPOINTS = {
   SUPPLIER_CONTACT: '/suppliers/:id/contact',
 
   // 导入相关
-  XHS_PARSE: '/import/xiaohongshu/parse'
+  XHS_PARSE: '/import/xiaohongshu/parse',
+  XHS_RESOLVE_NOTE_ID: '/import/xiaohongshu/resolve-note-id'
 }
 
 // 请求超时时间（毫秒）
@@ -89,7 +95,8 @@ export const STORAGE_KEYS = {
   SESSION_TOKEN: 'sessionToken',
   USER_INFO: 'userInfo',
   LATEST_REQUEST: 'latestRequest',
-  DRAFT_REQUEST: 'draftRequest' // 草稿数据（自动保存）
+  DRAFT_REQUEST: 'draftRequest', // 草稿数据（自动保存）
+  MYPLANS_JUMP_TAB: 'myplansJumpTab'
 }
 
 // 方案类型

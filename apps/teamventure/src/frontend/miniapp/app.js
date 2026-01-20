@@ -4,7 +4,7 @@ App({
     console.log('TeamVenture 小程序启动', options)
 
     // 版本检查，清除旧数据
-    const APP_VERSION = '1.0.2' // 更新版本号（修复URIError）
+    const APP_VERSION = '1.0.3' // 更新版本号（强制刷新本地网关配置）
     const storedVersion = wx.getStorageSync('appVersion')
 
     if (storedVersion !== APP_VERSION) {
@@ -31,12 +31,16 @@ App({
     }
 
     // 开发者工具默认走统一网关（apps/nginx）：http://api.teamventure.com/api/v1
-    // - 仅在 devtools 且用户未手动设置 apiBaseUrl 时生效
+    // - devtools 环境强制指向本地网关，避免误连 dev/beta/prod 导致接口能力不一致
     try {
-      const existingBaseUrl = wx.getStorageSync('apiBaseUrl')
       const platform = wx.getSystemInfoSync?.()?.platform
-      if (!existingBaseUrl && platform === 'devtools') {
-        wx.setStorageSync('apiBaseUrl', 'http://api.teamventure.com/api/v1')
+      if (platform === 'devtools') {
+        const desired = 'http://api.teamventure.com/api/v1'
+        const existingBaseUrl = wx.getStorageSync('apiBaseUrl')
+        if (existingBaseUrl !== desired) {
+          wx.setStorageSync('apiBaseUrl', desired)
+          console.log('[devtools] 已强制设置 apiBaseUrl:', desired)
+        }
       }
     } catch (e) {
       // ignore
