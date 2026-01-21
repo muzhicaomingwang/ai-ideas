@@ -2,7 +2,7 @@
 Test set: com.teamventure.infrastructure.config.MapConfigTest
 -------------------------------------------------------------------------------
 Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.019 s <<< FAILURE! -- in com.teamventure.infrastructure.config.MapConfigTest
-com.teamventure.infrastructure.config.MapConfigTest.testCircuitBreaker_OpensOnHighFailureRate -- Time elapsed: 0.005 s <<< FAILURE!
+com.teamventure.infrastructure.config.MapConfigTest.testCircuitBreaker_OpensOnHighFailureRate -- Time elapsed: 0.004 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: 
 
 expected: OPEN

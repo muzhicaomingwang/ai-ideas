@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from src.integrations.openai_client import OpenAIClient
+from src.services.itinerary_markdown_enforcer import ensure_valid_itinerary_markdown
 
 
 def _looks_like_standard_itinerary_markdown(md: str) -> bool:
@@ -13,7 +14,8 @@ def _looks_like_standard_itinerary_markdown(md: str) -> bool:
 
 
 _ITINERARY_LINE_RE = re.compile(
-    r"(?m)^\s*-\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*$"
+    # Use [ \t] instead of \s to avoid spanning multiple lines.
+    r"(?m)^[ \t]*-[ \t]*(\d{1,2}:\d{2})[ \t]*-[ \t]*(\d{1,2}:\d{2})?[ \t]*\|[ \t]*(.*?)[ \t]*\|[ \t]*(.*?)[ \t]*\|[ \t]*(.*?)[ \t]*$"
 )
 
 
@@ -38,10 +40,15 @@ def _looks_like_low_quality_itinerary_markdown(md: str) -> bool:
     for m in matches:
         activity = (m.group(3) or "").strip()
         place = (m.group(4) or "").strip()
-        if not place:
+        if activity in {"自由安排", "自由活动", "待定"}:
             bad_rows += 1
             continue
-        if activity in {"自由安排", "自由活动", "待定"}:
+        if not place:
+            # Some valid user/LLM outputs put POIs into the "活动" column and leave "地点" empty.
+            # Treat such rows as usable if the activity is specific enough.
+            if activity and len(activity) >= 6:
+                usable_rows += 1
+                continue
             bad_rows += 1
             continue
         usable_rows += 1
@@ -201,6 +208,11 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
 
     def start_new_entry(day_index: int, start: str, end: str, activity: str, place: str, remark: str) -> None:
         ensure_day(day_index)
+        if _is_lodging_activity(activity=activity, location=place, note=remark):
+            lodging_line = f"住宿：{_sanitize_cell(place)} {_sanitize_cell(remark)}".strip()
+            if lodging_line:
+                add_appendix_line(lodging_line)
+            return
         days[day_index].append(
             {
                 "start": start,
@@ -219,8 +231,8 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
             return
         existing = days[day_index][-1]["remark"]
         combined = (existing + " " + extra_clean).strip() if existing else extra_clean
-        if len(combined) > 400:
-            combined = combined[:400].rstrip() + "..."
+        if len(combined) > 260:
+            combined = combined[:260].rstrip() + "..."
         days[day_index][-1]["remark"] = combined
 
     def _split_inline_route_pois(s: str) -> list[str]:
@@ -243,13 +255,34 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
             cleaned.append(p)
         return cleaned
 
+    appendix_lines: list[str] = []
+
+    def add_appendix_line(raw_line: str) -> None:
+        t = (raw_line or "").strip()
+        if not t:
+            return
+        appendix_lines.append(t)
+        if len(appendix_lines) > 32:
+            appendix_lines[:] = appendix_lines[:32]
+
+    in_appendix = False
+
     for raw in lines:
         line = (raw or "").strip()
         if not line:
             continue
 
+        # If we hit a "section-ish" line, divert it (and following non-itinerary lines)
+        # into appendix instead of polluting the last item's remark. We allow returning
+        # to itinerary parsing if a later line looks like a day/time marker.
+        if _looks_like_section_break(line):
+            in_appendix = True
+            add_appendix_line(line)
+            continue
+
         m_day = _DAY_HEADER_RE.match(line)
         if m_day:
+            in_appendix = False
             marker = (m_day.group(1) or "").strip()
             parsed_idx = _parse_day_index(marker)
             current_day_idx = parsed_idx if parsed_idx is not None else len(days)
@@ -275,6 +308,7 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
 
         date_header = _extract_date_header(line)
         if date_header:
+            in_appendix = False
             date_str, remainder = date_header
             if date_str in date_to_day:
                 current_day_idx = date_to_day[date_str]
@@ -293,6 +327,7 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
 
         m_time = _TIME_RANGE_RE.search(line)
         if m_time:
+            in_appendix = False
             start = _pad_time(m_time.group(1), m_time.group(2))
             end = _pad_time(m_time.group(3), m_time.group(4))
             title_part = _TIME_RANGE_RE.sub("", line).strip()
@@ -323,6 +358,7 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
 
         m_hint = _TIME_HINT_RE.search(line)
         if m_hint and ("：" in line or "：" in raw):
+            in_appendix = False
             hint = m_hint.group(1)
             start, end = _guess_time_range_from_hint(hint)
             title_part = line
@@ -347,7 +383,11 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
             start_new_entry(current_day_idx, start, end, activity, place, "")
             continue
 
-        # Description line; attach to the last entry if possible.
+        if in_appendix:
+            add_appendix_line(line)
+            continue
+
+        # Description line; attach to the last entry if possible (short only).
         append_remark(current_day_idx, line)
 
     # If parsing found nothing usable, keep content as a single day note (still v2-compatible).
@@ -371,6 +411,17 @@ def _fallback_convert_to_itinerary_markdown_v2(parsed_content: str) -> str:
         out.append(f"## Day {i}（{day_date}）")
         for e in entries:
             out.append(f"- {e['start']} - {e['end']} | {e['activity']} | {e['place']} | {e['remark']}")
+        out.append("")
+
+    if appendix_lines:
+        out.append("> 附加信息（非行程，仅供参考）")
+        for raw_line in appendix_lines:
+            t = _sanitize_cell(raw_line)
+            if not t:
+                continue
+            if len(t) > 220:
+                t = t[:220].rstrip() + "..."
+            out.append("> " + t)
         out.append("")
 
     return "\n".join(out).rstrip() + "\n"
@@ -411,36 +462,42 @@ class MarkdownConverter:
 
         prompt = (
             "你将获得一段“小红书笔记解析原文”（纯文本）。\n"
-            "任务：把它转成 TeamVenture 应用的“标准行程 Markdown（v2）”，用于后续 /plans/generate。\n"
+            "任务：先理解并抽取“行程结构化数据”，再由服务端渲染成固定 Markdown schema。\n"
             "\n"
             "强约束（非常重要）：\n"
             "- 不能编造任何事实（地点/天数/预算/交通/酒店/价格等）。\n"
             "- 大量去除无效信息：分享包装、口令、emoji堆砌、无关标签等；只保留能用于行程安排的核心内容。\n"
-            "- 不要丢失任何在原文中出现的景点/POI 名称；如需合并到同一条行程，也必须在“地点”列完整保留名称。\n"
-            "- 不要输出“解释/分析/总结”，只输出最终 Markdown。\n"
-            "- 如果原文出现多个不同日期（如 2024-06-01 / 6月2日 / 06-03）：必须“按日期分 Day”，每个日期对应一个 Day；不得把多天合并成一天。\n"
-            "- Day 标题里的日期：能确定年份则用 YYYY-MM-DD；缺少年份则用原文日期或 MM-DD（不要猜年份）。\n"
-            "- 如果原文没有明确日期：Day 标题里的日期请用“今天”为 Day1 起始日（仅用于展示占位，用户后续会确认）。\n"
-            "- 如果原文包含 day1/day2/D1/第1天 等分天信息：必须输出对应的 Day1/Day2/Day3…\n"
-            "- 如果原文出现明确时间（例如 7:30-10:30）：必须保留并使用该时间范围；不要强行改成整天或统一时间段。\n"
-            "- 每天输出多条行程条目，每条严格使用格式：\n"
-            "  - HH:MM - HH:MM | 活动 | 地点 | 备注\n"
-            "- 禁止输出“09:00-20:00 自由安排”这类占位；如果无法解析，宁可把原文拆分为多条条目并保留地点。\n"
-            "- 交通/住宿允许没有具体时间（可留空或用大致范围），但不要编造航班/高铁等跨城交通。\n"
+            "- 不要丢失任何在原文中出现的景点/POI 名称；如需合并到同一条行程，也必须在 location 字段完整保留名称。\n"
+            "- 若信息不确定：不要补全，写入 note/appendix 并用“待确认：...”标注。\n"
+            "- 如果原文出现多个不同日期（如 2024-06-01 / 6月2日 / 06-03）：必须按日期分 Day（一个日期一个 Day）。\n"
+            "- Day 的 date：能确定年份则用 YYYY-MM-DD；缺少年份则用原文日期或 MM-DD（不要猜年份）。\n"
+            "- 如果原文没有明确日期：date 用“今天”（仅展示占位，用户后续会确认）。\n"
+            "- 如果原文包含 day1/day2/D1/第1天 等分天信息：必须输出对应数量的 days，且不要额外增加天数。\n"
+            "- 如果原文出现明确时间（例如 7:30-10:30）：必须保留该时间范围到 time_start/time_end。\n"
+            "- 住宿不属于“行程条目”：不要放进 items，放到 appendix（例如：\"住宿：平江路周边...\"）。\n"
             "\n"
-            "标准 Markdown 输出格式（必须严格遵守）：\n"
-            "# 行程安排\n"
-            "> 版本: v2\n"
-            "\n"
-            "## Day N（YYYY-MM-DD）\n"
-            "- 09:00 - 10:30 | 活动 | 地点 | \n"
-            "- 11:00 - 12:00 | 活动 | 地点 | \n"
-            "\n"
+            "输出 JSON schema（只返回 JSON，不要 Markdown）：\n"
+            "{\n"
+            '  "days": [\n'
+            "    {\n"
+            '      "date": "YYYY-MM-DD | MM-DD | 今天",\n'
+            '      "items": [\n'
+            "        {\n"
+            '          "time_start": "HH:MM（必填；若原文无时间，用 09:00 起的占位递增）",\n'
+            '          "time_end": "HH:MM（可空）",\n'
+            '          "activity": "例如：游览/用餐/交通/转场/返程/自由活动",\n'
+            '          "location": "地点/POI 名称（可空但尽量填写）",\n'
+            '          "note": "备注（可空）"\n'
+            "        }\n"
+            "      ],\n"
+            '      "appendix": ["非行程但有价值的信息（如住宿/贴士/预约）"]\n'
+            "    }\n"
+            "  ],\n"
+            '  "appendix": ["全局附加信息，可空"]\n'
+            "}\n"
             "\n"
             "输入 parsed_content：\n"
             f"{text}\n"
-            "\n"
-            '返回 JSON：{"markdown_content":"..."}'
         )
 
         try:
@@ -450,14 +507,24 @@ class MarkdownConverter:
                 temperature=0.0,
                 max_tokens=4000,
             )
-            content = (result.get("markdown_content") or "").strip()
+            llm_md = (result.get("markdown_content") or "").strip()
+            if isinstance(result.get("days"), list):
+                llm_md = _render_itinerary_schema_to_markdown_v2(result)
+
             if (
-                content
-                and _looks_like_standard_itinerary_markdown(content)
-                and not _looks_like_low_quality_itinerary_markdown(content)
-                and not self._introduces_extra_days(text, content)
+                llm_md
+                and _looks_like_standard_itinerary_markdown(llm_md)
+                and not _looks_like_low_quality_itinerary_markdown(llm_md)
+                and not self._introduces_extra_days(text, llm_md)
             ):
-                return _rationalize_itinerary_markdown_v2(content)
+                enforced = await ensure_valid_itinerary_markdown(
+                    initial_markdown=llm_md,
+                    fallback_markdown=_fallback_convert_to_itinerary_markdown_v2(text),
+                    max_attempts=3,
+                    model=model,
+                )
+                return _rationalize_itinerary_markdown_v2(enforced["markdown"])
+
             # Fall back to deterministic conversion for better UX.
             return _rationalize_itinerary_markdown_v2(_fallback_convert_to_itinerary_markdown_v2(text))
         except Exception:
@@ -519,6 +586,7 @@ def _rationalize_itinerary_markdown_v2(md: str) -> str:
     out_lines.append("> 版本: v2")
     out_lines.append("")
 
+    appendix: list[str] = []
     for day in parsed:
         day_no = day["day"]
         heading_suffix = day.get("heading_suffix") or ""
@@ -528,11 +596,50 @@ def _rationalize_itinerary_markdown_v2(md: str) -> str:
             out_lines.append(f"## Day {day_no}")
 
         items = day.get("items") or []
-        rational = _rationalize_day_items(items)
+        # Trim/redirect overly long notes that look like mixed sections.
+        cleaned_items: list[dict[str, str]] = []
+        for it in items:
+            note = (it.get("note") or "").strip()
+            kept, diverted = _split_note_into_remark_and_appendix(note)
+            if diverted:
+                appendix.extend(diverted)
+            cleaned = dict(it)
+            cleaned["note"] = kept
+
+            if _is_lodging_activity(
+                activity=(cleaned.get("activity") or ""),
+                location=(cleaned.get("location") or ""),
+                note=(cleaned.get("note") or ""),
+            ):
+                lodging_hint = "住宿：" + " ".join(
+                    p
+                    for p in [
+                        (cleaned.get("location") or "").strip(),
+                        (cleaned.get("note") or "").strip(),
+                    ]
+                    if p
+                )
+                appendix.append(lodging_hint.strip())
+                continue
+
+            cleaned_items.append(cleaned)
+
+        rational = _rationalize_day_items(cleaned_items)
         for it in rational:
             out_lines.append(
                 f"- {it['time_start']} - {it['time_end']} | {it['activity']} | {it['location']} | {it['note']}"
             )
+        out_lines.append("")
+
+    if appendix:
+        out_lines.append("> 附加信息（非行程，仅供参考）")
+        for raw_line in appendix[:32]:
+            t = _sanitize_cell(raw_line)
+            if not t:
+                continue
+            if len(t) > 220:
+                t = t[:220].rstrip() + "..."
+            out_lines.append("> " + t)
         out_lines.append("")
 
     return "\n".join(out_lines).rstrip() + "\n"
@@ -642,6 +749,46 @@ def _rationalize_day_items(items: list[dict[str, str]]) -> list[dict[str, str]]:
     if not items:
         return [{"time_start": "09:00", "time_end": "", "activity": "自由活动/机动安排", "location": "", "note": ""}]
 
+    # If the user provided explicit time ranges, preserve them as much as possible.
+    has_explicit_ranges = any((it.get("time_start") or "").strip() and (it.get("time_end") or "").strip() for it in items)
+    if has_explicit_ranges:
+        day_start = 9 * 60
+        day_end = 20 * 60
+        current = day_start
+        out: list[dict[str, str]] = []
+
+        for it in items:
+            activity = (it.get("activity") or "").strip()
+            location = (it.get("location") or "").strip()
+            note = (it.get("note") or "").strip()
+            if not activity and not location and not note:
+                continue
+
+            explicit_start = _hhmm_to_minutes(it.get("time_start") or "")
+            explicit_end = _hhmm_to_minutes(it.get("time_end") or "")
+
+            start_min = explicit_start if explicit_start is not None else current
+            start_min = max(day_start, min(start_min, day_end))
+
+            if explicit_end is not None and explicit_end > start_min:
+                end_min = min(explicit_end, day_end)
+            else:
+                duration = _guess_duration_minutes(activity, location, None)
+                end_min = min(start_min + duration, day_end)
+
+            out.append(
+                {
+                    "time_start": _minutes_to_hhmm(start_min),
+                    "time_end": _minutes_to_hhmm(end_min) if end_min > start_min else "",
+                    "activity": activity or "游览",
+                    "location": location,
+                    "note": note,
+                }
+            )
+            current = max(current, end_min)
+
+        return out or [{"time_start": "09:00", "time_end": "", "activity": "自由活动/机动安排", "location": "", "note": ""}]
+
     # Keep original order; rebuild a sequential schedule.
     day_start = 9 * 60
     day_end = 20 * 60
@@ -740,3 +887,186 @@ def _rationalize_day_items(items: list[dict[str, str]]) -> list[dict[str, str]]:
         current = end_min
 
     return normalized
+
+
+_SECTIONISH_RE = re.compile(
+    r"""(?x)
+    ^
+    (?:
+        # Numbered list / bullets / emoji-number
+        (?:\d+\s*[.)、]|[①②③④⑤⑥⑦⑧⑨⑩]|[一二三四五六七八九十]+\s*[、.])
+        |
+        (?:\d+️⃣)
+    )
+    \s*
+    """,
+)
+
+
+def _looks_like_section_break(line: str) -> bool:
+    """
+    Generic heuristic: detect lines that are likely starting a non-itinerary block
+    (tips/list/guide sections), without relying on specific keywords.
+    """
+    s = (line or "").strip()
+    if not s:
+        return False
+    if len(s) <= 40 and (s.endswith(":") or s.endswith("：")):
+        return True
+    if _SECTIONISH_RE.match(s):
+        return True
+    # Emoji-heavy short headings (e.g., "🏠住宿", "🚘交通贴士") commonly start sections.
+    if re.match(r"^[^\w\s]{1,3}\s*[^\s]{1,12}(?:\s+|[:：])", s) and len(s) <= 80:
+        return True
+    # Heuristic: checklist-style lines are rarely part of a single POI remark.
+    if "✔" in s and len(s) >= 12:
+        return True
+    return False
+
+
+def _split_note_into_remark_and_appendix(note: str) -> tuple[str, list[str]]:
+    """
+    If a single remark cell contains an entire guide section, keep a short remark
+    and divert the rest to appendix. Heuristic-based, avoids hard-coded domains.
+    """
+    t = (note or "").strip()
+    if not t:
+        return ("", [])
+
+    # Do not keep lodging markers inside itinerary cells; divert them to appendix.
+    if "🏠住宿" in t or t.strip() in {"住宿", "🏠住宿"}:
+        cleaned = t.replace("🏠住宿", "").strip()
+        appendix = ["🏠住宿" + (("：" + cleaned) if cleaned else "")]
+        return ("", appendix)
+
+    # If it's short, keep it as-is.
+    if len(t) <= 200 and not _looks_like_section_break(t):
+        return (t, [])
+
+    # Try splitting by obvious line-like separators embedded in one cell.
+    chunks = re.split(r"(?:\\s{2,}|\\n|\\r|•|·|—{2,}|-{2,})", t)
+    chunks = [c.strip() for c in chunks if c.strip()]
+    if not chunks:
+        return (t[:200].rstrip() + "...", [t])
+
+    kept_parts: list[str] = []
+    appendix: list[str] = []
+    for c in chunks:
+        if _looks_like_section_break(c) or len(kept_parts) >= 2:
+            appendix.append(c)
+            continue
+        kept_parts.append(c)
+
+    kept = " ".join(kept_parts).strip()
+    if len(kept) > 200:
+        kept = kept[:200].rstrip() + "..."
+    if not appendix and len(t) > len(kept):
+        appendix = [t[len(kept) :].strip()] if t[len(kept) :].strip() else []
+    return (kept, appendix[:16])
+
+
+def _is_lodging_activity(*, activity: str, location: str, note: str) -> bool:
+    a = (activity or "").strip()
+    loc = (location or "").strip()
+    n = (note or "").strip()
+    if "🏠住宿" in n:
+        return True
+    if a == "住宿" or "住宿" in a:
+        return True
+    if re.search(r"(酒店|民宿|住宿|入住)", loc):
+        return True
+    # Keep conservative: if the note is about accommodation, treat as lodging info.
+    if re.search(r"(住宿|酒店|民宿|入住)", n):
+        return True
+    return False
+
+
+def _render_itinerary_schema_to_markdown_v2(schema: dict) -> str:
+    """
+    Render the LLM-extracted itinerary schema into v2 markdown.
+
+    Note: this function should NOT add new facts; it only normalizes/places fields.
+    """
+    days = schema.get("days")
+    if not isinstance(days, list) or not days:
+        return ""
+
+    global_appendix = schema.get("appendix")
+    if not isinstance(global_appendix, list):
+        global_appendix = []
+
+    out: list[str] = []
+    out.append("# 行程安排")
+    out.append("> 版本: v2")
+    out.append("")
+
+    appendix_lines: list[str] = []
+    cursor_minutes = 9 * 60
+
+    for idx, day in enumerate(days, start=1):
+        if not isinstance(day, dict):
+            continue
+        date = (day.get("date") or "").strip() or "今天"
+        out.append(f"## Day {idx}（{_sanitize_cell(date)}）")
+
+        day_items = day.get("items")
+        if not isinstance(day_items, list):
+            day_items = []
+
+        day_appendix = day.get("appendix")
+        if isinstance(day_appendix, list):
+            for a in day_appendix:
+                t = _sanitize_cell(str(a))
+                if t:
+                    appendix_lines.append(t)
+
+        if not day_items:
+            out.append("- 09:00 -  | 行程整理 |  | 待确认：原文缺少明确行程条目")
+            out.append("")
+            continue
+
+        cursor_minutes = 9 * 60
+        for item in day_items:
+            if not isinstance(item, dict):
+                continue
+
+            time_start = _pad_hhmm(str(item.get("time_start") or ""))
+            time_end = _pad_hhmm(str(item.get("time_end") or ""))
+            activity = _sanitize_cell(str(item.get("activity") or ""))
+            location = _sanitize_cell(str(item.get("location") or ""))
+            note = _sanitize_cell(str(item.get("note") or ""))
+
+            if _is_lodging_activity(activity=activity, location=location, note=note):
+                lodging_line = "住宿：" + " ".join(p for p in [location, note] if p)
+                appendix_lines.append(lodging_line.strip())
+                continue
+
+            if not time_start:
+                time_start = _minutes_to_hhmm(cursor_minutes)
+            start_min = _hhmm_to_minutes(time_start) or cursor_minutes
+            cursor_minutes = max(cursor_minutes, start_min + 60)
+
+            if not activity:
+                activity = "游览"
+
+            out.append(f"- {time_start} - {time_end} | {activity} | {location} | {note}")
+
+        out.append("")
+
+    for a in global_appendix:
+        t = _sanitize_cell(str(a))
+        if t:
+            appendix_lines.append(t)
+
+    if appendix_lines:
+        out.append("> 附加信息（非行程，仅供参考）")
+        for raw_line in appendix_lines[:32]:
+            t = _sanitize_cell(raw_line)
+            if not t:
+                continue
+            if len(t) > 220:
+                t = t[:220].rstrip() + "..."
+            out.append("> " + t)
+        out.append("")
+
+    return "\n".join(out).rstrip() + "\n"

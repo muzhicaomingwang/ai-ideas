@@ -29,6 +29,8 @@ public class PlanPO {
     private String plan_name;
     private String summary;
     private String highlights;
+    private String logo_url;
+    private String logo_storage;
     private String itinerary;
     private Integer itinerary_version;
     private String budget_breakdown;
@@ -61,6 +63,8 @@ public class PlanPO {
         po.plan_name = (String) m.getOrDefault("plan_name", "");
         po.summary = (String) m.getOrDefault("summary", "");
         po.highlights = JsonHelper.safeJson(m.get("highlights"));
+        po.logo_url = (String) m.getOrDefault("logo_url", null);
+        po.logo_storage = (String) m.getOrDefault("logo_storage", null);
         po.itinerary = JsonHelper.safeJson(m.get("itinerary"));
         po.itinerary_version = 1;
         po.budget_breakdown = JsonHelper.safeJson(m.get("budget_breakdown"));
@@ -104,6 +108,12 @@ public class PlanPO {
 
     public String getHighlights() { return highlights; }
     public void setHighlights(String v) { this.highlights = v; }
+
+    public String getLogoUrl() { return logo_url; }
+    public void setLogoUrl(String v) { this.logo_url = v; }
+
+    public String getLogoStorage() { return logo_storage; }
+    public void setLogoStorage(String v) { this.logo_storage = v; }
 
     public String getItinerary() { return itinerary; }
     public void setItinerary(String v) { this.itinerary = v; }

@@ -6,6 +6,7 @@ import com.teamventure.app.service.XiaohongshuImportService;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -52,6 +53,7 @@ public class XiaohongshuImportController {
         public Integer days;
         public String source_url;
         public String note_id;
+        public List<String> images;
         public String raw_content;
         public String generatedMarkdown;
     }

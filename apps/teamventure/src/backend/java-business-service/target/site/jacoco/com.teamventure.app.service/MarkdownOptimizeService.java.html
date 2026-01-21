@@ -22,13 +22,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MarkdownOptimizeService {
-<span class="nc" id="L25">    private static final Logger log = LoggerFactory.getLogger(MarkdownOptimizeService.class);</span>
+<span class="fc" id="L25">    private static final Logger log = LoggerFactory.getLogger(MarkdownOptimizeService.class);</span>
 
     private final HttpClient http;
-<span class="nc" id="L28">    private final ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L28">    private final ObjectMapper objectMapper = new ObjectMapper();</span>
 
     private static final int MAX_AUTO_FIX_ATTEMPTS = 5;
-<span class="nc" id="L31">    private static final Pattern DAY_MARKER = Pattern.compile(&quot;(?i)(?:^|\\s)(?:D\\s*\\d+|day\\s*\\d+|第\\s*\\d+\\s*天)(?:\\b|\\s|:|：)&quot;);</span>
+<span class="fc" id="L31">    private static final Pattern DAY_MARKER = Pattern.compile(&quot;(?i)(?:^|\\s)(?:D\\s*\\d+|day\\s*\\d+|第\\s*\\d+\\s*天)(?:\\b|\\s|:|：)&quot;);</span>
 
     @Value(&quot;${teamventure.ai-service.url:}&quot;)
     private String aiServiceUrl;
@@ -36,20 +36,20 @@ public class MarkdownOptimizeService {
     @Value(&quot;${teamventure.ai-service.normalize-model:gpt-5.2}&quot;)
     private String optimizeModel;
 
-<span class="nc" id="L39">    public MarkdownOptimizeService() {</span>
-<span class="nc" id="L40">        this.http = HttpClient.newBuilder()</span>
-<span class="nc" id="L41">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
-<span class="nc" id="L42">                .connectTimeout(Duration.ofSeconds(10))</span>
-<span class="nc" id="L43">                .version(HttpClient.Version.HTTP_1_1)</span>
-<span class="nc" id="L44">                .build();</span>
-<span class="nc" id="L45">    }</span>
+<span class="fc" id="L39">    public MarkdownOptimizeService() {</span>
+<span class="fc" id="L40">        this.http = HttpClient.newBuilder()</span>
+<span class="fc" id="L41">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
+<span class="fc" id="L42">                .connectTimeout(Duration.ofSeconds(10))</span>
+<span class="fc" id="L43">                .version(HttpClient.Version.HTTP_1_1)</span>
+<span class="fc" id="L44">                .build();</span>
+<span class="fc" id="L45">    }</span>
 
     public String convertFromParsed(String parsedContent) {
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        String input = parsedContent == null ? &quot;&quot; : parsedContent.trim();</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (input.isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;parsed_content is empty&quot;);</span>
-<span class="nc bnc" id="L50" title="All 4 branches missed.">        if (aiServiceUrl == null || aiServiceUrl.isBlank()) {</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        String input = parsedContent == null ? &quot;&quot; : parsedContent.trim();</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (input.isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;parsed_content is empty&quot;);</span>
+<span class="pc bpc" id="L50" title="3 of 4 branches missed.">        if (aiServiceUrl == null || aiServiceUrl.isBlank()) {</span>
             // Even without AI service, still enforce v2 itinerary markdown so the miniapp validator passes.
-<span class="nc" id="L52">            return ensureValidItineraryMarkdown(input, input);</span>
+<span class="fc" id="L52">            return ensureValidItineraryMarkdown(input, input);</span>
         }
 
 <span class="nc bnc" id="L55" title="All 2 branches missed.">        String endpoint = aiServiceUrl.endsWith(&quot;/&quot;)</span>
@@ -93,35 +93,35 @@ public class MarkdownOptimizeService {
      * Ensures the output passes the shared v2 itinerary markdown validator.
      */
     private String ensureValidItineraryMarkdown(String parsedText, String initialMarkdown) {
-<span class="nc" id="L96">        String candidate = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(initialMarkdown);</span>
-<span class="nc" id="L97">        String lastCandidate = &quot;&quot;;</span>
-<span class="nc" id="L98">        String lastSignature = &quot;&quot;;</span>
+<span class="fc" id="L96">        String candidate = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(initialMarkdown);</span>
+<span class="fc" id="L97">        String lastCandidate = &quot;&quot;;</span>
+<span class="fc" id="L98">        String lastSignature = &quot;&quot;;</span>
 
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        for (int attempt = 1; attempt &lt;= MAX_AUTO_FIX_ATTEMPTS; attempt++) {</span>
-<span class="nc" id="L101">            ItineraryMarkdownValidationResult check = ItineraryMarkdownValidator.validate(candidate);</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (check.valid) return candidate;</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        for (int attempt = 1; attempt &lt;= MAX_AUTO_FIX_ATTEMPTS; attempt++) {</span>
+<span class="fc" id="L101">            ItineraryMarkdownValidationResult check = ItineraryMarkdownValidator.validate(candidate);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            if (check.valid) return candidate;</span>
 
-<span class="nc" id="L104">            String signature = String.join(&quot;|&quot;, check.errors);</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (attempt &gt;= MAX_AUTO_FIX_ATTEMPTS) {</span>
+<span class="fc" id="L104">            String signature = String.join(&quot;|&quot;, check.errors);</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">            if (attempt &gt;= MAX_AUTO_FIX_ATTEMPTS) {</span>
 <span class="nc" id="L106">                throw new BizException(&quot;VALIDATION_ERROR&quot;,</span>
                         &quot;解析错误已经识别，请自行进行修改后再次进行尝试（自动修复已尝试 &quot; + MAX_AUTO_FIX_ATTEMPTS + &quot; 次）：\n&quot;
 <span class="nc" id="L108">                                + String.join(&quot;\n&quot;, head(check.errors, 10)));</span>
             }
 
-<span class="nc bnc" id="L111" title="All 4 branches missed.">            if (candidate.equals(lastCandidate) &amp;&amp; signature.equals(lastSignature)) {</span>
+<span class="pc bpc" id="L111" title="3 of 4 branches missed.">            if (candidate.equals(lastCandidate) &amp;&amp; signature.equals(lastSignature)) {</span>
 <span class="nc" id="L112">                throw new BizException(&quot;VALIDATION_ERROR&quot;,</span>
                         &quot;解析错误已经识别，请自行进行修改后再次进行尝试（自动修复无进展）：\n&quot;
 <span class="nc" id="L114">                                + String.join(&quot;\n&quot;, head(check.errors, 10)));</span>
             }
 
-<span class="nc" id="L117">            lastCandidate = candidate;</span>
-<span class="nc" id="L118">            lastSignature = signature;</span>
+<span class="fc" id="L117">            lastCandidate = candidate;</span>
+<span class="fc" id="L118">            lastSignature = signature;</span>
 
             // Fix by regenerating a valid v2 template, then (optionally) let AI refine the phrasing.
-<span class="nc" id="L121">            String fixed = toValidItineraryTemplate(parsedText, candidate, check.errors, attempt);</span>
-<span class="nc" id="L122">            fixed = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(fixed);</span>
-<span class="nc" id="L123">            ItineraryMarkdownValidationResult fixedCheck = ItineraryMarkdownValidator.validate(fixed);</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (fixedCheck.valid) return fixed;</span>
+<span class="fc" id="L121">            String fixed = toValidItineraryTemplate(parsedText, candidate, check.errors, attempt);</span>
+<span class="fc" id="L122">            fixed = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(fixed);</span>
+<span class="fc" id="L123">            ItineraryMarkdownValidationResult fixedCheck = ItineraryMarkdownValidator.validate(fixed);</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (fixedCheck.valid) return fixed;</span>
 
             // If still invalid, try AI optimize once per attempt as a best-effort refinement.
             // IMPORTANT: avoid calling optimize() here (it enforces validation and would recurse).
@@ -134,19 +134,19 @@ public class MarkdownOptimizeService {
     }
 
     public String optimize(String markdownContent) {
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        String input = markdownContent == null ? &quot;&quot; : markdownContent.trim();</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (input.isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;markdown_content is empty&quot;);</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        String input = markdownContent == null ? &quot;&quot; : markdownContent.trim();</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (input.isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;markdown_content is empty&quot;);</span>
         // Always enforce the shared v2 itinerary validator so &quot;AI optimize &amp; save&quot; can't regress to invalid output.
         // 1) sanitize the draft markdown (remove Day dates, drop &quot;- -&quot; rows, remove confusing version marker)
         // 2) if already valid, only accept AI output if it stays valid after re-sanitization
         // 3) otherwise fall back to the deterministic fix loop (max 5)
-<span class="nc" id="L143">        String base = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(input);</span>
-<span class="nc" id="L144">        ItineraryMarkdownValidationResult baseCheck = ItineraryMarkdownValidator.validate(base);</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (baseCheck.valid) {</span>
-<span class="nc" id="L146">            String optimized = optimizeOnce(base);</span>
-<span class="nc" id="L147">            String sanitizedOptimized = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(optimized);</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">            if (ItineraryMarkdownValidator.validate(sanitizedOptimized).valid) {</span>
-<span class="nc" id="L149">                return sanitizedOptimized;</span>
+<span class="fc" id="L143">        String base = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(input);</span>
+<span class="fc" id="L144">        ItineraryMarkdownValidationResult baseCheck = ItineraryMarkdownValidator.validate(base);</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (baseCheck.valid) {</span>
+<span class="fc" id="L146">            String optimized = optimizeOnce(base);</span>
+<span class="fc" id="L147">            String sanitizedOptimized = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(optimized);</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">            if (ItineraryMarkdownValidator.validate(sanitizedOptimized).valid) {</span>
+<span class="fc" id="L149">                return sanitizedOptimized;</span>
             }
 <span class="nc" id="L151">            return base;</span>
         }
@@ -156,9 +156,9 @@ public class MarkdownOptimizeService {
     }
 
     private String optimizeOnce(String markdownContent) {
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        String input = markdownContent == null ? &quot;&quot; : markdownContent.trim();</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (input.isEmpty()) return &quot;&quot;;</span>
-<span class="nc bnc" id="L161" title="All 4 branches missed.">        if (aiServiceUrl == null || aiServiceUrl.isBlank()) return input;</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        String input = markdownContent == null ? &quot;&quot; : markdownContent.trim();</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (input.isEmpty()) return &quot;&quot;;</span>
+<span class="pc bpc" id="L161" title="3 of 4 branches missed.">        if (aiServiceUrl == null || aiServiceUrl.isBlank()) return input;</span>
 
 <span class="nc bnc" id="L163" title="All 2 branches missed.">        String endpoint = aiServiceUrl.endsWith(&quot;/&quot;)</span>
 <span class="nc" id="L164">                ? (aiServiceUrl.substring(0, aiServiceUrl.length() - 1) + &quot;/api/v1/markdown/optimize&quot;)</span>
@@ -205,70 +205,70 @@ public class MarkdownOptimizeService {
     }
 
     private List&lt;String&gt; head(List&lt;String&gt; list, int n) {
-<span class="nc bnc" id="L208" title="All 4 branches missed.">        if (list == null || list.isEmpty()) return List.of();</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">        if (n &lt;= 0) return List.of();</span>
-<span class="nc" id="L210">        return list.subList(0, Math.min(n, list.size()));</span>
+<span class="pc bpc" id="L208" title="2 of 4 branches missed.">        if (list == null || list.isEmpty()) return List.of();</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">        if (n &lt;= 0) return List.of();</span>
+<span class="fc" id="L210">        return list.subList(0, Math.min(n, list.size()));</span>
     }
 
     private String toValidItineraryTemplate(String parsedText, String lastMarkdown, List&lt;String&gt; errors, int attempt) {
-<span class="nc bnc" id="L214" title="All 2 branches missed.">        String source = (parsedText == null ? &quot;&quot; : parsedText.trim());</span>
-<span class="nc bnc" id="L215" title="All 4 branches missed.">        if (source.isBlank()) source = (lastMarkdown == null ? &quot;&quot; : lastMarkdown.trim());</span>
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (source.isBlank()) source = &quot;（内容为空）&quot;;</span>
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">        String source = (parsedText == null ? &quot;&quot; : parsedText.trim());</span>
+<span class="pc bpc" id="L215" title="3 of 4 branches missed.">        if (source.isBlank()) source = (lastMarkdown == null ? &quot;&quot; : lastMarkdown.trim());</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (source.isBlank()) source = &quot;（内容为空）&quot;;</span>
 
-<span class="nc" id="L218">        List&lt;String&gt; lines = extractActivityLines(source);</span>
-<span class="nc bnc" id="L219" title="All 2 branches missed.">        if (lines.isEmpty()) lines = List.of(&quot;自由活动/根据现场调整&quot;);</span>
+<span class="fc" id="L218">        List&lt;String&gt; lines = extractActivityLines(source);</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (lines.isEmpty()) lines = List.of(&quot;自由活动/根据现场调整&quot;);</span>
 
-<span class="nc" id="L221">        int days = inferDays(source, lines);</span>
-<span class="nc" id="L222">        days = Math.max(1, Math.min(days, 5)); // keep compact to reduce validator risk</span>
+<span class="fc" id="L221">        int days = inferDays(source, lines);</span>
+<span class="fc" id="L222">        days = Math.max(1, Math.min(days, 5)); // keep compact to reduce validator risk</span>
 
-<span class="nc" id="L224">        int maxItemsPerDay = 8;</span>
-<span class="nc" id="L225">        List&lt;List&lt;String&gt;&gt; perDay = splitIntoDays(lines, days, maxItemsPerDay);</span>
+<span class="fc" id="L224">        int maxItemsPerDay = 8;</span>
+<span class="fc" id="L225">        List&lt;List&lt;String&gt;&gt; perDay = splitIntoDays(lines, days, maxItemsPerDay);</span>
 
-<span class="nc" id="L227">        String title = guessTitle(source);</span>
-<span class="nc" id="L228">        StringBuilder sb = new StringBuilder(4096);</span>
-<span class="nc" id="L229">        sb.append(&quot;# &quot;).append(title).append(&quot;\n&quot;);</span>
-<span class="nc" id="L230">        sb.append(&quot;\n&quot;);</span>
+<span class="fc" id="L227">        String title = guessTitle(source);</span>
+<span class="fc" id="L228">        StringBuilder sb = new StringBuilder(4096);</span>
+<span class="fc" id="L229">        sb.append(&quot;# &quot;).append(title).append(&quot;\n&quot;);</span>
+<span class="fc" id="L230">        sb.append(&quot;\n&quot;);</span>
 
-<span class="nc" id="L232">        int hour = 9;</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">        for (int d = 1; d &lt;= perDay.size(); d++) {</span>
-<span class="nc" id="L234">            sb.append(&quot;## Day &quot;).append(d).append(&quot;\n&quot;);</span>
-<span class="nc" id="L235">            List&lt;String&gt; items = perDay.get(d - 1);</span>
-<span class="nc bnc" id="L236" title="All 2 branches missed.">            if (items.isEmpty()) items = List.of(&quot;自由活动/机动安排&quot;);</span>
-<span class="nc" id="L237">            int localHour = hour;</span>
-<span class="nc bnc" id="L238" title="All 2 branches missed.">            for (String act : items) {</span>
-<span class="nc" id="L239">                String activity = sanitizeActivity(act);</span>
-<span class="nc" id="L240">                String start = pad2(localHour) + &quot;:00&quot;;</span>
-<span class="nc" id="L241">                String end = pad2(Math.min(localHour + 1, 23)) + &quot;:00&quot;;</span>
-<span class="nc" id="L242">                sb.append(&quot;- &quot;).append(start).append(&quot; - &quot;).append(end).append(&quot; | &quot;).append(activity).append(&quot;\n&quot;);</span>
-<span class="nc" id="L243">                localHour = Math.min(localHour + 1, 22);</span>
-<span class="nc" id="L244">            }</span>
-<span class="nc" id="L245">            sb.append(&quot;\n&quot;);</span>
-<span class="nc" id="L246">            hour = Math.min(hour + 1, 12);</span>
+<span class="fc" id="L232">        int hour = 9;</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        for (int d = 1; d &lt;= perDay.size(); d++) {</span>
+<span class="fc" id="L234">            sb.append(&quot;## Day &quot;).append(d).append(&quot;\n&quot;);</span>
+<span class="fc" id="L235">            List&lt;String&gt; items = perDay.get(d - 1);</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">            if (items.isEmpty()) items = List.of(&quot;自由活动/机动安排&quot;);</span>
+<span class="fc" id="L237">            int localHour = hour;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            for (String act : items) {</span>
+<span class="fc" id="L239">                String activity = sanitizeActivity(act);</span>
+<span class="fc" id="L240">                String start = pad2(localHour) + &quot;:00&quot;;</span>
+<span class="fc" id="L241">                String end = pad2(Math.min(localHour + 1, 23)) + &quot;:00&quot;;</span>
+<span class="fc" id="L242">                sb.append(&quot;- &quot;).append(start).append(&quot; - &quot;).append(end).append(&quot; | &quot;).append(activity).append(&quot;\n&quot;);</span>
+<span class="fc" id="L243">                localHour = Math.min(localHour + 1, 22);</span>
+<span class="fc" id="L244">            }</span>
+<span class="fc" id="L245">            sb.append(&quot;\n&quot;);</span>
+<span class="fc" id="L246">            hour = Math.min(hour + 1, 12);</span>
         }
 
         // Preserve original text as reference (ignored by validator).
-<span class="nc" id="L250">        sb.append(&quot;&gt; 原始内容（仅供参考）\n&quot;);</span>
-<span class="nc" id="L251">        List&lt;String&gt; rawLines = List.of(source.replace(&quot;\r&quot;, &quot;&quot;).split(&quot;\n&quot;, -1));</span>
-<span class="nc bnc" id="L252" title="All 2 branches missed.">        for (String raw : head(rawLines, 24)) {</span>
-<span class="nc bnc" id="L253" title="All 2 branches missed.">            String t = raw == null ? &quot;&quot; : raw.trim();</span>
-<span class="nc bnc" id="L254" title="All 2 branches missed.">            if (t.isEmpty()) continue;</span>
-<span class="nc bnc" id="L255" title="All 2 branches missed.">            if (t.length() &gt; 200) t = t.substring(0, 200) + &quot;...&quot;;</span>
-<span class="nc" id="L256">            sb.append(&quot;&gt; &quot;).append(t.replace(&quot;\t&quot;, &quot; &quot;)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L257">        }</span>
+<span class="fc" id="L250">        sb.append(&quot;&gt; 原始内容（仅供参考）\n&quot;);</span>
+<span class="fc" id="L251">        List&lt;String&gt; rawLines = List.of(source.replace(&quot;\r&quot;, &quot;&quot;).split(&quot;\n&quot;, -1));</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        for (String raw : head(rawLines, 24)) {</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">            String t = raw == null ? &quot;&quot; : raw.trim();</span>
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">            if (t.isEmpty()) continue;</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">            if (t.length() &gt; 200) t = t.substring(0, 200) + &quot;...&quot;;</span>
+<span class="fc" id="L256">            sb.append(&quot;&gt; &quot;).append(t.replace(&quot;\t&quot;, &quot; &quot;)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L257">        }</span>
 
-<span class="nc" id="L259">        return sb.toString().trim() + &quot;\n&quot;;</span>
+<span class="fc" id="L259">        return sb.toString().trim() + &quot;\n&quot;;</span>
     }
 
     private List&lt;String&gt; extractActivityLines(String text) {
-<span class="nc bnc" id="L263" title="All 2 branches missed.">        String s = text == null ? &quot;&quot; : text.replace(&quot;\r&quot;, &quot;&quot;);</span>
-<span class="nc" id="L264">        String[] raw = s.split(&quot;\n&quot;);</span>
-<span class="nc" id="L265">        List&lt;String&gt; out = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L266" title="All 2 branches missed.">        for (String line : raw) {</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">            String t = line == null ? &quot;&quot; : line.trim();</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">            if (t.isEmpty()) continue;</span>
-<span class="nc bnc" id="L269" title="All 4 branches missed.">            if (t.startsWith(&quot;#&quot;) || t.startsWith(&quot;&gt;&quot;)) continue;</span>
-<span class="nc bnc" id="L270" title="All 2 branches missed.">            if (t.matches(&quot;^\\-\\s*\\-\\s*\\|.*$&quot;)) continue;</span>
-<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (t.startsWith(&quot;-&quot;)) {</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">        String s = text == null ? &quot;&quot; : text.replace(&quot;\r&quot;, &quot;&quot;);</span>
+<span class="fc" id="L264">        String[] raw = s.split(&quot;\n&quot;);</span>
+<span class="fc" id="L265">        List&lt;String&gt; out = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        for (String line : raw) {</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">            String t = line == null ? &quot;&quot; : line.trim();</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">            if (t.isEmpty()) continue;</span>
+<span class="pc bpc" id="L269" title="2 of 4 branches missed.">            if (t.startsWith(&quot;#&quot;) || t.startsWith(&quot;&gt;&quot;)) continue;</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">            if (t.matches(&quot;^\\-\\s*\\-\\s*\\|.*$&quot;)) continue;</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">            if (t.startsWith(&quot;-&quot;)) {</span>
 <span class="nc" id="L272">                t = t.replaceFirst(&quot;^\\-+\\s*&quot;, &quot;&quot;).trim();</span>
                 // If it's already a structured itinerary item &quot;time | activity | location | ...&quot;,
                 // keep only the meaningful parts and drop the time so we don't duplicate it later.
@@ -283,14 +283,14 @@ public class MarkdownOptimizeService {
                     }
                 }
             }
-<span class="nc bnc" id="L286" title="All 2 branches missed.">            if (t.startsWith(&quot;http&quot;)) continue;</span>
-<span class="nc bnc" id="L287" title="All 2 branches missed.">            if (t.length() &lt; 2) continue;</span>
-<span class="nc" id="L288">            out.add(t);</span>
-<span class="nc bnc" id="L289" title="All 2 branches missed.">            if (out.size() &gt;= 32) break;</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">            if (t.startsWith(&quot;http&quot;)) continue;</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">            if (t.length() &lt; 2) continue;</span>
+<span class="fc" id="L288">            out.add(t);</span>
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">            if (out.size() &gt;= 32) break;</span>
         }
 
         // If single-line blob, split by punctuation/arrows.
-<span class="nc bnc" id="L293" title="All 2 branches missed.">        if (out.size() &lt;= 1) {</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">        if (out.size() &lt;= 1) {</span>
 <span class="nc" id="L294">            String compact = s.replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim();</span>
 <span class="nc" id="L295">            String[] parts = compact.split(&quot;[。！!？?；;]|→|-&gt;|➡️|➜|—|–&quot;);</span>
 <span class="nc bnc" id="L296" title="All 2 branches missed.">            for (String p : parts) {</span>
@@ -301,57 +301,57 @@ public class MarkdownOptimizeService {
             }
         }
 
-<span class="nc" id="L304">        return out;</span>
+<span class="fc" id="L304">        return out;</span>
     }
 
     private int inferDays(String source, List&lt;String&gt; lines) {
-<span class="nc bnc" id="L308" title="All 2 branches missed.">        if (source == null) return 1;</span>
-<span class="nc" id="L309">        int markers = 0;</span>
-<span class="nc" id="L310">        var m = DAY_MARKER.matcher(source);</span>
-<span class="nc bnc" id="L311" title="All 2 branches missed.">        while (m.find()) markers++;</span>
-<span class="nc bnc" id="L312" title="All 2 branches missed.">        if (markers &gt;= 2) return Math.min(markers, 5);</span>
-<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (lines.size() &gt;= 16) return 3;</span>
-<span class="nc bnc" id="L314" title="All 2 branches missed.">        if (lines.size() &gt;= 10) return 2;</span>
-<span class="nc" id="L315">        return 1;</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">        if (source == null) return 1;</span>
+<span class="fc" id="L309">        int markers = 0;</span>
+<span class="fc" id="L310">        var m = DAY_MARKER.matcher(source);</span>
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">        while (m.find()) markers++;</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">        if (markers &gt;= 2) return Math.min(markers, 5);</span>
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">        if (lines.size() &gt;= 16) return 3;</span>
+<span class="pc bpc" id="L314" title="1 of 2 branches missed.">        if (lines.size() &gt;= 10) return 2;</span>
+<span class="fc" id="L315">        return 1;</span>
     }
 
     private List&lt;List&lt;String&gt;&gt; splitIntoDays(List&lt;String&gt; lines, int days, int maxItemsPerDay) {
-<span class="nc" id="L319">        List&lt;List&lt;String&gt;&gt; out = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L320" title="All 2 branches missed.">        for (int i = 0; i &lt; days; i++) out.add(new ArrayList&lt;&gt;());</span>
-<span class="nc bnc" id="L321" title="All 4 branches missed.">        if (lines == null || lines.isEmpty()) return out;</span>
+<span class="fc" id="L319">        List&lt;List&lt;String&gt;&gt; out = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        for (int i = 0; i &lt; days; i++) out.add(new ArrayList&lt;&gt;());</span>
+<span class="pc bpc" id="L321" title="2 of 4 branches missed.">        if (lines == null || lines.isEmpty()) return out;</span>
 
-<span class="nc" id="L323">        int idx = 0;</span>
-<span class="nc bnc" id="L324" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc" id="L325">            out.get(Math.min(idx / maxItemsPerDay, days - 1)).add(line);</span>
-<span class="nc" id="L326">            idx++;</span>
-<span class="nc bnc" id="L327" title="All 2 branches missed.">            if (idx &gt;= days * maxItemsPerDay) break;</span>
-<span class="nc" id="L328">        }</span>
-<span class="nc" id="L329">        return out;</span>
+<span class="fc" id="L323">        int idx = 0;</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L325">            out.get(Math.min(idx / maxItemsPerDay, days - 1)).add(line);</span>
+<span class="fc" id="L326">            idx++;</span>
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">            if (idx &gt;= days * maxItemsPerDay) break;</span>
+<span class="fc" id="L328">        }</span>
+<span class="fc" id="L329">        return out;</span>
     }
 
     private String guessTitle(String source) {
-<span class="nc bnc" id="L333" title="All 2 branches missed.">        String s = source == null ? &quot;&quot; : source.trim().replace(&quot;\r&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L334" title="All 2 branches missed.">        if (s.isBlank()) return &quot;行程安排&quot;;</span>
-<span class="nc" id="L335">        String firstLine = s.split(&quot;\n&quot;, -1)[0].trim();</span>
-<span class="nc" id="L336">        firstLine = firstLine.replaceFirst(&quot;^#+\\s*&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L337" title="All 6 branches missed.">        if (firstLine.length() &gt;= 3 &amp;&amp; firstLine.length() &lt;= 50 &amp;&amp; !firstLine.startsWith(&quot;http&quot;)) {</span>
-<span class="nc" id="L338">            return firstLine.replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim();</span>
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">        String s = source == null ? &quot;&quot; : source.trim().replace(&quot;\r&quot;, &quot;&quot;);</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">        if (s.isBlank()) return &quot;行程安排&quot;;</span>
+<span class="fc" id="L335">        String firstLine = s.split(&quot;\n&quot;, -1)[0].trim();</span>
+<span class="fc" id="L336">        firstLine = firstLine.replaceFirst(&quot;^#+\\s*&quot;, &quot;&quot;).trim();</span>
+<span class="pc bpc" id="L337" title="3 of 6 branches missed.">        if (firstLine.length() &gt;= 3 &amp;&amp; firstLine.length() &lt;= 50 &amp;&amp; !firstLine.startsWith(&quot;http&quot;)) {</span>
+<span class="fc" id="L338">            return firstLine.replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim();</span>
         }
 <span class="nc" id="L340">        return &quot;行程安排&quot;;</span>
     }
 
     private String sanitizeActivity(String activity) {
-<span class="nc bnc" id="L344" title="All 2 branches missed.">        String s = activity == null ? &quot;&quot; : activity.trim();</span>
-<span class="nc" id="L345">        s = s.replace(&quot;|&quot;, &quot; - &quot;);</span>
-<span class="nc" id="L346">        s = s.replaceAll(&quot;\\s+&quot;, &quot; &quot;);</span>
-<span class="nc bnc" id="L347" title="All 2 branches missed.">        if (s.isBlank()) s = &quot;自由活动/机动安排&quot;;</span>
-<span class="nc bnc" id="L348" title="All 2 branches missed.">        if (s.length() &gt; 80) s = s.substring(0, 80) + &quot;...&quot;;</span>
-<span class="nc" id="L349">        return s;</span>
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">        String s = activity == null ? &quot;&quot; : activity.trim();</span>
+<span class="fc" id="L345">        s = s.replace(&quot;|&quot;, &quot; - &quot;);</span>
+<span class="fc" id="L346">        s = s.replaceAll(&quot;\\s+&quot;, &quot; &quot;);</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">        if (s.isBlank()) s = &quot;自由活动/机动安排&quot;;</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">        if (s.length() &gt; 80) s = s.substring(0, 80) + &quot;...&quot;;</span>
+<span class="fc" id="L349">        return s;</span>
     }
 
     private String pad2(int n) {
-<span class="nc" id="L353">        int v = Math.max(0, Math.min(n, 99));</span>
-<span class="nc bnc" id="L354" title="All 2 branches missed.">        return (v &lt; 10 ? (&quot;0&quot; + v) : String.valueOf(v));</span>
+<span class="fc" id="L353">        int v = Math.max(0, Math.min(n, 99));</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">        return (v &lt; 10 ? (&quot;0&quot; + v) : String.valueOf(v));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

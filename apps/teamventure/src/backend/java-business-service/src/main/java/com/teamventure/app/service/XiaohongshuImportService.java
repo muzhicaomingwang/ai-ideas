@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +51,7 @@ public class XiaohongshuImportService {
     private final HtmlFetcher htmlFetcher;
     private final RapidApiFetcher rapidApiFetcher;
     private final ShortLinkResolver shortLinkResolver;
+    private final OssService ossService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${teamventure.ai-service.url:}")
@@ -81,6 +84,22 @@ public class XiaohongshuImportService {
         Optional<String> resolveToUrl(String shortLink) throws Exception;
     }
 
+    @Autowired
+    public XiaohongshuImportService(OssService ossService) {
+        this.http = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+        this.redirectHttp = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        this.htmlFetcher = this::fetchHtml;
+        this.rapidApiFetcher = this::fetchViaRapidApi;
+        this.shortLinkResolver = this::resolveShortLinkViaRedirects;
+        this.ossService = ossService;
+    }
+
     public XiaohongshuImportService() {
         this.http = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
@@ -93,6 +112,7 @@ public class XiaohongshuImportService {
         this.htmlFetcher = this::fetchHtml;
         this.rapidApiFetcher = this::fetchViaRapidApi;
         this.shortLinkResolver = this::resolveShortLinkViaRedirects;
+        this.ossService = null;
     }
 
     XiaohongshuImportService(HtmlFetcher htmlFetcher) {
@@ -107,6 +127,7 @@ public class XiaohongshuImportService {
         this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
         this.rapidApiFetcher = this::fetchViaRapidApi;
         this.shortLinkResolver = this::resolveShortLinkViaRedirects;
+        this.ossService = null;
     }
 
     XiaohongshuImportService(HtmlFetcher htmlFetcher, RapidApiFetcher rapidApiFetcher) {
@@ -121,6 +142,7 @@ public class XiaohongshuImportService {
         this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
         this.rapidApiFetcher = rapidApiFetcher == null ? this::fetchViaRapidApi : rapidApiFetcher;
         this.shortLinkResolver = this::resolveShortLinkViaRedirects;
+        this.ossService = null;
     }
 
     XiaohongshuImportService(HtmlFetcher htmlFetcher, RapidApiFetcher rapidApiFetcher, ShortLinkResolver shortLinkResolver) {
@@ -135,6 +157,7 @@ public class XiaohongshuImportService {
         this.htmlFetcher = htmlFetcher == null ? this::fetchHtml : htmlFetcher;
         this.rapidApiFetcher = rapidApiFetcher == null ? this::fetchViaRapidApi : rapidApiFetcher;
         this.shortLinkResolver = shortLinkResolver == null ? this::resolveShortLinkViaRedirects : shortLinkResolver;
+        this.ossService = null;
     }
 
     public ParseResponse parse(String linkOrText) {
@@ -149,6 +172,7 @@ public class XiaohongshuImportService {
 
         String rawContent;
         String title = "";
+        List<String> originalImageUrls = List.of();
         try {
             if (!sourceUrl.startsWith("http")) {
                 throw new BizException("VALIDATION_ERROR", "link must be a valid xiaohongshu URL");
@@ -170,15 +194,18 @@ public class XiaohongshuImportService {
             if (fromRapid.isPresent() && !fromRapid.get().content.isBlank()) {
                 title = fromRapid.get().title;
                 rawContent = fromRapid.get().content;
+                originalImageUrls = fromRapid.get().imageUrls;
             } else {
                 // Fallback: fetch the web page and extract meta description / embedded text
                 Exception htmlErr = null;
                 String fallbackTitle = "";
                 String fallbackContent = "";
+                List<String> fallbackImages = List.of();
                 try {
                     String html = htmlFetcher.fetch(sourceUrl);
                     fallbackTitle = extractTitleFromHtml(html).orElse("");
                     fallbackContent = extractBestNoteText(html).orElse("");
+                    fallbackImages = extractImageUrlsFromHtml(html);
                 } catch (Exception e) {
                     htmlErr = e;
                     log.warn("xhs html fallback failed: url={}", sourceUrl, e);
@@ -192,6 +219,7 @@ public class XiaohongshuImportService {
 
                 title = fallbackTitle;
                 rawContent = fallbackContent;
+                originalImageUrls = fallbackImages;
             }
         } catch (Exception e) {
             log.warn("xhs parse failed", e);
@@ -211,6 +239,7 @@ public class XiaohongshuImportService {
         resp.raw_content = truncate(normalized, 20000);
         // Frontend fills the document box with this field; return original content text.
         resp.generatedMarkdown = resp.raw_content;
+        resp.images = uploadNoteImagesToOss(resolved.noteId, originalImageUrls);
         return resp;
     }
 
@@ -456,7 +485,8 @@ public class XiaohongshuImportService {
 
             if (!merged.isBlank()) {
                 log.info("xhs rapidapi parsed noteId={} attempt={} titleLen={} contentLen={}", noteId, attempt, title.length(), merged.length());
-                return Optional.of(new ScrapedNote(title, merged));
+                List<String> images = extractImageUrlsFromRapidApi(root);
+                return Optional.of(new ScrapedNote(title, merged, images));
             }
 
             log.warn("xhs rapidapi empty extracted content, will retry: noteId={} attempt={}", noteId, attempt);
@@ -466,6 +496,76 @@ public class XiaohongshuImportService {
         }
 
         return Optional.empty();
+    }
+
+    private List<String> extractImageUrlsFromRapidApi(JsonNode root) {
+        if (root == null || root.isMissingNode() || root.isNull()) return List.of();
+
+        Set<String> imageKeys = Set.of(
+                "images", "imageList", "image_list", "imageUrls", "image_urls", "image", "img",
+                "photoList", "photo_list", "photos", "photo",
+                "cover", "coverUrl", "cover_url",
+                "mediaList", "media_list"
+        );
+
+        List<JsonNode> candidates = new ArrayList<>();
+        collectNodesByKey(root, imageKeys, candidates, 0);
+
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+        for (JsonNode candidate : candidates) {
+            collectImageUrls(candidate, out, 0);
+            if (out.size() >= 20) break;
+        }
+
+        List<String> urls = new ArrayList<>(out);
+        if (urls.size() > 20) {
+            return urls.subList(0, 20);
+        }
+        return urls;
+    }
+
+    private void collectImageUrls(JsonNode node, LinkedHashSet<String> out, int depth) {
+        if (node == null || node.isMissingNode() || node.isNull()) return;
+        if (depth > 10) return;
+        if (out.size() >= 50) return;
+
+        if (node.isTextual()) {
+            String s = node.asText("").trim();
+            if (s.startsWith("http://") || s.startsWith("https://")) {
+                out.add(s);
+            }
+            return;
+        }
+
+        if (node.isArray()) {
+            for (JsonNode child : node) {
+                collectImageUrls(child, out, depth + 1);
+                if (out.size() >= 50) break;
+            }
+            return;
+        }
+
+        if (!node.isObject()) return;
+
+        String[] preferredUrlKeys = new String[] {
+                "url", "src", "originUrl", "origin_url", "originalUrl", "original_url",
+                "urlDefault", "url_default", "urlLarge", "url_large", "urlMiddle", "url_middle",
+                "imageUrl", "image_url"
+        };
+        for (String k : preferredUrlKeys) {
+            JsonNode v = node.get(k);
+            if (v != null && !v.isNull()) {
+                collectImageUrls(v, out, depth + 1);
+                if (out.size() >= 50) return;
+            }
+        }
+
+        var fields = node.fields();
+        while (fields.hasNext()) {
+            var e = fields.next();
+            collectImageUrls(e.getValue(), out, depth + 1);
+            if (out.size() >= 50) return;
+        }
     }
 
     private boolean isRetryableRapidApiStatus(int status) {
@@ -685,10 +785,103 @@ public class XiaohongshuImportService {
     static class ScrapedNote {
         final String title;
         final String content;
+        final List<String> imageUrls;
 
         ScrapedNote(String title, String content) {
+            this(title, content, List.of());
+        }
+
+        ScrapedNote(String title, String content, List<String> imageUrls) {
             this.title = title == null ? "" : title;
             this.content = content == null ? "" : content;
+            this.imageUrls = imageUrls == null ? List.of() : imageUrls;
+        }
+    }
+
+    private record DownloadedImage(byte[] bytes, String contentType, String filenameHint) {}
+
+    private List<String> uploadNoteImagesToOss(String noteId, List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) return List.of();
+
+        String safeNoteId = (noteId == null || noteId.isBlank()) ? "unknown" : noteId.trim();
+        String scope = "xhs/" + safeNoteId;
+
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+        int limit = Math.min(6, imageUrls.size());
+        for (int i = 0; i < limit; i++) {
+            String u = normalizeImageUrl(imageUrls.get(i));
+            if (u.isBlank()) continue;
+            out.add(u);
+        }
+        if (ossService == null) {
+            return new ArrayList<>(out);
+        }
+
+        long start = System.nanoTime();
+        long budgetNanos = Duration.ofSeconds(12).toNanos();
+        for (int i = 0; i < limit; i++) {
+            if (System.nanoTime() - start > budgetNanos) break;
+            String url = normalizeImageUrl(imageUrls.get(i));
+            if (url.isBlank()) continue;
+            try {
+                Optional<DownloadedImage> downloaded = downloadImage(url.trim());
+                if (downloaded.isEmpty()) continue;
+
+                var uploaded = ossService.uploadImageBytes(
+                        OssService.Category.ITINERARY,
+                        downloaded.get().bytes(),
+                        downloaded.get().contentType(),
+                        scope,
+                        downloaded.get().filenameHint()
+                );
+                if (uploaded.url() != null && !uploaded.url().isBlank()) {
+                    out.add(uploaded.url());
+                }
+            } catch (Exception e) {
+                log.warn("xhs image upload failed: noteId={} url={}", safeNoteId, url, e);
+            }
+        }
+        return new ArrayList<>(out);
+    }
+
+    private String normalizeImageUrl(String url) {
+        if (url == null) return "";
+        String s = url.trim();
+        if (s.isBlank()) return "";
+        if (s.startsWith("//")) s = "https:" + s;
+        if (s.startsWith("http://") && s.contains("xhscdn.com")) {
+            s = "https://" + s.substring("http://".length());
+        }
+        return s;
+    }
+
+    private Optional<DownloadedImage> downloadImage(String url) {
+        URI uri;
+        try {
+            uri = URI.create(url);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
+        try {
+            HttpRequest req = HttpRequest.newBuilder(uri)
+                    .timeout(Duration.ofSeconds(6))
+                    .header("User-Agent", "Mozilla/5.0")
+                    .header("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
+                    .GET()
+                    .build();
+
+            HttpResponse<byte[]> res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());
+            if (res.statusCode() < 200 || res.statusCode() >= 300) return Optional.empty();
+            String contentType = res.headers().firstValue("Content-Type").orElse("image/jpeg").trim();
+            if (!contentType.toLowerCase().startsWith("image/")) return Optional.empty();
+            byte[] bytes = res.body();
+            if (bytes == null || bytes.length == 0) return Optional.empty();
+            String filenameHint = uri.getPath();
+            if (filenameHint == null || filenameHint.isBlank()) filenameHint = "image";
+            return Optional.of(new DownloadedImage(bytes, contentType, filenameHint));
+        } catch (Exception e) {
+            return Optional.empty();
         }
     }
 
@@ -845,6 +1038,72 @@ public class XiaohongshuImportService {
         best = normalizeExtractedNoteText(best);
         if (best.isBlank()) return Optional.empty();
         return Optional.of(best);
+    }
+
+    private List<String> extractImageUrlsFromHtml(String html) {
+        if (html == null || html.isBlank()) return List.of();
+
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+
+        // Prefer structured fields when present in the embedded JSON.
+        for (String field : new String[] { "urlDefault", "urlPre", "originalUrl", "original_url", "originUrl", "origin_url" }) {
+            List<String> values = extractAllJsonStringFields(html, field, 50);
+            for (String v : values) {
+                String u = normalizeImageUrl(v);
+                if (u.isBlank()) continue;
+                // Filter out user avatars and irrelevant assets; keep note images.
+                if (!u.contains("xhscdn.com")) continue;
+                if (u.contains("sns-avatar") || u.contains("/avatar/")) continue;
+                if (!(u.contains("sns-webpic") || u.contains("sns-img") || u.contains("sns-web") || u.contains("sns"))) continue;
+                out.add(u);
+                if (out.size() >= 20) break;
+            }
+            if (out.size() >= 20) break;
+        }
+
+        if (!out.isEmpty()) return new ArrayList<>(out);
+
+        // Fallback: meta tags like og:image.
+        Pattern ogImg = Pattern.compile("<meta\\s+[^>]*property\\s*=\\s*\"og:image\"[^>]*content\\s*=\\s*\"([^\"]*)\"[^>]*>",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = ogImg.matcher(html);
+        while (m.find() && out.size() < 10) {
+            String u = normalizeImageUrl(stripHtml(m.group(1)));
+            if (u.contains("sns-avatar") || u.contains("/avatar/")) continue;
+            if (u.startsWith("http://") || u.startsWith("https://")) out.add(u);
+        }
+
+        return new ArrayList<>(out);
+    }
+
+    private List<String> extractAllJsonStringFields(String html, String fieldName, int max) {
+        if (html == null || fieldName == null || fieldName.isBlank() || max <= 0) return List.of();
+        String needle = "\"" + fieldName + "\"";
+
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+        int idx = 0;
+        while (idx >= 0 && idx < html.length() && out.size() < max) {
+            idx = html.indexOf(needle, idx);
+            if (idx < 0) break;
+            int colon = html.indexOf(':', idx + needle.length());
+            if (colon < 0) {
+                idx = idx + needle.length();
+                continue;
+            }
+            int startQuote = html.indexOf('"', colon + 1);
+            if (startQuote < 0) {
+                idx = idx + needle.length();
+                continue;
+            }
+            String raw = extractJsonStringLiteral(html, startQuote);
+            if (raw != null) {
+                String unescaped = unescapeJsonStringDeep(raw);
+                String v = unescaped == null ? "" : unescaped.trim();
+                if (!v.isBlank()) out.add(v);
+            }
+            idx = startQuote + 1;
+        }
+        return new ArrayList<>(out);
     }
 
     private Optional<String> extractMetaDescription(String html) {

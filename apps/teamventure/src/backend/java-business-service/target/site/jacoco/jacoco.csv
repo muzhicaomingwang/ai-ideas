@@ -6,27 +6,29 @@ TeamVenture Business Service,com.teamventure.app.service,Jsons.new TypeReference
 TeamVenture Business Service,com.teamventure.app.service,PlanService.MapData,103,0,10,0,14,0,6,0,1,0
 TeamVenture Business Service,com.teamventure.app.service,Jsons.new TypeReference() {...},3,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.app.service,PlanService.DayRouteType,21,0,0,0,4,0,1,0,1,0
-TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ScrapedNote,17,0,4,0,4,0,3,0,1,0
-TeamVenture Business Service,com.teamventure.app.service,MarkdownOptimizeService,1115,0,168,0,212,0,99,0,15,0
-TeamVenture Business Service,com.teamventure.app.service,PlanService,5379,0,565,0,1117,0,338,0,54,0
+TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ScrapedNote,6,24,3,3,0,7,3,2,0,2
+TeamVenture Business Service,com.teamventure.app.service,MarkdownOptimizeService,517,598,100,68,84,128,77,22,1,14
+TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.DownloadedImage,12,0,0,0,1,0,1,0,1,0
+TeamVenture Business Service,com.teamventure.app.service,PlanService,5560,0,613,0,1149,0,365,0,57,0
 TeamVenture Business Service,com.teamventure.app.service,OssService.Category,15,0,0,0,3,0,1,0,1,0
-TeamVenture Business Service,com.teamventure.app.service,OssService,379,55,67,4,77,11,46,2,9,2
+TeamVenture Business Service,com.teamventure.app.service,OssService,710,0,123,0,140,0,77,0,14,0
 TeamVenture Business Service,com.teamventure.app.service,OssService.UploadResult,18,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.app.service,InternalPlanCallbackService,135,0,6,0,32,0,6,0,3,0
-TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService,4023,0,754,0,765,0,445,0,64,0
+TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService,3635,1346,761,159,639,295,484,52,43,29
 TeamVenture Business Service,com.teamventure.app.service,PlanService.RouteSegment,15,0,0,0,6,0,1,0,1,0
-TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ResolveNoteIdResult,17,0,4,0,4,0,3,0,1,0
+TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ResolveNoteIdResult,4,13,2,2,0,4,2,1,0,1
 TeamVenture Business Service,com.teamventure.app.service,PlanService.new LinkedHashMap() {...},14,0,2,0,2,0,3,0,2,0
 TeamVenture Business Service,com.teamventure.app.service,PlanService.new LinkedHashMap() {...},14,0,2,0,2,0,3,0,2,0
 TeamVenture Business Service,com.teamventure.app.service,SupplierService,59,0,10,0,14,0,8,0,3,0
 TeamVenture Business Service,com.teamventure.app.service,XiaohongshuImportService.ItinerarySignals,16,0,2,0,5,0,2,0,1,0
 TeamVenture Business Service,com.teamventure.app.service,AuthService,385,22,46,0,87,7,29,2,6,2
+TeamVenture Business Service,com.teamventure.infrastructure.persistence,DbSchemaMigrator,113,0,12,0,26,0,11,0,5,0
 TeamVenture Business Service,com.teamventure.app.support,BizException,5,10,0,0,2,4,1,2,1,2
 TeamVenture Business Service,com.teamventure.app.support,JwtSupport,0,67,0,2,0,20,0,7,0,6
 TeamVenture Business Service,com.teamventure.app.support,IdGenerator,9,0,0,0,2,0,2,0,2,0
-TeamVenture Business Service,com.teamventure.app.support,ItineraryMarkdownSanitizer,284,0,44,0,57,0,26,0,4,0
+TeamVenture Business Service,com.teamventure.app.support,ItineraryMarkdownSanitizer,134,150,28,16,19,38,18,8,1,3
 TeamVenture Business Service,com.teamventure.app.support,ItineraryMarkdownParser,294,0,44,0,58,0,28,0,6,0
-TeamVenture Business Service,com.teamventure.app.support,ItineraryMarkdownValidator,51,225,20,28,7,61,17,16,0,9
+TeamVenture Business Service,com.teamventure.app.support,ItineraryMarkdownValidator,44,232,19,29,6,62,16,17,0,9
 TeamVenture Business Service,com.teamventure.app.support,ItineraryMarkdownValidationResult,0,15,0,0,0,6,0,1,0,1
 TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownController,43,0,0,0,10,0,3,0,3,0
 TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownController.OptimizeRequest,3,0,0,0,1,0,1,0,1,0
@@ -35,7 +37,7 @@ TeamVenture Business Service,com.teamventure.adapter.web.markdown,MarkdownContro
 TeamVenture Business Service,com.teamventure.adapter.web.users,UserController.UserInfo,21,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.users,UserController,93,0,4,0,24,0,5,0,3,0
 TeamVenture Business Service,com.teamventure.adapter.web.users,UserController.UpdateAvatarRequest,6,0,0,0,1,0,1,0,1,0
-TeamVenture Business Service,com.teamventure.adapter.web.imports,XiaohongshuImportController.ParseResponse,3,0,0,0,1,0,1,0,1,0
+TeamVenture Business Service,com.teamventure.adapter.web.imports,XiaohongshuImportController.ParseResponse,0,3,0,0,0,1,0,1,0,1
 TeamVenture Business Service,com.teamventure.adapter.web.imports,XiaohongshuImportController,47,0,0,0,12,0,3,0,3,0
 TeamVenture Business Service,com.teamventure.adapter.web.imports,XiaohongshuImportController.ParseRequest,3,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.imports,XiaohongshuImportController.ResolveNoteIdResponse,3,0,0,0,1,0,1,0,1,0
@@ -48,7 +50,7 @@ TeamVenture Business Service,com.teamventure.adapter.web.auth,AuthController.Log
 TeamVenture Business Service,com.teamventure.adapter.web.auth,AuthController.LoginResponse,9,0,0,0,4,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.auth,AuthController.LoginResponse.UserInfo,21,0,0,0,8,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController.SupplierContactRequest,3,0,0,0,1,0,1,0,1,0
-TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController,219,0,2,0,44,0,14,0,13,0
+TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController,223,0,2,0,44,0,14,0,13,0
 TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController.GenerateResponse,9,0,0,0,4,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController.GenerateRequest,3,0,0,0,1,0,1,0,1,0
 TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController.UpdateItineraryRequest,3,0,0,0,1,0,1,0,1,0
@@ -57,7 +59,7 @@ TeamVenture Business Service,com.teamventure.adapter.web.plans,PlanController.Su
 TeamVenture Business Service,com.teamventure.adapter.web.common,ApiResponse,62,0,0,0,18,0,8,0,8,0
 TeamVenture Business Service,com.teamventure.adapter.web.common,ApiError,18,0,0,0,7,0,4,0,4,0
 TeamVenture Business Service,com.teamventure.adapter.web.common,GlobalExceptionHandler,243,0,30,0,41,0,25,0,10,0
-TeamVenture Business Service,com.teamventure.infrastructure.persistence.po,PlanPO,301,0,0,0,71,0,52,0,52,0
+TeamVenture Business Service,com.teamventure.infrastructure.persistence.po,PlanPO,329,0,0,0,77,0,56,0,56,0
 TeamVenture Business Service,com.teamventure.infrastructure.persistence.po,SupplierContactLogPO,45,0,0,0,13,0,13,0,13,0
 TeamVenture Business Service,com.teamventure.infrastructure.persistence.po,JsonHelper,74,0,12,0,17,0,11,0,5,0
 TeamVenture Business Service,com.teamventure.infrastructure.persistence.po,PlanRequestPO,129,0,0,0,37,0,37,0,37,0

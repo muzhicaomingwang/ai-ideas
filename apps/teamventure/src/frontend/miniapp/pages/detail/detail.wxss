@@ -304,24 +304,36 @@
 }
 
 .it-card-title {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 800;
   color: #111;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   overflow: hidden;
 }
 
 .it-card-sub {
   margin-top: 8rpx;
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #666;
+  font-weight: 500;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.it-card-note {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
 }
 

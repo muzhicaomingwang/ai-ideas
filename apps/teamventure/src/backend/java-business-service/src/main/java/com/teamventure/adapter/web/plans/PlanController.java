@@ -36,7 +36,7 @@ public class PlanController {
     public ApiResponse<Map<String, Object>> save(@RequestHeader(value = "Authorization", required = false) String authorization,
                                                  @Valid @RequestBody SaveRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name));
+        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name, req.logo_storage, req.logo_url));
     }
 
     @GetMapping
@@ -165,6 +165,14 @@ public class PlanController {
         /** 用户指定的方案名称 */
         @NotBlank
         public String plan_name;
+
+        /** 可选：方案 Logo 对象引用（minio://bucket/key，用于列表展示） */
+        @JsonAlias({"logoStorage", "logo_storage"})
+        public String logo_storage;
+
+        /** 兼容：旧字段（历史实现） */
+        @JsonAlias({"logoUrl", "logo_url", "plan_logo", "planLogo"})
+        public String logo_url;
     }
 
     public static class GenerateResponse {

@@ -72,6 +72,7 @@
                 <view class="it-card-time" wx:if="{{item2.time}}">{{item2.time}}</view>
                 <view class="it-card-title">{{item2.title}}</view>
                 <view class="it-card-sub" wx:if="{{item2.subtitle}}">{{item2.subtitle}}</view>
+                <view class="it-card-note" wx:if="{{item2.noteLine}}">{{item2.noteLine}}</view>
               </view>
             </view>
           </scroll-view>

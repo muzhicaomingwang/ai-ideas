@@ -89,6 +89,31 @@ public class XiaohongshuImportServiceTest {
     }
 
     @Test
+    void parse_shouldExtractImages_fromHtmlFallback_whenRapidApiUnavailable() {
+        String url = "https://www.xiaohongshu.com/discovery/item/686f89fa000000002400f18a?xsec_token=abc";
+        String u = "\\" + "u002F";
+        String img = "http:" + u + u + "sns-webpic-qc.xhscdn.com" + u + "20260120" + u + "abc.jpg";
+        String avatar = "http:" + u + u + "sns-avatar-qc.xhscdn.com" + u + "avatar" + u + "user.jpg";
+
+        String html = "<html><head><meta name=\"description\" content=\"正文\"></head><body>"
+                + "<script>"
+                + "var x={\"urlDefault\":\"" + img + "\",\"urlDefault\":\"" + avatar + "\"};"
+                + "</script>"
+                + "</body></html>";
+
+        XiaohongshuImportService service = new XiaohongshuImportService(
+                (u0) -> html,
+                (id) -> Optional.empty()
+        );
+
+        var resp = service.parse(url);
+        assertNotNull(resp.images);
+        assertTrue(resp.images.size() >= 1);
+        assertTrue(resp.images.get(0).startsWith("https://"));
+        assertTrue(resp.images.get(0).contains("sns-webpic"));
+    }
+
+    @Test
     void resolveNoteId_shouldReturnNoteId_andResolvedUrl() {
         XiaohongshuImportService service = new XiaohongshuImportService(
                 null,

@@ -26,7 +26,10 @@ describe('Config - API_BASE_URL', () => {
   test('local环境应包含localhost', () => {
     // 根据当前环境判断
     if (USE_MOCK_DATA === false) {
-      expect(API_BASE_URL).toContain('localhost')
+      // local 环境默认走本地网关域名（通过 /etc/hosts 指向 127.0.0.1），也兼容直接用 localhost
+      expect(
+        API_BASE_URL.includes('localhost') || API_BASE_URL.includes('api.teamventure.com')
+      ).toBe(true)
     }
   })
 })

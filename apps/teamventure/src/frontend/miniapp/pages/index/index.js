@@ -1,5 +1,5 @@
 // pages/index/index.js
-import { post } from '../../utils/request.js'
+import { post, uploadFile } from '../../utils/request.js'
 import { API_ENDPOINTS, STORAGE_KEYS } from '../../utils/config.js'
 import { filterItineraryMarkdownLines, validateItineraryMarkdown } from '../../utils/itinerary-markdown.js'
 
@@ -22,12 +22,20 @@ Page({
       visible: false,
       value: ''
     },
+    logoPickerDialog: {
+      visible: false,
+      images: [],
+      selectedIndex: 0
+    },
+    pendingSave: null, // { markdown, logoUrl }
+    pendingLogoUrl: '',
     isSubmitting: false,
     isConverting: false,
 
     // 小红书导入
     xhsImportStatus: 'idle', // idle | parsing | error
     xhsLink: '',
+    xhsImages: [],
     xhsParseProgress: 0,
     xhsParseError: '',
     xhsParseErrorCode: ''
@@ -95,13 +103,176 @@ Page({
 
   noop() {},
 
+  isLikelyImageUrl(url) {
+    const u = String(url || '').trim()
+    if (!u) return false
+    if (!/^https?:\/\//i.test(u)) return false
+    if (/\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(u)) return true
+    // 小红书图片CDN常见域名（有些链接不带扩展名）
+    if (/xiaohongshu\.com/i.test(u)) return true
+    if (/xhscdn\.com/i.test(u)) return true
+    if (/xhs(?:img|link)?\.com/i.test(u)) return true
+    if (/ci\.xiaohongshu\.com/i.test(u)) return true
+    return false
+  },
+
+  extractImageUrlsFromText(textLike) {
+    const text = String(textLike || '')
+    if (!text) return []
+
+    const urls = []
+    const push = (u) => {
+      const s = String(u || '').trim()
+      if (!s) return
+      // strip surrounding <>
+      const cleaned = s.replace(/^<|>$/g, '').trim()
+      if (!cleaned) return
+      if (!this.isLikelyImageUrl(cleaned)) return
+      urls.push(cleaned)
+    }
+
+    // Markdown images: ![alt](url "title")
+    const mdImg = /!\[[^\]]*]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g
+    let m
+    while ((m = mdImg.exec(text))) {
+      push(m[1])
+    }
+
+    // HTML images: <img src="...">
+    const htmlImg = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi
+    while ((m = htmlImg.exec(text))) {
+      push(m[1])
+    }
+
+    // Plain URLs
+    const plain = /https?:\/\/[^\s<>"')]+/g
+    while ((m = plain.exec(text))) {
+      push(m[0])
+    }
+
+    // de-dup + cap to avoid huge dialogs
+    const seen = new Set()
+    const out = []
+    for (const u of urls) {
+      if (seen.has(u)) continue
+      seen.add(u)
+      out.push(u)
+      if (out.length >= 12) break
+    }
+    return out
+  },
+
+  getLogoCandidates(sourceText) {
+    const fromSource = this.extractImageUrlsFromText(sourceText)
+    const fromParsed = this.extractImageUrlsFromText(this.data.formData?.parsedContent || '')
+    const fromXhs = Array.isArray(this.data.xhsImages)
+      ? this.data.xhsImages.filter(u => this.isLikelyImageUrl(u))
+      : []
+    const merged = []
+    const seen = new Set()
+    for (const u of [...fromSource, ...fromParsed, ...fromXhs]) {
+      const s = String(u || '').trim()
+      if (!s || seen.has(s)) continue
+      seen.add(s)
+      merged.push(s)
+      if (merged.length >= 12) break
+    }
+    return merged
+  },
+
+  openLogoPicker(markdown, images) {
+    this.setData({
+      pendingSave: { markdown, logoUrl: '' },
+      logoPickerDialog: {
+        visible: true,
+        images,
+        selectedIndex: 0
+      }
+    })
+  },
+
+  closeLogoPicker() {
+    this.setData({
+      logoPickerDialog: { ...this.data.logoPickerDialog, visible: false, images: [] },
+      pendingSave: null
+    })
+  },
+
+  handleLogoPickSelect(e) {
+    const idx = Number(e.currentTarget.dataset.index)
+    if (Number.isNaN(idx)) return
+    this.setData({ 'logoPickerDialog.selectedIndex': idx })
+  },
+
+  handleLogoPickSkip() {
+    const pending = this.data.pendingSave
+    if (!pending) return
+    const markdown = pending.markdown
+    this.closeLogoPicker()
+    this.setData({ pendingLogoUrl: '' })
+    this.handleSaveWithLogo(markdown, '')
+  },
+
+  handleLogoPickConfirm() {
+    const pending = this.data.pendingSave
+    const dlg = this.data.logoPickerDialog
+    if (!pending) return
+    const images = Array.isArray(dlg?.images) ? dlg.images : []
+    const idx = Number(dlg?.selectedIndex || 0)
+    const selected = images[idx] || images[0] || ''
+    const markdown = pending.markdown
+    this.closeLogoPicker()
+    this.setData({ pendingLogoUrl: selected })
+    this.handleSaveWithLogo(markdown, selected)
+  },
+
+  handleSaveWithLogo(markdownContent, logoUrl) {
+    // 进入“输入方案名称”阶段，logoUrl（可为空）暂存，提交时一起保存
+    this.setData({
+      pendingLogoUrl: logoUrl || '',
+      planNameDialog: {
+        visible: true,
+        value: this.suggestPlanName()
+      }
+    })
+  },
+
+  downloadToTempFile(url) {
+    const u = String(url || '').trim()
+    if (!u) return Promise.reject(new Error('缺少图片链接'))
+    return new Promise((resolve, reject) => {
+      wx.downloadFile({
+        url: u,
+        timeout: 20000,
+        success: (res) => {
+          if (res.statusCode === 200 && res.tempFilePath) {
+            resolve(res.tempFilePath)
+          } else {
+            reject(new Error('图片下载失败'))
+          }
+        },
+        fail: () => reject(new Error('图片下载失败'))
+      })
+    })
+  },
+
+  async uploadLogoFromUrl(url) {
+    const tempPath = await this.downloadToTempFile(url)
+    const resp = await uploadFile('/media/upload?category=itinerary&scope=plan_logo', tempPath, { showLoading: false })
+    if (!resp?.success || !resp?.data?.bucket || !resp?.data?.key) {
+      throw new Error('Logo 上传失败')
+    }
+    return `minio://${resp.data.bucket}/${resp.data.key}`
+  },
+
   loadLastRequest() {
     try {
       const lastRequest = wx.getStorageSync(STORAGE_KEYS.LATEST_REQUEST)
       if (lastRequest?.markdownContent || lastRequest?.parsedContent) {
         this.setData({
           'formData.parsedContent': lastRequest.parsedContent || '',
-          'formData.markdownContent': lastRequest.markdownContent || ''
+          'formData.markdownContent': lastRequest.markdownContent || '',
+          xhsImages: Array.isArray(lastRequest.xhsImages) ? lastRequest.xhsImages : []
         })
       }
     } catch (error) {
@@ -114,7 +285,8 @@ Page({
       wx.setStorageSync(STORAGE_KEYS.LATEST_REQUEST, {
         mode: 'markdown',
         parsedContent: this.data.formData.parsedContent,
-        markdownContent: this.data.formData.markdownContent
+        markdownContent: this.data.formData.markdownContent,
+        xhsImages: this.data.xhsImages
       })
     } catch (error) {
       console.error('保存请求数据失败:', error)
@@ -131,6 +303,7 @@ Page({
       wx.setStorageSync(STORAGE_KEYS.DRAFT_REQUEST, {
         timestamp: Date.now(),
         xhsLink: link,
+        xhsImages: this.data.xhsImages,
         parsedContent,
         markdownContent: markdown
       })
@@ -160,6 +333,7 @@ Page({
     this.setData({
       xhsImportStatus: 'idle',
       xhsLink: '',
+      xhsImages: [],
       xhsParseProgress: 0,
       xhsParseError: '',
       xhsParseErrorCode: ''
@@ -175,7 +349,7 @@ Page({
   },
 
   handleClearParsedContent() {
-    this.setData({ 'formData.parsedContent': '' })
+    this.setData({ 'formData.parsedContent': '', xhsImages: [] })
     this.saveCurrentRequest()
   },
 
@@ -293,7 +467,8 @@ D2 ________
       xhsImportStatus: 'parsing',
       xhsParseProgress: 0,
       xhsParseError: '',
-      xhsParseErrorCode: ''
+      xhsParseErrorCode: '',
+      xhsImages: []
     })
 
     if (this.progressTimer) clearInterval(this.progressTimer)
@@ -338,6 +513,9 @@ D2 ________
 
       this.setData({
         xhsImportStatus: 'idle',
+        xhsImages: Array.isArray(result?.images)
+          ? result.images
+          : (Array.isArray(result?.image_urls) ? result.image_urls : []),
         'formData.parsedContent': markdown,
         'formData.markdownContent': ''
       })
@@ -355,6 +533,14 @@ D2 ________
         xhsParseErrorCode: error?.code || ''
       })
     }
+  },
+
+  handlePreviewXhsImage(e) {
+    const urls = (this.data.xhsImages || []).filter(Boolean)
+    if (urls.length === 0) return
+    const index = Number(e?.currentTarget?.dataset?.index || 0)
+    const current = urls[Math.max(0, Math.min(index, urls.length - 1))]
+    wx.previewImage({ current, urls })
   },
 
   validateMarkdown() {
@@ -382,6 +568,18 @@ D2 ________
 
   handleSave() {
     if (this.data.isSubmitting) return
+    if (!this.validateMarkdown()) return
+    this.setData({ pendingLogoUrl: '' })
+
+    const markdown = (this.data.formData.markdownContent || '').toString()
+    const parsed = (this.data.formData.parsedContent || '').toString()
+    const logoCandidates = this.getLogoCandidates(parsed || markdown)
+
+    if (logoCandidates.length > 0) {
+      this.openLogoPicker(markdown, logoCandidates)
+      return
+    }
+
     const defaultName = this.suggestPlanName()
     this.setData({
       planNameDialog: { visible: true, value: defaultName }
@@ -413,10 +611,51 @@ D2 ________
       return
     }
     this.setData({ planNameDialog: { ...this.data.planNameDialog, visible: false } })
-    this.submitPlan(v)
+    this.submitPlan(v, this.data.pendingLogoUrl || '')
   },
 
-  async submitPlan(planName) {
+  async performSave(planName, markdown, logoUrl) {
+    let logoStorage = ''
+    if (logoUrl) {
+      try {
+        wx.showLoading({ title: '上传Logo...', mask: true })
+        logoStorage = await this.uploadLogoFromUrl(logoUrl)
+      } catch (e) {
+        wx.hideLoading()
+        const msg = e?.message || '上传失败'
+        const proceed = await new Promise((resolve) => {
+          wx.showModal({
+            title: 'Logo 上传失败',
+            content: `${msg}，是否继续保存（不设置Logo）？`,
+            confirmText: '继续保存',
+            cancelText: '取消',
+            success: (res) => resolve(res?.confirm === true)
+          })
+        })
+        if (!proceed) {
+          throw new Error('已取消保存')
+        }
+      }
+    }
+
+    wx.showLoading({ title: '正在保存...', mask: true })
+    const requestData = {
+      markdown_content: markdown,
+      plan_name: planName,
+      ...(logoStorage ? { logo_storage: logoStorage } : {})
+    }
+    await post(API_ENDPOINTS.PLAN_SAVE, requestData, { showLoading: false, timeout: 45000 })
+    wx.hideLoading()
+    this.saveCurrentRequest()
+    wx.setStorageSync(STORAGE_KEYS.MYPLANS_JUMP_TAB, 'draft')
+
+    wx.showToast({ title: '已保存', icon: 'success', duration: 1200 })
+    setTimeout(() => {
+      wx.switchTab({ url: '/pages/myplans/myplans' })
+    }, 300)
+  },
+
+  async submitPlan(planName, preselectedLogoUrl = '') {
     if (this.data.isSubmitting) return
     if (!this.validateMarkdown()) return
 
@@ -450,18 +689,13 @@ D2 ________
         throw new Error(`格式不合规，无法保存：\n${msg}`)
       }
 
-      wx.showLoading({ title: '正在保存...', mask: true })
-      const requestData = { markdown_content: filtered, plan_name: planName }
-      await post(API_ENDPOINTS.PLAN_SAVE, requestData, { showLoading: false, timeout: 45000 })
+      // 若用户已在“保存”入口预选了 Logo，则直接走保存（不再二次弹窗）
+      if (preselectedLogoUrl) {
+        await this.performSave(planName, filtered, preselectedLogoUrl)
+        return
+      }
 
-      wx.hideLoading()
-      this.saveCurrentRequest()
-      wx.setStorageSync(STORAGE_KEYS.MYPLANS_JUMP_TAB, 'draft')
-
-      wx.showToast({ title: '已保存', icon: 'success', duration: 1200 })
-      setTimeout(() => {
-        wx.switchTab({ url: '/pages/myplans/myplans' })
-      }, 300)
+      await this.performSave(planName, filtered, '')
     } catch (error) {
       wx.hideLoading()
       wx.showModal({

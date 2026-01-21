@@ -6,6 +6,7 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.http.Method;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Objects;
@@ -51,7 +52,7 @@ public class OssService {
             @Value("${MINIO_BUCKET_AVATARS:avatars}") String bucketAvatars,
             @Value("${MINIO_BUCKET_ITINERARY:itinerary}") String bucketItinerary,
             @Value("${MINIO_BUCKET_AVATARS_PUBLIC:0}") int avatarsPublic,
-            @Value("${TEAMVENTURE_OSS_PUBLIC_BASE_URL:http://api.teamventure.com/oss}") String publicBaseUrl,
+            @Value("${TEAMVENTURE_OSS_PUBLIC_BASE_URL:https://api.teamventure.com/oss}") String publicBaseUrl,
             @Value("${TEAMVENTURE_OSS_PRESIGN_EXPIRY_SECONDS:3600}") int presignExpirySeconds
     ) {
         this.minio = MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build();
@@ -99,6 +100,46 @@ public class OssService {
         return new UploadResult(category, bucket, objectKey, url, isPublic);
     }
 
+    public UploadResult uploadImageBytes(Category category, byte[] bytes, String contentType, String scope, String filenameHint) {
+        if (category != Category.ITINERARY) {
+            throw new BizException("BAD_REQUEST", "only itinerary image bytes upload is supported");
+        }
+        if (bytes == null || bytes.length == 0) {
+            throw new BizException("BAD_REQUEST", "missing bytes");
+        }
+        if (bytes.length > MAX_IMAGE_BYTES) {
+            throw new BizException("BAD_REQUEST", "file too large");
+        }
+        String ct = (contentType == null ? "" : contentType).trim();
+        int semicolon = ct.indexOf(';');
+        if (semicolon >= 0) ct = ct.substring(0, semicolon).trim();
+        ct = ct.toLowerCase(Locale.ROOT);
+        if (!ct.startsWith("image/")) {
+            throw new BizException("BAD_REQUEST", "only image is allowed");
+        }
+
+        String ext = guessExt(filenameHint, ct);
+        String id = IdGenerator.newId("obj");
+        String bucket = bucketFor(category);
+        String objectKey = objectKeyFor("", category, scope, id, ext);
+
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            minio.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(objectKey)
+                            .stream(in, bytes.length, -1)
+                            .contentType(ct)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new BizException("OSS_UPLOAD_FAILED", "upload failed");
+        }
+
+        String url = publicUrl(bucket, objectKey);
+        return new UploadResult(category, bucket, objectKey, url, true);
+    }
+
     public String presignGet(String bucket, String objectKey) {
         try {
             return presignClient.getPresignedObjectUrl(
@@ -139,6 +180,39 @@ public class OssService {
             throw new BizException("BAD_REQUEST", "invalid avatar key");
         }
         return "minio://avatars/" + objectKey;
+    }
+
+    public String toItineraryStorageValue(String bucket, String objectKey) {
+        String b = (bucket == null ? "" : bucket).trim();
+        String k = (objectKey == null ? "" : objectKey).trim();
+        if (b.isBlank() || k.isBlank()) {
+            throw new BizException("BAD_REQUEST", "invalid itinerary key");
+        }
+        if (!b.equals(bucketItinerary)) {
+            throw new BizException("BAD_REQUEST", "invalid itinerary bucket");
+        }
+        if (k.contains("..") || k.startsWith("/") || k.startsWith("\\")) {
+            throw new BizException("BAD_REQUEST", "invalid itinerary key");
+        }
+        return "minio://" + b + "/" + k;
+    }
+
+    public String resolveItineraryUrl(String stored) {
+        if (stored == null || stored.isBlank()) return "";
+        String normalized = stored.trim();
+        if (normalized.startsWith("http://") || normalized.startsWith("https://")) {
+            return normalized;
+        }
+        String prefix = "minio://";
+        if (!normalized.startsWith(prefix)) return "";
+        String rest = normalized.substring(prefix.length());
+        int slash = rest.indexOf('/');
+        if (slash <= 0 || slash >= rest.length() - 1) return "";
+        String bucket = rest.substring(0, slash);
+        String key = rest.substring(slash + 1);
+        if (!bucket.equals(bucketItinerary)) return "";
+        if (key.contains("..") || key.startsWith("/") || key.startsWith("\\")) return "";
+        return publicUrl(bucket, key);
     }
 
     private String bucketFor(Category category) {

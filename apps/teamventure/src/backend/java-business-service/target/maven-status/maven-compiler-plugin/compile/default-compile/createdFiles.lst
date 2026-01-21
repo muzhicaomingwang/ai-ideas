@@ -2,6 +2,7 @@ com/teamventure/adapter/web/markdown/MarkdownController$OptimizeRequest.class
 com/teamventure/infrastructure/persistence/mapper/PlanMapper.class
 com/teamventure/infrastructure/map/PathStyleConfig$PathStyle.class
 com/teamventure/infrastructure/map/MarkerStyleConfig$MarkerStyle.class
+com/teamventure/app/service/XiaohongshuImportService$DownloadedImage.class
 com/teamventure/app/service/Jsons$1.class
 com/teamventure/adapter/web/common/GlobalExceptionHandler.class
 com/teamventure/app/support/ItineraryMarkdownValidationResult.class
@@ -57,6 +58,7 @@ com/teamventure/infrastructure/map/CityNameExtractor.class
 com/teamventure/adapter/web/media/MediaController.class
 com/teamventure/infrastructure/persistence/po/SupplierPO.class
 com/teamventure/adapter/web/imports/XiaohongshuImportController$ParseRequest.class
+com/teamventure/infrastructure/persistence/DbSchemaMigrator.class
 com/teamventure/app/service/XiaohongshuImportService$ScrapedNote.class
 com/teamventure/app/service/dto/BatchPlanCallbackRequest.class
 com/teamventure/app/service/OssService$Category.class

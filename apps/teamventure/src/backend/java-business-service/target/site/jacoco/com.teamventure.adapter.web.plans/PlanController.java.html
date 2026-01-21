@@ -36,7 +36,7 @@ public class PlanController {
     public ApiResponse&lt;Map&lt;String, Object&gt;&gt; save(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                                  @Valid @RequestBody SaveRequest req) {
 <span class="nc" id="L38">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L39">        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name));</span>
+<span class="nc" id="L39">        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name, req.logo_storage, req.logo_url));</span>
     }
 
     @GetMapping
@@ -165,30 +165,38 @@ public class PlanController {
         /** 用户指定的方案名称 */
         @NotBlank
         public String plan_name;
+
+        /** 可选：方案 Logo 对象引用（minio://bucket/key，用于列表展示） */
+        @JsonAlias({&quot;logoStorage&quot;, &quot;logo_storage&quot;})
+        public String logo_storage;
+
+        /** 兼容：旧字段（历史实现） */
+        @JsonAlias({&quot;logoUrl&quot;, &quot;logo_url&quot;, &quot;plan_logo&quot;, &quot;planLogo&quot;})
+        public String logo_url;
     }
 
     public static class GenerateResponse {
         public String plan_request_id;
         public String status;
 
-<span class="nc" id="L174">        public GenerateResponse(String planRequestId, String status) {</span>
-<span class="nc" id="L175">            this.plan_request_id = planRequestId;</span>
-<span class="nc" id="L176">            this.status = status;</span>
-<span class="nc" id="L177">        }</span>
+<span class="nc" id="L182">        public GenerateResponse(String planRequestId, String status) {</span>
+<span class="nc" id="L183">            this.plan_request_id = planRequestId;</span>
+<span class="nc" id="L184">            this.status = status;</span>
+<span class="nc" id="L185">        }</span>
     }
 
-<span class="nc" id="L180">    public static class SupplierContactRequest {</span>
+<span class="nc" id="L188">    public static class SupplierContactRequest {</span>
         @NotBlank public String supplier_id;
         @NotBlank public String channel; // PHONE/WECHAT/EMAIL
         public String notes;
     }
 
-<span class="nc" id="L186">    public static class UpdateItineraryRequest {</span>
+<span class="nc" id="L194">    public static class UpdateItineraryRequest {</span>
         @NotNull public Map&lt;String, Object&gt; itinerary;
         @NotNull public Integer base_version;
     }
 
-<span class="nc" id="L191">    public static class SubmitReviewRequest {</span>
+<span class="nc" id="L199">    public static class SubmitReviewRequest {</span>
         /** 用户确认的出发日期（YYYY-MM-DD） */
         @JsonAlias({&quot;start_date&quot;, &quot;startDate&quot;})
         public String start_date;

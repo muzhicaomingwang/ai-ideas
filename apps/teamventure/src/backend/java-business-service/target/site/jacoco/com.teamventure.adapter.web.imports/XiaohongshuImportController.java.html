@@ -6,6 +6,7 @@ import com.teamventure.app.service.XiaohongshuImportService;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,48 +16,49 @@ public class XiaohongshuImportController {
     private final AuthService authService;
     private final XiaohongshuImportService importService;
 
-<span class="nc" id="L18">    public XiaohongshuImportController(AuthService authService, XiaohongshuImportService importService) {</span>
-<span class="nc" id="L19">        this.authService = authService;</span>
-<span class="nc" id="L20">        this.importService = importService;</span>
-<span class="nc" id="L21">    }</span>
+<span class="nc" id="L19">    public XiaohongshuImportController(AuthService authService, XiaohongshuImportService importService) {</span>
+<span class="nc" id="L20">        this.authService = authService;</span>
+<span class="nc" id="L21">        this.importService = importService;</span>
+<span class="nc" id="L22">    }</span>
 
     @PostMapping(&quot;/parse&quot;)
     public ApiResponse&lt;ParseResponse&gt; parse(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                             @Valid @RequestBody ParseRequest req) {
         // Require login (consistent with other APIs)
-<span class="nc" id="L27">        authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L28">        return ApiResponse.success(importService.parse(req.link));</span>
+<span class="nc" id="L28">        authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L29">        return ApiResponse.success(importService.parse(req.link));</span>
     }
 
     @PostMapping(&quot;/resolve-note-id&quot;)
     public ApiResponse&lt;ResolveNoteIdResponse&gt; resolveNoteId(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                                            @Valid @RequestBody ParseRequest req) {
-<span class="nc" id="L34">        authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L35">        XiaohongshuImportService.ResolveNoteIdResult result = importService.resolveNoteId(req.link);</span>
-<span class="nc" id="L36">        ResolveNoteIdResponse resp = new ResolveNoteIdResponse();</span>
-<span class="nc" id="L37">        resp.note_id = result.noteId;</span>
-<span class="nc" id="L38">        resp.resolved_url = result.resolvedUrl;</span>
-<span class="nc" id="L39">        return ApiResponse.success(resp);</span>
+<span class="nc" id="L35">        authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L36">        XiaohongshuImportService.ResolveNoteIdResult result = importService.resolveNoteId(req.link);</span>
+<span class="nc" id="L37">        ResolveNoteIdResponse resp = new ResolveNoteIdResponse();</span>
+<span class="nc" id="L38">        resp.note_id = result.noteId;</span>
+<span class="nc" id="L39">        resp.resolved_url = result.resolvedUrl;</span>
+<span class="nc" id="L40">        return ApiResponse.success(resp);</span>
     }
 
-<span class="nc" id="L42">    public static class ParseRequest {</span>
+<span class="nc" id="L43">    public static class ParseRequest {</span>
         @NotBlank
         @JsonAlias({ &quot;url&quot;, &quot;text&quot;, &quot;shareText&quot;, &quot;share_text&quot;, &quot;content&quot; })
         public String link;
     }
 
-<span class="nc" id="L48">    public static class ParseResponse {</span>
+<span class="fc" id="L49">    public static class ParseResponse {</span>
         public boolean is_itinerary;
         public String title;
         public String destination;
         public Integer days;
         public String source_url;
         public String note_id;
+        public List&lt;String&gt; images;
         public String raw_content;
         public String generatedMarkdown;
     }
 
-<span class="nc" id="L59">    public static class ResolveNoteIdResponse {</span>
+<span class="nc" id="L61">    public static class ResolveNoteIdResponse {</span>
         public String note_id;
         public String resolved_url;
     }

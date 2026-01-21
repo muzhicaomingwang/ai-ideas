@@ -6,6 +6,7 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.http.Method;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Objects;
@@ -18,14 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class OssService {
-<span class="fc" id="L21">    private static final Logger log = LoggerFactory.getLogger(OssService.class);</span>
+<span class="nc" id="L22">    private static final Logger log = LoggerFactory.getLogger(OssService.class);</span>
 
-<span class="nc" id="L23">    public enum Category {</span>
-<span class="nc" id="L24">        AVATAR,</span>
-<span class="nc" id="L25">        ITINERARY</span>
+<span class="nc" id="L24">    public enum Category {</span>
+<span class="nc" id="L25">        AVATAR,</span>
+<span class="nc" id="L26">        ITINERARY</span>
     }
 
-<span class="nc" id="L28">    public record UploadResult(</span>
+<span class="nc" id="L29">    public record UploadResult(</span>
             Category category,
             String bucket,
             String objectKey,
@@ -51,143 +52,216 @@ public class OssService {
             @Value(&quot;${MINIO_BUCKET_AVATARS:avatars}&quot;) String bucketAvatars,
             @Value(&quot;${MINIO_BUCKET_ITINERARY:itinerary}&quot;) String bucketItinerary,
             @Value(&quot;${MINIO_BUCKET_AVATARS_PUBLIC:0}&quot;) int avatarsPublic,
-            @Value(&quot;${TEAMVENTURE_OSS_PUBLIC_BASE_URL:http://api.teamventure.com/oss}&quot;) String publicBaseUrl,
+            @Value(&quot;${TEAMVENTURE_OSS_PUBLIC_BASE_URL:https://api.teamventure.com/oss}&quot;) String publicBaseUrl,
             @Value(&quot;${TEAMVENTURE_OSS_PRESIGN_EXPIRY_SECONDS:3600}&quot;) int presignExpirySeconds
-<span class="fc" id="L56">    ) {</span>
-<span class="fc" id="L57">        this.minio = MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build();</span>
-<span class="pc bpc" id="L58" title="2 of 4 branches missed.">        String p = (presignEndpoint == null || presignEndpoint.isBlank()) ? endpoint : presignEndpoint;</span>
-<span class="fc" id="L59">        this.presignClient = MinioClient.builder().endpoint(p).credentials(accessKey, secretKey).build();</span>
-<span class="fc" id="L60">        this.bucketAvatars = bucketAvatars;</span>
-<span class="fc" id="L61">        this.bucketItinerary = bucketItinerary;</span>
-<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        this.publicBaseUrl = publicBaseUrl.endsWith(&quot;/&quot;) ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1) : publicBaseUrl;</span>
-<span class="fc" id="L63">        this.presignExpirySeconds = presignExpirySeconds;</span>
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        this.avatarsPublic = avatarsPublic == 1;</span>
-<span class="fc" id="L65">    }</span>
+<span class="nc" id="L57">    ) {</span>
+<span class="nc" id="L58">        this.minio = MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build();</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">        String p = (presignEndpoint == null || presignEndpoint.isBlank()) ? endpoint : presignEndpoint;</span>
+<span class="nc" id="L60">        this.presignClient = MinioClient.builder().endpoint(p).credentials(accessKey, secretKey).build();</span>
+<span class="nc" id="L61">        this.bucketAvatars = bucketAvatars;</span>
+<span class="nc" id="L62">        this.bucketItinerary = bucketItinerary;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        this.publicBaseUrl = publicBaseUrl.endsWith(&quot;/&quot;) ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1) : publicBaseUrl;</span>
+<span class="nc" id="L64">        this.presignExpirySeconds = presignExpirySeconds;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        this.avatarsPublic = avatarsPublic == 1;</span>
+<span class="nc" id="L66">    }</span>
 
     public UploadResult uploadImage(String userId, Category category, MultipartFile file, String scope) {
-<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (file == null || file.isEmpty()) {</span>
-<span class="nc" id="L69">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;missing file&quot;);</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (file == null || file.isEmpty()) {</span>
+<span class="nc" id="L70">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;missing file&quot;);</span>
         }
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (file.getSize() &gt; MAX_IMAGE_BYTES) {</span>
-<span class="nc" id="L72">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;file too large&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (file.getSize() &gt; MAX_IMAGE_BYTES) {</span>
+<span class="nc" id="L73">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;file too large&quot;);</span>
         }
-<span class="nc" id="L74">        String contentType = file.getContentType();</span>
-<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith(&quot;image/&quot;)) {</span>
-<span class="nc" id="L76">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;only image is allowed&quot;);</span>
+<span class="nc" id="L75">        String contentType = file.getContentType();</span>
+<span class="nc bnc" id="L76" title="All 4 branches missed.">        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith(&quot;image/&quot;)) {</span>
+<span class="nc" id="L77">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;only image is allowed&quot;);</span>
         }
 
-<span class="nc" id="L79">        String ext = guessExt(file.getOriginalFilename(), contentType);</span>
-<span class="nc" id="L80">        String id = IdGenerator.newId(&quot;obj&quot;);</span>
-<span class="nc" id="L81">        String bucket = bucketFor(category);</span>
-<span class="nc" id="L82">        String objectKey = objectKeyFor(userId, category, scope, id, ext);</span>
+<span class="nc" id="L80">        String ext = guessExt(file.getOriginalFilename(), contentType);</span>
+<span class="nc" id="L81">        String id = IdGenerator.newId(&quot;obj&quot;);</span>
+<span class="nc" id="L82">        String bucket = bucketFor(category);</span>
+<span class="nc" id="L83">        String objectKey = objectKeyFor(userId, category, scope, id, ext);</span>
 
-<span class="nc" id="L84">        try (InputStream in = file.getInputStream()) {</span>
-<span class="nc" id="L85">            minio.putObject(</span>
-<span class="nc" id="L86">                    PutObjectArgs.builder()</span>
-<span class="nc" id="L87">                            .bucket(bucket)</span>
-<span class="nc" id="L88">                            .object(objectKey)</span>
-<span class="nc" id="L89">                            .stream(in, file.getSize(), -1)</span>
-<span class="nc" id="L90">                            .contentType(contentType)</span>
-<span class="nc" id="L91">                            .build()</span>
+<span class="nc" id="L85">        try (InputStream in = file.getInputStream()) {</span>
+<span class="nc" id="L86">            minio.putObject(</span>
+<span class="nc" id="L87">                    PutObjectArgs.builder()</span>
+<span class="nc" id="L88">                            .bucket(bucket)</span>
+<span class="nc" id="L89">                            .object(objectKey)</span>
+<span class="nc" id="L90">                            .stream(in, file.getSize(), -1)</span>
+<span class="nc" id="L91">                            .contentType(contentType)</span>
+<span class="nc" id="L92">                            .build()</span>
             );
-<span class="nc" id="L93">        } catch (Exception e) {</span>
-<span class="nc" id="L94">            throw new BizException(&quot;OSS_UPLOAD_FAILED&quot;, &quot;upload failed&quot;);</span>
-<span class="nc" id="L95">        }</span>
+<span class="nc" id="L94">        } catch (Exception e) {</span>
+<span class="nc" id="L95">            throw new BizException(&quot;OSS_UPLOAD_FAILED&quot;, &quot;upload failed&quot;);</span>
+<span class="nc" id="L96">        }</span>
 
-<span class="nc bnc" id="L97" title="All 6 branches missed.">        boolean isPublic = category == Category.ITINERARY || (category == Category.AVATAR &amp;&amp; avatarsPublic);</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        String url = isPublic ? publicUrl(bucket, objectKey) : presignGet(bucket, objectKey);</span>
-<span class="nc" id="L99">        return new UploadResult(category, bucket, objectKey, url, isPublic);</span>
+<span class="nc bnc" id="L98" title="All 6 branches missed.">        boolean isPublic = category == Category.ITINERARY || (category == Category.AVATAR &amp;&amp; avatarsPublic);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        String url = isPublic ? publicUrl(bucket, objectKey) : presignGet(bucket, objectKey);</span>
+<span class="nc" id="L100">        return new UploadResult(category, bucket, objectKey, url, isPublic);</span>
+    }
+
+    public UploadResult uploadImageBytes(Category category, byte[] bytes, String contentType, String scope, String filenameHint) {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (category != Category.ITINERARY) {</span>
+<span class="nc" id="L105">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;only itinerary image bytes upload is supported&quot;);</span>
+        }
+<span class="nc bnc" id="L107" title="All 4 branches missed.">        if (bytes == null || bytes.length == 0) {</span>
+<span class="nc" id="L108">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;missing bytes&quot;);</span>
+        }
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (bytes.length &gt; MAX_IMAGE_BYTES) {</span>
+<span class="nc" id="L111">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;file too large&quot;);</span>
+        }
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        String ct = (contentType == null ? &quot;&quot; : contentType).trim();</span>
+<span class="nc" id="L114">        int semicolon = ct.indexOf(';');</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (semicolon &gt;= 0) ct = ct.substring(0, semicolon).trim();</span>
+<span class="nc" id="L116">        ct = ct.toLowerCase(Locale.ROOT);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (!ct.startsWith(&quot;image/&quot;)) {</span>
+<span class="nc" id="L118">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;only image is allowed&quot;);</span>
+        }
+
+<span class="nc" id="L121">        String ext = guessExt(filenameHint, ct);</span>
+<span class="nc" id="L122">        String id = IdGenerator.newId(&quot;obj&quot;);</span>
+<span class="nc" id="L123">        String bucket = bucketFor(category);</span>
+<span class="nc" id="L124">        String objectKey = objectKeyFor(&quot;&quot;, category, scope, id, ext);</span>
+
+<span class="nc" id="L126">        try (InputStream in = new ByteArrayInputStream(bytes)) {</span>
+<span class="nc" id="L127">            minio.putObject(</span>
+<span class="nc" id="L128">                    PutObjectArgs.builder()</span>
+<span class="nc" id="L129">                            .bucket(bucket)</span>
+<span class="nc" id="L130">                            .object(objectKey)</span>
+<span class="nc" id="L131">                            .stream(in, bytes.length, -1)</span>
+<span class="nc" id="L132">                            .contentType(ct)</span>
+<span class="nc" id="L133">                            .build()</span>
+            );
+<span class="nc" id="L135">        } catch (Exception e) {</span>
+<span class="nc" id="L136">            throw new BizException(&quot;OSS_UPLOAD_FAILED&quot;, &quot;upload failed&quot;);</span>
+<span class="nc" id="L137">        }</span>
+
+<span class="nc" id="L139">        String url = publicUrl(bucket, objectKey);</span>
+<span class="nc" id="L140">        return new UploadResult(category, bucket, objectKey, url, true);</span>
     }
 
     public String presignGet(String bucket, String objectKey) {
         try {
-<span class="nc" id="L104">            return presignClient.getPresignedObjectUrl(</span>
-<span class="nc" id="L105">                    GetPresignedObjectUrlArgs.builder()</span>
-<span class="nc" id="L106">                            .method(Method.GET)</span>
-<span class="nc" id="L107">                            .bucket(bucket)</span>
-<span class="nc" id="L108">                            .object(objectKey)</span>
-<span class="nc" id="L109">                            .expiry(presignExpirySeconds, TimeUnit.SECONDS)</span>
-<span class="nc" id="L110">                            .build()</span>
+<span class="nc" id="L145">            return presignClient.getPresignedObjectUrl(</span>
+<span class="nc" id="L146">                    GetPresignedObjectUrlArgs.builder()</span>
+<span class="nc" id="L147">                            .method(Method.GET)</span>
+<span class="nc" id="L148">                            .bucket(bucket)</span>
+<span class="nc" id="L149">                            .object(objectKey)</span>
+<span class="nc" id="L150">                            .expiry(presignExpirySeconds, TimeUnit.SECONDS)</span>
+<span class="nc" id="L151">                            .build()</span>
             );
-<span class="nc" id="L112">        } catch (Exception e) {</span>
-<span class="nc" id="L113">            log.warn(&quot;oss presign failed: bucket={}, key={}&quot;, bucket, objectKey, e);</span>
-<span class="nc" id="L114">            throw new BizException(&quot;OSS_PRESIGN_FAILED&quot;, &quot;presign failed&quot;);</span>
+<span class="nc" id="L153">        } catch (Exception e) {</span>
+<span class="nc" id="L154">            log.warn(&quot;oss presign failed: bucket={}, key={}&quot;, bucket, objectKey, e);</span>
+<span class="nc" id="L155">            throw new BizException(&quot;OSS_PRESIGN_FAILED&quot;, &quot;presign failed&quot;);</span>
         }
     }
 
     public String resolveAvatarUrl(String userId, String avatarUrl) {
-<span class="nc bnc" id="L119" title="All 4 branches missed.">        if (avatarUrl == null || avatarUrl.isBlank()) return &quot;&quot;;</span>
-<span class="nc" id="L120">        String normalized = avatarUrl.trim();</span>
-<span class="nc bnc" id="L121" title="All 4 branches missed.">        if (normalized.startsWith(&quot;http://&quot;) || normalized.startsWith(&quot;https://&quot;)) {</span>
-<span class="nc" id="L122">            return normalized;</span>
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        if (avatarUrl == null || avatarUrl.isBlank()) return &quot;&quot;;</span>
+<span class="nc" id="L161">        String normalized = avatarUrl.trim();</span>
+<span class="nc bnc" id="L162" title="All 4 branches missed.">        if (normalized.startsWith(&quot;http://&quot;) || normalized.startsWith(&quot;https://&quot;)) {</span>
+<span class="nc" id="L163">            return normalized;</span>
         }
-<span class="nc" id="L124">        String prefix = &quot;minio://avatars/&quot;;</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!normalized.startsWith(prefix)) {</span>
-<span class="nc" id="L126">            return &quot;&quot;;</span>
+<span class="nc" id="L165">        String prefix = &quot;minio://avatars/&quot;;</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (!normalized.startsWith(prefix)) {</span>
+<span class="nc" id="L167">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L128">        String key = normalized.substring(prefix.length());</span>
-<span class="nc" id="L129">        String expectedPrefix = &quot;users/&quot; + userId + &quot;/&quot;;</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (!key.startsWith(expectedPrefix)) {</span>
-<span class="nc" id="L131">            return &quot;&quot;;</span>
+<span class="nc" id="L169">        String key = normalized.substring(prefix.length());</span>
+<span class="nc" id="L170">        String expectedPrefix = &quot;users/&quot; + userId + &quot;/&quot;;</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (!key.startsWith(expectedPrefix)) {</span>
+<span class="nc" id="L172">            return &quot;&quot;;</span>
         }
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        return avatarsPublic ? publicUrl(bucketAvatars, key) : presignGet(bucketAvatars, key);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        return avatarsPublic ? publicUrl(bucketAvatars, key) : presignGet(bucketAvatars, key);</span>
     }
 
     public String toAvatarStorageValue(String userId, String objectKey) {
-<span class="nc" id="L137">        String expectedPrefix = &quot;users/&quot; + userId + &quot;/&quot;;</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (!Objects.requireNonNull(objectKey).startsWith(expectedPrefix)) {</span>
-<span class="nc" id="L139">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;invalid avatar key&quot;);</span>
+<span class="nc" id="L178">        String expectedPrefix = &quot;users/&quot; + userId + &quot;/&quot;;</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (!Objects.requireNonNull(objectKey).startsWith(expectedPrefix)) {</span>
+<span class="nc" id="L180">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;invalid avatar key&quot;);</span>
         }
-<span class="nc" id="L141">        return &quot;minio://avatars/&quot; + objectKey;</span>
+<span class="nc" id="L182">        return &quot;minio://avatars/&quot; + objectKey;</span>
+    }
+
+    public String toItineraryStorageValue(String bucket, String objectKey) {
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        String b = (bucket == null ? &quot;&quot; : bucket).trim();</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        String k = (objectKey == null ? &quot;&quot; : objectKey).trim();</span>
+<span class="nc bnc" id="L188" title="All 4 branches missed.">        if (b.isBlank() || k.isBlank()) {</span>
+<span class="nc" id="L189">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;invalid itinerary key&quot;);</span>
+        }
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (!b.equals(bucketItinerary)) {</span>
+<span class="nc" id="L192">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;invalid itinerary bucket&quot;);</span>
+        }
+<span class="nc bnc" id="L194" title="All 6 branches missed.">        if (k.contains(&quot;..&quot;) || k.startsWith(&quot;/&quot;) || k.startsWith(&quot;\\&quot;)) {</span>
+<span class="nc" id="L195">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;invalid itinerary key&quot;);</span>
+        }
+<span class="nc" id="L197">        return &quot;minio://&quot; + b + &quot;/&quot; + k;</span>
+    }
+
+    public String resolveItineraryUrl(String stored) {
+<span class="nc bnc" id="L201" title="All 4 branches missed.">        if (stored == null || stored.isBlank()) return &quot;&quot;;</span>
+<span class="nc" id="L202">        String normalized = stored.trim();</span>
+<span class="nc bnc" id="L203" title="All 4 branches missed.">        if (normalized.startsWith(&quot;http://&quot;) || normalized.startsWith(&quot;https://&quot;)) {</span>
+<span class="nc" id="L204">            return normalized;</span>
+        }
+<span class="nc" id="L206">        String prefix = &quot;minio://&quot;;</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (!normalized.startsWith(prefix)) return &quot;&quot;;</span>
+<span class="nc" id="L208">        String rest = normalized.substring(prefix.length());</span>
+<span class="nc" id="L209">        int slash = rest.indexOf('/');</span>
+<span class="nc bnc" id="L210" title="All 4 branches missed.">        if (slash &lt;= 0 || slash &gt;= rest.length() - 1) return &quot;&quot;;</span>
+<span class="nc" id="L211">        String bucket = rest.substring(0, slash);</span>
+<span class="nc" id="L212">        String key = rest.substring(slash + 1);</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        if (!bucket.equals(bucketItinerary)) return &quot;&quot;;</span>
+<span class="nc bnc" id="L214" title="All 6 branches missed.">        if (key.contains(&quot;..&quot;) || key.startsWith(&quot;/&quot;) || key.startsWith(&quot;\\&quot;)) return &quot;&quot;;</span>
+<span class="nc" id="L215">        return publicUrl(bucket, key);</span>
     }
 
     private String bucketFor(Category category) {
-<span class="nc bnc" id="L145" title="All 2 branches missed.">        return switch (category) {</span>
-<span class="nc" id="L146">            case AVATAR -&gt; bucketAvatars;</span>
-<span class="nc" id="L147">            case ITINERARY -&gt; bucketItinerary;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        return switch (category) {</span>
+<span class="nc" id="L220">            case AVATAR -&gt; bucketAvatars;</span>
+<span class="nc" id="L221">            case ITINERARY -&gt; bucketItinerary;</span>
         };
     }
 
     private String objectKeyFor(String userId, Category category, String scope, String id, String ext) {
-<span class="nc bnc" id="L152" title="All 4 branches missed.">        String safeExt = ext == null || ext.isBlank() ? &quot;bin&quot; : ext;</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        return switch (category) {</span>
-<span class="nc" id="L154">            case AVATAR -&gt; &quot;users/&quot; + userId + &quot;/avatars/&quot; + id + &quot;.&quot; + safeExt;</span>
+<span class="nc bnc" id="L226" title="All 4 branches missed.">        String safeExt = ext == null || ext.isBlank() ? &quot;bin&quot; : ext;</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        return switch (category) {</span>
+<span class="nc" id="L228">            case AVATAR -&gt; &quot;users/&quot; + userId + &quot;/avatars/&quot; + id + &quot;.&quot; + safeExt;</span>
             case ITINERARY -&gt; {
-<span class="nc bnc" id="L156" title="All 4 branches missed.">                String safeScope = (scope == null || scope.isBlank()) ? &quot;general&quot; : sanitizePath(scope);</span>
-<span class="nc" id="L157">                yield &quot;itinerary/&quot; + safeScope + &quot;/&quot; + id + &quot;.&quot; + safeExt;</span>
+<span class="nc bnc" id="L230" title="All 4 branches missed.">                String safeScope = (scope == null || scope.isBlank()) ? &quot;general&quot; : sanitizePath(scope);</span>
+<span class="nc" id="L231">                yield &quot;itinerary/&quot; + safeScope + &quot;/&quot; + id + &quot;.&quot; + safeExt;</span>
             }
         };
     }
 
     private String sanitizePath(String v) {
-<span class="nc" id="L163">        String s = v.trim().replace(&quot;\\&quot;, &quot;/&quot;);</span>
-<span class="nc bnc" id="L164" title="All 2 branches missed.">        while (s.startsWith(&quot;/&quot;)) s = s.substring(1);</span>
-<span class="nc" id="L165">        s = s.replace(&quot;..&quot;, &quot;_&quot;);</span>
-<span class="nc" id="L166">        return s.replaceAll(&quot;[^a-zA-Z0-9/_-]&quot;, &quot;_&quot;);</span>
+<span class="nc" id="L237">        String s = v.trim().replace(&quot;\\&quot;, &quot;/&quot;);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        while (s.startsWith(&quot;/&quot;)) s = s.substring(1);</span>
+<span class="nc" id="L239">        s = s.replace(&quot;..&quot;, &quot;_&quot;);</span>
+<span class="nc" id="L240">        return s.replaceAll(&quot;[^a-zA-Z0-9/_-]&quot;, &quot;_&quot;);</span>
     }
 
     private String publicUrl(String bucket, String objectKey) {
-<span class="nc" id="L170">        return publicBaseUrl + &quot;/&quot; + bucket + &quot;/&quot; + objectKey;</span>
+<span class="nc" id="L244">        return publicBaseUrl + &quot;/&quot; + bucket + &quot;/&quot; + objectKey;</span>
     }
 
     private String guessExt(String filename, String contentType) {
-<span class="nc" id="L174">        String ext = null;</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (filename != null) {</span>
-<span class="nc" id="L176">            int i = filename.lastIndexOf('.');</span>
-<span class="nc bnc" id="L177" title="All 4 branches missed.">            if (i &gt;= 0 &amp;&amp; i &lt; filename.length() - 1) {</span>
-<span class="nc" id="L178">                ext = filename.substring(i + 1).toLowerCase(Locale.ROOT);</span>
+<span class="nc" id="L248">        String ext = null;</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        if (filename != null) {</span>
+<span class="nc" id="L250">            int i = filename.lastIndexOf('.');</span>
+<span class="nc bnc" id="L251" title="All 4 branches missed.">            if (i &gt;= 0 &amp;&amp; i &lt; filename.length() - 1) {</span>
+<span class="nc" id="L252">                ext = filename.substring(i + 1).toLowerCase(Locale.ROOT);</span>
             }
         }
-<span class="nc bnc" id="L181" title="All 4 branches missed.">        if (ext == null || ext.isBlank()) {</span>
-<span class="nc bnc" id="L182" title="All 5 branches missed.">            ext = switch (contentType.toLowerCase(Locale.ROOT)) {</span>
-<span class="nc" id="L183">                case &quot;image/jpeg&quot; -&gt; &quot;jpg&quot;;</span>
-<span class="nc" id="L184">                case &quot;image/png&quot; -&gt; &quot;png&quot;;</span>
-<span class="nc" id="L185">                case &quot;image/webp&quot; -&gt; &quot;webp&quot;;</span>
-<span class="nc" id="L186">                case &quot;image/gif&quot; -&gt; &quot;gif&quot;;</span>
-<span class="nc" id="L187">                default -&gt; &quot;bin&quot;;</span>
+<span class="nc bnc" id="L255" title="All 4 branches missed.">        if (ext == null || ext.isBlank()) {</span>
+<span class="nc bnc" id="L256" title="All 5 branches missed.">            ext = switch (contentType.toLowerCase(Locale.ROOT)) {</span>
+<span class="nc" id="L257">                case &quot;image/jpeg&quot; -&gt; &quot;jpg&quot;;</span>
+<span class="nc" id="L258">                case &quot;image/png&quot; -&gt; &quot;png&quot;;</span>
+<span class="nc" id="L259">                case &quot;image/webp&quot; -&gt; &quot;webp&quot;;</span>
+<span class="nc" id="L260">                case &quot;image/gif&quot; -&gt; &quot;gif&quot;;</span>
+<span class="nc" id="L261">                default -&gt; &quot;bin&quot;;</span>
             };
         }
-<span class="nc" id="L190">        return ext;</span>
+<span class="nc" id="L264">        return ext;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f0f23;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            color: #a0a0c0;
+            font-size: 0.95rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(30, 30, 60, 0.6);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: #a0a0c0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card .unit {
+            font-size: 0.9rem;
+            color: #a0a0c0;
+            margin-top: 4px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: rgba(30, 30, 60, 0.6);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-card .title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .full-width .chart-container {
+            height: 250px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #606080;
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card .value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Claude Code Dashboard</h1>
+        <p class="subtitle">本地使用数据可视化 · 数据来源: ~/.claude/</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="label">总会话数</div>
+            <div class="value" id="totalSessions">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">总消息数</div>
+            <div class="value" id="totalMessages">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">最长会话</div>
+            <div class="value" id="longestSession">-</div>
+            <div class="unit">消息</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Token 消耗</div>
+            <div class="value" id="totalTokens">-</div>
+            <div class="unit" id="tokenUnit">tokens</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Skills</div>
+            <div class="value" id="skillsCount">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">项目</div>
+            <div class="value" id="projectsCount">-</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="title">每日活动趋势</div>
+            <div class="chart-container" id="dailyActivityChart"></div>
+        </div>
+        <div class="chart-card">
+            <div class="title">Token 消耗趋势</div>
+            <div class="chart-container" id="tokenTrendChart"></div>
+        </div>
+        <div class="chart-card">
+            <div class="title">模型使用分布</div>
+            <div class="chart-container" id="modelDistributionChart"></div>
+        </div>
+        <div class="chart-card full-width">
+            <div class="title">活跃时段分布</div>
+            <div class="chart-container" id="hourlyActivityChart"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated by <a href="https://claude.ai/code" target="_blank">Claude Code</a> ·
+        Last updated: <span id="lastUpdated">-</span>
+    </div>
+
+    <script>
+        // Inline data (generated by generate.sh)
+        const STATS_DATA = {
+  "version": 1,
+  "lastComputedDate": "2026-01-20",
+  "dailyActivity": [
+    {
+      "date": "2025-09-02",
+      "messageCount": 110,
+      "sessionCount": 4,
+      "toolCallCount": 54
+    },
+    {
+      "date": "2025-09-04",
+      "messageCount": 330,
+      "sessionCount": 6,
+      "toolCallCount": 125
+    },
+    {
+      "date": "2025-09-05",
+      "messageCount": 168,
+      "sessionCount": 3,
+      "toolCallCount": 54
+    },
+    {
+      "date": "2025-09-08",
+      "messageCount": 430,
+      "sessionCount": 10,
+      "toolCallCount": 156
+    },
+    {
+      "date": "2025-09-09",
+      "messageCount": 16,
+      "sessionCount": 1,
+      "toolCallCount": 4
+    },
+    {
+      "date": "2025-09-10",
+      "messageCount": 5,
+      "sessionCount": 1,
+      "toolCallCount": 1
+    },
+    {
+      "date": "2025-09-30",
+      "messageCount": 8,
+      "sessionCount": 2,
+      "toolCallCount": 0
+    },
+    {
+      "date": "2025-12-16",
+      "messageCount": 418,
+      "sessionCount": 3,
+      "toolCallCount": 132
+    },
+    {
+      "date": "2025-12-17",
+      "messageCount": 347,
+      "sessionCount": 2,
+      "toolCallCount": 118
+    },
+    {
+      "date": "2025-12-18",
+      "messageCount": 524,
+      "sessionCount": 1,
+      "toolCallCount": 209
+    },
+    {
+      "date": "2025-12-19",
+      "messageCount": 7,
+      "sessionCount": 1,
+      "toolCallCount": 0
+    },
+    {
+      "date": "2025-12-23",
+      "messageCount": 273,
+      "sessionCount": 1,
+      "toolCallCount": 77
+    },
+    {
+      "date": "2025-12-24",
+      "messageCount": 8,
+      "sessionCount": 1,
+      "toolCallCount": 1
+    },
+    {
+      "date": "2025-12-25",
+      "messageCount": 32,
+      "sessionCount": 1,
+      "toolCallCount": 12
+    },
+    {
+      "date": "2025-12-29",
+      "messageCount": 893,
+      "sessionCount": 1,
+      "toolCallCount": 252
+    },
+    {
+      "date": "2025-12-31",
+      "messageCount": 882,
+      "sessionCount": 3,
+      "toolCallCount": 251
+    },
+    {
+      "date": "2026-01-02",
+      "messageCount": 551,
+      "sessionCount": 1,
+      "toolCallCount": 154
+    },
+    {
+      "date": "2026-01-03",
+      "messageCount": 1085,
+      "sessionCount": 1,
+      "toolCallCount": 292
+    },
+    {
+      "date": "2026-01-04",
+      "messageCount": 629,
+      "sessionCount": 3,
+      "toolCallCount": 195
+    },
+    {
+      "date": "2026-01-05",
+      "messageCount": 4689,
+      "sessionCount": 9,
+      "toolCallCount": 1297
+    },
+    {
+      "date": "2026-01-06",
+      "messageCount": 6356,
+      "sessionCount": 17,
+      "toolCallCount": 1611
+    },
+    {
+      "date": "2026-01-07",
+      "messageCount": 4770,
+      "sessionCount": 7,
+      "toolCallCount": 885
+    },
+    {
+      "date": "2026-01-08",
+      "messageCount": 4267,
+      "sessionCount": 4,
+      "toolCallCount": 1133
+    },
+    {
+      "date": "2026-01-09",
+      "messageCount": 2,
+      "sessionCount": 1,
+      "toolCallCount": 0
+    },
+    {
+      "date": "2026-01-10",
+      "messageCount": 17,
+      "sessionCount": 3,
+      "toolCallCount": 0
+    },
+    {
+      "date": "2026-01-13",
+      "messageCount": 3523,
+      "sessionCount": 31,
+      "toolCallCount": 729
+    },
+    {
+      "date": "2026-01-14",
+      "messageCount": 3081,
+      "sessionCount": 22,
+      "toolCallCount": 887
+    },
+    {
+      "date": "2026-01-15",
+      "messageCount": 3982,
+      "sessionCount": 38,
+      "toolCallCount": 1181
+    },
+    {
+      "date": "2026-01-16",
+      "messageCount": 1882,
+      "sessionCount": 6,
+      "toolCallCount": 556
+    },
+    {
+      "date": "2026-01-17",
+      "messageCount": 2778,
+      "sessionCount": 8,
+      "toolCallCount": 604
+    },
+    {
+      "date": "2026-01-18",
+      "messageCount": 7,
+      "sessionCount": 2,
+      "toolCallCount": 0
+    }
+  ],
+  "dailyModelTokens": [
+    {
+      "date": "2025-09-02",
+      "tokensByModel": {
+        "claude-opus-4-1-20250805": 3351394
+      }
+    },
+    {
+      "date": "2025-09-04",
+      "tokensByModel": {
+        "claude-sonnet-4-20250514": 7526838,
+        "claude-opus-4-1-20250805": 265498
+      }
+    },
+    {
+      "date": "2025-09-05",
+      "tokensByModel": {
+        "claude-sonnet-4-20250514": 3686881
+      }
+    },
+    {
+      "date": "2025-09-08",
+      "tokensByModel": {
+        "claude-sonnet-4-20250514": 8618215
+      }
+    },
+    {
+      "date": "2025-09-09",
+      "tokensByModel": {
+        "claude-sonnet-4-20250514": 142568
+      }
+    },
+    {
+      "date": "2025-09-10",
+      "tokensByModel": {
+        "claude-sonnet-4-20250514": 41014
+      }
+    },
+    {
+      "date": "2025-12-16",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 9616704
+      }
+    },
+    {
+      "date": "2025-12-17",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 10851691
+      }
+    },
+    {
+      "date": "2025-12-18",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 23099075
+      }
+    },
+    {
+      "date": "2025-12-23",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 6684781
+      }
+    },
+    {
+      "date": "2025-12-24",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 30603
+      }
+    },
+    {
+      "date": "2025-12-25",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 331817
+      }
+    },
+    {
+      "date": "2025-12-29",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 270830
+      }
+    },
+    {
+      "date": "2025-12-31",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 128231
+      }
+    },
+    {
+      "date": "2026-01-02",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 192572
+      }
+    },
+    {
+      "date": "2026-01-03",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 203252
+      }
+    },
+    {
+      "date": "2026-01-04",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 193073,
+        "claude-opus-4-5-20251101": 5435
+      }
+    },
+    {
+      "date": "2026-01-05",
+      "tokensByModel": {
+        "claude-opus-4-5-20251101": 542546
+      }
+    },
+    {
+      "date": "2026-01-06",
+      "tokensByModel": {
+        "claude-opus-4-5-20251101": 469458
+      }
+    },
+    {
+      "date": "2026-01-07",
+      "tokensByModel": {
+        "claude-opus-4-5-20251101": 196431
+      }
+    },
+    {
+      "date": "2026-01-08",
+      "tokensByModel": {
+        "claude-opus-4-5-20251101": 121720,
+        "claude-sonnet-4-5-20250929": 314308
+      }
+    },
+    {
+      "date": "2026-01-13",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 470910
+      }
+    },
+    {
+      "date": "2026-01-14",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 540963
+      }
+    },
+    {
+      "date": "2026-01-15",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 738404
+      }
+    },
+    {
+      "date": "2026-01-16",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 350328
+      }
+    },
+    {
+      "date": "2026-01-17",
+      "tokensByModel": {
+        "claude-opus-4-5-20251101": 234010,
+        "claude-sonnet-4-5-20250929": 27770
+      }
+    }
+  ],
+  "modelUsage": {
+    "claude-opus-4-1-20250805": {
+      "inputTokens": 3607876,
+      "outputTokens": 9016,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0,
+      "contextWindow": 0
+    },
+    "claude-sonnet-4-20250514": {
+      "inputTokens": 19927647,
+      "outputTokens": 87869,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0,
+      "contextWindow": 0
+    },
+    "claude-sonnet-4-5-20250929": {
+      "inputTokens": 50729256,
+      "outputTokens": 3316056,
+      "cacheReadInputTokens": 2148695874,
+      "cacheCreationInputTokens": 213214785,
+      "webSearchRequests": 0,
+      "costUSD": 0,
+      "contextWindow": 0
+    },
+    "claude-opus-4-5-20251101": {
+      "inputTokens": 190596,
+      "outputTokens": 1379004,
+      "cacheReadInputTokens": 1401127495,
+      "cacheCreationInputTokens": 195498886,
+      "webSearchRequests": 0,
+      "costUSD": 0,
+      "contextWindow": 0
+    }
+  },
+  "totalSessions": 194,
+  "totalMessages": 42070,
+  "longestSession": {
+    "sessionId": "8eb93fd9-4765-4957-a7c5-4565f43685c5",
+    "duration": 342355519,
+    "messageCount": 7,
+    "timestamp": "2025-12-19T11:53:50.785Z"
+  },
+  "firstSessionDate": "2025-09-02T06:05:59.801Z",
+  "hourCounts": {
+    "0": 4,
+    "1": 3,
+    "2": 2,
+    "3": 3,
+    "4": 1,
+    "8": 9,
+    "9": 4,
+    "10": 19,
+    "11": 14,
+    "12": 9,
+    "13": 11,
+    "14": 29,
+    "15": 20,
+    "16": 19,
+    "17": 13,
+    "18": 10,
+    "19": 7,
+    "20": 1,
+    "21": 13,
+    "22": 1,
+    "23": 2
+  }
+};
+        const SKILLS_COUNT = 408;
+        const PROJECTS_COUNT = 11;
+
+        // Helper functions
+        function formatNumber(num) {
+            if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
+            if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toLocaleString();
+        }
+
+        function formatTokens(num) {
+            if (num >= 1000000000) return { value: (num / 1000000000).toFixed(2), unit: 'B tokens' };
+            if (num >= 1000000) return { value: (num / 1000000).toFixed(2), unit: 'M tokens' };
+            if (num >= 1000) return { value: (num / 1000).toFixed(1), unit: 'K tokens' };
+            return { value: num.toLocaleString(), unit: 'tokens' };
+        }
+
+        function getModelShortName(fullName) {
+            const mapping = {
+                'claude-opus-4-1-20250805': 'Opus 4.1',
+                'claude-opus-4-5-20251101': 'Opus 4.5',
+                'claude-sonnet-4-20250514': 'Sonnet 4',
+                'claude-sonnet-4-5-20250929': 'Sonnet 4.5'
+            };
+            return mapping[fullName] || fullName.split('-').slice(1, 3).join(' ');
+        }
+
+        // Calculate stats
+        const totalSessions = STATS_DATA.totalSessions || 0;
+        const totalMessages = STATS_DATA.totalMessages || 0;
+        const longestSession = STATS_DATA.longestSession?.messageCount || 0;
+
+        // Calculate total tokens
+        let totalTokens = 0;
+        if (STATS_DATA.modelUsage) {
+            Object.values(STATS_DATA.modelUsage).forEach(model => {
+                totalTokens += (model.inputTokens || 0) + (model.outputTokens || 0);
+            });
+        }
+
+        // Update stat cards
+        document.getElementById('totalSessions').textContent = formatNumber(totalSessions);
+        document.getElementById('totalMessages').textContent = formatNumber(totalMessages);
+        document.getElementById('longestSession').textContent = formatNumber(longestSession);
+
+        const tokenFormatted = formatTokens(totalTokens);
+        document.getElementById('totalTokens').textContent = tokenFormatted.value;
+        document.getElementById('tokenUnit').textContent = tokenFormatted.unit;
+
+        document.getElementById('skillsCount').textContent = formatNumber(SKILLS_COUNT);
+        document.getElementById('projectsCount').textContent = formatNumber(PROJECTS_COUNT);
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('zh-CN');
+
+        // ECharts theme colors
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+
+        // Chart 1: Daily Activity Trend
+        const dailyActivityChart = echarts.init(document.getElementById('dailyActivityChart'));
+        const dailyActivity = STATS_DATA.dailyActivity || [];
+        const sortedDailyActivity = [...dailyActivity].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        dailyActivityChart.setOption({
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(30, 30, 60, 0.95)',
+                borderColor: 'rgba(102, 126, 234, 0.3)',
+                textStyle: { color: '#fff' }
+            },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: sortedDailyActivity.map(d => d.date.slice(5)),
+                axisLine: { lineStyle: { color: '#404060' } },
+                axisLabel: { color: '#a0a0c0', fontSize: 10 }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#404060' } },
+                axisLabel: { color: '#a0a0c0' },
+                splitLine: { lineStyle: { color: '#252540' } }
+            },
+            series: [{
+                name: '消息数',
+                type: 'line',
+                smooth: true,
+                data: sortedDailyActivity.map(d => d.messageCount),
+                itemStyle: { color: colors[0] },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(102, 126, 234, 0.4)' },
+                        { offset: 1, color: 'rgba(102, 126, 234, 0.05)' }
+                    ])
+                }
+            }]
+        });
+
+        // Chart 2: Token Consumption Trend
+        const tokenTrendChart = echarts.init(document.getElementById('tokenTrendChart'));
+        const dailyModelTokens = STATS_DATA.dailyModelTokens || [];
+        const sortedTokenData = [...dailyModelTokens].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Aggregate daily tokens
+        const dailyTotals = sortedTokenData.map(d => {
+            let total = 0;
+            if (d.tokensByModel) {
+                Object.values(d.tokensByModel).forEach(v => total += v);
+            }
+            return { date: d.date, tokens: total };
+        });
+
+        tokenTrendChart.setOption({
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(30, 30, 60, 0.95)',
+                borderColor: 'rgba(102, 126, 234, 0.3)',
+                textStyle: { color: '#fff' },
+                formatter: function(params) {
+                    const value = params[0].value;
+                    return `${params[0].axisValue}<br/>Tokens: ${formatNumber(value)}`;
+                }
+            },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: dailyTotals.map(d => d.date.slice(5)),
+                axisLine: { lineStyle: { color: '#404060' } },
+                axisLabel: { color: '#a0a0c0', fontSize: 10 }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#404060' } },
+                axisLabel: {
+                    color: '#a0a0c0',
+                    formatter: function(value) {
+                        if (value >= 1000000) return (value / 1000000).toFixed(0) + 'M';
+                        if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                        return value;
+                    }
+                },
+                splitLine: { lineStyle: { color: '#252540' } }
+            },
+            series: [{
+                name: 'Tokens',
+                type: 'bar',
+                data: dailyTotals.map(d => d.tokens),
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: '#764ba2' },
+                        { offset: 1, color: '#667eea' }
+                    ])
+                }
+            }]
+        });
+
+        // Chart 3: Model Usage Distribution
+        const modelDistributionChart = echarts.init(document.getElementById('modelDistributionChart'));
+        const modelUsage = STATS_DATA.modelUsage || {};
+        const modelData = Object.entries(modelUsage).map(([name, data]) => ({
+            name: getModelShortName(name),
+            value: (data.inputTokens || 0) + (data.outputTokens || 0)
+        })).filter(d => d.value > 0);
+
+        modelDistributionChart.setOption({
+            tooltip: {
+                trigger: 'item',
+                backgroundColor: 'rgba(30, 30, 60, 0.95)',
+                borderColor: 'rgba(102, 126, 234, 0.3)',
+                textStyle: { color: '#fff' },
+                formatter: function(params) {
+                    return `${params.name}<br/>Tokens: ${formatNumber(params.value)} (${params.percent}%)`;
+                }
+            },
+            legend: {
+                orient: 'vertical',
+                right: '5%',
+                top: 'center',
+                textStyle: { color: '#a0a0c0' }
+            },
+            series: [{
+                name: '模型使用',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['35%', '50%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 8,
+                    borderColor: '#0f0f23',
+                    borderWidth: 2
+                },
+                label: { show: false },
+                emphasis: {
+                    label: { show: true, fontSize: 14, fontWeight: 'bold', color: '#fff' }
+                },
+                labelLine: { show: false },
+                data: modelData,
+                color: colors
+            }]
+        });
+
+        // Chart 4: Hourly Activity Distribution
+        const hourlyActivityChart = echarts.init(document.getElementById('hourlyActivityChart'));
+        const hourCounts = STATS_DATA.hourCounts || {};
+        const hours = Array.from({ length: 24 }, (_, i) => i);
+        const hourlyData = hours.map(h => hourCounts[h.toString()] || 0);
+
+        hourlyActivityChart.setOption({
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(30, 30, 60, 0.95)',
+                borderColor: 'rgba(102, 126, 234, 0.3)',
+                textStyle: { color: '#fff' },
+                formatter: function(params) {
+                    return `${params[0].axisValue}:00<br/>会话数: ${params[0].value}`;
+                }
+            },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: hours.map(h => h.toString().padStart(2, '0')),
+                axisLine: { lineStyle: { color: '#404060' } },
+                axisLabel: { color: '#a0a0c0' }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#404060' } },
+                axisLabel: { color: '#a0a0c0' },
+                splitLine: { lineStyle: { color: '#252540' } }
+            },
+            series: [{
+                name: '会话数',
+                type: 'bar',
+                data: hourlyData,
+                itemStyle: {
+                    color: function(params) {
+                        // Highlight peak hours
+                        const value = params.value;
+                        const max = Math.max(...hourlyData);
+                        const ratio = value / max;
+                        if (ratio > 0.7) return '#764ba2';
+                        if (ratio > 0.4) return '#667eea';
+                        return '#4a5568';
+                    },
+                    borderRadius: [4, 4, 0, 0]
+                }
+            }]
+        });
+
+        // Responsive resize
+        window.addEventListener('resize', function() {
+            dailyActivityChart.resize();
+            tokenTrendChart.resize();
+            modelDistributionChart.resize();
+            hourlyActivityChart.resize();
+        });
+    </script>
+</body>
+</html>

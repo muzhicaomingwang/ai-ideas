@@ -188,8 +188,39 @@ Page({
         const type = this.classifyItineraryItem(it)
         const typeLabel = type === 'transport' ? '交通' : (type === 'accommodation' ? '住宿' : '周边游')
         const time = it?.time_start && it?.time_end ? `${it.time_start} - ${it.time_end}` : (it?.time_start || it?.time_end || '')
-        const title = String(it?.activity || '').trim()
-        const subtitle = String(it?.location || it?.note || '').trim()
+        const activity = String(it?.activity || '').trim()
+        const location = String(it?.location || '').trim()
+        const note = String(it?.note || '').trim()
+
+        // 视觉层级：地点/目的地优先做主标题；交通卡片则优先展示“前往/到达”等目的信息
+        let title = ''
+        let subtitle = ''
+        let noteLine = ''
+
+        if (type === 'transport') {
+          // 交通卡片：优先把“前往/到达”等目的信息放在主标题（通常在 note/activity 里）
+          title = note || activity || location
+          subtitle = [activity, location].find(v => v && v !== title) || ''
+        } else {
+          // 非交通：地点优先做主标题；活动与备注做次信息
+          title = location || activity || note
+          if (location) {
+            subtitle = activity
+            noteLine = note
+          } else if (activity && note) {
+            subtitle = title === activity ? note : activity
+          }
+        }
+
+        // 避免重复
+        if (subtitle === title) subtitle = ''
+        if (noteLine === title || noteLine === subtitle) noteLine = ''
+
+        // 兜底：避免空标题导致卡片高度浪费
+        if (!title) {
+          title = activity || location || note || '（未填写）'
+        }
+
         return {
           ...it,
           _key: it?._key || `${d.day || 'day'}_${idx}_${it?.time_start || ''}_${title}`,
@@ -198,6 +229,7 @@ Page({
           time,
           title,
           subtitle,
+          noteLine,
           itemIndex: idx,
         }
       })

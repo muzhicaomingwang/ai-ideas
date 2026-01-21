@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(du -sh:*)",
+      "Bash(jq:*)",
+      "Bash(./generate.sh:*)"
+    ]
+  }
+}

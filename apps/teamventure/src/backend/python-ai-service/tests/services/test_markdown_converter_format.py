@@ -35,6 +35,19 @@ def test_looks_like_low_quality_itinerary_markdown_rejects_placeholder():
     assert _looks_like_low_quality_itinerary_markdown(md) is True
 
 
+def test_looks_like_low_quality_itinerary_markdown_accepts_specific_activity_even_if_place_empty():
+    md = """
+# 行程安排
+> 版本: v2
+
+## Day 1（今天）
+- 09:00 - 11:30 | 从上海出发，乘坐大巴前往苏州 |  | 
+- 12:00 - 13:00 | 午餐于苏州特色·藏书羊肉 |  | 
+"""
+    assert _looks_like_standard_itinerary_markdown(md) is True
+    assert _looks_like_low_quality_itinerary_markdown(md) is False
+
+
 def test_fallback_convert_to_itinerary_markdown_v2_preserves_pois_and_times():
     text = """
 苏州带娃老人两天一晚旅游攻略
@@ -111,3 +124,49 @@ def test_rationalizer_inserts_transfer_and_meal_without_new_pois():
     assert "中央大街" in fixed
     assert "圣索菲亚教堂" in fixed
     assert "黑龙江省博物馆" in fixed
+
+
+def test_fallback_converter_diverts_sectionish_blocks_to_appendix_blockquote():
+    text = """
+苏州两天行程
+D1：苏州博物馆→拙政园→狮子林
+🏠住宿 ✔️平江路周边：步行可达苏博、拙政园
+🚘交通贴士 地铁+共享单车为主
+1️⃣不要临时去苏博，需预约
+"""
+    md = _fallback_convert_to_itinerary_markdown_v2(text)
+    assert "苏州博物馆" in md
+    # Should not pollute the last itinerary row as a giant remark blob; diverted to appendix.
+    assert "> 附加信息（非行程，仅供参考）" in md
+    assert "> 🏠住宿" in md
+    assert "> 🚘交通贴士" in md
+    assert "> 1️⃣不要临时去苏博" in md
+
+
+def test_rationalizer_diverts_lodging_marker_out_of_itinerary_cells():
+    md = """
+# 行程安排
+> 版本: v2
+
+## Day 1（今天）
+- 17:30 - 18:45 | 游览 | 七里山塘 | 🏠住宿
+""".strip()
+    from src.services.markdown_converter import _rationalize_itinerary_markdown_v2
+
+    fixed = _rationalize_itinerary_markdown_v2(md)
+    assert all(("🏠住宿" not in line) for line in fixed.splitlines() if line.lstrip().startswith("- "))
+    assert "> 附加信息（非行程，仅供参考）" in fixed
+    assert "> 🏠住宿" in fixed
+
+
+def test_fallback_converter_diverts_explicit_lodging_items_to_appendix():
+    text = """
+苏州两天行程
+第一天：
+晚上：入住苏州中心大酒店（18:00-20:00）
+"""
+    md = _fallback_convert_to_itinerary_markdown_v2(text)
+    # Lodging should not become an itinerary row; it should go to appendix.
+    assert " | 住宿 | " not in md
+    assert "> 附加信息（非行程，仅供参考）" in md
+    assert "住宿：" in md

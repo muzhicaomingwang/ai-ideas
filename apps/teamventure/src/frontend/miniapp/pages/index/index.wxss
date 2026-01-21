@@ -275,6 +275,39 @@
   background-color: #e8e8e8;
 }
 
+.xhs-images {
+  margin-bottom: 16rpx;
+}
+
+.xhs-images-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10rpx;
+}
+
+.xhs-thumb {
+  width: 100%;
+  height: 210rpx;
+  border-radius: 12rpx;
+  background-color: #f0f0f0;
+}
+
+.xhs-images-hint {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #888;
+}
+
+.xhs-images-empty-hint {
+  margin-bottom: 16rpx;
+  padding: 10rpx 12rpx;
+  font-size: 22rpx;
+  color: #888;
+  background-color: #fafafa;
+  border: 2rpx dashed #e8e8e8;
+  border-radius: 12rpx;
+}
+
 .parsed-content {
   width: 100%;
   height: 720rpx;
@@ -396,4 +429,58 @@
 .dialog-btn-ok {
   background: #1890ff;
   color: #fff;
+}
+
+.dialog-wide {
+  max-width: 720rpx;
+}
+
+/* Logo 选择 */
+.logo-hint {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-top: -8rpx;
+  margin-bottom: 14rpx;
+}
+
+.logo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.logo-item {
+  width: calc((100% - 24rpx) / 3);
+  position: relative;
+  border-radius: 14rpx;
+  overflow: hidden;
+  border: 4rpx solid transparent;
+  background: #f5f5f5;
+  box-sizing: border-box;
+}
+
+.logo-item.selected {
+  border-color: rgba(24, 144, 255, 0.8);
+}
+
+.logo-thumb {
+  width: 100%;
+  height: 168rpx;
+  display: block;
+}
+
+.logo-check {
+  position: absolute;
+  right: 10rpx;
+  top: 10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  background: rgba(24, 144, 255, 0.9);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 800;
 }

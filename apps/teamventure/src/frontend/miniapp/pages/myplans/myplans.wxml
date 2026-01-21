@@ -65,6 +65,12 @@
         data-index="{{index}}">
         <!-- 头部 -->
         <view class="card-header">
+          <image
+            wx:if="{{item.logo_url && item.status !== 'generating' && item.status !== 'failed'}}"
+            class="plan-logo"
+            src="{{item.logo_url}}"
+            mode="aspectFill"
+          />
           <view class="plan-title">
             <text class="plan-name">{{item.plan_name}}</text>
             <text class="plan-id" wx:if="{{item.plan_id_display}}">{{item.plan_id_display}}</text>
@@ -125,16 +131,11 @@
 
         <!-- 统计信息（非生成中/失败状态显示） -->
         <view class="plan-stats" wx:if="{{item.status !== 'generating' && item.status !== 'failed'}}">
-          <view class="stat-item">
-            <text class="stat-icon">💰</text>
-            <text class="stat-text">¥{{item.budget_total}}</text>
-          </view>
-          <view class="stat-divider" wx:if="{{item.people_count}}">|</view>
           <view class="stat-item" wx:if="{{item.people_count}}">
             <text class="stat-icon">👥</text>
             <text class="stat-text">{{item.people_count}}人</text>
           </view>
-          <view class="stat-divider">|</view>
+          <view class="stat-divider" wx:if="{{item.people_count}}">|</view>
           <view class="stat-item">
             <text class="stat-icon">📅</text>
             <text class="stat-text">{{item.duration}}</text>

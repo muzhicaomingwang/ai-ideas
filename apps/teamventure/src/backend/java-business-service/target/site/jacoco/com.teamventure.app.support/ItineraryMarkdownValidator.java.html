@@ -57,7 +57,7 @@ public final class ItineraryMarkdownValidator {
 <span class="fc" id="L57">                continue;</span>
             }
 
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if (line.startsWith(&quot;- &quot;)) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (line.startsWith(&quot;- &quot;)) {</span>
 <span class="pc bpc" id="L61" title="1 of 4 branches missed.">                if (!inDay || currentDayNumber == null) {</span>
 <span class="fc" id="L62">                    errors.add(&quot;第 &quot; + (i + 1) + &quot; 行：行项目必须放在某个 Day 标题下方&quot;);</span>
 <span class="fc" id="L63">                    continue;</span>
@@ -72,7 +72,7 @@ public final class ItineraryMarkdownValidator {
 <span class="fc" id="L72">                continue;</span>
             }
 
-<span class="nc" id="L75">            errors.add(&quot;第 &quot; + (i + 1) + &quot; 行：无法识别的内容（请使用 Day 标题或 \&quot;-\&quot; 行项目）&quot;);</span>
+<span class="fc" id="L75">            errors.add(&quot;第 &quot; + (i + 1) + &quot; 行：无法识别的内容（请使用 Day 标题或 \&quot;-\&quot; 行项目）&quot;);</span>
         }
 
 <span class="fc bfc" id="L78" title="All 2 branches covered.">        if (days == 0) {</span>

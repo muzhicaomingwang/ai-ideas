@@ -11,52 +11,52 @@ import java.util.regex.Pattern;
 public final class ItineraryMarkdownSanitizer {
     private ItineraryMarkdownSanitizer() {}
 
-<span class="nc" id="L14">    private static final Pattern DAY_HEADING_WITH_PAREN =</span>
-<span class="nc" id="L15">            Pattern.compile(&quot;^(##\\s*Day\\s*\\d+)\\s*[（(][^）)]*[）)]\\s*$&quot;);</span>
-<span class="nc" id="L16">    private static final Pattern VERSION_LINE =</span>
-<span class="nc" id="L17">            Pattern.compile(&quot;^&gt;\\s*版本\\s*:\\s*.*$&quot;, Pattern.CASE_INSENSITIVE);</span>
-<span class="nc" id="L18">    private static final Pattern DAY_HEADING =</span>
-<span class="nc" id="L19">            Pattern.compile(&quot;^##\\s*Day\\b&quot;, Pattern.CASE_INSENSITIVE);</span>
-<span class="nc" id="L20">    private static final Pattern TIME_START =</span>
-<span class="nc" id="L21">            Pattern.compile(&quot;^(\\d{1,2}[:：]\\d{2})\\b&quot;);</span>
+<span class="fc" id="L14">    private static final Pattern DAY_HEADING_WITH_PAREN =</span>
+<span class="fc" id="L15">            Pattern.compile(&quot;^(##\\s*Day\\s*\\d+)\\s*[（(][^）)]*[）)]\\s*$&quot;);</span>
+<span class="fc" id="L16">    private static final Pattern VERSION_LINE =</span>
+<span class="fc" id="L17">            Pattern.compile(&quot;^&gt;\\s*版本\\s*:\\s*.*$&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="fc" id="L18">    private static final Pattern DAY_HEADING =</span>
+<span class="fc" id="L19">            Pattern.compile(&quot;^##\\s*Day\\b&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="fc" id="L20">    private static final Pattern TIME_START =</span>
+<span class="fc" id="L21">            Pattern.compile(&quot;^(\\d{1,2}[:：]\\d{2})\\b&quot;);</span>
 
     public static String sanitizeDraftItineraryMarkdown(String text) {
-<span class="nc bnc" id="L24" title="All 6 branches missed.">        if (text == null || text.isBlank()) return text == null ? &quot;&quot; : text;</span>
+<span class="pc bpc" id="L24" title="4 of 6 branches missed.">        if (text == null || text.isBlank()) return text == null ? &quot;&quot; : text;</span>
 
-<span class="nc" id="L26">        String s = ItineraryMarkdownValidator.normalizeMarkdown(text);</span>
-<span class="nc" id="L27">        String[] lines = s.replace(&quot;\r&quot;, &quot;&quot;).split(&quot;\n&quot;, -1);</span>
-<span class="nc" id="L28">        StringBuilder sb = new StringBuilder(s.length());</span>
+<span class="fc" id="L26">        String s = ItineraryMarkdownValidator.normalizeMarkdown(text);</span>
+<span class="fc" id="L27">        String[] lines = s.replace(&quot;\r&quot;, &quot;&quot;).split(&quot;\n&quot;, -1);</span>
+<span class="fc" id="L28">        StringBuilder sb = new StringBuilder(s.length());</span>
 
-<span class="nc bnc" id="L30" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc bnc" id="L31" title="All 2 branches missed.">            String raw = line == null ? &quot;&quot; : line;</span>
-<span class="nc" id="L32">            String trimmed = raw.trim();</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">            String raw = line == null ? &quot;&quot; : line;</span>
+<span class="fc" id="L32">            String trimmed = raw.trim();</span>
 
-<span class="nc bnc" id="L34" title="All 2 branches missed.">            if (VERSION_LINE.matcher(trimmed).matches()) {</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            if (VERSION_LINE.matcher(trimmed).matches()) {</span>
                 // Avoid confusion: itinerary schema version is not the validator version.
-<span class="nc" id="L36">                continue;</span>
+<span class="fc" id="L36">                continue;</span>
             }
 
-<span class="nc" id="L39">            Matcher m = DAY_HEADING_WITH_PAREN.matcher(trimmed);</span>
-<span class="nc bnc" id="L40" title="All 2 branches missed.">            if (m.matches()) {</span>
-<span class="nc" id="L41">                sb.append(m.group(1)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L42">                continue;</span>
+<span class="fc" id="L39">            Matcher m = DAY_HEADING_WITH_PAREN.matcher(trimmed);</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">            if (m.matches()) {</span>
+<span class="fc" id="L41">                sb.append(m.group(1)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L42">                continue;</span>
             }
 
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (trimmed.startsWith(&quot;- &quot;)) {</span>
-<span class="nc" id="L46">                String body = trimmed.substring(2);</span>
-<span class="nc" id="L47">                String[] parts = body.split(&quot;\\|&quot;, -1);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">                if (parts.length &gt;= 2) {</span>
-<span class="nc" id="L49">                    String time = parts[0].trim();</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">                    if (isPlaceholderTimeRange(time)) {</span>
-<span class="nc" id="L51">                        continue;</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (trimmed.startsWith(&quot;- &quot;)) {</span>
+<span class="fc" id="L46">                String body = trimmed.substring(2);</span>
+<span class="fc" id="L47">                String[] parts = body.split(&quot;\\|&quot;, -1);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">                if (parts.length &gt;= 2) {</span>
+<span class="fc" id="L49">                    String time = parts[0].trim();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">                    if (isPlaceholderTimeRange(time)) {</span>
+<span class="fc" id="L51">                        continue;</span>
                     }
                 }
             }
 
-<span class="nc" id="L56">            sb.append(raw).append(&quot;\n&quot;);</span>
+<span class="fc" id="L56">            sb.append(raw).append(&quot;\n&quot;);</span>
         }
 
-<span class="nc" id="L59">        return sb.toString().trim() + &quot;\n&quot;;</span>
+<span class="fc" id="L59">        return sb.toString().trim() + &quot;\n&quot;;</span>
     }
 
     /**
@@ -101,18 +101,18 @@ public final class ItineraryMarkdownSanitizer {
     }
 
     private static boolean isPlaceholderTimeRange(String time) {
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (time == null) return true;</span>
-<span class="nc" id="L105">        String s = time.trim();</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (s.isBlank()) return true;</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (time == null) return true;</span>
+<span class="fc" id="L105">        String s = time.trim();</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (s.isBlank()) return true;</span>
 
-<span class="nc" id="L108">        s = s.replace('：', ':');</span>
+<span class="fc" id="L108">        s = s.replace('：', ':');</span>
         // Normalize dash variants to &quot;-&quot;
-<span class="nc" id="L110">        s = s.replaceAll(&quot;[—–－‐‑‒―−~〜～﹣]&quot;, &quot;-&quot;);</span>
+<span class="fc" id="L110">        s = s.replaceAll(&quot;[—–－‐‑‒―−~〜～﹣]&quot;, &quot;-&quot;);</span>
         // Remove whitespace
-<span class="nc" id="L112">        s = s.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+<span class="fc" id="L112">        s = s.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
         // If only hyphens remain, treat as placeholder (e.g. &quot;-&quot;, &quot;--&quot;, &quot;- - -&quot;)
-<span class="nc" id="L114">        String withoutHyphens = s.replace(&quot;-&quot;, &quot;&quot;);</span>
-<span class="nc" id="L115">        return withoutHyphens.isBlank();</span>
+<span class="fc" id="L114">        String withoutHyphens = s.replace(&quot;-&quot;, &quot;&quot;);</span>
+<span class="fc" id="L115">        return withoutHyphens.isBlank();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -34,6 +34,7 @@
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/app/support/IdGenerator.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/po/JsonHelper.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/config/DataSourceConfig.java
+/Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/DbSchemaMigrator.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/adapter/web/internal/InternalPlanController.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/mapper/PlanMapper.java
 /Users/qitmac001395/workspace/QAL/ideas/apps/teamventure/src/backend/java-business-service/src/main/java/com/teamventure/infrastructure/persistence/mapper/SupplierMapper.java

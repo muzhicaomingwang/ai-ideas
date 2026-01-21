@@ -52,6 +52,7 @@ public class PlanService {
     private final HttpClient httpClient;
     private final InternalPlanCallbackService callbackService;
     private final String aiServiceUrl;
+    private final OssService ossService;
 
     // 新增：地图相关组件
     private final com.teamventure.infrastructure.map.ZoomCalculator zoomCalculator;
@@ -95,6 +96,7 @@ public class PlanService {
             @Value("${teamventure.mq.exchange.plan-generation}") String exchange,
             @Value("${teamventure.mq.routing-key.plan-request}") String routingKey,
             InternalPlanCallbackService callbackService,
+            OssService ossService,
             @Value("${teamventure.ai-service.url:}") String aiServiceUrl,
             @Value("${AMAP_API_KEY:}") String amapApiKey,
             com.teamventure.infrastructure.map.ZoomCalculator zoomCalculator,
@@ -111,6 +113,7 @@ public class PlanService {
         this.exchange = exchange;
         this.routingKey = routingKey;
         this.callbackService = callbackService;
+        this.ossService = ossService;
         this.aiServiceUrl = aiServiceUrl == null ? "" : aiServiceUrl.trim();
         this.amapApiKey = amapApiKey == null ? "" : amapApiKey;
         this.httpClient = HttpClient.newBuilder()
@@ -207,7 +210,7 @@ public class PlanService {
         }
     }
 
-    public Map<String, Object> saveDraftPlanFromMarkdown(String userId, String markdownContent, String planName) {
+    public Map<String, Object> saveDraftPlanFromMarkdown(String userId, String markdownContent, String planName, String logoStorage, String legacyLogoUrl) {
         String markdown = markdownContent == null ? "" : markdownContent;
         String name = planName == null ? "" : planName.trim();
         if (name.isBlank()) throw new BizException("VALIDATION_ERROR", "plan_name is empty");
@@ -237,6 +240,18 @@ public class PlanService {
         plan.setPlanName(name);
         plan.setSummary("");
         plan.setHighlights(Jsons.toJson(List.of()));
+        String normalizedStorage = normalizeLogoStorageValue(logoStorage);
+        String normalizedLegacy = normalizeLegacyLogoUrl(legacyLogoUrl);
+        // 兼容：如果历史字段传了 minio://...，且符合 itinerary bucket，则也写入 logo_storage
+        if ((normalizedStorage == null || normalizedStorage.isBlank()) && normalizedLegacy != null && normalizedLegacy.startsWith("minio://")) {
+            String resolved = ossService.resolveItineraryUrl(normalizedLegacy);
+            if (resolved != null && !resolved.isBlank()) {
+                normalizedStorage = normalizedLegacy;
+                normalizedLegacy = null;
+            }
+        }
+        plan.setLogoStorage((normalizedStorage == null || normalizedStorage.isBlank()) ? null : normalizedStorage);
+        plan.setLogoUrl((normalizedLegacy == null || normalizedLegacy.isBlank()) ? null : normalizedLegacy);
         plan.setItinerary(Jsons.toJson(itinerary));
         plan.setItineraryVersion(1);
         plan.setBudgetBreakdown(Jsons.toJson(Map.of()));
@@ -397,6 +412,7 @@ public class PlanService {
                 item.put("status", plan.getStatus());
                 item.put("plan_type", plan.getPlanType());
                 item.put("itinerary_version", plan.getItineraryVersion());
+                item.put("logo_url", resolveLogoUrl(plan));
                 item.put("budget_total", plan.getBudgetTotal());
                 item.put("duration_days", plan.getDurationDays());
                 item.put("trip_duration", plan.getDurationDays()); // UL v1.3 alias (non-breaking)
@@ -994,6 +1010,7 @@ public class PlanService {
         result.put("plan_name", plan.getPlanName());
         result.put("summary", plan.getSummary());
         result.put("status", plan.getStatus());
+        result.put("logo_url", resolveLogoUrl(plan));
         result.put("budget_total", plan.getBudgetTotal());
         result.put("budget_per_person", plan.getBudgetPerPerson());
         result.put("duration_days", plan.getDurationDays());
@@ -1016,6 +1033,41 @@ public class PlanService {
 
         result.put("is_generating", false);
         return result;
+    }
+
+    private String resolveLogoUrl(PlanPO plan) {
+        String url = ossService.resolveItineraryUrl(plan.getLogoStorage());
+        if (url != null && !url.isBlank()) return url;
+        // 兼容：历史存的 logo_url 可能是外链或 minio://...
+        return ossService.resolveItineraryUrl(plan.getLogoUrl());
+    }
+
+    private String normalizeLogoStorageValue(String logoStorage) {
+        String v = logoStorage == null ? "" : logoStorage.trim();
+        if (v.isBlank()) return null;
+        if (!v.startsWith("minio://")) {
+            throw new BizException("VALIDATION_ERROR", "logo_storage must be minio://bucket/key");
+        }
+        if (v.length() > 512) {
+            throw new BizException("VALIDATION_ERROR", "logo_storage too long");
+        }
+        String resolved = ossService.resolveItineraryUrl(v);
+        if (resolved == null || resolved.isBlank()) {
+            throw new BizException("VALIDATION_ERROR", "invalid logo_storage");
+        }
+        return v;
+    }
+
+    private String normalizeLegacyLogoUrl(String legacyLogoUrl) {
+        String legacy = legacyLogoUrl == null ? "" : legacyLogoUrl.trim();
+        if (legacy.isBlank()) return null;
+        if (legacy.length() > 512) {
+            throw new BizException("VALIDATION_ERROR", "logo_url too long");
+        }
+        if (!(legacy.startsWith("http://") || legacy.startsWith("https://") || legacy.startsWith("minio://"))) {
+            throw new BizException("VALIDATION_ERROR", "invalid logo_url");
+        }
+        return legacy;
     }
 
     private static Map<String, Object> castMap(Map<?, ?> raw) {
