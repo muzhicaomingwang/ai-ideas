@@ -80,16 +80,16 @@ public class MapRequest {
      * @return 32字符MD5字符串
      */
     public String generateCacheKey() {
-<span class="nc" id="L83">        String raw = String.join(&quot;_&quot;,</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            size != null ? size.name() : &quot;DETAIL&quot;,</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">            zoom != null ? zoom.toString() : &quot;15&quot;,</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            center != null ? formatPoint(center) : &quot;0,0&quot;,</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">            markers != null ? markers : &quot;&quot;,</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            paths != null ? paths : &quot;&quot;,</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            style != null ? style : &quot;normal&quot;,</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            format != null ? format : &quot;png&quot;</span>
+<span class="fc" id="L83">        String raw = String.join(&quot;_&quot;,</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            size != null ? size.name() : &quot;DETAIL&quot;,</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            zoom != null ? zoom.toString() : &quot;15&quot;,</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">            center != null ? formatPoint(center) : &quot;0,0&quot;,</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            markers != null ? markers : &quot;&quot;,</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            paths != null ? paths : &quot;&quot;,</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            style != null ? style : &quot;normal&quot;,</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            format != null ? format : &quot;png&quot;</span>
         );
-<span class="nc" id="L92">        return DigestUtils.md5Hex(raw);</span>
+<span class="fc" id="L92">        return DigestUtils.md5Hex(raw);</span>
     }
 
     /**
@@ -99,9 +99,9 @@ public class MapRequest {
      * @return 格式：longitude,latitude（保留6位小数）
      */
     private String formatPoint(Point point) {
-<span class="nc" id="L102">        return String.format(&quot;%.6f,%.6f&quot;,</span>
-<span class="nc" id="L103">            point.getLongitude(),</span>
-<span class="nc" id="L104">            point.getLatitude()</span>
+<span class="fc" id="L102">        return String.format(&quot;%.6f,%.6f&quot;,</span>
+<span class="fc" id="L103">            point.getLongitude(),</span>
+<span class="fc" id="L104">            point.getLatitude()</span>
         );
     }
 
@@ -273,7 +273,7 @@ public class MapRequest {
 
         @Override
         public String toString() {
-<span class="nc" id="L276">            return String.format(&quot;(%.6f, %.6f)&quot;, longitude, latitude);</span>
+<span class="fc" id="L276">            return String.format(&quot;(%.6f, %.6f)&quot;, longitude, latitude);</span>
         }
     }
 }

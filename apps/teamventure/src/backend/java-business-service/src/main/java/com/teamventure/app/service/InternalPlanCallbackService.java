@@ -20,11 +20,18 @@ public class InternalPlanCallbackService {
     private final PlanRequestMapper planRequestMapper;
     private final PlanMapper planMapper;
     private final DomainEventMapper eventMapper;
+    private final PlanCollaborationCommandService planCollaborationCommandService;
 
-    public InternalPlanCallbackService(PlanRequestMapper planRequestMapper, PlanMapper planMapper, DomainEventMapper eventMapper) {
+    public InternalPlanCallbackService(
+            PlanRequestMapper planRequestMapper,
+            PlanMapper planMapper,
+            DomainEventMapper eventMapper,
+            PlanCollaborationCommandService planCollaborationCommandService
+    ) {
         this.planRequestMapper = planRequestMapper;
         this.planMapper = planMapper;
         this.eventMapper = eventMapper;
+        this.planCollaborationCommandService = planCollaborationCommandService;
     }
 
     @Transactional
@@ -40,6 +47,7 @@ public class InternalPlanCallbackService {
             plan.setPlanRequestId(req.plan_request_id);
             plan.setUserId(req.user_id);
             planMapper.insert(plan);
+            planCollaborationCommandService.ensureOwnerMembershipAndCurrentRevision(plan);
             recordEvent("PlanGenerated", "Plan", plan.getPlanId(), req.user_id, Map.of("plan_id", plan.getPlanId()));
             // UL v1.3+ (backward compatible): more explicit event name.
             recordEvent("PlanGenerationSucceeded", "Plan", plan.getPlanId(), req.user_id, Map.of("plan_id", plan.getPlanId()));

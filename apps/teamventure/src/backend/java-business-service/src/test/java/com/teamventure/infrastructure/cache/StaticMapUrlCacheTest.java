@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +44,7 @@ class StaticMapUrlCacheTest {
 
     @BeforeEach
     void setUp() {
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         cache = new StaticMapUrlCache(
             1000,  // memorySize
@@ -51,6 +52,10 @@ class StaticMapUrlCacheTest {
             redisTemplate,
             mapper
         );
+
+        // @Value fields won't be injected in plain unit tests
+        ReflectionTestUtils.setField(cache, "cacheEnabled", true);
+        ReflectionTestUtils.setField(cache, "redisTtlDays", 30);
     }
 
     @Test

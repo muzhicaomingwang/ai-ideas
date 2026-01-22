@@ -71,10 +71,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BizException.class)
     public ResponseEntity<ApiResponse<Void>> handleBiz(BizException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        if ("UNAUTHENTICATED".equals(e.getCode())) {
-            status = HttpStatus.UNAUTHORIZED;
-        }
-        return ResponseEntity.status(status).body(ApiResponse.failure(e.getCode(), e.getMessage()));
+        String code = e.getCode() == null ? "" : e.getCode();
+        if ("UNAUTHENTICATED".equals(code)) status = HttpStatus.UNAUTHORIZED;
+        else if ("UNAUTHORIZED".equals(code)) status = HttpStatus.FORBIDDEN;
+        else if ("NOT_FOUND".equals(code)) status = HttpStatus.NOT_FOUND;
+        else if ("CONFLICT".equals(code) || "INVALID_STATE".equals(code)) status = HttpStatus.CONFLICT;
+        else if ("BAD_REQUEST".equals(code) || "VALIDATION_ERROR".equals(code) || "INVALID_STATUS".equals(code)) status = HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(status).body(ApiResponse.failure(code.isBlank() ? "BAD_REQUEST" : code, e.getMessage()));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

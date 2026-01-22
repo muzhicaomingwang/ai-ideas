@@ -16,10 +16,10 @@ public class XiaohongshuImportController {
     private final AuthService authService;
     private final XiaohongshuImportService importService;
 
-<span class="nc" id="L19">    public XiaohongshuImportController(AuthService authService, XiaohongshuImportService importService) {</span>
-<span class="nc" id="L20">        this.authService = authService;</span>
-<span class="nc" id="L21">        this.importService = importService;</span>
-<span class="nc" id="L22">    }</span>
+<span class="fc" id="L19">    public XiaohongshuImportController(AuthService authService, XiaohongshuImportService importService) {</span>
+<span class="fc" id="L20">        this.authService = authService;</span>
+<span class="fc" id="L21">        this.importService = importService;</span>
+<span class="fc" id="L22">    }</span>
 
     @PostMapping(&quot;/parse&quot;)
     public ApiResponse&lt;ParseResponse&gt; parse(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,

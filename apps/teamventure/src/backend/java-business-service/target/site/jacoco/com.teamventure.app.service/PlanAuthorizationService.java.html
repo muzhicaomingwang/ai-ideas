@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanAuthorizationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">PlanAuthorizationService.java</span></div><h1>PlanAuthorizationService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.teamventure.app.support.BizException;
+import com.teamventure.infrastructure.persistence.mapper.PlanMembershipMapper;
+import com.teamventure.infrastructure.persistence.po.PlanMembershipPO;
+import java.util.Set;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PlanAuthorizationService {
+<span class="fc" id="L12">    private static final Set&lt;String&gt; VISIBLE_STATUSES = Set.of(&quot;ACTIVE&quot;, &quot;PENDING&quot;);</span>
+
+    private final PlanMembershipMapper membershipMapper;
+
+<span class="fc" id="L16">    public PlanAuthorizationService(PlanMembershipMapper membershipMapper) {</span>
+<span class="fc" id="L17">        this.membershipMapper = membershipMapper;</span>
+<span class="fc" id="L18">    }</span>
+
+    public PlanMembershipPO getMembership(String planId, String userId) {
+<span class="nc" id="L21">        return membershipMapper.selectOne(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L22">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L23">                .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L24">                .last(&quot;LIMIT 1&quot;));</span>
+    }
+
+    public void requireMemberForCurrent(String planId, String userId) {
+<span class="nc" id="L28">        PlanMembershipPO m = getMembership(planId, userId);</span>
+<span class="nc bnc" id="L29" title="All 6 branches missed.">        if (m == null || m.getStatus() == null || !VISIBLE_STATUSES.contains(m.getStatus().toUpperCase())) {</span>
+<span class="nc" id="L30">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not member&quot;);</span>
+        }
+<span class="nc" id="L32">    }</span>
+
+    public void requireOwner(String planId, String userId) {
+<span class="nc" id="L35">        PlanMembershipPO m = getMembership(planId, userId);</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+<span class="nc bnc" id="L37" title="All 4 branches missed.">        if (!&quot;OWNER&quot;.equalsIgnoreCase(m.getRole()) || !&quot;ACTIVE&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L38">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+        }
+<span class="nc" id="L40">    }</span>
+
+    public void requireParticipantActive(String planId, String userId) {
+<span class="nc" id="L43">        PlanMembershipPO m = getMembership(planId, userId);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not participant&quot;);</span>
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        if (!&quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole()) || !&quot;ACTIVE&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L46">            throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not participant&quot;);</span>
+        }
+<span class="nc" id="L48">    }</span>
+
+    public void requireOwnerOrParticipantActive(String planId, String userId) {
+<span class="nc" id="L51">        PlanMembershipPO m = getMembership(planId, userId);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not member&quot;);</span>
+<span class="nc bnc" id="L53" title="All 4 branches missed.">        boolean ok = (&quot;OWNER&quot;.equalsIgnoreCase(m.getRole()) &amp;&amp; &quot;ACTIVE&quot;.equalsIgnoreCase(m.getStatus()))</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">                || (&quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole()) &amp;&amp; &quot;ACTIVE&quot;.equalsIgnoreCase(m.getStatus()));</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (!ok) throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not allowed&quot;);</span>
+<span class="nc" id="L56">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

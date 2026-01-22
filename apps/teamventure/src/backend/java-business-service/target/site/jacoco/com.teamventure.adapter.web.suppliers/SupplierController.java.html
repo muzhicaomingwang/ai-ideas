@@ -12,10 +12,10 @@ public class SupplierController {
     private final AuthService authService;
     private final SupplierService supplierService;
 
-<span class="nc" id="L15">    public SupplierController(AuthService authService, SupplierService supplierService) {</span>
-<span class="nc" id="L16">        this.authService = authService;</span>
-<span class="nc" id="L17">        this.supplierService = supplierService;</span>
-<span class="nc" id="L18">    }</span>
+<span class="fc" id="L15">    public SupplierController(AuthService authService, SupplierService supplierService) {</span>
+<span class="fc" id="L16">        this.authService = authService;</span>
+<span class="fc" id="L17">        this.supplierService = supplierService;</span>
+<span class="fc" id="L18">    }</span>
 
     @GetMapping
     public ApiResponse&lt;?&gt; search(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanCollaborationQueryService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">PlanCollaborationQueryService.java</span></div><h1>PlanCollaborationQueryService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.teamventure.infrastructure.persistence.po.PlanItineraryRevisionPO;
+import com.teamventure.infrastructure.persistence.po.PlanItinerarySuggestionPO;
+import com.teamventure.infrastructure.persistence.po.PlanMembershipPO;
+import java.util.List;
+import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.teamventure.app.support.BizException;
+import com.teamventure.infrastructure.persistence.mapper.PlanItineraryRevisionMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanItinerarySuggestionMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanMembershipMapper;
+
+@Service
+public class PlanCollaborationQueryService {
+    private final PlanMembershipMapper membershipMapper;
+    private final PlanItineraryRevisionMapper revisionMapper;
+    private final PlanItinerarySuggestionMapper suggestionMapper;
+    private final PlanAuthorizationService authz;
+
+    public PlanCollaborationQueryService(
+            PlanMembershipMapper membershipMapper,
+            PlanItineraryRevisionMapper revisionMapper,
+            PlanItinerarySuggestionMapper suggestionMapper,
+            PlanAuthorizationService authz
+<span class="fc" id="L28">    ) {</span>
+<span class="fc" id="L29">        this.membershipMapper = membershipMapper;</span>
+<span class="fc" id="L30">        this.revisionMapper = revisionMapper;</span>
+<span class="fc" id="L31">        this.suggestionMapper = suggestionMapper;</span>
+<span class="fc" id="L32">        this.authz = authz;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanMembershipPO&gt; listPendingApplications(String ownerId, String planId) {
+<span class="nc" id="L37">        authz.requireOwner(planId, ownerId);</span>
+<span class="nc" id="L38">        return membershipMapper.selectList(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L39">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L40">                .eq(&quot;role&quot;, &quot;PARTICIPANT&quot;)</span>
+<span class="nc" id="L41">                .eq(&quot;status&quot;, &quot;PENDING&quot;)</span>
+<span class="nc" id="L42">                .orderByDesc(&quot;create_time&quot;));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanMembershipPO&gt; listMembers(String userId, String planId) {
+<span class="nc" id="L47">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L48">        return membershipMapper.selectList(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L49">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L50">                .eq(&quot;status&quot;, &quot;ACTIVE&quot;)</span>
+<span class="nc" id="L51">                .in(&quot;role&quot;, List.of(&quot;OWNER&quot;, &quot;PARTICIPANT&quot;))</span>
+<span class="nc" id="L52">                .orderByAsc(&quot;role&quot;)</span>
+<span class="nc" id="L53">                .orderByAsc(&quot;create_time&quot;));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanItineraryRevisionPO&gt; listItineraryVersions(String userId, String planId) {
+<span class="nc" id="L58">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L59">        return revisionMapper.selectList(new QueryWrapper&lt;PlanItineraryRevisionPO&gt;()</span>
+<span class="nc" id="L60">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L61">                .orderByDesc(&quot;version&quot;));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getItineraryVersionDetail(String userId, String planId, int version) {
+<span class="nc" id="L66">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L67">        PlanItineraryRevisionPO r = revisionMapper.selectOne(new QueryWrapper&lt;PlanItineraryRevisionPO&gt;()</span>
+<span class="nc" id="L68">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L69">                .eq(&quot;version&quot;, version)</span>
+<span class="nc" id="L70">                .last(&quot;LIMIT 1&quot;));</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (r == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;version not found&quot;);</span>
+<span class="nc" id="L72">        return Map.of(</span>
+                &quot;plan_id&quot;, planId,
+<span class="nc" id="L74">                &quot;version&quot;, version,</span>
+<span class="nc" id="L75">                &quot;itinerary&quot;, Jsons.toMap(r.getItinerary()),</span>
+<span class="nc" id="L76">                &quot;created_by&quot;, r.getCreatedBy(),</span>
+<span class="nc" id="L77">                &quot;create_time&quot;, r.getCreateTime()</span>
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanItinerarySuggestionPO&gt; listSuggestions(String userId, String planId, Integer targetVersion) {
+<span class="nc" id="L83">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L84">        QueryWrapper&lt;PlanItinerarySuggestionPO&gt; qw = new QueryWrapper&lt;PlanItinerarySuggestionPO&gt;()</span>
+<span class="nc" id="L85">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L86">                .orderByDesc(&quot;create_time&quot;);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (targetVersion != null) qw.eq(&quot;target_version&quot;, targetVersion);</span>
+<span class="nc" id="L88">        return suggestionMapper.selectList(qw);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

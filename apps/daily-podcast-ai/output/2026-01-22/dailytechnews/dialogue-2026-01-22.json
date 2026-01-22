@@ -1,0 +1,66 @@
+{
+  "title": "科技早报 - 2026-01-22",
+  "date": "2026-01-22",
+  "lines": [
+    {
+      "speaker": "Sound",
+      "text": "[片头音乐]",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Host A",
+      "text": "大家好，欢迎收听今日科技早报，今天是2026-01-22。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "今天我们为大家准备了一些有趣的科技资讯。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：追觅科技成央视春晚智能科技生态战略合作伙伴",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：OpenAI CFO：星际之门（Stargate）园区建设进度已过半",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：沙特人工智能企业Humain募资最高12亿美元",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "好的，今天的节目就到这里。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "感谢收听，我们下期再见！",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Sound",
+      "text": "[片尾音乐]",
+      "emotion": "calm"
+    }
+  ]
+}

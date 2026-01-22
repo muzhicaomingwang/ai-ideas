@@ -13,10 +13,10 @@ public class MarkdownController {
     private final AuthService authService;
     private final MarkdownOptimizeService markdownOptimizeService;
 
-<span class="nc" id="L16">    public MarkdownController(AuthService authService, MarkdownOptimizeService markdownOptimizeService) {</span>
-<span class="nc" id="L17">        this.authService = authService;</span>
-<span class="nc" id="L18">        this.markdownOptimizeService = markdownOptimizeService;</span>
-<span class="nc" id="L19">    }</span>
+<span class="fc" id="L16">    public MarkdownController(AuthService authService, MarkdownOptimizeService markdownOptimizeService) {</span>
+<span class="fc" id="L17">        this.authService = authService;</span>
+<span class="fc" id="L18">        this.markdownOptimizeService = markdownOptimizeService;</span>
+<span class="fc" id="L19">    }</span>
 
     @PostMapping(&quot;/optimize&quot;)
     public ApiResponse&lt;OptimizeResponse&gt; optimize(

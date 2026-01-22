@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanCommandService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">PlanCommandService.java</span></div><h1>PlanCommandService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.teamventure.adapter.web.plans.PlanController.GenerateRequest;
+import com.teamventure.adapter.web.plans.PlanController.GenerateResponse;
+import com.teamventure.adapter.web.plans.PlanController.SupplierContactRequest;
+import com.teamventure.app.service.dto.BatchPlanCallbackRequest;
+import com.teamventure.app.support.BizException;
+import com.teamventure.app.support.IdGenerator;
+import com.teamventure.app.support.ItineraryMarkdownParser;
+import com.teamventure.app.support.ItineraryMarkdownSanitizer;
+import com.teamventure.app.support.ItineraryMarkdownValidator;
+import com.teamventure.infrastructure.persistence.mapper.DomainEventMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanRequestMapper;
+import com.teamventure.infrastructure.persistence.mapper.SupplierContactLogMapper;
+import com.teamventure.infrastructure.persistence.po.DomainEventPO;
+import com.teamventure.infrastructure.persistence.po.PlanPO;
+import com.teamventure.infrastructure.persistence.po.PlanRequestPO;
+import com.teamventure.infrastructure.persistence.po.SupplierContactLogPO;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+
+@Service
+public class PlanCommandService {
+    private final PlanRequestMapper planRequestMapper;
+    private final PlanMapper planMapper;
+    private final SupplierContactLogMapper contactLogMapper;
+    private final DomainEventMapper eventMapper;
+    private final RabbitTemplate rabbitTemplate;
+    private final String exchange;
+    private final String routingKey;
+    private final HttpClient httpClient;
+    private final InternalPlanCallbackService callbackService;
+    private final String aiServiceUrl;
+    private final OssService ossService;
+    private final PlanAuthorizationService planAuthorizationService;
+    private final PlanCollaborationCommandService planCollaborationCommandService;
+
+    public PlanCommandService(
+            PlanRequestMapper planRequestMapper,
+            PlanMapper planMapper,
+            SupplierContactLogMapper contactLogMapper,
+            DomainEventMapper eventMapper,
+            RabbitTemplate rabbitTemplate,
+            @Value(&quot;${teamventure.mq.exchange.plan-generation}&quot;) String exchange,
+            @Value(&quot;${teamventure.mq.routing-key.plan-request}&quot;) String routingKey,
+            InternalPlanCallbackService callbackService,
+            OssService ossService,
+            @Value(&quot;${teamventure.ai-service.url:}&quot;) String aiServiceUrl,
+            PlanAuthorizationService planAuthorizationService,
+            PlanCollaborationCommandService planCollaborationCommandService
+<span class="fc" id="L64">    ) {</span>
+<span class="fc" id="L65">        this.planRequestMapper = planRequestMapper;</span>
+<span class="fc" id="L66">        this.planMapper = planMapper;</span>
+<span class="fc" id="L67">        this.contactLogMapper = contactLogMapper;</span>
+<span class="fc" id="L68">        this.eventMapper = eventMapper;</span>
+<span class="fc" id="L69">        this.rabbitTemplate = rabbitTemplate;</span>
+<span class="fc" id="L70">        this.exchange = exchange;</span>
+<span class="fc" id="L71">        this.routingKey = routingKey;</span>
+<span class="fc" id="L72">        this.callbackService = callbackService;</span>
+<span class="fc" id="L73">        this.ossService = ossService;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        this.aiServiceUrl = aiServiceUrl == null ? &quot;&quot; : aiServiceUrl.trim();</span>
+<span class="fc" id="L75">        this.planAuthorizationService = planAuthorizationService;</span>
+<span class="fc" id="L76">        this.planCollaborationCommandService = planCollaborationCommandService;</span>
+<span class="fc" id="L77">        this.httpClient = HttpClient.newBuilder()</span>
+<span class="fc" id="L78">                .connectTimeout(java.time.Duration.ofSeconds(3))</span>
+<span class="fc" id="L79">                .build();</span>
+<span class="fc" id="L80">    }</span>
+
+    public GenerateResponse createPlanRequestAndPublish(String userId, GenerateRequest req) {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        String markdown = req.markdown_content == null ? &quot;&quot; : req.markdown_content.trim();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (markdown.contains(&quot;## Day&quot;)) {</span>
+<span class="nc" id="L85">            String sanitized = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(markdown).trim();</span>
+<span class="nc" id="L86">            var res = ItineraryMarkdownValidator.validate(sanitized);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (!res.valid) {</span>
+<span class="nc" id="L88">                throw new BizException(&quot;VALIDATION_ERROR&quot;,</span>
+<span class="nc" id="L89">                        &quot;Markdown 格式不合规：\n&quot; + String.join(&quot;\n&quot;, res.errors.stream().limit(10).toList()));</span>
+            }
+<span class="nc" id="L91">            markdown = sanitized;</span>
+        }
+
+<span class="nc" id="L94">        String planRequestId = IdGenerator.newId(&quot;plan_req&quot;);</span>
+<span class="nc" id="L95">        PlanRequestPO po = new PlanRequestPO();</span>
+<span class="nc" id="L96">        po.setPlanRequestId(planRequestId);</span>
+<span class="nc" id="L97">        po.setUserId(userId);</span>
+<span class="nc" id="L98">        po.setMarkdownContent(markdown); // 保存Markdown内容（对行程类内容做清洗+校验）</span>
+<span class="nc" id="L99">        po.setStatus(&quot;GENERATING&quot;);</span>
+<span class="nc" id="L100">        po.setGenerationStartedAt(Instant.now());</span>
+<span class="nc" id="L101">        planRequestMapper.insert(po);</span>
+
+<span class="nc" id="L103">        recordEvent(&quot;PlanRequestCreated&quot;, &quot;PlanRequest&quot;, planRequestId, userId, Map.of(&quot;plan_request_id&quot;, planRequestId));</span>
+<span class="nc" id="L104">        recordEvent(&quot;PlanGenerationRequested&quot;, &quot;PlanRequest&quot;, planRequestId, userId, Map.of(&quot;plan_request_id&quot;, planRequestId));</span>
+
+        // 同步调用 Python AI 服务生成方案，生成完成后再返回（前端可在本页等待完成后跳转）
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (aiServiceUrl.isBlank()) {</span>
+<span class="nc" id="L108">            markPlanRequestFailed(planRequestId, &quot;AI_SERVICE_NOT_CONFIGURED&quot;, &quot;AI 服务未配置（teamventure.ai-service.url）&quot;);</span>
+<span class="nc" id="L109">            throw new BizException(&quot;AI_SERVICE_NOT_CONFIGURED&quot;, &quot;AI service is not configured&quot;);</span>
+        }
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        String endpoint = aiServiceUrl.endsWith(&quot;/&quot;)</span>
+<span class="nc" id="L113">                ? (aiServiceUrl.substring(0, aiServiceUrl.length() - 1) + &quot;/api/v1/plans/generate&quot;)</span>
+<span class="nc" id="L114">                : (aiServiceUrl + &quot;/api/v1/plans/generate&quot;);</span>
+
+<span class="nc" id="L116">        Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L117">        payload.put(&quot;plan_request_id&quot;, planRequestId);</span>
+<span class="nc" id="L118">        payload.put(&quot;user_id&quot;, userId);</span>
+<span class="nc" id="L119">        payload.put(&quot;markdown_content&quot;, markdown);</span>
+<span class="nc bnc" id="L120" title="All 4 branches missed.">        if (req.plan_name != null &amp;&amp; !req.plan_name.isBlank()) {</span>
+<span class="nc" id="L121">            payload.put(&quot;plan_name&quot;, req.plan_name.trim());</span>
+        }
+<span class="nc" id="L123">        payload.put(&quot;trace_id&quot;, IdGenerator.newId(&quot;trace&quot;));</span>
+
+        try {
+<span class="nc" id="L126">            byte[] body = Jsons.toJson(payload).getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L127">            HttpRequest httpReq = HttpRequest.newBuilder(URI.create(endpoint))</span>
+<span class="nc" id="L128">                    .timeout(Duration.ofSeconds(180))</span>
+<span class="nc" id="L129">                    .header(&quot;Content-Type&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L130">                    .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L131">                    .POST(HttpRequest.BodyPublishers.ofByteArray(body))</span>
+<span class="nc" id="L132">                    .build();</span>
+
+<span class="nc" id="L134">            HttpResponse&lt;byte[]&gt; httpRes = httpClient.send(httpReq, HttpResponse.BodyHandlers.ofByteArray());</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">            if (httpRes.statusCode() &lt; 200 || httpRes.statusCode() &gt;= 300) {</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                String details = new String(httpRes.body() == null ? new byte[0] : httpRes.body(), StandardCharsets.UTF_8);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if (details.length() &gt; 500) details = details.substring(0, 500) + &quot;...&quot;;</span>
+<span class="nc" id="L138">                markPlanRequestFailed(planRequestId, &quot;AI_HTTP_ERROR&quot;, &quot;AI 服务请求失败：&quot; + httpRes.statusCode());</span>
+<span class="nc" id="L139">                throw new BizException(&quot;GENERATION_FAILED&quot;, &quot;AI service failed: &quot; + details);</span>
+            }
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            String text = new String(httpRes.body() == null ? new byte[0] : httpRes.body(), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L143">            Map&lt;String, Object&gt; res = Jsons.toMap(text);</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L145">            List&lt;Map&lt;String, Object&gt;&gt; plans = (List&lt;Map&lt;String, Object&gt;&gt;) res.get(&quot;plans&quot;);</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (plans == null) plans = List.of();</span>
+
+<span class="nc" id="L148">            BatchPlanCallbackRequest cb = new BatchPlanCallbackRequest();</span>
+<span class="nc" id="L149">            cb.plan_request_id = planRequestId;</span>
+<span class="nc" id="L150">            cb.user_id = userId;</span>
+<span class="nc" id="L151">            cb.plans = plans;</span>
+<span class="nc" id="L152">            cb.trace_id = (String) res.getOrDefault(&quot;trace_id&quot;, payload.get(&quot;trace_id&quot;));</span>
+<span class="nc" id="L153">            callbackService.handleGeneratedPlans(cb);</span>
+
+<span class="nc" id="L155">            return new GenerateResponse(planRequestId, &quot;completed&quot;);</span>
+<span class="nc" id="L156">        } catch (BizException e) {</span>
+<span class="nc" id="L157">            throw e;</span>
+<span class="nc" id="L158">        } catch (Exception e) {</span>
+<span class="nc" id="L159">            markPlanRequestFailed(planRequestId, &quot;GENERATION_FAILED&quot;, &quot;方案生成失败&quot;);</span>
+<span class="nc" id="L160">            throw new BizException(&quot;GENERATION_FAILED&quot;, &quot;方案生成失败，请稍后重试&quot;);</span>
+        }
+    }
+
+    public Map&lt;String, Object&gt; saveDraftPlanFromMarkdown(String userId, String markdownContent, String planName, String logoStorage, String legacyLogoUrl) {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        String markdown = markdownContent == null ? &quot;&quot; : markdownContent;</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        String name = planName == null ? &quot;&quot; : planName.trim();</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if (name.isBlank()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;plan_name is empty&quot;);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (markdown.trim().isEmpty()) throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;markdown_content is empty&quot;);</span>
+
+        // Align with miniapp &quot;line-based validation&quot; behavior:
+        // keep only Day headings and time rows, then validate with the shared v2 validator.
+<span class="nc" id="L172">        String sanitized = ItineraryMarkdownSanitizer.sanitizeDraftItineraryMarkdown(markdown);</span>
+<span class="nc" id="L173">        String filtered = ItineraryMarkdownSanitizer.filterDayAndTimeLines(sanitized);</span>
+
+<span class="nc" id="L175">        var check = ItineraryMarkdownValidator.validate(filtered);</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (!check.valid) {</span>
+<span class="nc" id="L177">            throw new BizException(&quot;VALIDATION_ERROR&quot;,</span>
+<span class="nc" id="L178">                    &quot;Markdown 格式不合规：\n&quot; + String.join(&quot;\n&quot;, check.errors.stream().limit(10).toList()));</span>
+        }
+
+<span class="nc" id="L181">        Map&lt;String, Object&gt; itinerary = ItineraryMarkdownParser.parseToItinerary(filtered);</span>
+<span class="nc" id="L182">        int durationDays = 0;</span>
+<span class="nc" id="L183">        Object daysObj = itinerary.get(&quot;days&quot;);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (daysObj instanceof List&lt;?&gt; list) durationDays = list.size();</span>
+
+<span class="nc" id="L186">        PlanPO plan = new PlanPO();</span>
+<span class="nc" id="L187">        plan.setPlanId(IdGenerator.newId(&quot;plan&quot;));</span>
+<span class="nc" id="L188">        plan.setPlanRequestId(IdGenerator.newId(&quot;plan_req&quot;));</span>
+<span class="nc" id="L189">        plan.setUserId(userId);</span>
+<span class="nc" id="L190">        plan.setPlanType(&quot;standard&quot;);</span>
+<span class="nc" id="L191">        plan.setPlanName(name);</span>
+<span class="nc" id="L192">        plan.setSummary(&quot;&quot;);</span>
+<span class="nc" id="L193">        plan.setHighlights(Jsons.toJson(List.of()));</span>
+<span class="nc" id="L194">        String normalizedStorage = normalizeLogoStorageValue(logoStorage);</span>
+<span class="nc" id="L195">        String normalizedLegacy = normalizeLegacyLogoUrl(legacyLogoUrl);</span>
+        // 兼容：如果历史字段传了 minio://...，且符合 itinerary bucket，则也写入 logo_storage
+<span class="nc bnc" id="L197" title="All 8 branches missed.">        if ((normalizedStorage == null || normalizedStorage.isBlank()) &amp;&amp; normalizedLegacy != null &amp;&amp; normalizedLegacy.startsWith(&quot;minio://&quot;)) {</span>
+<span class="nc" id="L198">            String resolved = ossService.resolveItineraryUrl(normalizedLegacy);</span>
+<span class="nc bnc" id="L199" title="All 4 branches missed.">            if (resolved != null &amp;&amp; !resolved.isBlank()) {</span>
+<span class="nc" id="L200">                normalizedStorage = normalizedLegacy;</span>
+<span class="nc" id="L201">                normalizedLegacy = null;</span>
+            }
+        }
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        plan.setLogoStorage((normalizedStorage == null || normalizedStorage.isBlank()) ? null : normalizedStorage);</span>
+<span class="nc bnc" id="L205" title="All 4 branches missed.">        plan.setLogoUrl((normalizedLegacy == null || normalizedLegacy.isBlank()) ? null : normalizedLegacy);</span>
+<span class="nc" id="L206">        plan.setItinerary(Jsons.toJson(itinerary));</span>
+<span class="nc" id="L207">        plan.setItineraryVersion(1);</span>
+<span class="nc" id="L208">        plan.setBudgetBreakdown(Jsons.toJson(Map.of()));</span>
+<span class="nc" id="L209">        plan.setSupplierSnapshots(Jsons.toJson(List.of()));</span>
+<span class="nc" id="L210">        plan.setBudgetTotal(java.math.BigDecimal.ZERO);</span>
+<span class="nc" id="L211">        plan.setBudgetPerPerson(java.math.BigDecimal.ZERO);</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        plan.setDurationDays(durationDays &lt;= 0 ? 1 : durationDays);</span>
+<span class="nc" id="L213">        plan.setDepartureCity(&quot;&quot;);</span>
+<span class="nc" id="L214">        plan.setDestination(&quot;&quot;);</span>
+<span class="nc" id="L215">        plan.setDestinationCity(&quot;&quot;);</span>
+<span class="nc" id="L216">        plan.setStatus(&quot;draft&quot;);</span>
+<span class="nc" id="L217">        planMapper.insert(plan);</span>
+<span class="nc" id="L218">        planCollaborationCommandService.ensureOwnerMembershipAndCurrentRevision(plan);</span>
+
+<span class="nc" id="L220">        recordEvent(&quot;PlanSaved&quot;, &quot;Plan&quot;, plan.getPlanId(), userId, Map.of(&quot;plan_id&quot;, plan.getPlanId()));</span>
+
+<span class="nc" id="L222">        return Map.of(</span>
+<span class="nc" id="L223">                &quot;plan_id&quot;, plan.getPlanId(),</span>
+                &quot;status&quot;, &quot;draft&quot;
+        );
+    }
+
+    public void confirmPlan(String userId, String planId) {
+<span class="nc" id="L229">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L231">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc" id="L233">        planAuthorizationService.requireOwner(planId, userId);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L235">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (&quot;confirmed&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L238">            return; // 幂等：已确认则直接返回</span>
+        }
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (!&quot;reviewing&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L241">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有通晒中状态的方案才能确认&quot;);</span>
+        }
+<span class="nc" id="L243">        plan.setStatus(&quot;confirmed&quot;);</span>
+<span class="nc" id="L244">        plan.setConfirmedTime(Instant.now());</span>
+<span class="nc" id="L245">        planMapper.updateById(plan);</span>
+<span class="nc" id="L246">        recordEvent(&quot;PlanConfirmed&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+        // UL v1.3+ (backward compatible): more explicit event name.
+<span class="nc" id="L248">        recordEvent(&quot;PlanAdoptionConfirmed&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L249">    }</span>
+
+    public void logSupplierContact(String userId, String planId, SupplierContactRequest req) {
+<span class="nc" id="L252">        SupplierContactLogPO po = new SupplierContactLogPO();</span>
+<span class="nc" id="L253">        po.setContactId(IdGenerator.newId(&quot;contact&quot;));</span>
+<span class="nc" id="L254">        po.setPlanId(planId);</span>
+<span class="nc" id="L255">        po.setSupplierId(req.supplier_id);</span>
+<span class="nc" id="L256">        po.setUserId(userId);</span>
+<span class="nc" id="L257">        po.setChannel(req.channel);</span>
+<span class="nc" id="L258">        po.setNotes(req.notes);</span>
+<span class="nc" id="L259">        contactLogMapper.insert(po);</span>
+<span class="nc" id="L260">        recordEvent(</span>
+                &quot;SupplierContacted&quot;,
+                &quot;SupplierContactLog&quot;,
+<span class="nc" id="L263">                po.getContactId(),</span>
+                userId,
+<span class="nc" id="L265">                Map.of(&quot;plan_id&quot;, planId, &quot;supplier_id&quot;, req.supplier_id, &quot;channel&quot;, req.channel)</span>
+        );
+<span class="nc" id="L267">    }</span>
+
+    public void archivePlan(String userId, String planId) {
+<span class="nc" id="L270">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L272">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc" id="L274">        planAuthorizationService.requireOwner(planId, userId);</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L276">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (plan.getArchivedAt() != null) {</span>
+<span class="nc" id="L279">            return; // 幂等：已归档则直接返回</span>
+        }
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (!&quot;confirmed&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L282">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有已确认状态的方案才能归档&quot;);</span>
+        }
+<span class="nc" id="L284">        plan.setArchivedAt(Instant.now());</span>
+<span class="nc" id="L285">        plan.setStatus(&quot;archived&quot;);</span>
+<span class="nc" id="L286">        planMapper.updateById(plan);</span>
+<span class="nc" id="L287">        recordEvent(&quot;PlanArchived&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L288">    }</span>
+
+    public void submitReview(String userId, String planId, com.teamventure.adapter.web.plans.PlanController.SubmitReviewRequest req) {
+<span class="nc" id="L291">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L293">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc" id="L295">        planAuthorizationService.requireOwner(planId, userId);</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L297">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L299" title="All 2 branches missed.">        if (!&quot;draft&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L300">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有制定完成状态的方案才能提交通晒&quot;);</span>
+        }
+
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        String startDate = req == null ? null : req.start_date;</span>
+<span class="nc bnc" id="L304" title="All 4 branches missed.">        if (startDate == null || startDate.isBlank()) {</span>
+<span class="nc" id="L305">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;start_date is required&quot;);</span>
+        }
+
+        // Persist confirmed dates onto plan_request (plans table doesn't store dates)
+<span class="nc" id="L309">        String planRequestId = plan.getPlanRequestId();</span>
+<span class="nc bnc" id="L310" title="All 4 branches missed.">        if (planRequestId != null &amp;&amp; !planRequestId.isBlank()) {</span>
+<span class="nc bnc" id="L311" title="All 4 branches missed.">            int durationDays = plan.getDurationDays() == null || plan.getDurationDays() &lt;= 0 ? 1 : plan.getDurationDays();</span>
+<span class="nc" id="L312">            String endDate = addDays(startDate.trim(), durationDays - 1);</span>
+<span class="nc" id="L313">            UpdateWrapper&lt;PlanRequestPO&gt; uw = new UpdateWrapper&lt;PlanRequestPO&gt;()</span>
+<span class="nc" id="L314">                    .eq(&quot;plan_request_id&quot;, planRequestId)</span>
+<span class="nc" id="L315">                    .set(&quot;start_date&quot;, startDate.trim())</span>
+<span class="nc" id="L316">                    .set(&quot;end_date&quot;, endDate);</span>
+<span class="nc" id="L317">            planRequestMapper.update(null, uw);</span>
+        }
+
+<span class="nc" id="L320">        plan.setStatus(&quot;reviewing&quot;);</span>
+<span class="nc" id="L321">        plan.setReviewStartedAt(Instant.now());</span>
+<span class="nc" id="L322">        planMapper.updateById(plan);</span>
+<span class="nc" id="L323">        recordEvent(&quot;PlanSubmittedForReview&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L324">    }</span>
+
+    public void revertReview(String userId, String planId) {
+<span class="nc" id="L327">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">        if (plan == null) {</span>
+<span class="nc" id="L329">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc" id="L331">        planAuthorizationService.requireOwner(planId, userId);</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L333">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        if (!&quot;confirmed&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L336">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;只有已确认状态的方案才能回退通晒&quot;);</span>
+        }
+        // 使用 UpdateWrapper 显式将 confirmed_time 设为 null
+<span class="nc" id="L339">        UpdateWrapper&lt;PlanPO&gt; updateWrapper = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L340">        updateWrapper.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L341">                .set(&quot;status&quot;, &quot;reviewing&quot;)</span>
+<span class="nc" id="L342">                .set(&quot;confirmed_time&quot;, null);</span>
+<span class="nc" id="L343">        planMapper.update(null, updateWrapper);</span>
+<span class="nc" id="L344">        recordEvent(&quot;PlanRevertedToReview&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L345">    }</span>
+
+    public void deletePlan(String userId, String planId) {
+        // 1. 先查 plans 表
+<span class="nc" id="L349">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        if (plan != null) {</span>
+<span class="nc" id="L351">            planAuthorizationService.requireOwner(planId, userId);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">            if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L353">                return; // 幂等：已删除则直接返回</span>
+            }
+<span class="nc" id="L355">            plan.setDeletedAt(Instant.now());</span>
+<span class="nc" id="L356">            planMapper.updateById(plan);</span>
+<span class="nc" id="L357">            recordEvent(&quot;PlanDeleted&quot;, &quot;Plan&quot;, planId, userId, Map.of(&quot;plan_id&quot;, planId));</span>
+<span class="nc" id="L358">            return;</span>
+        }
+
+        // 2. 再查 plan_requests 表（处理生成中/失败的）
+<span class="nc" id="L362">        PlanRequestPO req = planRequestMapper.selectById(planId);</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (req != null) {</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">            if (!userId.equals(req.getUserId())) {</span>
+<span class="nc" id="L365">                throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+            }
+<span class="nc bnc" id="L367" title="All 2 branches missed.">            if (req.getDeletedAt() != null) {</span>
+<span class="nc" id="L368">                return; // 幂等：已删除则直接返回</span>
+            }
+<span class="nc" id="L370">            req.setDeletedAt(Instant.now());</span>
+<span class="nc" id="L371">            planRequestMapper.updateById(req);</span>
+<span class="nc" id="L372">            recordEvent(&quot;PlanRequestDeleted&quot;, &quot;PlanRequest&quot;, planId, userId, Map.of(&quot;plan_request_id&quot;, planId));</span>
+<span class="nc" id="L373">            return;</span>
+        }
+
+<span class="nc" id="L376">        throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+    }
+
+    public Map&lt;String, Object&gt; updateItineraryWithCas(String userId, String planId, int baseVersion, Map&lt;String, Object&gt; itinerary) {
+<span class="nc bnc" id="L380" title="All 2 branches missed.">        if (baseVersion &lt; 1) {</span>
+<span class="nc" id="L381">            throw new BizException(&quot;BAD_REQUEST&quot;, &quot;invalid base_version&quot;);</span>
+        }
+
+<span class="nc" id="L384">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L385" title="All 4 branches missed.">        if (plan == null || plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L386">            throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+        }
+<span class="nc" id="L388">        planAuthorizationService.requireOwner(planId, userId);</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">        if (!&quot;reviewing&quot;.equalsIgnoreCase(plan.getStatus())) {</span>
+<span class="nc" id="L390">            throw new BizException(&quot;INVALID_STATUS&quot;, &quot;only reviewing can update itinerary&quot;);</span>
+        }
+
+        // 兼容历史数据：早期记录可能 itinerary_version 为空，导致 CAS 永远冲突
+<span class="nc bnc" id="L394" title="All 2 branches missed.">        if (plan.getItineraryVersion() == null) {</span>
+<span class="nc" id="L395">            UpdateWrapper&lt;PlanPO&gt; initVersion = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L396">            initVersion.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L397">                    .isNull(&quot;itinerary_version&quot;)</span>
+<span class="nc" id="L398">                    .set(&quot;itinerary_version&quot;, 1);</span>
+<span class="nc" id="L399">            planMapper.update(null, initVersion);</span>
+        }
+
+<span class="nc" id="L402">        UpdateWrapper&lt;PlanPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L403">        uw.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L404">                .eq(&quot;itinerary_version&quot;, baseVersion)</span>
+<span class="nc" id="L405">                .set(&quot;itinerary&quot;, Jsons.toJson(itinerary))</span>
+<span class="nc" id="L406">                .set(&quot;itinerary_version&quot;, baseVersion + 1);</span>
+
+<span class="nc" id="L408">        int rows = planMapper.update(null, uw);</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        if (rows == 0) {</span>
+<span class="nc" id="L410">            PlanPO latest = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L411" title="All 4 branches missed.">            int latestVersion = latest == null || latest.getItineraryVersion() == null ? 1 : latest.getItineraryVersion();</span>
+<span class="nc" id="L412">            return Map.of(</span>
+<span class="nc" id="L413">                    &quot;conflict&quot;, true,</span>
+<span class="nc" id="L414">                    &quot;itinerary_version&quot;, latestVersion,</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">                    &quot;itinerary&quot;, latest == null ? Map.of(&quot;days&quot;, List.of()) : Jsons.toMap(latest.getItinerary())</span>
+            );
+        }
+
+<span class="nc" id="L419">        PlanPO latest = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">        if (latest != null) {</span>
+<span class="nc" id="L421">            planCollaborationCommandService.ensureOwnerMembershipAndCurrentRevision(latest);</span>
+        }
+
+<span class="nc" id="L424">        return Map.of(</span>
+<span class="nc" id="L425">                &quot;conflict&quot;, false,</span>
+<span class="nc" id="L426">                &quot;itinerary_version&quot;, baseVersion + 1,</span>
+                &quot;itinerary&quot;, itinerary
+        );
+    }
+
+    private void markPlanRequestFailed(String planRequestId, String code, String message) {
+<span class="nc" id="L432">        PlanRequestPO po = planRequestMapper.selectById(planRequestId);</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">        if (po == null) return;</span>
+<span class="nc" id="L434">        po.setStatus(&quot;FAILED&quot;);</span>
+<span class="nc" id="L435">        po.setErrorCode(code);</span>
+<span class="nc" id="L436">        po.setErrorMessage(message);</span>
+<span class="nc" id="L437">        po.setGenerationCompletedAt(Instant.now());</span>
+<span class="nc" id="L438">        planRequestMapper.updateById(po);</span>
+<span class="nc" id="L439">        recordEvent(&quot;PlanGenerationFailed&quot;, &quot;PlanRequest&quot;, planRequestId, po.getUserId(), Map.of(</span>
+                &quot;plan_request_id&quot;, planRequestId,
+                &quot;error_code&quot;, code,
+                &quot;error_message&quot;, message
+        ));
+<span class="nc" id="L444">    }</span>
+
+    private static String addDays(String startDate, int plusDays) {
+        try {
+<span class="nc" id="L448">            java.time.LocalDate d = java.time.LocalDate.parse(startDate);</span>
+<span class="nc" id="L449">            return d.plusDays(Math.max(0, plusDays)).toString();</span>
+<span class="nc" id="L450">        } catch (Exception e) {</span>
+<span class="nc" id="L451">            return startDate;</span>
+        }
+    }
+
+    private String normalizeLogoStorageValue(String logoStorage) {
+<span class="nc bnc" id="L456" title="All 2 branches missed.">        String v = logoStorage == null ? &quot;&quot; : logoStorage.trim();</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">        if (v.isBlank()) return null;</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">        if (!v.startsWith(&quot;minio://&quot;)) {</span>
+<span class="nc" id="L459">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;logo_storage must be minio://bucket/key&quot;);</span>
+        }
+<span class="nc bnc" id="L461" title="All 2 branches missed.">        if (v.length() &gt; 512) {</span>
+<span class="nc" id="L462">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;logo_storage too long&quot;);</span>
+        }
+<span class="nc" id="L464">        String resolved = ossService.resolveItineraryUrl(v);</span>
+<span class="nc bnc" id="L465" title="All 4 branches missed.">        if (resolved == null || resolved.isBlank()) {</span>
+<span class="nc" id="L466">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;invalid logo_storage&quot;);</span>
+        }
+<span class="nc" id="L468">        return v;</span>
+    }
+
+    private String normalizeLegacyLogoUrl(String legacyLogoUrl) {
+<span class="nc bnc" id="L472" title="All 2 branches missed.">        String legacy = legacyLogoUrl == null ? &quot;&quot; : legacyLogoUrl.trim();</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">        if (legacy.isBlank()) return null;</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">        if (legacy.length() &gt; 512) {</span>
+<span class="nc" id="L475">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;logo_url too long&quot;);</span>
+        }
+<span class="nc bnc" id="L477" title="All 6 branches missed.">        if (!(legacy.startsWith(&quot;http://&quot;) || legacy.startsWith(&quot;https://&quot;) || legacy.startsWith(&quot;minio://&quot;))) {</span>
+<span class="nc" id="L478">            throw new BizException(&quot;VALIDATION_ERROR&quot;, &quot;invalid logo_url&quot;);</span>
+        }
+<span class="nc" id="L480">        return legacy;</span>
+    }
+
+    private void recordEvent(String eventType, String aggregateType, String aggregateId, String userId, Map&lt;String, Object&gt; payload) {
+<span class="nc" id="L484">        DomainEventPO evt = new DomainEventPO();</span>
+<span class="nc" id="L485">        evt.setEventId(IdGenerator.newId(&quot;evt&quot;));</span>
+<span class="nc" id="L486">        evt.setEventType(eventType);</span>
+<span class="nc" id="L487">        evt.setAggregateType(aggregateType);</span>
+<span class="nc" id="L488">        evt.setAggregateId(aggregateId);</span>
+<span class="nc" id="L489">        evt.setUserId(userId);</span>
+<span class="nc" id="L490">        evt.setPayloadJson(Jsons.toJson(payload));</span>
+<span class="nc" id="L491">        evt.setOccurredAt(Instant.now());</span>
+<span class="nc" id="L492">        evt.setProcessed(false);</span>
+<span class="nc" id="L493">        eventMapper.insert(evt);</span>
+<span class="nc" id="L494">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

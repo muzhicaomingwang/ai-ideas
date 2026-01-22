@@ -17,10 +17,10 @@ public class InternalPlanController {
     public InternalPlanController(
             InternalPlanCallbackService callbackService,
             @Value(&quot;${teamventure.ai-service.callback-secret}&quot;) String internalSecret
-<span class="nc" id="L20">    ) {</span>
-<span class="nc" id="L21">        this.callbackService = callbackService;</span>
-<span class="nc" id="L22">        this.internalSecret = internalSecret;</span>
-<span class="nc" id="L23">    }</span>
+<span class="fc" id="L20">    ) {</span>
+<span class="fc" id="L21">        this.callbackService = callbackService;</span>
+<span class="fc" id="L22">        this.internalSecret = internalSecret;</span>
+<span class="fc" id="L23">    }</span>
 
     @PostMapping(&quot;/plans/batch&quot;)
     public ApiResponse&lt;Void&gt; createPlans(@RequestHeader(&quot;X-Internal-Secret&quot;) String secret,

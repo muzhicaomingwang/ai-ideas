@@ -2,7 +2,8 @@ package com.teamventure.adapter.web.plans;
 
 import com.teamventure.adapter.web.common.ApiResponse;
 import com.teamventure.app.service.AuthService;
-import com.teamventure.app.service.PlanService;
+import com.teamventure.app.service.PlanCommandService;
+import com.teamventure.app.service.PlanQueryService;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -18,25 +19,27 @@ import org.springframework.web.bind.annotation.*;
 public class PlanController {
 
     private final AuthService authService;
-    private final PlanService planService;
+    private final PlanCommandService planCommandService;
+    private final PlanQueryService planQueryService;
 
-    public PlanController(AuthService authService, PlanService planService) {
+    public PlanController(AuthService authService, PlanCommandService planCommandService, PlanQueryService planQueryService) {
         this.authService = authService;
-        this.planService = planService;
+        this.planCommandService = planCommandService;
+        this.planQueryService = planQueryService;
     }
 
     @PostMapping("/generate")
     public ApiResponse<GenerateResponse> generate(@RequestHeader(value = "Authorization", required = false) String authorization,
                                                  @Valid @RequestBody GenerateRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        return ApiResponse.success(planService.createPlanRequestAndPublish(userId, req));
+        return ApiResponse.success(planCommandService.createPlanRequestAndPublish(userId, req));
     }
 
     @PostMapping("/save")
     public ApiResponse<Map<String, Object>> save(@RequestHeader(value = "Authorization", required = false) String authorization,
                                                  @Valid @RequestBody SaveRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name, req.logo_storage, req.logo_url));
+        return ApiResponse.success(planCommandService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name, req.logo_storage, req.logo_url));
     }
 
     @GetMapping
@@ -45,13 +48,13 @@ public class PlanController {
                                @RequestParam(defaultValue = "10") int pageSize,
                                @RequestParam(required = false) String status) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        return ApiResponse.success(planService.listPlans(userId, page, pageSize, status));
+        return ApiResponse.success(planQueryService.listPlans(userId, page, pageSize, status));
     }
 
     @GetMapping("/{planId}")
     public ApiResponse<?> detail(@RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable String planId) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        return ApiResponse.success(planService.getPlanDetail(userId, planId));
+        return ApiResponse.success(planQueryService.getPlanDetail(userId, planId));
     }
 
     @GetMapping("/{planId}/route")
@@ -61,13 +64,13 @@ public class PlanController {
             @RequestParam(required = false) Integer day
     ) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        return ApiResponse.success(planService.getPlanRoute(userId, planId, day));
+        return ApiResponse.success(planQueryService.getPlanRoute(userId, planId, day));
     }
 
     @PostMapping("/{planId}/confirm")
     public ApiResponse<Void> confirm(@RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable String planId) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.confirmPlan(userId, planId);
+        planCommandService.confirmPlan(userId, planId);
         return ApiResponse.success();
     }
 
@@ -76,7 +79,7 @@ public class PlanController {
                                      @PathVariable String planId,
                                      @Valid @RequestBody SupplierContactRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.logSupplierContact(userId, planId, req);
+        planCommandService.logSupplierContact(userId, planId, req);
         return ApiResponse.success();
     }
 
@@ -84,7 +87,7 @@ public class PlanController {
     public ApiResponse<Void> archive(@RequestHeader(value = "Authorization", required = false) String authorization,
                                      @PathVariable String planId) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.archivePlan(userId, planId);
+        planCommandService.archivePlan(userId, planId);
         return ApiResponse.success();
     }
 
@@ -93,7 +96,7 @@ public class PlanController {
                                           @PathVariable String planId,
                                           @RequestBody(required = false) SubmitReviewRequest req) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.submitReview(userId, planId, req);
+        planCommandService.submitReview(userId, planId, req);
         return ApiResponse.success();
     }
 
@@ -101,7 +104,7 @@ public class PlanController {
     public ApiResponse<Void> revertReview(@RequestHeader(value = "Authorization", required = false) String authorization,
                                           @PathVariable String planId) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.revertReview(userId, planId);
+        planCommandService.revertReview(userId, planId);
         return ApiResponse.success();
     }
 
@@ -109,7 +112,7 @@ public class PlanController {
     public ApiResponse<Void> delete(@RequestHeader(value = "Authorization", required = false) String authorization,
                                     @PathVariable String planId) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        planService.deletePlan(userId, planId);
+        planCommandService.deletePlan(userId, planId);
         return ApiResponse.success();
     }
 
@@ -120,14 +123,14 @@ public class PlanController {
             @Valid @RequestBody UpdateItineraryRequest req
     ) {
         String userId = authService.getUserIdFromAuthorization(authorization);
-        Map<String, Object> result = planService.updateItineraryWithCas(userId, planId, req.base_version, req.itinerary);
+        Map<String, Object> result = planCommandService.updateItineraryWithCas(userId, planId, req.base_version, req.itinerary);
 
         if (Boolean.TRUE.equals(result.get("conflict"))) {
             Map<String, Object> payload = new HashMap<>();
             payload.put("itinerary_version", result.get("itinerary_version"));
             payload.put("itinerary", result.get("itinerary"));
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(ApiResponse.failure("CAS_CONFLICT", "itinerary has changed", payload));
+                    .body(ApiResponse.failure("CONFLICT", "itinerary_version mismatch", payload));
         }
 
         Map<String, Object> payload = new HashMap<>();
@@ -193,7 +196,9 @@ public class PlanController {
 
     public static class UpdateItineraryRequest {
         @NotNull public Map<String, Object> itinerary;
-        @NotNull public Integer base_version;
+        @NotNull
+        @JsonAlias({"base_version", "baseVersion", "expected_itinerary_version", "expectedItineraryVersion"})
+        public Integer base_version;
     }
 
     public static class SubmitReviewRequest {

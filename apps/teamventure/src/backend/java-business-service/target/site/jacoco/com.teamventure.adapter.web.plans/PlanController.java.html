@@ -2,7 +2,8 @@
 
 import com.teamventure.adapter.web.common.ApiResponse;
 import com.teamventure.app.service.AuthService;
-import com.teamventure.app.service.PlanService;
+import com.teamventure.app.service.PlanCommandService;
+import com.teamventure.app.service.PlanQueryService;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -18,25 +19,27 @@ import org.springframework.web.bind.annotation.*;
 public class PlanController {
 
     private final AuthService authService;
-    private final PlanService planService;
+    private final PlanCommandService planCommandService;
+    private final PlanQueryService planQueryService;
 
-<span class="nc" id="L23">    public PlanController(AuthService authService, PlanService planService) {</span>
-<span class="nc" id="L24">        this.authService = authService;</span>
-<span class="nc" id="L25">        this.planService = planService;</span>
-<span class="nc" id="L26">    }</span>
+<span class="fc" id="L25">    public PlanController(AuthService authService, PlanCommandService planCommandService, PlanQueryService planQueryService) {</span>
+<span class="fc" id="L26">        this.authService = authService;</span>
+<span class="fc" id="L27">        this.planCommandService = planCommandService;</span>
+<span class="fc" id="L28">        this.planQueryService = planQueryService;</span>
+<span class="fc" id="L29">    }</span>
 
     @PostMapping(&quot;/generate&quot;)
     public ApiResponse&lt;GenerateResponse&gt; generate(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                                  @Valid @RequestBody GenerateRequest req) {
-<span class="nc" id="L31">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L32">        return ApiResponse.success(planService.createPlanRequestAndPublish(userId, req));</span>
+<span class="nc" id="L34">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L35">        return ApiResponse.success(planCommandService.createPlanRequestAndPublish(userId, req));</span>
     }
 
     @PostMapping(&quot;/save&quot;)
     public ApiResponse&lt;Map&lt;String, Object&gt;&gt; save(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                                  @Valid @RequestBody SaveRequest req) {
-<span class="nc" id="L38">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L39">        return ApiResponse.success(planService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name, req.logo_storage, req.logo_url));</span>
+<span class="nc" id="L41">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L42">        return ApiResponse.success(planCommandService.saveDraftPlanFromMarkdown(userId, req.markdown_content, req.plan_name, req.logo_storage, req.logo_url));</span>
     }
 
     @GetMapping
@@ -44,14 +47,14 @@ public class PlanController {
                                @RequestParam(defaultValue = &quot;1&quot;) int page,
                                @RequestParam(defaultValue = &quot;10&quot;) int pageSize,
                                @RequestParam(required = false) String status) {
-<span class="nc" id="L47">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L48">        return ApiResponse.success(planService.listPlans(userId, page, pageSize, status));</span>
+<span class="nc" id="L50">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L51">        return ApiResponse.success(planQueryService.listPlans(userId, page, pageSize, status));</span>
     }
 
     @GetMapping(&quot;/{planId}&quot;)
     public ApiResponse&lt;?&gt; detail(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization, @PathVariable String planId) {
-<span class="nc" id="L53">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L54">        return ApiResponse.success(planService.getPlanDetail(userId, planId));</span>
+<span class="nc" id="L56">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L57">        return ApiResponse.success(planQueryService.getPlanDetail(userId, planId));</span>
     }
 
     @GetMapping(&quot;/{planId}/route&quot;)
@@ -60,57 +63,57 @@ public class PlanController {
             @PathVariable String planId,
             @RequestParam(required = false) Integer day
     ) {
-<span class="nc" id="L63">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L64">        return ApiResponse.success(planService.getPlanRoute(userId, planId, day));</span>
+<span class="nc" id="L66">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L67">        return ApiResponse.success(planQueryService.getPlanRoute(userId, planId, day));</span>
     }
 
     @PostMapping(&quot;/{planId}/confirm&quot;)
     public ApiResponse&lt;Void&gt; confirm(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization, @PathVariable String planId) {
-<span class="nc" id="L69">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L70">        planService.confirmPlan(userId, planId);</span>
-<span class="nc" id="L71">        return ApiResponse.success();</span>
+<span class="nc" id="L72">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L73">        planCommandService.confirmPlan(userId, planId);</span>
+<span class="nc" id="L74">        return ApiResponse.success();</span>
     }
 
     @PostMapping(&quot;/{planId}/supplier-contacts&quot;)
     public ApiResponse&lt;Void&gt; contact(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                      @PathVariable String planId,
                                      @Valid @RequestBody SupplierContactRequest req) {
-<span class="nc" id="L78">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L79">        planService.logSupplierContact(userId, planId, req);</span>
-<span class="nc" id="L80">        return ApiResponse.success();</span>
+<span class="nc" id="L81">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L82">        planCommandService.logSupplierContact(userId, planId, req);</span>
+<span class="nc" id="L83">        return ApiResponse.success();</span>
     }
 
     @PostMapping(&quot;/{planId}/archive&quot;)
     public ApiResponse&lt;Void&gt; archive(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                      @PathVariable String planId) {
-<span class="nc" id="L86">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L87">        planService.archivePlan(userId, planId);</span>
-<span class="nc" id="L88">        return ApiResponse.success();</span>
+<span class="nc" id="L89">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L90">        planCommandService.archivePlan(userId, planId);</span>
+<span class="nc" id="L91">        return ApiResponse.success();</span>
     }
 
     @PutMapping(&quot;/{planId}/submit-review&quot;)
     public ApiResponse&lt;Void&gt; submitReview(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                           @PathVariable String planId,
                                           @RequestBody(required = false) SubmitReviewRequest req) {
-<span class="nc" id="L95">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L96">        planService.submitReview(userId, planId, req);</span>
-<span class="nc" id="L97">        return ApiResponse.success();</span>
+<span class="nc" id="L98">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L99">        planCommandService.submitReview(userId, planId, req);</span>
+<span class="nc" id="L100">        return ApiResponse.success();</span>
     }
 
     @PostMapping(&quot;/{planId}/revert-review&quot;)
     public ApiResponse&lt;Void&gt; revertReview(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                           @PathVariable String planId) {
-<span class="nc" id="L103">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L104">        planService.revertReview(userId, planId);</span>
-<span class="nc" id="L105">        return ApiResponse.success();</span>
+<span class="nc" id="L106">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L107">        planCommandService.revertReview(userId, planId);</span>
+<span class="nc" id="L108">        return ApiResponse.success();</span>
     }
 
     @DeleteMapping(&quot;/{planId}&quot;)
     public ApiResponse&lt;Void&gt; delete(@RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
                                     @PathVariable String planId) {
-<span class="nc" id="L111">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L112">        planService.deletePlan(userId, planId);</span>
-<span class="nc" id="L113">        return ApiResponse.success();</span>
+<span class="nc" id="L114">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L115">        planCommandService.deletePlan(userId, planId);</span>
+<span class="nc" id="L116">        return ApiResponse.success();</span>
     }
 
     @PutMapping(&quot;/{planId}/itinerary&quot;)
@@ -119,21 +122,21 @@ public class PlanController {
             @PathVariable String planId,
             @Valid @RequestBody UpdateItineraryRequest req
     ) {
-<span class="nc" id="L122">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
-<span class="nc" id="L123">        Map&lt;String, Object&gt; result = planService.updateItineraryWithCas(userId, planId, req.base_version, req.itinerary);</span>
+<span class="nc" id="L125">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L126">        Map&lt;String, Object&gt; result = planCommandService.updateItineraryWithCas(userId, planId, req.base_version, req.itinerary);</span>
 
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (Boolean.TRUE.equals(result.get(&quot;conflict&quot;))) {</span>
-<span class="nc" id="L126">            Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L127">            payload.put(&quot;itinerary_version&quot;, result.get(&quot;itinerary_version&quot;));</span>
-<span class="nc" id="L128">            payload.put(&quot;itinerary&quot;, result.get(&quot;itinerary&quot;));</span>
-<span class="nc" id="L129">            return ResponseEntity.status(HttpStatus.CONFLICT)</span>
-<span class="nc" id="L130">                    .body(ApiResponse.failure(&quot;CAS_CONFLICT&quot;, &quot;itinerary has changed&quot;, payload));</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (Boolean.TRUE.equals(result.get(&quot;conflict&quot;))) {</span>
+<span class="nc" id="L129">            Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L130">            payload.put(&quot;itinerary_version&quot;, result.get(&quot;itinerary_version&quot;));</span>
+<span class="nc" id="L131">            payload.put(&quot;itinerary&quot;, result.get(&quot;itinerary&quot;));</span>
+<span class="nc" id="L132">            return ResponseEntity.status(HttpStatus.CONFLICT)</span>
+<span class="nc" id="L133">                    .body(ApiResponse.failure(&quot;CONFLICT&quot;, &quot;itinerary_version mismatch&quot;, payload));</span>
         }
 
-<span class="nc" id="L133">        Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L134">        payload.put(&quot;itinerary_version&quot;, result.get(&quot;itinerary_version&quot;));</span>
-<span class="nc" id="L135">        payload.put(&quot;itinerary&quot;, result.get(&quot;itinerary&quot;));</span>
-<span class="nc" id="L136">        return ResponseEntity.ok(ApiResponse.success(payload));</span>
+<span class="nc" id="L136">        Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L137">        payload.put(&quot;itinerary_version&quot;, result.get(&quot;itinerary_version&quot;));</span>
+<span class="nc" id="L138">        payload.put(&quot;itinerary&quot;, result.get(&quot;itinerary&quot;));</span>
+<span class="nc" id="L139">        return ResponseEntity.ok(ApiResponse.success(payload));</span>
     }
 
     /**
@@ -148,7 +151,7 @@ public class PlanController {
      *
      * AI Agent将直接解析Markdown内容，生成1套定制化方案
      */
-<span class="nc" id="L151">    public static class GenerateRequest {</span>
+<span class="nc" id="L154">    public static class GenerateRequest {</span>
         /** Markdown格式的行程需求描述 */
         @NotBlank
         public String markdown_content;
@@ -157,7 +160,7 @@ public class PlanController {
         public String plan_name;
     }
 
-<span class="nc" id="L160">    public static class SaveRequest {</span>
+<span class="nc" id="L163">    public static class SaveRequest {</span>
         /** Markdown格式的行程内容（直接保存为制定完成 draft 方案） */
         @NotBlank
         public String markdown_content;
@@ -179,24 +182,26 @@ public class PlanController {
         public String plan_request_id;
         public String status;
 
-<span class="nc" id="L182">        public GenerateResponse(String planRequestId, String status) {</span>
-<span class="nc" id="L183">            this.plan_request_id = planRequestId;</span>
-<span class="nc" id="L184">            this.status = status;</span>
-<span class="nc" id="L185">        }</span>
+<span class="nc" id="L185">        public GenerateResponse(String planRequestId, String status) {</span>
+<span class="nc" id="L186">            this.plan_request_id = planRequestId;</span>
+<span class="nc" id="L187">            this.status = status;</span>
+<span class="nc" id="L188">        }</span>
     }
 
-<span class="nc" id="L188">    public static class SupplierContactRequest {</span>
+<span class="nc" id="L191">    public static class SupplierContactRequest {</span>
         @NotBlank public String supplier_id;
         @NotBlank public String channel; // PHONE/WECHAT/EMAIL
         public String notes;
     }
 
-<span class="nc" id="L194">    public static class UpdateItineraryRequest {</span>
+<span class="nc" id="L197">    public static class UpdateItineraryRequest {</span>
         @NotNull public Map&lt;String, Object&gt; itinerary;
-        @NotNull public Integer base_version;
+        @NotNull
+        @JsonAlias({&quot;base_version&quot;, &quot;baseVersion&quot;, &quot;expected_itinerary_version&quot;, &quot;expectedItineraryVersion&quot;})
+        public Integer base_version;
     }
 
-<span class="nc" id="L199">    public static class SubmitReviewRequest {</span>
+<span class="nc" id="L204">    public static class SubmitReviewRequest {</span>
         /** 用户确认的出发日期（YYYY-MM-DD） */
         @JsonAlias({&quot;start_date&quot;, &quot;startDate&quot;})
         public String start_date;

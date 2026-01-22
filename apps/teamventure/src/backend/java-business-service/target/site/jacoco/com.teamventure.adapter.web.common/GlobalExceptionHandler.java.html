@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-<span class="nc" id="L21">    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
+<span class="fc" id="L21">    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
     private final Environment env;
 
-<span class="nc" id="L24">    public GlobalExceptionHandler(Environment env) {</span>
-<span class="nc" id="L25">        this.env = env;</span>
-<span class="nc" id="L26">    }</span>
+<span class="fc" id="L24">    public GlobalExceptionHandler(Environment env) {</span>
+<span class="fc" id="L25">        this.env = env;</span>
+<span class="fc" id="L26">    }</span>
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleNotReadable(HttpMessageNotReadableException e) {
@@ -71,29 +71,32 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BizException.class)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleBiz(BizException e) {
 <span class="nc" id="L73">        HttpStatus status = HttpStatus.BAD_REQUEST;</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (&quot;UNAUTHENTICATED&quot;.equals(e.getCode())) {</span>
-<span class="nc" id="L75">            status = HttpStatus.UNAUTHORIZED;</span>
-        }
-<span class="nc" id="L77">        return ResponseEntity.status(status).body(ApiResponse.failure(e.getCode(), e.getMessage()));</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        String code = e.getCode() == null ? &quot;&quot; : e.getCode();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (&quot;UNAUTHENTICATED&quot;.equals(code)) status = HttpStatus.UNAUTHORIZED;</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        else if (&quot;UNAUTHORIZED&quot;.equals(code)) status = HttpStatus.FORBIDDEN;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        else if (&quot;NOT_FOUND&quot;.equals(code)) status = HttpStatus.NOT_FOUND;</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        else if (&quot;CONFLICT&quot;.equals(code) || &quot;INVALID_STATE&quot;.equals(code)) status = HttpStatus.CONFLICT;</span>
+<span class="nc bnc" id="L79" title="All 6 branches missed.">        else if (&quot;BAD_REQUEST&quot;.equals(code) || &quot;VALIDATION_ERROR&quot;.equals(code) || &quot;INVALID_STATUS&quot;.equals(code)) status = HttpStatus.BAD_REQUEST;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        return ResponseEntity.status(status).body(ApiResponse.failure(code.isBlank() ? &quot;BAD_REQUEST&quot; : code, e.getMessage()));</span>
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleNoResource(NoResourceFoundException e) {
-<span class="nc" id="L82">        return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
-<span class="nc" id="L83">                .body(ApiResponse.failure(&quot;NOT_FOUND&quot;, e.getMessage()));</span>
+<span class="nc" id="L85">        return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L86">                .body(ApiResponse.failure(&quot;NOT_FOUND&quot;, e.getMessage()));</span>
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleGeneric(Exception e) {
-<span class="nc" id="L88">        log.error(&quot;unhandled exception&quot;, e);</span>
+<span class="nc" id="L91">        log.error(&quot;unhandled exception&quot;, e);</span>
         // 开发环境下透出更多错误信息，便于联调排查；生产环境仍返回统一文案
-<span class="nc bnc" id="L90" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">            String detail = e.getClass().getSimpleName() + &quot;: &quot; + (e.getMessage() == null ? &quot;&quot; : e.getMessage());</span>
-<span class="nc" id="L92">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
-<span class="nc" id="L93">                    .body(ApiResponse.failure(&quot;INTERNAL_ERROR&quot;, detail.trim()));</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">        if (env != null &amp;&amp; env.acceptsProfiles(org.springframework.core.env.Profiles.of(&quot;dev&quot;, &quot;local&quot;))) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            String detail = e.getClass().getSimpleName() + &quot;: &quot; + (e.getMessage() == null ? &quot;&quot; : e.getMessage());</span>
+<span class="nc" id="L95">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L96">                    .body(ApiResponse.failure(&quot;INTERNAL_ERROR&quot;, detail.trim()));</span>
         }
-<span class="nc" id="L95">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
-<span class="nc" id="L96">                .body(ApiResponse.failure(&quot;INTERNAL_ERROR&quot;, &quot;Internal server error&quot;));</span>
+<span class="nc" id="L98">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L99">                .body(ApiResponse.failure(&quot;INTERNAL_ERROR&quot;, &quot;Internal server error&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

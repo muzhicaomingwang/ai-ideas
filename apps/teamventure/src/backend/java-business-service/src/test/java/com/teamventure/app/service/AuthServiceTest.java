@@ -55,8 +55,8 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(redis.opsForValue()).thenReturn(valueOps);
-        when(ossService.resolveAvatarUrl(anyString(), anyString())).thenAnswer(
+        lenient().when(redis.opsForValue()).thenReturn(valueOps);
+        lenient().when(ossService.resolveAvatarUrl(anyString(), anyString())).thenAnswer(
             invocation -> {
                 String userId = invocation.getArgument(0);
                 String avatarUrl = invocation.getArgument(1);
@@ -289,19 +289,15 @@ class AuthServiceTest {
     @Test
     @DisplayName("刷新Token - 用户不存在")
     void testRefreshTokenIfNeeded_UserNotFound() {
-        // Given: token有效但用户已被删除
-        UserPO testUser = createTestUser();
-        when(userMapper.selectOne(any(QueryWrapper.class))).thenReturn(null); // 创建用户时返回null
-        LoginResponse loginResponse = authService.loginWithWeChat("code", testUser.getNickname(), "");
+        String userId = "user_01ke123abc456";
+        String token = new com.teamventure.app.support.JwtSupport(TEST_JWT_SECRET).issueToken(userId, 60);
+        String authorization = "Bearer " + token;
 
-        // 模拟token即将过期（通过修改时间很难实现，这里跳过此场景）
-        // 在实际测试中，可以使用反射或者创建一个快过期的token
+        when(userMapper.selectOne(any(QueryWrapper.class))).thenReturn(null);
 
-        // 假设token需要刷新，但用户已被删除
-        when(userMapper.selectOne(any(QueryWrapper.class))).thenReturn(null); // 刷新时查询用户
-
-        // 注意：当前实现中，如果token有效但用户不存在，会抛出异常
-        // 这是合理的行为，因为token对应的用户应该存在
+        assertThatThrownBy(() -> authService.refreshTokenIfNeeded(authorization))
+            .isInstanceOf(BizException.class)
+            .hasFieldOrPropertyWithValue("code", "UNAUTHENTICATED");
     }
 
     // Helper method

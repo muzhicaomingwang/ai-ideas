@@ -85,20 +85,20 @@ public class XiaohongshuImportService {
     }
 
     @Autowired
-<span class="nc" id="L88">    public XiaohongshuImportService(OssService ossService) {</span>
-<span class="nc" id="L89">        this.http = HttpClient.newBuilder()</span>
-<span class="nc" id="L90">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
-<span class="nc" id="L91">                .connectTimeout(Duration.ofSeconds(10))</span>
-<span class="nc" id="L92">                .build();</span>
-<span class="nc" id="L93">        this.redirectHttp = HttpClient.newBuilder()</span>
-<span class="nc" id="L94">                .followRedirects(HttpClient.Redirect.NEVER)</span>
-<span class="nc" id="L95">                .connectTimeout(Duration.ofSeconds(5))</span>
-<span class="nc" id="L96">                .build();</span>
-<span class="nc" id="L97">        this.htmlFetcher = this::fetchHtml;</span>
-<span class="nc" id="L98">        this.rapidApiFetcher = this::fetchViaRapidApi;</span>
-<span class="nc" id="L99">        this.shortLinkResolver = this::resolveShortLinkViaRedirects;</span>
-<span class="nc" id="L100">        this.ossService = ossService;</span>
-<span class="nc" id="L101">    }</span>
+<span class="fc" id="L88">    public XiaohongshuImportService(OssService ossService) {</span>
+<span class="fc" id="L89">        this.http = HttpClient.newBuilder()</span>
+<span class="fc" id="L90">                .followRedirects(HttpClient.Redirect.NORMAL)</span>
+<span class="fc" id="L91">                .connectTimeout(Duration.ofSeconds(10))</span>
+<span class="fc" id="L92">                .build();</span>
+<span class="fc" id="L93">        this.redirectHttp = HttpClient.newBuilder()</span>
+<span class="fc" id="L94">                .followRedirects(HttpClient.Redirect.NEVER)</span>
+<span class="fc" id="L95">                .connectTimeout(Duration.ofSeconds(5))</span>
+<span class="fc" id="L96">                .build();</span>
+<span class="fc" id="L97">        this.htmlFetcher = this::fetchHtml;</span>
+<span class="fc" id="L98">        this.rapidApiFetcher = this::fetchViaRapidApi;</span>
+<span class="fc" id="L99">        this.shortLinkResolver = this::resolveShortLinkViaRedirects;</span>
+<span class="fc" id="L100">        this.ossService = ossService;</span>
+<span class="fc" id="L101">    }</span>
 
 <span class="nc" id="L103">    public XiaohongshuImportService() {</span>
 <span class="nc" id="L104">        this.http = HttpClient.newBuilder()</span>
@@ -939,13 +939,13 @@ public class XiaohongshuImportService {
 <span class="fc" id="L939">                .GET()</span>
 <span class="fc" id="L940">                .build();</span>
 
-<span class="nc" id="L942">        HttpResponse&lt;byte[]&gt; res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());</span>
-<span class="nc bnc" id="L943" title="All 4 branches missed.">        if (res.statusCode() &lt; 200 || res.statusCode() &gt;= 300) {</span>
+<span class="fc" id="L942">        HttpResponse&lt;byte[]&gt; res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());</span>
+<span class="pc bpc" id="L943" title="2 of 4 branches missed.">        if (res.statusCode() &lt; 200 || res.statusCode() &gt;= 300) {</span>
 <span class="nc" id="L944">            throw new IOException(&quot;unexpected status: &quot; + res.statusCode());</span>
         }
-<span class="nc" id="L946">        byte[] body = res.body();</span>
+<span class="fc" id="L946">        byte[] body = res.body();</span>
         // XHS typically serves UTF-8
-<span class="nc" id="L948">        return new String(body, StandardCharsets.UTF_8);</span>
+<span class="fc" id="L948">        return new String(body, StandardCharsets.UTF_8);</span>
     }
 
     private Optional&lt;String&gt; extractTitleFromHtml(String html) {
@@ -987,33 +987,33 @@ public class XiaohongshuImportService {
 <span class="fc" id="L987">        String best = &quot;&quot;;</span>
 <span class="pc bpc" id="L988" title="2 of 4 branches missed.">        while (idx &gt;= 0 &amp;&amp; idx &lt; html.length()) {</span>
 <span class="fc" id="L989">            idx = html.indexOf(needle, idx);</span>
-<span class="pc bpc" id="L990" title="1 of 2 branches missed.">            if (idx &lt; 0) break;</span>
+<span class="fc bfc" id="L990" title="All 2 branches covered.">            if (idx &lt; 0) break;</span>
 
-<span class="nc" id="L992">            int colon = html.indexOf(':', idx + needle.length());</span>
-<span class="nc bnc" id="L993" title="All 2 branches missed.">            if (colon &lt; 0) {</span>
+<span class="fc" id="L992">            int colon = html.indexOf(':', idx + needle.length());</span>
+<span class="pc bpc" id="L993" title="1 of 2 branches missed.">            if (colon &lt; 0) {</span>
 <span class="nc" id="L994">                idx = idx + needle.length();</span>
 <span class="nc" id="L995">                continue;</span>
             }
 
-<span class="nc" id="L998">            int startQuote = html.indexOf('&quot;', colon + 1);</span>
-<span class="nc bnc" id="L999" title="All 2 branches missed.">            if (startQuote &lt; 0) {</span>
+<span class="fc" id="L998">            int startQuote = html.indexOf('&quot;', colon + 1);</span>
+<span class="pc bpc" id="L999" title="1 of 2 branches missed.">            if (startQuote &lt; 0) {</span>
 <span class="nc" id="L1000">                idx = idx + needle.length();</span>
 <span class="nc" id="L1001">                continue;</span>
             }
 
-<span class="nc" id="L1004">            String raw = extractJsonStringLiteral(html, startQuote);</span>
-<span class="nc bnc" id="L1005" title="All 2 branches missed.">            if (raw != null) {</span>
-<span class="nc" id="L1006">                String unescaped = unescapeJsonStringDeep(raw);</span>
-<span class="nc bnc" id="L1007" title="All 4 branches missed.">                if (!unescaped.isBlank() &amp;&amp; unescaped.length() &gt; best.length()) {</span>
-<span class="nc" id="L1008">                    best = unescaped;</span>
+<span class="fc" id="L1004">            String raw = extractJsonStringLiteral(html, startQuote);</span>
+<span class="pc bpc" id="L1005" title="1 of 2 branches missed.">            if (raw != null) {</span>
+<span class="fc" id="L1006">                String unescaped = unescapeJsonStringDeep(raw);</span>
+<span class="pc bpc" id="L1007" title="1 of 4 branches missed.">                if (!unescaped.isBlank() &amp;&amp; unescaped.length() &gt; best.length()) {</span>
+<span class="fc" id="L1008">                    best = unescaped;</span>
                 }
             }
 
-<span class="nc" id="L1012">            idx = startQuote + 1;</span>
-<span class="nc" id="L1013">        }</span>
+<span class="fc" id="L1012">            idx = startQuote + 1;</span>
+<span class="fc" id="L1013">        }</span>
 
-<span class="pc bpc" id="L1015" title="1 of 2 branches missed.">        if (best.isBlank()) return Optional.empty();</span>
-<span class="nc" id="L1016">        return Optional.of(best);</span>
+<span class="fc bfc" id="L1015" title="All 2 branches covered.">        if (best.isBlank()) return Optional.empty();</span>
+<span class="fc" id="L1016">        return Optional.of(best);</span>
     }
 
     private Optional&lt;String&gt; extractBestNoteText(String html) {
@@ -1026,17 +1026,17 @@ public class XiaohongshuImportService {
 <span class="fc bfc" id="L1026" title="All 2 branches covered.">        for (String field : candidates) {</span>
 <span class="fc" id="L1027">            String val = extractJsonStringFieldBest(html, field).orElse(&quot;&quot;);</span>
 <span class="pc bpc" id="L1028" title="1 of 2 branches missed.">            String v = val == null ? &quot;&quot; : val.trim();</span>
-<span class="pc bpc" id="L1029" title="1 of 2 branches missed.">            if (v.length() &gt; best.length()) best = v;</span>
+<span class="fc bfc" id="L1029" title="All 2 branches covered.">            if (v.length() &gt; best.length()) best = v;</span>
         }
 
 <span class="fc" id="L1032">        String meta = extractMetaDescription(html).orElse(&quot;&quot;).trim();</span>
-<span class="pc bpc" id="L1033" title="1 of 2 branches missed.">        if (meta.length() &gt; best.length()) best = meta;</span>
+<span class="fc bfc" id="L1033" title="All 2 branches covered.">        if (meta.length() &gt; best.length()) best = meta;</span>
 
 <span class="fc" id="L1035">        String joinedText = extractAndJoinRepeatedTextFields(html).orElse(&quot;&quot;).trim();</span>
 <span class="pc bpc" id="L1036" title="1 of 2 branches missed.">        if (joinedText.length() &gt; best.length()) best = joinedText;</span>
 
 <span class="fc" id="L1038">        best = normalizeExtractedNoteText(best);</span>
-<span class="pc bpc" id="L1039" title="1 of 2 branches missed.">        if (best.isBlank()) return Optional.empty();</span>
+<span class="fc bfc" id="L1039" title="All 2 branches covered.">        if (best.isBlank()) return Optional.empty();</span>
 <span class="fc" id="L1040">        return Optional.of(best);</span>
     }
 
@@ -1116,8 +1116,8 @@ public class XiaohongshuImportService {
 <span class="fc" id="L1116">        Pattern desc = Pattern.compile(&quot;&lt;meta\\s+[^&gt;]*name\\s*=\\s*\&quot;description\&quot;[^&gt;]*content\\s*=\\s*\&quot;([^\&quot;]*)\&quot;[^&gt;]*&gt;&quot;,</span>
                 Pattern.CASE_INSENSITIVE);
 <span class="fc" id="L1118">        Matcher mdesc = desc.matcher(html);</span>
-<span class="pc bpc" id="L1119" title="1 of 2 branches missed.">        if (mdesc.find()) return Optional.of(stripHtml(mdesc.group(1)));</span>
-<span class="nc" id="L1120">        return Optional.empty();</span>
+<span class="fc bfc" id="L1119" title="All 2 branches covered.">        if (mdesc.find()) return Optional.of(stripHtml(mdesc.group(1)));</span>
+<span class="fc" id="L1120">        return Optional.empty();</span>
     }
 
     private Optional&lt;String&gt; extractAndJoinRepeatedTextFields(String html) {
@@ -1127,24 +1127,24 @@ public class XiaohongshuImportService {
 <span class="fc" id="L1127">        StringBuilder sb = new StringBuilder();</span>
 <span class="fc" id="L1128">        int found = 0;</span>
 <span class="fc" id="L1129">        int idx = 0;</span>
-<span class="pc bpc" id="L1130" title="1 of 2 branches missed.">        while (m.find(idx)) {</span>
-<span class="nc" id="L1131">            int startQuote = m.end() - 1; // points at the opening quote</span>
-<span class="nc" id="L1132">            String raw = extractJsonStringLiteral(html, startQuote);</span>
-<span class="nc bnc" id="L1133" title="All 2 branches missed.">            if (raw != null) {</span>
-<span class="nc" id="L1134">                String unescaped = unescapeJsonStringDeep(raw);</span>
-<span class="nc bnc" id="L1135" title="All 2 branches missed.">                String line = unescaped == null ? &quot;&quot; : unescaped.trim();</span>
-<span class="nc bnc" id="L1136" title="All 2 branches missed.">                if (!line.isEmpty()) {</span>
-<span class="nc" id="L1137">                    sb.append(line).append(&quot;\n&quot;);</span>
-<span class="nc" id="L1138">                    found++;</span>
-<span class="nc bnc" id="L1139" title="All 2 branches missed.">                    if (sb.length() &gt; 24000) break;</span>
-<span class="nc bnc" id="L1140" title="All 2 branches missed.">                    if (found &gt;= 200) break;</span>
+<span class="fc bfc" id="L1130" title="All 2 branches covered.">        while (m.find(idx)) {</span>
+<span class="fc" id="L1131">            int startQuote = m.end() - 1; // points at the opening quote</span>
+<span class="fc" id="L1132">            String raw = extractJsonStringLiteral(html, startQuote);</span>
+<span class="pc bpc" id="L1133" title="1 of 2 branches missed.">            if (raw != null) {</span>
+<span class="fc" id="L1134">                String unescaped = unescapeJsonStringDeep(raw);</span>
+<span class="pc bpc" id="L1135" title="1 of 2 branches missed.">                String line = unescaped == null ? &quot;&quot; : unescaped.trim();</span>
+<span class="pc bpc" id="L1136" title="1 of 2 branches missed.">                if (!line.isEmpty()) {</span>
+<span class="fc" id="L1137">                    sb.append(line).append(&quot;\n&quot;);</span>
+<span class="fc" id="L1138">                    found++;</span>
+<span class="pc bpc" id="L1139" title="1 of 2 branches missed.">                    if (sb.length() &gt; 24000) break;</span>
+<span class="pc bpc" id="L1140" title="1 of 2 branches missed.">                    if (found &gt;= 200) break;</span>
                 }
             }
-<span class="nc" id="L1143">            idx = m.end();</span>
-<span class="nc" id="L1144">        }</span>
+<span class="fc" id="L1143">            idx = m.end();</span>
+<span class="fc" id="L1144">        }</span>
 <span class="fc" id="L1145">        String joined = sb.toString().trim();</span>
-<span class="pc bpc" id="L1146" title="1 of 2 branches missed.">        if (joined.isBlank()) return Optional.empty();</span>
-<span class="nc" id="L1147">        return Optional.of(joined);</span>
+<span class="fc bfc" id="L1146" title="All 2 branches covered.">        if (joined.isBlank()) return Optional.empty();</span>
+<span class="fc" id="L1147">        return Optional.of(joined);</span>
     }
 
     private String normalizeExtractedNoteText(String text) {

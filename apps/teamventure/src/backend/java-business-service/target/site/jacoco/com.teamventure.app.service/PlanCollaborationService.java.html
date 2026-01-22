@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanCollaborationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">PlanCollaborationService.java</span></div><h1>PlanCollaborationService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.teamventure.app.support.BizException;
+import com.teamventure.app.support.IdGenerator;
+import com.teamventure.infrastructure.persistence.mapper.PlanItineraryRevisionMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanItinerarySuggestionMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanMembershipMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanMapper;
+import com.teamventure.infrastructure.persistence.po.PlanItineraryRevisionPO;
+import com.teamventure.infrastructure.persistence.po.PlanItinerarySuggestionPO;
+import com.teamventure.infrastructure.persistence.po.PlanMembershipPO;
+import com.teamventure.infrastructure.persistence.po.PlanPO;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class PlanCollaborationService {
+    private final PlanMapper planMapper;
+    private final PlanMembershipMapper membershipMapper;
+    private final PlanItineraryRevisionMapper revisionMapper;
+    private final PlanItinerarySuggestionMapper suggestionMapper;
+    private final PlanAuthorizationService authz;
+
+    public PlanCollaborationService(
+            PlanMapper planMapper,
+            PlanMembershipMapper membershipMapper,
+            PlanItineraryRevisionMapper revisionMapper,
+            PlanItinerarySuggestionMapper suggestionMapper,
+            PlanAuthorizationService authz
+<span class="fc" id="L36">    ) {</span>
+<span class="fc" id="L37">        this.planMapper = planMapper;</span>
+<span class="fc" id="L38">        this.membershipMapper = membershipMapper;</span>
+<span class="fc" id="L39">        this.revisionMapper = revisionMapper;</span>
+<span class="fc" id="L40">        this.suggestionMapper = suggestionMapper;</span>
+<span class="fc" id="L41">        this.authz = authz;</span>
+<span class="fc" id="L42">    }</span>
+
+    @Transactional
+    public void ensureOwnerMembershipAndCurrentRevision(PlanPO plan) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (plan == null) return;</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        if (plan.getPlanId() == null || plan.getUserId() == null) return;</span>
+
+<span class="nc" id="L49">        PlanMembershipPO existing = membershipMapper.selectOne(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L50">                .eq(&quot;plan_id&quot;, plan.getPlanId())</span>
+<span class="nc" id="L51">                .eq(&quot;user_id&quot;, plan.getUserId())</span>
+<span class="nc" id="L52">                .last(&quot;LIMIT 1&quot;));</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (existing == null) {</span>
+<span class="nc" id="L54">            PlanMembershipPO m = new PlanMembershipPO();</span>
+<span class="nc" id="L55">            m.setMembershipId(IdGenerator.newId(&quot;pm&quot;));</span>
+<span class="nc" id="L56">            m.setPlanId(plan.getPlanId());</span>
+<span class="nc" id="L57">            m.setUserId(plan.getUserId());</span>
+<span class="nc" id="L58">            m.setRole(&quot;OWNER&quot;);</span>
+<span class="nc" id="L59">            m.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="nc" id="L60">            membershipMapper.insert(m);</span>
+        }
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        Integer v = plan.getItineraryVersion() == null ? 1 : plan.getItineraryVersion();</span>
+<span class="nc" id="L64">        long cnt = revisionMapper.selectCount(new QueryWrapper&lt;PlanItineraryRevisionPO&gt;()</span>
+<span class="nc" id="L65">                .eq(&quot;plan_id&quot;, plan.getPlanId())</span>
+<span class="nc" id="L66">                .eq(&quot;version&quot;, v));</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (cnt == 0) {</span>
+<span class="nc" id="L68">            PlanItineraryRevisionPO r = new PlanItineraryRevisionPO();</span>
+<span class="nc" id="L69">            r.setRevisionId(IdGenerator.newId(&quot;rev&quot;));</span>
+<span class="nc" id="L70">            r.setPlanId(plan.getPlanId());</span>
+<span class="nc" id="L71">            r.setVersion(v);</span>
+<span class="nc" id="L72">            r.setItinerary(plan.getItinerary());</span>
+<span class="nc" id="L73">            r.setCreatedBy(plan.getUserId());</span>
+<span class="nc" id="L74">            r.setCreateTime(Instant.now());</span>
+<span class="nc" id="L75">            revisionMapper.insert(r);</span>
+        }
+<span class="nc" id="L77">    }</span>
+
+    @Transactional
+    public void bookmark(String userId, String planId) {
+<span class="nc" id="L81">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">        if (plan == null || plan.getDeletedAt() != null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+
+<span class="nc" id="L84">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (m != null) return; // idempotent (if already OWNER/PARTICIPANT/WATCHER/PENDING)</span>
+
+<span class="nc" id="L87">        PlanMembershipPO nw = new PlanMembershipPO();</span>
+<span class="nc" id="L88">        nw.setMembershipId(IdGenerator.newId(&quot;pm&quot;));</span>
+<span class="nc" id="L89">        nw.setPlanId(planId);</span>
+<span class="nc" id="L90">        nw.setUserId(userId);</span>
+<span class="nc" id="L91">        nw.setRole(&quot;WATCHER&quot;);</span>
+<span class="nc" id="L92">        nw.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="nc" id="L93">        membershipMapper.insert(nw);</span>
+<span class="nc" id="L94">    }</span>
+
+    @Transactional
+    public void unbookmark(String userId, String planId) {
+<span class="nc" id="L98">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (m == null) return; // idempotent</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">        if (&quot;OWNER&quot;.equalsIgnoreCase(m.getRole()) || &quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole())) {</span>
+<span class="nc" id="L101">            throw new BizException(&quot;INVALID_STATE&quot;, &quot;cannot unbookmark while owner/participant&quot;);</span>
+        }
+<span class="nc" id="L103">        membershipMapper.delete(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L104">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L105">                .eq(&quot;user_id&quot;, userId));</span>
+<span class="nc" id="L106">    }</span>
+
+    @Transactional
+    public void applyToParticipate(String userId, String planId, String applyReason) {
+<span class="nc" id="L110">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">        if (plan == null || plan.getDeletedAt() != null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+
+<span class="nc" id="L113">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;INVALID_STATE&quot;, &quot;must bookmark before apply&quot;);</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (!&quot;WATCHER&quot;.equalsIgnoreCase(m.getRole()) || !&quot;ACTIVE&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L116">            throw new BizException(&quot;INVALID_STATE&quot;, &quot;must bookmark before apply&quot;);</span>
+        }
+
+<span class="nc" id="L119">        UpdateWrapper&lt;PlanMembershipPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L120">        uw.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L121">                .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L122">                .set(&quot;role&quot;, &quot;PARTICIPANT&quot;)</span>
+<span class="nc" id="L123">                .set(&quot;status&quot;, &quot;PENDING&quot;)</span>
+<span class="nc" id="L124">                .set(&quot;apply_reason&quot;, applyReason);</span>
+<span class="nc" id="L125">        membershipMapper.update(null, uw);</span>
+<span class="nc" id="L126">    }</span>
+
+    @Transactional
+    public void cancelApplication(String userId, String planId) {
+<span class="nc" id="L130">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;application not found&quot;);</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">        if (!&quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole()) || !&quot;PENDING&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L133">            throw new BizException(&quot;INVALID_STATE&quot;, &quot;not pending&quot;);</span>
+        }
+
+<span class="nc" id="L136">        UpdateWrapper&lt;PlanMembershipPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L137">        uw.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L138">                .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L139">                .set(&quot;role&quot;, &quot;WATCHER&quot;)</span>
+<span class="nc" id="L140">                .set(&quot;status&quot;, &quot;ACTIVE&quot;);</span>
+<span class="nc" id="L141">        membershipMapper.update(null, uw);</span>
+<span class="nc" id="L142">    }</span>
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanMembershipPO&gt; listPendingApplications(String ownerId, String planId) {
+<span class="nc" id="L146">        authz.requireOwner(planId, ownerId);</span>
+<span class="nc" id="L147">        return membershipMapper.selectList(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L148">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L149">                .eq(&quot;role&quot;, &quot;PARTICIPANT&quot;)</span>
+<span class="nc" id="L150">                .eq(&quot;status&quot;, &quot;PENDING&quot;)</span>
+<span class="nc" id="L151">                .orderByDesc(&quot;create_time&quot;));</span>
+    }
+
+    @Transactional
+    public void approveApplication(String ownerId, String planId, String userId) {
+<span class="nc" id="L156">        authz.requireOwner(planId, ownerId);</span>
+<span class="nc" id="L157">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;application not found&quot;);</span>
+<span class="nc bnc" id="L159" title="All 4 branches missed.">        if (!&quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole()) || !&quot;PENDING&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L160">            throw new BizException(&quot;INVALID_STATE&quot;, &quot;not pending&quot;);</span>
+        }
+
+<span class="nc" id="L163">        UpdateWrapper&lt;PlanMembershipPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L164">        uw.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L165">                .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L166">                .set(&quot;status&quot;, &quot;ACTIVE&quot;)</span>
+<span class="nc" id="L167">                .set(&quot;last_decision&quot;, &quot;APPROVED&quot;)</span>
+<span class="nc" id="L168">                .set(&quot;decided_by&quot;, ownerId)</span>
+<span class="nc" id="L169">                .set(&quot;decided_at&quot;, Instant.now());</span>
+<span class="nc" id="L170">        membershipMapper.update(null, uw);</span>
+<span class="nc" id="L171">    }</span>
+
+    @Transactional
+    public void rejectApplication(String ownerId, String planId, String userId) {
+<span class="nc" id="L175">        authz.requireOwner(planId, ownerId);</span>
+<span class="nc" id="L176">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;application not found&quot;);</span>
+<span class="nc bnc" id="L178" title="All 4 branches missed.">        if (!&quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole()) || !&quot;PENDING&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L179">            throw new BizException(&quot;INVALID_STATE&quot;, &quot;not pending&quot;);</span>
+        }
+
+<span class="nc" id="L182">        UpdateWrapper&lt;PlanMembershipPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L183">        uw.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L184">                .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L185">                .set(&quot;role&quot;, &quot;WATCHER&quot;)</span>
+<span class="nc" id="L186">                .set(&quot;status&quot;, &quot;ACTIVE&quot;)</span>
+<span class="nc" id="L187">                .set(&quot;last_decision&quot;, &quot;REJECTED&quot;)</span>
+<span class="nc" id="L188">                .set(&quot;decided_by&quot;, ownerId)</span>
+<span class="nc" id="L189">                .set(&quot;decided_at&quot;, Instant.now());</span>
+<span class="nc" id="L190">        membershipMapper.update(null, uw);</span>
+<span class="nc" id="L191">    }</span>
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanMembershipPO&gt; listMembers(String userId, String planId) {
+<span class="nc" id="L195">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L196">        return membershipMapper.selectList(new QueryWrapper&lt;PlanMembershipPO&gt;()</span>
+<span class="nc" id="L197">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L198">                .eq(&quot;status&quot;, &quot;ACTIVE&quot;)</span>
+<span class="nc" id="L199">                .in(&quot;role&quot;, List.of(&quot;OWNER&quot;, &quot;PARTICIPANT&quot;))</span>
+<span class="nc" id="L200">                .orderByAsc(&quot;role&quot;)</span>
+<span class="nc" id="L201">                .orderByAsc(&quot;create_time&quot;));</span>
+    }
+
+    @Transactional
+    public void removeParticipant(String ownerId, String planId, String userId) {
+<span class="nc" id="L206">        authz.requireOwner(planId, ownerId);</span>
+<span class="nc" id="L207">        PlanMembershipPO m = authz.getMembership(planId, userId);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (m == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;membership not found&quot;);</span>
+<span class="nc bnc" id="L209" title="All 4 branches missed.">        if (!&quot;PARTICIPANT&quot;.equalsIgnoreCase(m.getRole()) || !&quot;ACTIVE&quot;.equalsIgnoreCase(m.getStatus())) {</span>
+<span class="nc" id="L210">            throw new BizException(&quot;INVALID_STATE&quot;, &quot;not active participant&quot;);</span>
+        }
+
+<span class="nc" id="L213">        UpdateWrapper&lt;PlanMembershipPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L214">        uw.eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L215">                .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L216">                .set(&quot;role&quot;, &quot;WATCHER&quot;)</span>
+<span class="nc" id="L217">                .set(&quot;status&quot;, &quot;ACTIVE&quot;)</span>
+<span class="nc" id="L218">                .set(&quot;removed_by&quot;, ownerId)</span>
+<span class="nc" id="L219">                .set(&quot;removed_at&quot;, Instant.now());</span>
+<span class="nc" id="L220">        membershipMapper.update(null, uw);</span>
+<span class="nc" id="L221">    }</span>
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanItineraryRevisionPO&gt; listItineraryVersions(String userId, String planId) {
+<span class="nc" id="L225">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L226">        return revisionMapper.selectList(new QueryWrapper&lt;PlanItineraryRevisionPO&gt;()</span>
+<span class="nc" id="L227">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L228">                .orderByDesc(&quot;version&quot;));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getItineraryVersionDetail(String userId, String planId, int version) {
+<span class="nc" id="L233">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L234">        PlanItineraryRevisionPO r = revisionMapper.selectOne(new QueryWrapper&lt;PlanItineraryRevisionPO&gt;()</span>
+<span class="nc" id="L235">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L236">                .eq(&quot;version&quot;, version)</span>
+<span class="nc" id="L237">                .last(&quot;LIMIT 1&quot;));</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        if (r == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;version not found&quot;);</span>
+<span class="nc" id="L239">        Map&lt;String, Object&gt; res = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L240">        res.put(&quot;plan_id&quot;, planId);</span>
+<span class="nc" id="L241">        res.put(&quot;version&quot;, version);</span>
+<span class="nc" id="L242">        res.put(&quot;itinerary&quot;, Jsons.toMap(r.getItinerary()));</span>
+<span class="nc" id="L243">        res.put(&quot;created_by&quot;, r.getCreatedBy());</span>
+<span class="nc" id="L244">        res.put(&quot;create_time&quot;, r.getCreateTime());</span>
+<span class="nc" id="L245">        return res;</span>
+    }
+
+    @Transactional
+    public Map&lt;String, Object&gt; createSuggestion(String userId, String planId, int targetVersion, String content) {
+<span class="nc" id="L250">        authz.requireParticipantActive(planId, userId);</span>
+<span class="nc" id="L251">        long cnt = revisionMapper.selectCount(new QueryWrapper&lt;PlanItineraryRevisionPO&gt;()</span>
+<span class="nc" id="L252">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L253">                .eq(&quot;version&quot;, targetVersion));</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">        if (cnt == 0) throw new BizException(&quot;NOT_FOUND&quot;, &quot;target version not found&quot;);</span>
+
+<span class="nc" id="L256">        PlanItinerarySuggestionPO po = new PlanItinerarySuggestionPO();</span>
+<span class="nc" id="L257">        po.setSuggestionId(IdGenerator.newId(&quot;sug&quot;));</span>
+<span class="nc" id="L258">        po.setPlanId(planId);</span>
+<span class="nc" id="L259">        po.setTargetVersion(targetVersion);</span>
+<span class="nc" id="L260">        po.setUserId(userId);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        po.setContent(content == null ? &quot;&quot; : content);</span>
+<span class="nc" id="L262">        po.setStatus(&quot;OPEN&quot;);</span>
+<span class="nc" id="L263">        suggestionMapper.insert(po);</span>
+<span class="nc" id="L264">        return Map.of(&quot;suggestion_id&quot;, po.getSuggestionId());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;PlanItinerarySuggestionPO&gt; listSuggestions(String userId, String planId, Integer targetVersion) {
+<span class="nc" id="L269">        authz.requireOwnerOrParticipantActive(planId, userId);</span>
+<span class="nc" id="L270">        QueryWrapper&lt;PlanItinerarySuggestionPO&gt; qw = new QueryWrapper&lt;PlanItinerarySuggestionPO&gt;()</span>
+<span class="nc" id="L271">                .eq(&quot;plan_id&quot;, planId)</span>
+<span class="nc" id="L272">                .orderByDesc(&quot;create_time&quot;);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        if (targetVersion != null) qw.eq(&quot;target_version&quot;, targetVersion);</span>
+<span class="nc" id="L274">        return suggestionMapper.selectList(qw);</span>
+    }
+
+    @Transactional
+    public void updateOwnSuggestion(String userId, String suggestionId, String content) {
+<span class="nc" id="L279">        PlanItinerarySuggestionPO po = suggestionMapper.selectById(suggestionId);</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        if (po == null) throw new BizException(&quot;NOT_FOUND&quot;, &quot;suggestion not found&quot;);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (!userId.equals(po.getUserId())) throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+<span class="nc" id="L282">        authz.requireOwnerOrParticipantActive(po.getPlanId(), userId);</span>
+
+<span class="nc" id="L284">        UpdateWrapper&lt;PlanItinerarySuggestionPO&gt; uw = new UpdateWrapper&lt;&gt;();</span>
+<span class="nc" id="L285">        uw.eq(&quot;suggestion_id&quot;, suggestionId)</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">                .set(&quot;content&quot;, content == null ? &quot;&quot; : content);</span>
+<span class="nc" id="L287">        suggestionMapper.update(null, uw);</span>
+<span class="nc" id="L288">    }</span>
+
+    @Transactional
+    public void deleteOwnSuggestion(String userId, String suggestionId) {
+<span class="nc" id="L292">        PlanItinerarySuggestionPO po = suggestionMapper.selectById(suggestionId);</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        if (po == null) return;</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (!userId.equals(po.getUserId())) throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+<span class="nc" id="L295">        authz.requireOwnerOrParticipantActive(po.getPlanId(), userId);</span>
+<span class="nc" id="L296">        suggestionMapper.deleteById(suggestionId);</span>
+<span class="nc" id="L297">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

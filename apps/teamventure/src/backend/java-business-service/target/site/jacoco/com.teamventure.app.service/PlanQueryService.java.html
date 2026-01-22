@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanQueryService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.app.service</a> &gt; <span class="el_source">PlanQueryService.java</span></div><h1>PlanQueryService.java</h1><pre class="source lang-java linenums">package com.teamventure.app.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.teamventure.app.support.BizException;
+import com.teamventure.infrastructure.persistence.mapper.PlanMapper;
+import com.teamventure.infrastructure.persistence.mapper.PlanRequestMapper;
+import com.teamventure.infrastructure.persistence.po.PlanPO;
+import com.teamventure.infrastructure.persistence.po.PlanRequestPO;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PlanQueryService {
+    private static final int GENERATION_TIMEOUT_MINUTES = 5;
+
+    private final PlanRequestMapper planRequestMapper;
+    private final PlanMapper planMapper;
+    private final PlanAuthorizationService planAuthorizationService;
+    private final OssService ossService;
+    private final PlanRouteQueryService planRouteQueryService;
+
+    public PlanQueryService(
+            PlanRequestMapper planRequestMapper,
+            PlanMapper planMapper,
+            PlanAuthorizationService planAuthorizationService,
+            OssService ossService,
+            PlanRouteQueryService planRouteQueryService
+<span class="fc" id="L36">    ) {</span>
+<span class="fc" id="L37">        this.planRequestMapper = planRequestMapper;</span>
+<span class="fc" id="L38">        this.planMapper = planMapper;</span>
+<span class="fc" id="L39">        this.planAuthorizationService = planAuthorizationService;</span>
+<span class="fc" id="L40">        this.ossService = ossService;</span>
+<span class="fc" id="L41">        this.planRouteQueryService = planRouteQueryService;</span>
+<span class="fc" id="L42">    }</span>
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; listPlans(String userId, int page, int pageSize, String status) {
+<span class="nc" id="L46">        List&lt;Map&lt;String, Object&gt;&gt; mergedList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L47">        long totalPending = 0;</span>
+
+        // 1. 处理 generating/failed 状态（来自 plan_requests 表）
+<span class="nc bnc" id="L50" title="All 6 branches missed.">        boolean needPendingRequests = status == null || &quot;generating&quot;.equalsIgnoreCase(status) || &quot;failed&quot;.equalsIgnoreCase(status);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (needPendingRequests) {</span>
+<span class="nc" id="L52">            QueryWrapper&lt;PlanRequestPO&gt; pendingQuery = new QueryWrapper&lt;PlanRequestPO&gt;()</span>
+<span class="nc" id="L53">                    .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L54">                    .isNull(&quot;deleted_at&quot;)</span>
+<span class="nc" id="L55">                    .orderByDesc(&quot;create_time&quot;);</span>
+
+            // 根据 status 筛选
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (&quot;generating&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L59">                pendingQuery.eq(&quot;status&quot;, &quot;GENERATING&quot;);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            } else if (&quot;failed&quot;.equalsIgnoreCase(status)) {</span>
+<span class="nc" id="L61">                pendingQuery.eq(&quot;status&quot;, &quot;FAILED&quot;);</span>
+            } else {
+                // 全部：包含 GENERATING 和 FAILED
+<span class="nc" id="L64">                pendingQuery.in(&quot;status&quot;, List.of(&quot;GENERATING&quot;, &quot;FAILED&quot;));</span>
+            }
+
+<span class="nc" id="L67">            List&lt;PlanRequestPO&gt; pendingRequests = planRequestMapper.selectList(pendingQuery);</span>
+
+            // 自动标记超时的 GENERATING 请求为 FAILED
+<span class="nc" id="L70">            Instant timeoutThreshold = Instant.now().minusSeconds((long) GENERATION_TIMEOUT_MINUTES * 60);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            for (PlanRequestPO req : pendingRequests) {</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">                if (&quot;GENERATING&quot;.equals(req.getStatus()) &amp;&amp; req.getGenerationStartedAt() != null</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                        &amp;&amp; req.getGenerationStartedAt().isBefore(timeoutThreshold)) {</span>
+<span class="nc" id="L74">                    req.setStatus(&quot;FAILED&quot;);</span>
+<span class="nc" id="L75">                    req.setErrorCode(&quot;GENERATION_TIMEOUT&quot;);</span>
+<span class="nc" id="L76">                    req.setErrorMessage(&quot;方案生成超时，请重新提交&quot;);</span>
+<span class="nc" id="L77">                    planRequestMapper.updateById(req);</span>
+                }
+<span class="nc" id="L79">            }</span>
+
+            // 转换为统一格式
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            for (PlanRequestPO req : pendingRequests) {</span>
+<span class="nc" id="L83">                Map&lt;String, Object&gt; item = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L84">                item.put(&quot;plan_id&quot;, req.getPlanRequestId());</span>
+<span class="nc" id="L85">                item.put(&quot;plan_request_id&quot;, req.getPlanRequestId());</span>
+<span class="nc" id="L86">                item.put(&quot;plan_type&quot;, &quot;standard&quot;);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                item.put(&quot;plan_name&quot;, &quot;GENERATING&quot;.equals(req.getStatus()) ? &quot;方案生成中...&quot; : &quot;生成失败&quot;);</span>
+<span class="nc" id="L88">                item.put(&quot;summary&quot;, &quot;&quot;);</span>
+<span class="nc" id="L89">                item.put(&quot;budget_total&quot;, null);</span>
+<span class="nc" id="L90">                item.put(&quot;budget_per_person&quot;, null);</span>
+<span class="nc" id="L91">                item.put(&quot;duration_days&quot;, null);</span>
+<span class="nc" id="L92">                item.put(&quot;departure_city&quot;, req.getDepartureCity());</span>
+<span class="nc" id="L93">                item.put(&quot;destination&quot;, req.getDestination());</span>
+<span class="nc" id="L94">                item.put(&quot;destination_city&quot;, req.getDestinationCity());</span>
+<span class="nc" id="L95">                item.put(&quot;status&quot;, req.getStatus().toLowerCase());</span>
+<span class="nc" id="L96">                item.put(&quot;create_time&quot;, req.getGenerationStartedAt());</span>
+<span class="nc" id="L97">                item.put(&quot;confirmed_time&quot;, null);</span>
+<span class="nc" id="L98">                item.put(&quot;review_started_at&quot;, null);</span>
+<span class="nc" id="L99">                item.put(&quot;created_at&quot;, req.getGenerationStartedAt());</span>
+<span class="nc" id="L100">                item.put(&quot;people_count&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L101">                item.put(&quot;group_size&quot;, req.getPeopleCount()); // UL v1.3 alias (non-breaking)</span>
+<span class="nc" id="L102">                item.put(&quot;start_date&quot;, req.getStartDate());</span>
+<span class="nc" id="L103">                item.put(&quot;end_date&quot;, req.getEndDate());</span>
+<span class="nc" id="L104">                item.put(&quot;is_generating&quot;, &quot;GENERATING&quot;.equals(req.getStatus()));</span>
+<span class="nc" id="L105">                mergedList.add(item);</span>
+<span class="nc" id="L106">            }</span>
+
+<span class="nc" id="L108">            totalPending = pendingRequests.size();</span>
+        }
+
+        // 2. 处理 draft/confirmed/reviewing/archived 状态（来自 plans 表）
+<span class="nc bnc" id="L112" title="All 6 branches missed.">        boolean needPlans = status == null || (!&quot;generating&quot;.equalsIgnoreCase(status) &amp;&amp; !&quot;failed&quot;.equalsIgnoreCase(status));</span>
+<span class="nc" id="L113">        Page&lt;PlanPO&gt; plansPage = new Page&lt;&gt;(page, pageSize);</span>
+        List&lt;PlanPO&gt; plans;
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (needPlans) {</span>
+<span class="nc" id="L116">            QueryWrapper&lt;PlanPO&gt; planQuery = new QueryWrapper&lt;PlanPO&gt;()</span>
+<span class="nc" id="L117">                    .eq(&quot;user_id&quot;, userId)</span>
+<span class="nc" id="L118">                    .isNull(&quot;deleted_at&quot;)</span>
+<span class="nc" id="L119">                    .orderByDesc(&quot;create_time&quot;);</span>
+
+<span class="nc bnc" id="L121" title="All 4 branches missed.">            if (status != null &amp;&amp; !status.isBlank()) {</span>
+<span class="nc" id="L122">                planQuery.eq(&quot;status&quot;, status.toLowerCase());</span>
+            }
+
+<span class="nc" id="L125">            plansPage = planMapper.selectPage(plansPage, planQuery);</span>
+<span class="nc" id="L126">            plans = plansPage.getRecords();</span>
+
+            // 批量加载 plan_requests（用于 people_count/start_date/end_date）
+<span class="nc" id="L129">            Map&lt;String, PlanRequestPO&gt; requestMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L130" title="All 4 branches missed.">            if (plans != null &amp;&amp; !plans.isEmpty()) {</span>
+<span class="nc" id="L131">                List&lt;String&gt; requestIds = plans.stream()</span>
+<span class="nc" id="L132">                        .map(PlanPO::getPlanRequestId)</span>
+<span class="nc bnc" id="L133" title="All 4 branches missed.">                        .filter(id -&gt; id != null &amp;&amp; !id.isBlank())</span>
+<span class="nc" id="L134">                        .distinct()</span>
+<span class="nc" id="L135">                        .toList();</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (!requestIds.isEmpty()) {</span>
+<span class="nc" id="L137">                    List&lt;PlanRequestPO&gt; reqs = planRequestMapper.selectList(new QueryWrapper&lt;PlanRequestPO&gt;()</span>
+<span class="nc" id="L138">                            .in(&quot;plan_request_id&quot;, requestIds));</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                    for (PlanRequestPO r : reqs) {</span>
+<span class="nc" id="L140">                        requestMap.put(r.getPlanRequestId(), r);</span>
+<span class="nc" id="L141">                    }</span>
+                }
+            }
+
+            // 转换为 Map
+<span class="nc" id="L146">            List&lt;Map&lt;String, Object&gt;&gt; planMaps = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (plans != null) {</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                for (PlanPO plan : plans) {</span>
+<span class="nc" id="L149">                    Map&lt;String, Object&gt; item = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L150">                    item.put(&quot;plan_id&quot;, plan.getPlanId());</span>
+<span class="nc" id="L151">                    item.put(&quot;plan_request_id&quot;, plan.getPlanRequestId());</span>
+<span class="nc" id="L152">                    item.put(&quot;plan_type&quot;, plan.getPlanType());</span>
+<span class="nc" id="L153">                    item.put(&quot;plan_name&quot;, plan.getPlanName());</span>
+<span class="nc" id="L154">                    item.put(&quot;summary&quot;, plan.getSummary());</span>
+<span class="nc" id="L155">                    item.put(&quot;budget_total&quot;, plan.getBudgetTotal());</span>
+<span class="nc" id="L156">                    item.put(&quot;budget_per_person&quot;, plan.getBudgetPerPerson());</span>
+<span class="nc" id="L157">                    item.put(&quot;duration_days&quot;, plan.getDurationDays());</span>
+<span class="nc" id="L158">                    item.put(&quot;departure_city&quot;, plan.getDepartureCity());</span>
+<span class="nc" id="L159">                    item.put(&quot;destination&quot;, plan.getDestination());</span>
+<span class="nc" id="L160">                    item.put(&quot;destination_city&quot;, plan.getDestinationCity());</span>
+<span class="nc" id="L161">                    item.put(&quot;status&quot;, plan.getStatus());</span>
+<span class="nc" id="L162">                    item.put(&quot;create_time&quot;, plan.getCreateTime());</span>
+<span class="nc" id="L163">                    item.put(&quot;confirmed_time&quot;, plan.getConfirmedTime());</span>
+<span class="nc" id="L164">                    item.put(&quot;review_started_at&quot;, plan.getReviewStartedAt());</span>
+<span class="nc" id="L165">                    item.put(&quot;created_at&quot;, plan.getCreateTime());</span>
+
+<span class="nc" id="L167">                    PlanRequestPO req = requestMap.get(plan.getPlanRequestId());</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                    if (req != null) {</span>
+<span class="nc" id="L169">                        item.put(&quot;people_count&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L170">                        item.put(&quot;group_size&quot;, req.getPeopleCount()); // UL v1.3 alias (non-breaking)</span>
+<span class="nc" id="L171">                        item.put(&quot;start_date&quot;, req.getStartDate());</span>
+<span class="nc" id="L172">                        item.put(&quot;end_date&quot;, req.getEndDate());</span>
+                    } else {
+<span class="nc" id="L174">                        item.put(&quot;people_count&quot;, null);</span>
+<span class="nc" id="L175">                        item.put(&quot;group_size&quot;, null);</span>
+                    }
+<span class="nc" id="L177">                    item.put(&quot;is_generating&quot;, false);</span>
+<span class="nc" id="L178">                    planMaps.add(item);</span>
+<span class="nc" id="L179">                }</span>
+            }
+
+            // 已确认置顶，其余按创建时间倒序
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            planMaps.sort(Comparator.&lt;Map&lt;String, Object&gt;, Integer&gt;comparing(m -&gt; &quot;confirmed&quot;.equalsIgnoreCase(String.valueOf(m.get(&quot;status&quot;))) ? 0 : 1)</span>
+<span class="nc" id="L184">                    .thenComparing(m -&gt; (Instant) m.getOrDefault(&quot;create_time&quot;, Instant.EPOCH), Comparator.reverseOrder()));</span>
+
+<span class="nc" id="L186">            mergedList.addAll(planMaps);</span>
+        }
+
+<span class="nc" id="L189">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L190">        result.put(&quot;plans&quot;, mergedList);</span>
+<span class="nc" id="L191">        result.put(&quot;total&quot;, plansPage.getTotal() + totalPending);</span>
+<span class="nc" id="L192">        result.put(&quot;page&quot;, page);</span>
+<span class="nc" id="L193">        result.put(&quot;pageSize&quot;, pageSize);</span>
+<span class="nc" id="L194">        result.put(&quot;hasMore&quot;, plansPage.hasNext());</span>
+<span class="nc" id="L195">        return result;</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Object getPlanDetail(String userId, String planId) {
+<span class="nc" id="L200">        PlanPO plan = planMapper.selectById(planId);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (plan != null) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            if (plan.getDeletedAt() != null) {</span>
+<span class="nc" id="L203">                throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+            }
+<span class="nc" id="L205">            planAuthorizationService.requireMemberForCurrent(planId, userId);</span>
+<span class="nc" id="L206">            return convertPlanToDetailMap(plan);</span>
+        }
+
+<span class="nc" id="L209">        PlanRequestPO req = planRequestMapper.selectById(planId);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (req != null) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (req.getDeletedAt() != null) {</span>
+<span class="nc" id="L212">                throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+            }
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (!userId.equals(req.getUserId())) {</span>
+<span class="nc" id="L215">                throw new BizException(&quot;UNAUTHORIZED&quot;, &quot;not owner&quot;);</span>
+            }
+<span class="nc" id="L217">            boolean isGenerating = &quot;GENERATING&quot;.equals(req.getStatus());</span>
+<span class="nc" id="L218">            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L219">            result.put(&quot;plan_id&quot;, req.getPlanRequestId());</span>
+<span class="nc" id="L220">            result.put(&quot;plan_request_id&quot;, req.getPlanRequestId());</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            result.put(&quot;plan_name&quot;, isGenerating ? &quot;方案生成中...&quot; : &quot;生成失败&quot;);</span>
+<span class="nc" id="L222">            result.put(&quot;status&quot;, req.getStatus().toLowerCase());</span>
+<span class="nc" id="L223">            result.put(&quot;people_count&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L224">            result.put(&quot;budget_min&quot;, req.getBudgetMin());</span>
+<span class="nc" id="L225">            result.put(&quot;budget_max&quot;, req.getBudgetMax());</span>
+<span class="nc" id="L226">            result.put(&quot;start_date&quot;, req.getStartDate());</span>
+<span class="nc" id="L227">            result.put(&quot;end_date&quot;, req.getEndDate());</span>
+<span class="nc" id="L228">            result.put(&quot;departure_city&quot;, req.getDepartureCity());</span>
+<span class="nc" id="L229">            result.put(&quot;destination&quot;, req.getDestination());</span>
+<span class="nc" id="L230">            result.put(&quot;destination_city&quot;, req.getDestinationCity());</span>
+<span class="nc" id="L231">            result.put(&quot;created_at&quot;, req.getGenerationStartedAt());</span>
+<span class="nc" id="L232">            result.put(&quot;is_generating&quot;, isGenerating);</span>
+<span class="nc" id="L233">            result.put(&quot;group_size&quot;, req.getPeopleCount());</span>
+<span class="nc" id="L234">            result.put(&quot;trip_duration&quot;, null);</span>
+<span class="nc" id="L235">            return result;</span>
+        }
+
+<span class="nc" id="L238">        throw new BizException(&quot;NOT_FOUND&quot;, &quot;plan not found&quot;);</span>
+    }
+
+    public Map&lt;String, Object&gt; getPlanRoute(String userId, String planId, Integer day) {
+<span class="nc" id="L242">        return planRouteQueryService.getPlanRoute(userId, planId, day);</span>
+    }
+
+    private Map&lt;String, Object&gt; convertPlanToDetailMap(PlanPO plan) {
+<span class="nc" id="L246">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L247">        result.put(&quot;plan_id&quot;, plan.getPlanId());</span>
+<span class="nc" id="L248">        result.put(&quot;plan_request_id&quot;, plan.getPlanRequestId());</span>
+<span class="nc" id="L249">        result.put(&quot;user_id&quot;, plan.getUserId());</span>
+<span class="nc" id="L250">        result.put(&quot;plan_type&quot;, plan.getPlanType());</span>
+<span class="nc" id="L251">        result.put(&quot;plan_name&quot;, plan.getPlanName());</span>
+<span class="nc" id="L252">        result.put(&quot;summary&quot;, plan.getSummary());</span>
+<span class="nc" id="L253">        result.put(&quot;status&quot;, plan.getStatus());</span>
+<span class="nc" id="L254">        result.put(&quot;logo_url&quot;, resolveLogoUrl(plan));</span>
+<span class="nc" id="L255">        result.put(&quot;budget_total&quot;, plan.getBudgetTotal());</span>
+<span class="nc" id="L256">        result.put(&quot;budget_per_person&quot;, plan.getBudgetPerPerson());</span>
+<span class="nc" id="L257">        result.put(&quot;duration_days&quot;, plan.getDurationDays());</span>
+<span class="nc" id="L258">        result.put(&quot;trip_duration&quot;, plan.getDurationDays()); // UL v1.3 alias (non-breaking)</span>
+<span class="nc" id="L259">        result.put(&quot;departure_city&quot;, plan.getDepartureCity());</span>
+<span class="nc" id="L260">        result.put(&quot;destination&quot;, plan.getDestination());</span>
+<span class="nc" id="L261">        result.put(&quot;destination_city&quot;, plan.getDestinationCity());</span>
+<span class="nc" id="L262">        result.put(&quot;review_count&quot;, plan.getReviewCount());</span>
+<span class="nc" id="L263">        result.put(&quot;average_score&quot;, plan.getAverageScore());</span>
+<span class="nc" id="L264">        result.put(&quot;confirmed_time&quot;, plan.getConfirmedTime());</span>
+<span class="nc" id="L265">        result.put(&quot;review_started_at&quot;, plan.getReviewStartedAt());</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        result.put(&quot;itinerary_version&quot;, plan.getItineraryVersion() == null ? 1 : plan.getItineraryVersion());</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        PlanRequestPO req = plan.getPlanRequestId() == null ? null : planRequestMapper.selectById(plan.getPlanRequestId());</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        result.put(&quot;people_count&quot;, req == null ? null : req.getPeopleCount());</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        result.put(&quot;group_size&quot;, req == null ? null : req.getPeopleCount()); // UL v1.3 alias (non-breaking)</span>
+
+<span class="nc" id="L271">        result.put(&quot;highlights&quot;, Jsons.toStringList(plan.getHighlights()));</span>
+<span class="nc" id="L272">        result.put(&quot;itinerary&quot;, Jsons.toMap(plan.getItinerary()));</span>
+
+<span class="nc" id="L274">        result.put(&quot;is_generating&quot;, false);</span>
+<span class="nc" id="L275">        return result;</span>
+    }
+
+    private String resolveLogoUrl(PlanPO plan) {
+<span class="nc" id="L279">        String url = ossService.resolveItineraryUrl(plan.getLogoStorage());</span>
+<span class="nc bnc" id="L280" title="All 4 branches missed.">        if (url != null &amp;&amp; !url.isBlank()) return url;</span>
+<span class="nc" id="L281">        return ossService.resolveItineraryUrl(plan.getLogoUrl());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanItinerarySuggestionPO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.infrastructure.persistence.po</a> &gt; <span class="el_source">PlanItinerarySuggestionPO.java</span></div><h1>PlanItinerarySuggestionPO.java</h1><pre class="source lang-java linenums">package com.teamventure.infrastructure.persistence.po;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.time.Instant;
+
+@TableName(&quot;plan_itinerary_suggestions&quot;)
+<span class="nc" id="L8">public class PlanItinerarySuggestionPO {</span>
+    @TableId
+    private String suggestion_id;
+    private String plan_id;
+    private Integer target_version;
+    private String user_id;
+    private String content;
+    private String status;
+    private Instant create_time;
+    private Instant update_time;
+
+<span class="nc" id="L19">    public String getSuggestionId() { return suggestion_id; }</span>
+<span class="nc" id="L20">    public void setSuggestionId(String v) { this.suggestion_id = v; }</span>
+<span class="nc" id="L21">    public String getPlanId() { return plan_id; }</span>
+<span class="nc" id="L22">    public void setPlanId(String v) { this.plan_id = v; }</span>
+<span class="nc" id="L23">    public Integer getTargetVersion() { return target_version; }</span>
+<span class="nc" id="L24">    public void setTargetVersion(Integer v) { this.target_version = v; }</span>
+<span class="nc" id="L25">    public String getUserId() { return user_id; }</span>
+<span class="nc" id="L26">    public void setUserId(String v) { this.user_id = v; }</span>
+<span class="nc" id="L27">    public String getContent() { return content; }</span>
+<span class="nc" id="L28">    public void setContent(String v) { this.content = v; }</span>
+<span class="nc" id="L29">    public String getStatus() { return status; }</span>
+<span class="nc" id="L30">    public void setStatus(String v) { this.status = v; }</span>
+<span class="nc" id="L31">    public Instant getCreateTime() { return create_time; }</span>
+<span class="nc" id="L32">    public void setCreateTime(Instant v) { this.create_time = v; }</span>
+<span class="nc" id="L33">    public Instant getUpdateTime() { return update_time; }</span>
+<span class="nc" id="L34">    public void setUpdateTime(Instant v) { this.update_time = v; }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

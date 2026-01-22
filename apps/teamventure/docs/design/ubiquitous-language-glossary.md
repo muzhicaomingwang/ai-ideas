@@ -1,10 +1,10 @@
 # TeamVenture 领域统一语言词汇表 (Ubiquitous Language Glossary)
 
 **创建日期**: 2026-01-06
-**版本**: v1.6
+**版本**: v1.7
 **目的**: 确保全链路字段命名一致性，消除"翻译损耗"
 
-**最新更新**: 双地图展示功能术语补充（v1.6）
+**最新更新**: 通晒协作（成员/收藏/申请/行程版本/建议）术语补充（v1.7）
 
 ---
 
@@ -69,6 +69,7 @@
 | 方案摘要 | Summary | `summary` | `summary` | `summary` | `summary` | |
 | 亮点 | Highlights | `highlights` | `highlights` | `highlights` | `highlights` | JSON数组 |
 | 行程安排 | Itinerary | `itinerary` | `itinerary` | `itinerary` | `itinerary` | JSON对象 |
+| 行程版本号 | Itinerary Version | `itinerary_version` | `itineraryVersion` | `itinerary_version` | - | 用于CAS并发控制，版本从1递增 |
 | 预算明细（非MVP） | Budget Breakdown | `budget_breakdown` | `budgetBreakdown` | `budget_breakdown` | - | DB 保留字段，MVP 不对外输出 |
 | **供应商快照（非MVP）** | **Supplier Snapshots** | `supplier_snapshots` | `supplierSnapshots` | `supplier_snapshots` | - | DB 保留字段，MVP 不对外输出 |
 | 总预算 | Budget Total | `budget_total` | `budgetTotal` | `budget_total` | `budgetTotal` | 冗余字段 |
@@ -213,6 +214,38 @@ interface LocationValue {
 | `/api/v1/locations/suggest` | GET | 搜索地点建议 | 使用`suggest`（而非`search`/`autocomplete`） |
 | `/api/v1/locations/hot-spots` | GET | 获取热门景点 | 使用`hot-spots`（而非`popular`/`recommended`） |
 | `/api/v1/locations/reverse-geocode` | GET | 逆地理编码 | 标准GIS术语 |
+
+---
+
+## 4. 通晒协作 (Review Collaboration)
+
+> 目标：明确“通晒（reviewing）”场景下的协作语义，避免与“Location suggest（地点搜索建议）”术语冲突。
+
+### 4.1 核心术语
+
+| 中文术语 | 英文术语 | 数据库/字段建议 | API/路径建议 | 说明 |
+|---------|---------|----------------|-------------|------|
+| 通晒 | Review | `plans.status = reviewing` | - | 方案进入协作评审阶段 |
+| 通晒成员关系 | Plan Membership | `plan_memberships` | - | 方案范围内的资源级角色（RBAC事实表） |
+| 拥有者 | Owner | `plan_memberships.role=OWNER` | - | 可编辑行程、审批申请、踢人 |
+| 参与者 | Participant | `plan_memberships.role=PARTICIPANT` | - | 可对行程版本提出建议 |
+| 收藏者 | Watcher | `plan_memberships.role=WATCHER` | - | 只能查看当前行程，可申请参与 |
+| 参与申请 | Participation Application | `plan_memberships.status=PENDING` | `/participation-applications` | 申请参与的待审批状态 |
+| 收藏 | Bookmark | `plan_memberships.role=WATCHER,status=ACTIVE` | `/bookmark` | 收藏后才允许申请参与 |
+| 行程版本快照 | Itinerary Revision | `plan_itinerary_revisions` | `/itinerary/versions` | 存储每次行程修改后的版本内容 |
+| 当前行程 | Current Itinerary | `plans.itinerary` | `GET /plans/{planId}` | 收藏者仅可见当前版本 |
+| 行程建议 | Itinerary Suggestion | `plan_itinerary_suggestions` | `/itinerary-suggestions` | 协作“建议”，避免与地点“suggest”混用 |
+
+### 4.2 成员状态机（一期）
+
+| 场景 | from | to | 说明 |
+|------|------|----|------|
+| 收藏 | NONE | WATCHER/ACTIVE | 收藏后获得查看当前行程权限 |
+| 申请参与 | WATCHER/ACTIVE | PARTICIPANT/PENDING | 必须先收藏才能申请 |
+| 撤回申请 | PARTICIPANT/PENDING | WATCHER/ACTIVE | 申请人主动撤回 |
+| 审批通过 | PARTICIPANT/PENDING | PARTICIPANT/ACTIVE | OWNER审批 |
+| 审批拒绝 | PARTICIPANT/PENDING | WATCHER/ACTIVE | OWNER审批（保留收藏） |
+| 踢人 | PARTICIPANT/ACTIVE | WATCHER/ACTIVE | OWNER踢人（降级为收藏者，仍可看当前） |
 
 **请求参数术语**：
 - `keyword`: 搜索关键词（而非`query`/`search`/`q`）

@@ -1,9 +1,13 @@
 # TeamVenture API 设计文档
 
-**版本**: v1.7（Phase 1 - 小程序端）
+**版本**: v1.8（Phase 1 - 小程序端）
 **创建日期**: 2026-01-04
-**更新日期**: 2026-01-14
+**更新日期**: 2026-01-22
 **变更记录**:
+- **v1.8 (2026-01-22)**: 新增通晒协作与权限（资源级RBAC）
+  - 新增3.11~3.18：收藏→申请参与→审批→成员管理→行程版本→行程建议
+  - 明确`GET /plans/{planId}`为“仅当前行程可见”（收藏者只可看当前）
+  - 新增409状态码用于CAS冲突（itinerary_version）
 - **v1.7 (2026-01-14)**: 新增路线API（双地图展示）
   - 新增3.10: 获取方案路线API
   - 支持0-2张地图展示（跨城地图+周边游地图）
@@ -73,6 +77,7 @@
 | 401 | 未认证 | Token缺失或过期 |
 | 403 | 无权限 | 跨用户访问 |
 | 404 | 资源不存在 | 方案ID不存在 |
+| 409 | 冲突 | 并发更新冲突（CAS） |
 | 500 | 服务器错误 | 内部异常 |
 
 ### 1.3 请求头约定
@@ -179,6 +184,10 @@ curl -X POST http://localhost/api/v1/auth/wechat/login \
   "error": null
 }
 ```
+
+#### 权限说明（通晒协作）
+- 允许访问：OWNER / PARTICIPANT（含PENDING） / WATCHER
+- 返回内容：仅包含当前行程（不包含历史版本、成员列表、建议列表等）
 
 #### 错误响应
 
@@ -584,7 +593,7 @@ curl -X GET "http://localhost/api/v1/plans?page=1&pageSize=10" \
 > - `destination`：目的地（团建活动举办地点）
 > - 前端显示格式：上海市 → 杭州千岛湖
 
-**说明**: 使用MyBatis Plus分页对象，仅返回当前用户的方案。
+**说明**: 使用MyBatis Plus分页对象，仅返回当前用户（OWNER）的方案；收藏/参与列表见3.12/3.13补充接口。
 
 ### 3.3 查询方案详情 API
 
@@ -693,7 +702,7 @@ curl -X GET "http://localhost/api/v1/plans/plan_01ke3d123" \
   "data": null,
   "error": {
     "code": "UNAUTHORIZED",
-    "message": "not owner"
+    "message": "not member"
   }
 }
 ```
@@ -714,6 +723,7 @@ POST /api/v1/plans/{planId}/confirm
 **说明**:
 - 请求体为空，幂等操作（重复调用不报错）
 - **状态约束**：只有 `reviewing`（通晒中）状态的方案才能确认
+- 权限验证：仅OWNER可确认
 
 #### 请求示例
 
@@ -740,7 +750,7 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/confirm" \
 | 场景 | HTTP状态码 | 错误码 | 错误消息 |
 |------|----------|--------|---------|
 | 方案不存在 | 404 | NOT_FOUND | plan not found |
-| 非本人方案 | 403 | UNAUTHORIZED | not owner |
+| 非OWNER | 403 | UNAUTHORIZED | not owner |
 | 方案已删除 | 404 | NOT_FOUND | plan not found |
 | 状态不正确 | 400 | INVALID_STATUS | 只有通晒中状态的方案才能确认 |
 | 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
@@ -810,7 +820,7 @@ DELETE /api/v1/plans/{planId}
 - 支持删除已生成的方案（plans 表）和生成中/失败的请求（plan_requests 表）
 - 使用软删除机制，设置 `deleted_at` 时间戳
 - 幂等设计：重复删除同一方案返回成功
-- 权限验证：只能删除自己的方案
+- 权限验证：仅OWNER可删除
 
 #### 请求示例
 
@@ -836,7 +846,7 @@ curl -X DELETE "http://localhost/api/v1/plans/plan_01ke3d123" \
 | 场景 | HTTP状态码 | 错误码 | 错误消息 |
 |------|----------|--------|---------|
 | 方案不存在 | 404 | NOT_FOUND | plan not found |
-| 非本人方案 | 403 | UNAUTHORIZED | not owner |
+| 非OWNER | 403 | UNAUTHORIZED | not owner |
 | 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
 
 **说明**: 删除后会生成领域事件 `PlanDeleted` 或 `PlanRequestDeleted`。
@@ -854,7 +864,7 @@ POST /api/v1/plans/{planId}/archive
 - 归档后状态变为 `archived`，使用 `archived_at` 时间戳标记归档时间
 - 归档后的方案不在列表中显示，但可通过详情 API 查看
 - 幂等设计：重复归档同一方案返回成功
-- 权限验证：只能归档自己的方案
+- 权限验证：仅OWNER可归档
 
 #### 请求示例
 
@@ -880,7 +890,7 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/archive" \
 | 场景 | HTTP状态码 | 错误码 | 错误消息 |
 |------|----------|--------|---------|
 | 方案不存在 | 404 | NOT_FOUND | plan not found |
-| 非本人方案 | 403 | UNAUTHORIZED | not owner |
+| 非OWNER | 403 | UNAUTHORIZED | not owner |
 | 方案已删除 | 404 | NOT_FOUND | plan not found |
 | 状态不正确 | 400 | INVALID_STATUS | 只有已确认状态的方案才能归档 |
 | 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
@@ -898,7 +908,7 @@ POST /api/v1/plans/{planId}/submit-review
 
 - **状态转换**：将方案从 `draft`（制定完成）状态提交到 `reviewing`（通晒中）状态
 - 记录 `review_started_at` 时间戳标记进入通晒的时间
-- 权限验证：只能操作自己的方案
+- 权限验证：仅OWNER可操作
 - 状态约束：只有 `draft` 状态的方案才能提交通晒
 
 #### 请求示例
@@ -925,7 +935,7 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/submit-review" \
 | 场景 | HTTP状态码 | 错误码 | 错误消息 |
 |------|----------|--------|---------|
 | 方案不存在 | 404 | NOT_FOUND | plan not found |
-| 非本人方案 | 403 | UNAUTHORIZED | not owner |
+| 非OWNER | 403 | UNAUTHORIZED | not owner |
 | 方案已删除 | 404 | NOT_FOUND | plan not found |
 | 状态不正确 | 400 | INVALID_STATUS | 只有制定完成状态的方案才能提交通晒 |
 | 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
@@ -944,7 +954,7 @@ POST /api/v1/plans/{planId}/revert-review
 - **状态转换**：将方案从 `confirmed`（已确认）状态回退到 `reviewing`（通晒中）状态
 - 清除 `confirmed_time` 时间戳
 - 允许用户重新修改已确认的方案
-- 权限验证：只能操作自己的方案
+- 权限验证：仅OWNER可操作
 - 状态约束：只有 `confirmed` 状态的方案才能回退
 
 #### 请求示例
@@ -971,7 +981,7 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/revert-review" \
 | 场景 | HTTP状态码 | 错误码 | 错误消息 |
 |------|----------|--------|---------|
 | 方案不存在 | 404 | NOT_FOUND | plan not found |
-| 非本人方案 | 403 | UNAUTHORIZED | not owner |
+| 非OWNER | 403 | UNAUTHORIZED | not owner |
 | 方案已删除 | 404 | NOT_FOUND | plan not found |
 | 状态不正确 | 400 | INVALID_STATUS | 只有已确认状态的方案才能回退通晒 |
 | 未登录 | 401 | UNAUTHENTICATED | missing bearer token |
@@ -985,6 +995,7 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/revert-review" \
 **接口**: `GET /api/v1/plans/{planId}/route?day={dayNum}`
 
 **功能**: 获取指定天的行程路线地图数据（支持双地图展示）
+**权限**: 需要能查看当前行程（OWNER/PARTICIPANT/WATCHER）
 
 **请求参数**:
 
@@ -1165,6 +1176,147 @@ curl -X POST "http://localhost/api/v1/plans/plan_01ke3d123/revert-review" \
 - `confirmed → archived`：归档方案（POST /plans/:id/archive）
 
 ---
+
+---
+
+### 3.11 通晒协作权限模型（v1.8 新增）
+
+通晒（`plans.status=reviewing`）引入资源级角色（RBAC）：
+- **OWNER**：可修改行程、审批参与申请、踢人
+- **PARTICIPANT**：可对行程每个版本提出建议（不可直接改行程）
+- **WATCHER**：仅可查看当前行程（不可看历史版本/成员/建议），可申请参与
+
+**关键约束**：必须先收藏（成为WATCHER）才允许申请参与。
+
+### 3.12 收藏（Bookmark）API（v1.8 新增）
+
+#### 3.12.1 收藏方案
+```
+POST /api/v1/plans/{planId}/bookmark
+```
+说明：
+- 幂等：重复收藏返回成功
+
+#### 3.12.2 取消收藏
+```
+DELETE /api/v1/plans/{planId}/bookmark
+```
+说明：
+- 幂等：重复取消返回成功
+- 若用户为`PARTICIPANT/ACTIVE`，建议返回409 `INVALID_STATE`（需先退出或被踢后才能取消收藏）
+
+### 3.13 申请参与（v1.8 新增）
+
+#### 3.13.1 申请参与
+```
+POST /api/v1/plans/{planId}/participation-applications
+```
+请求参数：
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| apply_reason | String | ❌ | 申请理由（可选） |
+
+前置条件：
+- 必须已收藏：当前角色为WATCHER且为ACTIVE
+
+典型错误：
+| 场景 | HTTP状态码 | 错误码 | 错误消息 |
+|------|----------|--------|---------|
+| 未收藏直接申请 | 409 | INVALID_STATE | must bookmark before apply |
+| 已是参与者 | 409 | INVALID_STATE | already participant |
+
+#### 3.13.2 撤回申请
+```
+POST /api/v1/plans/{planId}/participation-applications/cancel
+```
+说明：
+- 仅允许`PARTICIPANT/PENDING`撤回，撤回后降级为WATCHER/ACTIVE
+
+### 3.14 参与申请管理（OWNER）（v1.8 新增）
+
+#### 3.14.1 查看申请列表
+```
+GET /api/v1/plans/{planId}/participation-applications
+```
+权限：仅OWNER
+
+#### 3.14.2 审批通过 / 拒绝
+```
+POST /api/v1/plans/{planId}/participation-applications/{userId}/approve
+POST /api/v1/plans/{planId}/participation-applications/{userId}/reject
+```
+权限：仅OWNER
+
+### 3.15 成员管理（v1.8 新增）
+
+#### 3.15.1 查看成员列表
+```
+GET /api/v1/plans/{planId}/members
+```
+权限：OWNER / PARTICIPANT（ACTIVE）
+
+#### 3.15.2 踢出参与者（降级为收藏者）
+```
+POST /api/v1/plans/{planId}/members/{userId}/remove
+```
+权限：仅OWNER
+
+### 3.16 行程版本（History）API（v1.8 新增）
+
+#### 3.16.1 获取行程版本列表
+```
+GET /api/v1/plans/{planId}/itinerary/versions
+```
+权限：OWNER / PARTICIPANT（ACTIVE）
+
+#### 3.16.2 获取指定版本行程
+```
+GET /api/v1/plans/{planId}/itinerary/versions/{version}
+```
+权限：OWNER / PARTICIPANT（ACTIVE）
+
+### 3.17 修改当前行程（OWNER）（v1.8 新增）
+```
+PUT /api/v1/plans/{planId}/itinerary
+```
+请求参数：
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| itinerary | Object | ✅ | 当前行程内容（完整替换） |
+| expected_itinerary_version | Integer | ✅ | CAS期望版本号 |
+
+约束：
+- 仅允许`reviewing`状态修改
+
+典型错误：
+| 场景 | HTTP状态码 | 错误码 | 错误消息 |
+|------|----------|--------|---------|
+| 版本冲突 | 409 | CONFLICT | itinerary_version mismatch |
+
+### 3.18 行程建议（Itinerary Suggestion）（v1.8 新增）
+
+#### 3.18.1 创建建议
+```
+POST /api/v1/plans/{planId}/itinerary-suggestions
+```
+请求参数：
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| target_version | Integer | ✅ | 关联行程版本号 |
+| content | String | ✅ | 建议内容 |
+权限：PARTICIPANT（ACTIVE）
+
+#### 3.18.2 查看建议列表
+```
+GET /api/v1/plans/{planId}/itinerary-suggestions?target_version={version}
+```
+权限：OWNER / PARTICIPANT（ACTIVE）
+
+#### 3.18.3 编辑/删除自己的建议
+```
+PATCH /api/v1/itinerary-suggestions/{suggestionId}
+DELETE /api/v1/itinerary-suggestions/{suggestionId}
+```
 
 ## 4. Location API（地点选择）⭐ v1.6新增
 
@@ -1642,29 +1794,32 @@ curl -X GET "http://localhost/api/v1/suppliers/sup_hotel_001" \
 
 ## 6. 错误码清单
 
-### 5.1 认证相关错误
+### 6.1 认证相关错误
 
 | 错误码 | HTTP状态 | 说明 | 前端处理 |
 |-------|---------|------|---------|
 | **UNAUTHENTICATED** | 401 | 未登录或Token过期 | 跳转登录页 |
 | **UNAUTHORIZED** | 403 | 无权访问（如跨用户访问方案） | 提示无权限 |
 
-### 5.2 参数验证错误
+### 6.2 参数验证错误
 
 | 错误码 | HTTP状态 | 说明 | 示例场景 |
 |-------|---------|------|---------|
 | **INVALID_ARGUMENT** | 400 | 参数验证失败 | budget_min > budget_max |
 | **NOT_FOUND** | 404 | 资源不存在 | 方案ID不存在 |
 
-### 5.3 业务逻辑错误
+### 6.3 业务逻辑错误
 
 | 错误码 | HTTP状态 | 说明 | 建议 |
 |-------|---------|------|------|
 | **BUDGET_TOO_LOW** | 400 | 预算不足以生成方案 | 提示最低预算金额 |
 | **GENERATION_FAILED** | 500 | 方案生成失败 | 提示稍后重试 |
 | **GENERATION_TIMEOUT** | 500 | 方案生成超时（>2分钟） | 提示稍后查看 |
+| **INVALID_STATUS** | 400 | 状态不满足 | 例如非reviewing修改行程 |
+| **INVALID_STATE** | 409 | 资源状态冲突 | 例如未收藏直接申请参与 |
+| **CONFLICT** | 409 | 并发冲突（CAS） | itinerary_version不一致 |
 
-### 5.4 系统错误
+### 6.4 系统错误
 
 | 错误码 | HTTP状态 | 说明 | 处理方式 |
 |-------|---------|------|---------|
@@ -1672,7 +1827,7 @@ curl -X GET "http://localhost/api/v1/suppliers/sup_hotel_001" \
 | **NETWORK_ERROR** | - | 网络连接失败（前端） | 检查网络连接 |
 | **TIMEOUT** | - | 请求超时（前端） | 提示重试 |
 
-### 5.5 错误响应示例
+### 6.5 错误响应示例
 
 **参数验证失败**:
 ```json

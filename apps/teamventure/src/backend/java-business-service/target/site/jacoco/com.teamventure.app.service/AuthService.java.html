@@ -42,99 +42,99 @@ public class AuthService {
 <span class="fc" id="L42">    }</span>
 
     public LoginResponse loginWithWeChat(String code, String nickname, String avatarUrl) {
-<span class="nc" id="L45">        String openid = pseudoOpenId(code);</span>
+<span class="fc" id="L45">        String openid = pseudoOpenId(code);</span>
 
-<span class="nc" id="L47">        UserPO user = userMapper.selectOne(new QueryWrapper&lt;UserPO&gt;().eq(&quot;wechat_openid&quot;, openid));</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="fc" id="L47">        UserPO user = userMapper.selectOne(new QueryWrapper&lt;UserPO&gt;().eq(&quot;wechat_openid&quot;, openid));</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (user == null) {</span>
             // 创建新用户
-<span class="nc" id="L50">            user = new UserPO();</span>
-<span class="nc" id="L51">            user.setUserId(IdGenerator.newId(&quot;user&quot;));</span>
-<span class="nc" id="L52">            user.setWechatOpenid(openid);</span>
+<span class="fc" id="L50">            user = new UserPO();</span>
+<span class="fc" id="L51">            user.setUserId(IdGenerator.newId(&quot;user&quot;));</span>
+<span class="fc" id="L52">            user.setWechatOpenid(openid);</span>
             // 使用传入的nickname，如果为空则使用默认值
-<span class="nc bnc" id="L54" title="All 2 branches missed.">            user.setNickname(hasText(nickname) ? nickname.trim() : &quot;微信用户&quot;);</span>
-<span class="nc bnc" id="L55" title="All 4 branches missed.">            user.setAvatarUrl(hasText(avatarUrl) &amp;&amp; !isExampleDotComAvatar(avatarUrl) ? avatarUrl : &quot;&quot;);</span>
-<span class="nc" id="L56">            user.setRole(&quot;HR&quot;);</span>
-<span class="nc" id="L57">            user.setStatus(&quot;ACTIVE&quot;);</span>
-<span class="nc" id="L58">            userMapper.insert(user);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">            user.setNickname(hasText(nickname) ? nickname.trim() : &quot;微信用户&quot;);</span>
+<span class="pc bpc" id="L55" title="1 of 4 branches missed.">            user.setAvatarUrl(hasText(avatarUrl) &amp;&amp; !isExampleDotComAvatar(avatarUrl) ? avatarUrl : &quot;&quot;);</span>
+<span class="fc" id="L56">            user.setRole(&quot;HR&quot;);</span>
+<span class="fc" id="L57">            user.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="fc" id="L58">            userMapper.insert(user);</span>
         } else {
             // 更新现有用户信息（如果提供了新的nickname或avatarUrl）
-<span class="nc" id="L61">            boolean needUpdate = false;</span>
+<span class="fc" id="L61">            boolean needUpdate = false;</span>
 
-<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (hasText(nickname) &amp;&amp; !nickname.trim().equals(user.getNickname())) {</span>
-<span class="nc" id="L64">                user.setNickname(nickname.trim());</span>
-<span class="nc" id="L65">                needUpdate = true;</span>
+<span class="pc bpc" id="L63" title="1 of 4 branches missed.">            if (hasText(nickname) &amp;&amp; !nickname.trim().equals(user.getNickname())) {</span>
+<span class="fc" id="L64">                user.setNickname(nickname.trim());</span>
+<span class="fc" id="L65">                needUpdate = true;</span>
             }
 
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (hasText(avatarUrl)) {</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">            if (hasText(avatarUrl)) {</span>
 <span class="nc bnc" id="L69" title="All 4 branches missed.">                if (!isExampleDotComAvatar(avatarUrl) &amp;&amp; !avatarUrl.equals(user.getAvatarUrl())) {</span>
 <span class="nc" id="L70">                    user.setAvatarUrl(avatarUrl);</span>
 <span class="nc" id="L71">                    needUpdate = true;</span>
                 }
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            } else if (isExampleDotComAvatar(user.getAvatarUrl())) {</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">            } else if (isExampleDotComAvatar(user.getAvatarUrl())) {</span>
                 // 自动清理历史测试数据里遗留的 example.com 外链头像，避免前端持续 404
 <span class="nc" id="L75">                user.setAvatarUrl(&quot;&quot;);</span>
 <span class="nc" id="L76">                needUpdate = true;</span>
             }
 
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (needUpdate) {</span>
-<span class="nc" id="L80">                userMapper.updateById(user);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            if (needUpdate) {</span>
+<span class="fc" id="L80">                userMapper.updateById(user);</span>
             }
         }
 
-<span class="nc" id="L84">        String token = jwt.issueToken(user.getUserId(), EXPIRES_SECONDS);</span>
+<span class="fc" id="L84">        String token = jwt.issueToken(user.getUserId(), EXPIRES_SECONDS);</span>
         try {
-<span class="nc" id="L86">            redis.opsForValue().set(&quot;session:&quot; + token, user.getUserId(), Duration.ofSeconds(EXPIRES_SECONDS));</span>
-<span class="nc" id="L87">        } catch (Exception e) {</span>
+<span class="fc" id="L86">            redis.opsForValue().set(&quot;session:&quot; + token, user.getUserId(), Duration.ofSeconds(EXPIRES_SECONDS));</span>
+<span class="fc" id="L87">        } catch (Exception e) {</span>
             // Redis 不可用时仍允许登录，后续请求可回退到 JWT 解析
-<span class="nc" id="L89">            log.warn(&quot;redis unavailable when setting session token, fallback to stateless jwt: userId={}&quot;, user.getUserId(), e);</span>
-<span class="nc" id="L90">        }</span>
+<span class="fc" id="L89">            log.warn(&quot;redis unavailable when setting session token, fallback to stateless jwt: userId={}&quot;, user.getUserId(), e);</span>
+<span class="fc" id="L90">        }</span>
 
         // 构建包含完整userInfo的响应
-<span class="nc" id="L93">        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());</span>
-<span class="nc" id="L94">        LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(</span>
-<span class="nc" id="L95">            user.getUserId(),</span>
-<span class="nc" id="L96">            user.getNickname(),</span>
+<span class="fc" id="L93">        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());</span>
+<span class="fc" id="L94">        LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(</span>
+<span class="fc" id="L95">            user.getUserId(),</span>
+<span class="fc" id="L96">            user.getNickname(),</span>
             avatar,
-<span class="nc" id="L98">            user.getPhone(),</span>
-<span class="nc" id="L99">            user.getCompany(),</span>
-<span class="nc" id="L100">            user.getRole()</span>
+<span class="fc" id="L98">            user.getPhone(),</span>
+<span class="fc" id="L99">            user.getCompany(),</span>
+<span class="fc" id="L100">            user.getRole()</span>
         );
 
-<span class="nc" id="L103">        return new LoginResponse(token, userInfo);</span>
+<span class="fc" id="L103">        return new LoginResponse(token, userInfo);</span>
     }
 
     // 辅助方法：检查字符串是否有内容
     private boolean hasText(String str) {
-<span class="nc bnc" id="L108" title="All 4 branches missed.">        return str != null &amp;&amp; !str.trim().isEmpty();</span>
+<span class="fc bfc" id="L108" title="All 4 branches covered.">        return str != null &amp;&amp; !str.trim().isEmpty();</span>
     }
 
     private boolean isExampleDotComAvatar(String avatarUrl) {
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (avatarUrl == null) return false;</span>
-<span class="nc" id="L113">        String s = avatarUrl.trim().toLowerCase(Locale.ROOT);</span>
-<span class="nc bnc" id="L114" title="All 4 branches missed.">        return s.startsWith(&quot;http://example.com/&quot;) || s.startsWith(&quot;https://example.com/&quot;);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (avatarUrl == null) return false;</span>
+<span class="fc" id="L113">        String s = avatarUrl.trim().toLowerCase(Locale.ROOT);</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        return s.startsWith(&quot;http://example.com/&quot;) || s.startsWith(&quot;https://example.com/&quot;);</span>
     }
 
     public String getUserIdFromAuthorization(String authorization) {
-<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (authorization == null || !authorization.startsWith(&quot;Bearer &quot;)) {</span>
-<span class="nc" id="L119">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;missing bearer token&quot;);</span>
+<span class="fc bfc" id="L118" title="All 4 branches covered.">        if (authorization == null || !authorization.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="fc" id="L119">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;missing bearer token&quot;);</span>
         }
-<span class="nc" id="L121">        String token = authorization.substring(&quot;Bearer &quot;.length()).trim();</span>
-<span class="nc" id="L122">        String userId = null;</span>
+<span class="fc" id="L121">        String token = authorization.substring(&quot;Bearer &quot;.length()).trim();</span>
+<span class="fc" id="L122">        String userId = null;</span>
         try {
-<span class="nc" id="L124">            userId = redis.opsForValue().get(&quot;session:&quot; + token);</span>
+<span class="fc" id="L124">            userId = redis.opsForValue().get(&quot;session:&quot; + token);</span>
 <span class="nc" id="L125">        } catch (Exception e) {</span>
             // 本地联调常见：Redis 未启动/密码不一致/网络不可达，避免直接 500
 <span class="nc" id="L127">            log.warn(&quot;redis unavailable when reading session token, fallback to stateless jwt&quot;, e);</span>
-<span class="nc" id="L128">        }</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (userId == null) {</span>
+<span class="fc" id="L128">        }</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (userId == null) {</span>
             // fallback: parse jwt (stateless); still requires that token is valid
             try {
-<span class="nc" id="L132">                userId = jwt.parseUserId(token);</span>
-<span class="nc" id="L133">            } catch (Exception e) {</span>
-<span class="nc" id="L134">                throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
-<span class="nc" id="L135">            }</span>
+<span class="fc" id="L132">                userId = jwt.parseUserId(token);</span>
+<span class="fc" id="L133">            } catch (Exception e) {</span>
+<span class="fc" id="L134">                throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
+<span class="fc" id="L135">            }</span>
         }
-<span class="nc" id="L137">        return userId;</span>
+<span class="fc" id="L137">        return userId;</span>
     }
 
     /**
@@ -142,48 +142,48 @@ public class AuthService {
      * Returns new token and user info, or null if token doesn't need refresh.
      */
     public LoginResponse refreshTokenIfNeeded(String authorization) {
-<span class="nc bnc" id="L145" title="All 4 branches missed.">        if (authorization == null || !authorization.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="pc bpc" id="L145" title="2 of 4 branches missed.">        if (authorization == null || !authorization.startsWith(&quot;Bearer &quot;)) {</span>
 <span class="nc" id="L146">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;missing bearer token&quot;);</span>
         }
-<span class="nc" id="L148">        String token = authorization.substring(&quot;Bearer &quot;.length()).trim();</span>
+<span class="fc" id="L148">        String token = authorization.substring(&quot;Bearer &quot;.length()).trim();</span>
 
         // Validate and extract userId
         String userId;
         try {
-<span class="nc" id="L153">            userId = jwt.parseUserId(token);</span>
-<span class="nc" id="L154">        } catch (Exception e) {</span>
-<span class="nc" id="L155">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
-<span class="nc" id="L156">        }</span>
+<span class="fc" id="L153">            userId = jwt.parseUserId(token);</span>
+<span class="fc" id="L154">        } catch (Exception e) {</span>
+<span class="fc" id="L155">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
+<span class="fc" id="L156">        }</span>
 
         // Check if token needs refresh
         boolean needsRefresh;
         try {
-<span class="nc" id="L161">            needsRefresh = jwt.willExpireSoon(token, REFRESH_THRESHOLD_SECONDS);</span>
+<span class="fc" id="L161">            needsRefresh = jwt.willExpireSoon(token, REFRESH_THRESHOLD_SECONDS);</span>
 <span class="nc" id="L162">        } catch (Exception e) {</span>
 <span class="nc" id="L163">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;invalid token&quot;);</span>
-<span class="nc" id="L164">        }</span>
+<span class="fc" id="L164">        }</span>
 
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (!needsRefresh) {</span>
-<span class="nc" id="L167">            return null; // Token is still fresh, no refresh needed</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (!needsRefresh) {</span>
+<span class="fc" id="L167">            return null; // Token is still fresh, no refresh needed</span>
         }
 
         // Issue new token
-<span class="nc" id="L171">        String newToken = jwt.issueToken(userId, EXPIRES_SECONDS);</span>
+<span class="fc" id="L171">        String newToken = jwt.issueToken(userId, EXPIRES_SECONDS);</span>
 
         // Update Redis session
         try {
             // Delete old session
-<span class="nc" id="L176">            redis.delete(&quot;session:&quot; + token);</span>
+<span class="fc" id="L176">            redis.delete(&quot;session:&quot; + token);</span>
             // Create new session
-<span class="nc" id="L178">            redis.opsForValue().set(&quot;session:&quot; + newToken, userId, Duration.ofSeconds(EXPIRES_SECONDS));</span>
+<span class="fc" id="L178">            redis.opsForValue().set(&quot;session:&quot; + newToken, userId, Duration.ofSeconds(EXPIRES_SECONDS));</span>
 <span class="nc" id="L179">        } catch (Exception e) {</span>
 <span class="nc" id="L180">            log.warn(&quot;redis unavailable when refreshing token, fallback to stateless jwt: userId={}&quot;, userId, e);</span>
-<span class="nc" id="L181">        }</span>
+<span class="fc" id="L181">        }</span>
 
         // Load user info
-<span class="nc" id="L184">        UserPO user = userMapper.selectOne(new QueryWrapper&lt;UserPO&gt;().eq(&quot;user_id&quot;, userId));</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (user == null) {</span>
-<span class="nc" id="L186">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;user not found&quot;);</span>
+<span class="fc" id="L184">        UserPO user = userMapper.selectOne(new QueryWrapper&lt;UserPO&gt;().eq(&quot;user_id&quot;, userId));</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">        if (user == null) {</span>
+<span class="fc" id="L186">            throw new BizException(&quot;UNAUTHENTICATED&quot;, &quot;user not found&quot;);</span>
         }
 
 <span class="nc" id="L189">        String avatar = ossService.resolveAvatarUrl(user.getUserId(), user.getAvatarUrl());</span>
@@ -204,7 +204,7 @@ public class AuthService {
         // 开发模式：使用固定的 openid，确保同一设备登录到同一账号
         // TODO: 生产环境需调用微信 API (jscode2session) 获取真实 openid
         // 暂时使用固定 openid 方便测试，所有用户登录到同一账号
-<span class="nc" id="L207">        return &quot;openid_dev_fixed_user&quot;;</span>
+<span class="fc" id="L207">        return &quot;openid_dev_fixed_user&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

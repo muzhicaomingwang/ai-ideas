@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanCollaborationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeamVenture Business Service</a> &gt; <a href="index.source.html" class="el_package">com.teamventure.adapter.web.plans</a> &gt; <span class="el_source">PlanCollaborationController.java</span></div><h1>PlanCollaborationController.java</h1><pre class="source lang-java linenums">package com.teamventure.adapter.web.plans;
+
+import com.teamventure.adapter.web.common.ApiResponse;
+import com.teamventure.app.service.AuthService;
+import com.teamventure.app.service.PlanCollaborationCommandService;
+import com.teamventure.app.service.PlanCollaborationQueryService;
+import com.teamventure.infrastructure.persistence.po.PlanItineraryRevisionPO;
+import com.teamventure.infrastructure.persistence.po.PlanItinerarySuggestionPO;
+import com.teamventure.infrastructure.persistence.po.PlanMembershipPO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/v1&quot;)
+public class PlanCollaborationController {
+    private final AuthService authService;
+    private final PlanCollaborationCommandService collaborationCommandService;
+    private final PlanCollaborationQueryService collaborationQueryService;
+
+    public PlanCollaborationController(
+            AuthService authService,
+            PlanCollaborationCommandService collaborationCommandService,
+            PlanCollaborationQueryService collaborationQueryService
+<span class="fc" id="L28">    ) {</span>
+<span class="fc" id="L29">        this.authService = authService;</span>
+<span class="fc" id="L30">        this.collaborationCommandService = collaborationCommandService;</span>
+<span class="fc" id="L31">        this.collaborationQueryService = collaborationQueryService;</span>
+<span class="fc" id="L32">    }</span>
+
+    @PostMapping(&quot;/plans/{planId}/bookmark&quot;)
+    public ApiResponse&lt;Void&gt; bookmark(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId
+    ) {
+<span class="nc" id="L39">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L40">        collaborationCommandService.bookmark(userId, planId);</span>
+<span class="nc" id="L41">        return ApiResponse.success();</span>
+    }
+
+    @DeleteMapping(&quot;/plans/{planId}/bookmark&quot;)
+    public ApiResponse&lt;Void&gt; unbookmark(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId
+    ) {
+<span class="nc" id="L49">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L50">        collaborationCommandService.unbookmark(userId, planId);</span>
+<span class="nc" id="L51">        return ApiResponse.success();</span>
+    }
+
+<span class="nc" id="L54">    public static class ApplyRequest {</span>
+        public String apply_reason;
+    }
+
+    @PostMapping(&quot;/plans/{planId}/participation-applications&quot;)
+    public ApiResponse&lt;Void&gt; apply(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @RequestBody(required = false) ApplyRequest req
+    ) {
+<span class="nc" id="L64">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        collaborationCommandService.applyToParticipate(userId, planId, req == null ? null : req.apply_reason);</span>
+<span class="nc" id="L66">        return ApiResponse.success();</span>
+    }
+
+    @PostMapping(&quot;/plans/{planId}/participation-applications/cancel&quot;)
+    public ApiResponse&lt;Void&gt; cancel(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId
+    ) {
+<span class="nc" id="L74">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L75">        collaborationCommandService.cancelApplication(userId, planId);</span>
+<span class="nc" id="L76">        return ApiResponse.success();</span>
+    }
+
+    @GetMapping(&quot;/plans/{planId}/participation-applications&quot;)
+    public ApiResponse&lt;List&lt;PlanMembershipPO&gt;&gt; listApplications(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId
+    ) {
+<span class="nc" id="L84">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L85">        return ApiResponse.success(collaborationQueryService.listPendingApplications(userId, planId));</span>
+    }
+
+    @PostMapping(&quot;/plans/{planId}/participation-applications/{userId}/approve&quot;)
+    public ApiResponse&lt;Void&gt; approve(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @PathVariable String userId
+    ) {
+<span class="nc" id="L94">        String ownerId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L95">        collaborationCommandService.approveApplication(ownerId, planId, userId);</span>
+<span class="nc" id="L96">        return ApiResponse.success();</span>
+    }
+
+    @PostMapping(&quot;/plans/{planId}/participation-applications/{userId}/reject&quot;)
+    public ApiResponse&lt;Void&gt; reject(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @PathVariable String userId
+    ) {
+<span class="nc" id="L105">        String ownerId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L106">        collaborationCommandService.rejectApplication(ownerId, planId, userId);</span>
+<span class="nc" id="L107">        return ApiResponse.success();</span>
+    }
+
+    @GetMapping(&quot;/plans/{planId}/members&quot;)
+    public ApiResponse&lt;List&lt;PlanMembershipPO&gt;&gt; members(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId
+    ) {
+<span class="nc" id="L115">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L116">        return ApiResponse.success(collaborationQueryService.listMembers(userId, planId));</span>
+    }
+
+    @PostMapping(&quot;/plans/{planId}/members/{userId}/remove&quot;)
+    public ApiResponse&lt;Void&gt; remove(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @PathVariable String userId
+    ) {
+<span class="nc" id="L125">        String ownerId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L126">        collaborationCommandService.removeParticipant(ownerId, planId, userId);</span>
+<span class="nc" id="L127">        return ApiResponse.success();</span>
+    }
+
+    @GetMapping(&quot;/plans/{planId}/itinerary/versions&quot;)
+    public ApiResponse&lt;List&lt;PlanItineraryRevisionPO&gt;&gt; versions(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId
+    ) {
+<span class="nc" id="L135">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L136">        return ApiResponse.success(collaborationQueryService.listItineraryVersions(userId, planId));</span>
+    }
+
+    @GetMapping(&quot;/plans/{planId}/itinerary/versions/{version}&quot;)
+    public ApiResponse&lt;Map&lt;String, Object&gt;&gt; versionDetail(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @PathVariable int version
+    ) {
+<span class="nc" id="L145">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L146">        return ApiResponse.success(collaborationQueryService.getItineraryVersionDetail(userId, planId, version));</span>
+    }
+
+<span class="nc" id="L149">    public static class CreateSuggestionRequest {</span>
+        @NotNull public Integer target_version;
+        @NotBlank public String content;
+    }
+
+    @PostMapping(&quot;/plans/{planId}/itinerary-suggestions&quot;)
+    public ApiResponse&lt;Map&lt;String, Object&gt;&gt; createSuggestion(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @Valid @RequestBody CreateSuggestionRequest req
+    ) {
+<span class="nc" id="L160">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L161">        return ApiResponse.success(collaborationCommandService.createSuggestion(userId, planId, req.target_version, req.content));</span>
+    }
+
+    @GetMapping(&quot;/plans/{planId}/itinerary-suggestions&quot;)
+    public ApiResponse&lt;List&lt;PlanItinerarySuggestionPO&gt;&gt; listSuggestions(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String planId,
+            @RequestParam(required = false) Integer target_version
+    ) {
+<span class="nc" id="L170">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L171">        return ApiResponse.success(collaborationQueryService.listSuggestions(userId, planId, target_version));</span>
+    }
+
+<span class="nc" id="L174">    public static class UpdateSuggestionRequest {</span>
+        @NotBlank public String content;
+    }
+
+    @PatchMapping(&quot;/itinerary-suggestions/{suggestionId}&quot;)
+    public ApiResponse&lt;Void&gt; updateSuggestion(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String suggestionId,
+            @Valid @RequestBody UpdateSuggestionRequest req
+    ) {
+<span class="nc" id="L184">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L185">        collaborationCommandService.updateOwnSuggestion(userId, suggestionId, req.content);</span>
+<span class="nc" id="L186">        return ApiResponse.success();</span>
+    }
+
+    @DeleteMapping(&quot;/itinerary-suggestions/{suggestionId}&quot;)
+    public ApiResponse&lt;Void&gt; deleteSuggestion(
+            @RequestHeader(value = &quot;Authorization&quot;, required = false) String authorization,
+            @PathVariable String suggestionId
+    ) {
+<span class="nc" id="L194">        String userId = authService.getUserIdFromAuthorization(authorization);</span>
+<span class="nc" id="L195">        collaborationCommandService.deleteOwnSuggestion(userId, suggestionId);</span>
+<span class="nc" id="L196">        return ApiResponse.success();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

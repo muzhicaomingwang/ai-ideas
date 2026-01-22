@@ -1,10 +1,12 @@
 # TeamVenture 一期 数据库详细设计
 
-> **版本**: v1.0
+> **版本**: v1.1
 > **数据库**: MySQL 8.0+
 > **字符集**: utf8mb4
 > **引擎**: InnoDB
 > **时区**: Asia/Shanghai
+>
+> **v1.1补充**: 通晒协作（成员/收藏/申请/行程版本/建议）相关表结构
 
 ---
 
@@ -424,6 +426,79 @@ CREATE TABLE `domain_events` (
 
 ---
 
+### 2.8 plan_memberships（通晒成员/收藏/申请关系表）⭐协作核心表
+
+```sql
+CREATE TABLE `plan_memberships` (
+  `membership_id` VARCHAR(32) NOT NULL COMMENT '成员关系ID，前缀pm_',
+  `plan_id` VARCHAR(32) NOT NULL COMMENT '方案ID',
+  `user_id` VARCHAR(32) NOT NULL COMMENT '用户ID',
+
+  `role` VARCHAR(20) NOT NULL COMMENT '角色：OWNER/PARTICIPANT/WATCHER',
+  `status` VARCHAR(20) NOT NULL COMMENT '状态：ACTIVE/PENDING/REJECTED/REMOVED（一期主要用ACTIVE/PENDING）',
+
+  `apply_reason` VARCHAR(255) DEFAULT NULL COMMENT '申请理由',
+  `last_decision` VARCHAR(20) DEFAULT NULL COMMENT '最近一次审批结果：APPROVED/REJECTED（可空）',
+  `decided_by` VARCHAR(32) DEFAULT NULL COMMENT '审批人user_id',
+  `decided_at` TIMESTAMP NULL COMMENT '审批时间',
+
+  `removed_by` VARCHAR(32) DEFAULT NULL COMMENT '踢人操作者user_id',
+  `removed_at` TIMESTAMP NULL COMMENT '踢人时间（踢人后降级为WATCHER/ACTIVE）',
+
+  `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+  PRIMARY KEY (`membership_id`),
+  UNIQUE KEY `uk_plan_user` (`plan_id`, `user_id`),
+  KEY `idx_plan_status` (`plan_id`, `status`),
+  KEY `idx_user_role_status` (`user_id`, `role`, `status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='方案协作成员关系表';
+```
+
+**说明**:
+- 一期约束：必须先收藏（WATCHER/ACTIVE）才允许申请参与（PARTICIPANT/PENDING）
+- 踢人不做彻底移除：从`PARTICIPANT/ACTIVE`降级为`WATCHER/ACTIVE`，仍可查看当前行程
+
+### 2.9 plan_itinerary_revisions（行程版本快照表）
+
+```sql
+CREATE TABLE `plan_itinerary_revisions` (
+  `revision_id` VARCHAR(32) NOT NULL COMMENT '版本快照ID，前缀rev_',
+  `plan_id` VARCHAR(32) NOT NULL COMMENT '方案ID',
+  `version` INT NOT NULL COMMENT '行程版本号（与plans.itinerary_version对齐）',
+  `itinerary` JSON NOT NULL COMMENT '行程内容快照',
+  `created_by` VARCHAR(32) NOT NULL COMMENT '创建人user_id',
+  `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+
+  PRIMARY KEY (`revision_id`),
+  UNIQUE KEY `uk_plan_version` (`plan_id`, `version`),
+  KEY `idx_plan_create_time` (`plan_id`, `create_time` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='行程版本快照表';
+```
+
+**说明**:
+- 收藏者（WATCHER）只允许读取当前行程（plans.itinerary），不允许读取该表
+- 参与者建议按版本绑定（见2.10）
+
+### 2.10 plan_itinerary_suggestions（行程建议表）
+
+```sql
+CREATE TABLE `plan_itinerary_suggestions` (
+  `suggestion_id` VARCHAR(32) NOT NULL COMMENT '建议ID，前缀sug_',
+  `plan_id` VARCHAR(32) NOT NULL COMMENT '方案ID',
+  `target_version` INT NOT NULL COMMENT '建议对应的行程版本号',
+  `user_id` VARCHAR(32) NOT NULL COMMENT '建议提出者user_id',
+  `content` TEXT NOT NULL COMMENT '建议内容',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'OPEN' COMMENT '状态：OPEN/RESOLVED/REJECTED（可选）',
+  `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+  PRIMARY KEY (`suggestion_id`),
+  KEY `idx_plan_version_time` (`plan_id`, `target_version`, `create_time` DESC),
+  KEY `idx_user_time` (`user_id`, `create_time` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='行程建议表（按版本）';
+```
+
 ## 3. 索引设计
 
 ### 3.1 查询场景与索引映射
@@ -437,6 +512,10 @@ CREATE TABLE `domain_events` (
 | 供应商评分排序 | `SELECT * FROM suppliers WHERE city='北京' ORDER BY rating DESC` | `idx_city_rating` | 复合索引 |
 | 领域事件查询 | `SELECT * FROM domain_events WHERE aggregate_id=? ORDER BY occurred_at DESC` | `idx_aggregate_id_occurred_at` | 复合索引 |
 | 未处理事件 | `SELECT * FROM domain_events WHERE processed=0 ORDER BY occurred_at` | `idx_processed` | 复合索引 |
+| 通晒成员列表 | `SELECT * FROM plan_memberships WHERE plan_id=? AND status='ACTIVE'` | `idx_plan_status` | 复合索引 |
+| 我的收藏列表 | `SELECT * FROM plan_memberships WHERE user_id=? AND role='WATCHER' AND status='ACTIVE'` | `idx_user_role_status` | 复合索引 |
+| 行程历史版本 | `SELECT * FROM plan_itinerary_revisions WHERE plan_id=? ORDER BY create_time DESC` | `idx_plan_create_time` | 复合索引 |
+| 行程建议列表 | `SELECT * FROM plan_itinerary_suggestions WHERE plan_id=? AND target_version=? ORDER BY create_time DESC` | `idx_plan_version_time` | 复合索引 |
 
 ### 3.2 索引优化建议
 

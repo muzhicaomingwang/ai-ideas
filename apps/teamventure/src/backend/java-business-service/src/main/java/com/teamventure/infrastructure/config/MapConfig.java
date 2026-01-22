@@ -6,6 +6,9 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.time.Duration;
 
 /**
@@ -39,11 +42,7 @@ public class MapConfig {
             .minimumNumberOfCalls(5)  // 至少5次调用才计算失败率
             .permittedNumberOfCallsInHalfOpenState(3)  // 半开状态允许3次调用
             .automaticTransitionFromOpenToHalfOpenEnabled(true)  // 自动从开启转半开
-            .recordExceptions(
-                java.net.SocketTimeoutException.class,
-                java.net.ConnectException.class,
-                java.io.IOException.class
-            )
+            .recordException(MapConfig::shouldRecord)
             .ignoreExceptions(IllegalArgumentException.class)  // 参数错误不计入失败率
             .build();
 
@@ -68,6 +67,17 @@ public class MapConfig {
             });
 
         return circuitBreaker;
+    }
+
+    private static boolean shouldRecord(Throwable t) {
+        Throwable cur = t;
+        for (int i = 0; i < 8 && cur != null; i++) {
+            if (cur instanceof SocketTimeoutException) return true;
+            if (cur instanceof ConnectException) return true;
+            if (cur instanceof IOException) return true;
+            cur = cur.getCause();
+        }
+        return false;
     }
 
     /**

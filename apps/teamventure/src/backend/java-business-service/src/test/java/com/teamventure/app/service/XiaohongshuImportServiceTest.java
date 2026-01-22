@@ -59,7 +59,10 @@ public class XiaohongshuImportServiceTest {
     @Test
     void parse_shouldFail_whenRapidApiReturnsEmpty() {
         String url = "https://www.xiaohongshu.com/explore/686f89fa000000002400f18a";
-        XiaohongshuImportService service = new XiaohongshuImportService(null, (id) -> Optional.empty());
+        XiaohongshuImportService service = new XiaohongshuImportService(
+                (u) -> "<html><head><title>x</title></head><body></body></html>",
+                (id) -> Optional.empty()
+        );
 
         BizException ex = assertThrows(BizException.class, () -> service.parse(url));
         assertEquals("PARSE_FAILED", ex.getCode());

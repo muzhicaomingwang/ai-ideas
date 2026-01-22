@@ -16,10 +16,10 @@ public class MediaController {
     private final AuthService authService;
     private final OssService ossService;
 
-<span class="nc" id="L19">    public MediaController(AuthService authService, OssService ossService) {</span>
-<span class="nc" id="L20">        this.authService = authService;</span>
-<span class="nc" id="L21">        this.ossService = ossService;</span>
-<span class="nc" id="L22">    }</span>
+<span class="fc" id="L19">    public MediaController(AuthService authService, OssService ossService) {</span>
+<span class="fc" id="L20">        this.authService = authService;</span>
+<span class="fc" id="L21">        this.ossService = ossService;</span>
+<span class="fc" id="L22">    }</span>
 
     @PostMapping(&quot;/upload&quot;)
     public ApiResponse&lt;UploadResponse&gt; upload(
