@@ -162,3 +162,13 @@ Gmail 批量清理工具 v2.0 (支持Token自动刷新)
 ❌ 请求异常: <urlopen error [Errno 51] Network is unreachable>
 ❌ 获取邮件列表失败: <urlopen error [Errno 51] Network is unreachable>
 ✅ 收件箱已经是空的！
+============================================================
+Gmail 批量清理工具 v2.0 (支持Token自动刷新)
+============================================================
+开始时间: 2026-01-24 09:05:49
+
+✅ Token 加载成功
+📧 正在获取未读邮件列表...
+❌ 请求异常: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+❌ 获取邮件列表失败: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+✅ 收件箱已经是空的！
