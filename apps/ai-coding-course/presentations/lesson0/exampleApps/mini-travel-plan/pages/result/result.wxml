@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{destination}} {{days}}日游</text>
+    <view class="tags">
+      <text class="tag">{{budgetLabel}}</text>
+      <text class="tag">AI定制</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="timeline">
+    <block wx:for="{{plan}}" wx:key="day">
+      <view class="day-item">
+        <view class="day-header">
+          <text class="day-num">Day {{item.day}}</text>
+          <text class="day-theme">{{item.theme}}</text>
+        </view>
+        
+        <view class="activities">
+          <block wx:for="{{item.activities}}" wx:for-item="act" wx:key="time">
+            <view class="activity">
+              <view class="time">{{act.time}}</view>
+              <view class="content">
+                <text class="act-name">{{act.name}}</text>
+                <text class="act-desc">{{act.desc}}</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+</view>

@@ -1,0 +1,64 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20rpx;
+  background-color: #f0f0f0;
+  height: 100vh;
+}
+
+.score-board {
+  font-size: 40rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
+}
+
+.game-canvas {
+  width: 300px;
+  height: 300px;
+  background-color: #fff;
+  border: 4rpx solid #333;
+  border-radius: 10rpx;
+}
+
+.controls {
+  margin-top: 40rpx;
+}
+
+.start-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10rpx 60rpx;
+  border-radius: 50rpx;
+}
+
+.d-pad {
+  margin-top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+}
+
+.btn {
+  width: 100rpx;
+  height: 100rpx;
+  background-color: #ddd;
+  margin: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 0 #bbb;
+}
+
+.btn:active {
+  background-color: #ccc;
+  transform: translateY(4rpx);
+  box-shadow: none;
+}

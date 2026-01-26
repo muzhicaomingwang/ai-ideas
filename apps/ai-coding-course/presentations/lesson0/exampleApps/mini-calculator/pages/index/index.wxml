@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="screen">
+    <view class="result">{{result}}</view>
+  </view>
+  <view class="btn-group">
+    <view class="btn gray" bindtap="onClear">AC</view>
+    <view class="btn gray" bindtap="onToggleSign">+/-</view>
+    <view class="btn gray" bindtap="onPercent">%</view>
+    <view class="btn orange" data-op="/" bindtap="onOperator">÷</view>
+    
+    <view class="btn" data-num="7" bindtap="onNumber">7</view>
+    <view class="btn" data-num="8" bindtap="onNumber">8</view>
+    <view class="btn" data-num="9" bindtap="onNumber">9</view>
+    <view class="btn orange" data-op="*" bindtap="onOperator">×</view>
+    
+    <view class="btn" data-num="4" bindtap="onNumber">4</view>
+    <view class="btn" data-num="5" bindtap="onNumber">5</view>
+    <view class="btn" data-num="6" bindtap="onNumber">6</view>
+    <view class="btn orange" data-op="-" bindtap="onOperator">-</view>
+    
+    <view class="btn" data-num="1" bindtap="onNumber">1</view>
+    <view class="btn" data-num="2" bindtap="onNumber">2</view>
+    <view class="btn" data-num="3" bindtap="onNumber">3</view>
+    <view class="btn orange" data-op="+" bindtap="onOperator">+</view>
+    
+    <view class="btn zero" data-num="0" bindtap="onNumber">0</view>
+    <view class="btn" bindtap="onDot">.</view>
+    <view class="btn orange" bindtap="onEqual">=</view>
+  </view>
+</view>

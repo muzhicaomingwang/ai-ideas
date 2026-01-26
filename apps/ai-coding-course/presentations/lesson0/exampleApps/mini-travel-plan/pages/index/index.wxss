@@ -1,0 +1,73 @@
+page {
+  background-color: #f5f7fa;
+}
+
+.container {
+  padding: 40rpx;
+}
+
+.header {
+  margin-bottom: 60rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0,0,0,0.05);
+}
+
+.form-item {
+  margin-bottom: 40rpx;
+}
+
+.label {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.input {
+  background: #f5f7fa;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+}
+
+.radio-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.radio {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.submit-btn {
+  background: #4A90E2;
+  color: #fff;
+  border-radius: 50rpx;
+  margin-top: 60rpx;
+  font-weight: 500;
+  box-shadow: 0 10rpx 20rpx rgba(74, 144, 226, 0.3);
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}

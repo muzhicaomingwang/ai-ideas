@@ -1,0 +1,101 @@
+page {
+  background-color: #f5f7fa;
+}
+
+.container {
+  padding: 30rpx;
+}
+
+.header {
+  margin-bottom: 40rpx;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.tags {
+  display: flex;
+}
+
+.tag {
+  background: #e1f0ff;
+  color: #4A90E2;
+  font-size: 24rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 30rpx;
+  margin-right: 20rpx;
+}
+
+.timeline {
+  height: calc(100vh - 200rpx);
+}
+
+.day-item {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.day-num {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #4A90E2;
+}
+
+.day-theme {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.activity {
+  display: flex;
+  margin-bottom: 30rpx;
+}
+
+.activity:last-child {
+  margin-bottom: 0;
+}
+
+.time {
+  width: 100rpx;
+  font-size: 26rpx;
+  color: #999;
+  padding-top: 4rpx;
+}
+
+.content {
+  flex: 1;
+  border-left: 4rpx solid #e1f0ff;
+  padding-left: 30rpx;
+  margin-left: 10rpx;
+}
+
+.act-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.act-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.4;
+}

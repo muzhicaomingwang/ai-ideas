@@ -1,0 +1,35 @@
+<view class="container">
+  <view class="header">
+    <text class="title">开启你的旅程</text>
+    <text class="subtitle">AI为你定制专属行程</text>
+  </view>
+
+  <view class="form-card">
+    <view class="form-item">
+      <text class="label">目的地</text>
+      <input class="input" placeholder="例如：日本、云南、巴黎" bindinput="onDestInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">游玩天数</text>
+      <slider min="1" max="15" show-value value="{{days}}" bindchange="onDaysChange" activeColor="#4A90E2"/>
+    </view>
+
+    <view class="form-item">
+      <text class="label">预算范围 (元)</text>
+      <radio-group class="radio-group" bindchange="onBudgetChange">
+        <label class="radio">
+          <radio value="low" color="#4A90E2"/> 穷游
+        </label>
+        <label class="radio">
+          <radio value="mid" checked color="#4A90E2"/> 舒适
+        </label>
+        <label class="radio">
+          <radio value="high" color="#4A90E2"/> 豪华
+        </label>
+      </radio-group>
+    </view>
+
+    <button class="submit-btn" bindtap="generatePlan">生成行程规划</button>
+  </view>
+</view>

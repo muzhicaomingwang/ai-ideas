@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="score-board">
+    <text>得分: {{score}}</text>
+  </view>
+  
+  <canvas type="2d" id="gameCanvas" class="game-canvas" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove"></canvas>
+  
+  <view class="controls" wx:if="{{!isPlaying}}">
+    <button class="start-btn" bindtap="startGame">{{isGameOver ? '重新开始' : '开始游戏'}}</button>
+  </view>
+
+  <view class="d-pad">
+    <view class="row">
+      <view class="btn up" data-dir="up" bindtap="onDirectionTap">↑</view>
+    </view>
+    <view class="row">
+      <view class="btn left" data-dir="left" bindtap="onDirectionTap">←</view>
+      <view class="btn down" data-dir="down" bindtap="onDirectionTap">↓</view>
+      <view class="btn right" data-dir="right" bindtap="onDirectionTap">→</view>
+    </view>
+  </view>
+</view>
