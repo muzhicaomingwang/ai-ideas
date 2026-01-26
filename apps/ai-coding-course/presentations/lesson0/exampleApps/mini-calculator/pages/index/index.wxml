@@ -1,30 +1,54 @@
+<!-- 容器视图，用于包裹整个计算器界面 -->
 <view class="container">
+  <!-- 屏幕区域，用于显示计算结果 -->
   <view class="screen">
+    <!-- 结果文本，绑定 result 数据 -->
     <view class="result">{{result}}</view>
   </view>
+  
+  <!-- 按钮组区域，包含所有操作按钮 -->
   <view class="btn-group">
+    <!-- 清除按钮 (AC)，绑定 onClear 点击事件，样式为灰色 -->
     <view class="btn gray" bindtap="onClear">AC</view>
+    <!-- 正负号切换按钮 (+/-)，绑定 onToggleSign 点击事件，样式为灰色 -->
     <view class="btn gray" bindtap="onToggleSign">+/-</view>
+    <!-- 百分比按钮 (%)，绑定 onPercent 点击事件，样式为灰色 -->
     <view class="btn gray" bindtap="onPercent">%</view>
+    <!-- 除法按钮 (÷)，绑定 onOperator 点击事件，传递参数 op="/"，样式为橙色 -->
     <view class="btn orange" data-op="/" bindtap="onOperator">÷</view>
     
+    <!-- 数字 7 按钮，绑定 onNumber 点击事件，传递参数 num="7" -->
     <view class="btn" data-num="7" bindtap="onNumber">7</view>
+    <!-- 数字 8 按钮，绑定 onNumber 点击事件，传递参数 num="8" -->
     <view class="btn" data-num="8" bindtap="onNumber">8</view>
+    <!-- 数字 9 按钮，绑定 onNumber 点击事件，传递参数 num="9" -->
     <view class="btn" data-num="9" bindtap="onNumber">9</view>
+    <!-- 乘法按钮 (×)，绑定 onOperator 点击事件，传递参数 op="*"，样式为橙色 -->
     <view class="btn orange" data-op="*" bindtap="onOperator">×</view>
     
+    <!-- 数字 4 按钮，绑定 onNumber 点击事件，传递参数 num="4" -->
     <view class="btn" data-num="4" bindtap="onNumber">4</view>
+    <!-- 数字 5 按钮，绑定 onNumber 点击事件，传递参数 num="5" -->
     <view class="btn" data-num="5" bindtap="onNumber">5</view>
+    <!-- 数字 6 按钮，绑定 onNumber 点击事件，传递参数 num="6" -->
     <view class="btn" data-num="6" bindtap="onNumber">6</view>
+    <!-- 减法按钮 (-)，绑定 onOperator 点击事件，传递参数 op="-"，样式为橙色 -->
     <view class="btn orange" data-op="-" bindtap="onOperator">-</view>
     
+    <!-- 数字 1 按钮，绑定 onNumber 点击事件，传递参数 num="1" -->
     <view class="btn" data-num="1" bindtap="onNumber">1</view>
+    <!-- 数字 2 按钮，绑定 onNumber 点击事件，传递参数 num="2" -->
     <view class="btn" data-num="2" bindtap="onNumber">2</view>
+    <!-- 数字 3 按钮，绑定 onNumber 点击事件，传递参数 num="3" -->
     <view class="btn" data-num="3" bindtap="onNumber">3</view>
+    <!-- 加法按钮 (+)，绑定 onOperator 点击事件，传递参数 op="+"，样式为橙色 -->
     <view class="btn orange" data-op="+" bindtap="onOperator">+</view>
     
+    <!-- 数字 0 按钮，绑定 onNumber 点击事件，传递参数 num="0"，样式为宽按钮 (zero) -->
     <view class="btn zero" data-num="0" bindtap="onNumber">0</view>
+    <!-- 小数点按钮 (.)，绑定 onDot 点击事件 -->
     <view class="btn" bindtap="onDot">.</view>
+    <!-- 等于号按钮 (=)，绑定 onEqual 点击事件，样式为橙色 -->
     <view class="btn orange" bindtap="onEqual">=</view>
   </view>
 </view>
