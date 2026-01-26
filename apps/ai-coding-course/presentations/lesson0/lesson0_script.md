@@ -47,17 +47,7 @@
 49	
 50	```mermaid
 51	graph TD
-52	    A[观察 Observe] -->|学习AI交互| B[理解 Understand]
-53	    B -->|分析业务逻辑| C[验证 Verify]
-54	    C -->|运行与测试| D{结果符合预期?}
-55	    D -->|是| E[完成 Done]
-56	    D -->|否| F[迭代 Iterate]
-57	    F -->|优化Prompt| A
-58	    
-59	    style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-60	    style B fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
-61	    style C fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-62	    style F fill:#ffebee,stroke:#c62828,stroke-width:2px
+52	 ![学习方法循环图](./images/learning_cycle.png)x
 63	```
 64	
 65	1.  **观察**：你需要仔细看我是如何向AI描述产品需求，以及AI是如何根据这些需求生成代码的。2.  **理解**：你的重点不是记住代码长什么样，而是去理解每一段代码背后所实现的业务逻辑是什么。比如，这段代码是为了实现‘用户登录’，那段代码是为了‘显示活动列表’。
