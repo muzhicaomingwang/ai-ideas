@@ -34,8 +34,9 @@ Page({
 
     const plan = [];
     for (let i = 1; i <= days; i++) {
-      // 随机打乱活动顺序以模拟不同行程
-      const dailyActs = [...activities].sort(() => Math.random() - 0.5);
+      // 随机选择部分活动，但保持时间顺序
+      // 这里简单起见，我们直接使用完整的活动列表，确保时间有序
+      const dailyActs = [...activities];
       
       plan.push({
         day: i,
