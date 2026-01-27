@@ -1,35 +1,33 @@
 <view class="container">
   <view class="header">
-    <text class="title">开启你的旅程</text>
-    <text class="subtitle">AI为你定制专属行程</text>
+    <text class="title">开启你的\n下一段旅程</text>
+    <text class="subtitle">输入你的偏好，为你生成专属行程</text>
   </view>
 
-  <view class="form-card">
+  <view class="card form-card">
     <view class="form-item">
       <text class="label">目的地</text>
-      <input class="input" placeholder="例如：日本、云南、巴黎" bindinput="onDestInput" />
+      <input class="input" placeholder="例如：京都" placeholder-class="placeholder" bindinput="onDestinationInput" />
     </view>
+    
+    <view class="divider"></view>
 
     <view class="form-item">
-      <text class="label">游玩天数</text>
-      <slider min="1" max="15" show-value value="{{days}}" bindchange="onDaysChange" activeColor="#4A90E2"/>
+      <text class="label">天数</text>
+      <picker mode="selector" range="{{daysRange}}" bindchange="onDaysChange">
+        <view class="picker-value {{days ? '' : 'placeholder'}}">
+          {{days ? days + ' 天' : '请选择天数'}}
+        </view>
+      </picker>
     </view>
+
+    <view class="divider"></view>
 
     <view class="form-item">
-      <text class="label">预算范围 (元)</text>
-      <radio-group class="radio-group" bindchange="onBudgetChange">
-        <label class="radio">
-          <radio value="low" color="#4A90E2"/> 穷游
-        </label>
-        <label class="radio">
-          <radio value="mid" checked color="#4A90E2"/> 舒适
-        </label>
-        <label class="radio">
-          <radio value="high" color="#4A90E2"/> 豪华
-        </label>
-      </radio-group>
+      <text class="label">预算</text>
+      <input class="input" type="number" placeholder="例如：5000" placeholder-class="placeholder" bindinput="onBudgetInput" />
     </view>
-
-    <button class="submit-btn" bindtap="generatePlan">生成行程规划</button>
   </view>
+
+  <button class="btn-primary" bindtap="generatePlan">生成规划</button>
 </view>

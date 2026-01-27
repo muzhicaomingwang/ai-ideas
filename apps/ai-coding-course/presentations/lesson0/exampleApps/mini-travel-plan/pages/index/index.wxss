@@ -1,73 +1,60 @@
-page {
-  background-color: #f5f7fa;
-}
-
-.container {
-  padding: 40rpx;
-}
-
+/** index.wxss **/
 .header {
-  margin-bottom: 60rpx;
+  width: 100%;
+  margin-bottom: 40px;
+  margin-top: 20px;
 }
 
 .title {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #333;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary-color);
+  line-height: 1.2;
   display: block;
-  margin-bottom: 10rpx;
+  margin-bottom: 10px;
 }
 
 .subtitle {
-  font-size: 28rpx;
-  color: #666;
+  font-size: 16px;
+  color: var(--text-secondary);
 }
 
 .form-card {
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 40rpx;
-  box-shadow: 0 10rpx 30rpx rgba(0,0,0,0.05);
+  padding: 0 24px;
 }
 
 .form-item {
-  margin-bottom: 40rpx;
-}
-
-.label {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-  display: block;
-  margin-bottom: 20rpx;
-}
-
-.input {
-  background: #f5f7fa;
-  padding: 20rpx;
-  border-radius: 10rpx;
-  font-size: 28rpx;
-}
-
-.radio-group {
+  padding: 24px 0;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 }
 
-.radio {
-  font-size: 28rpx;
-  color: #666;
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+  min-width: 60px;
 }
 
-.submit-btn {
-  background: #4A90E2;
-  color: #fff;
-  border-radius: 50rpx;
-  margin-top: 60rpx;
-  font-weight: 500;
-  box-shadow: 0 10rpx 20rpx rgba(74, 144, 226, 0.3);
+.input, .picker-value {
+  text-align: right;
+  font-size: 16px;
+  color: var(--text-main);
+  flex: 1;
 }
 
-.submit-btn:active {
-  transform: scale(0.98);
+.placeholder {
+  color: #c7c7c7;
+}
+
+.divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  width: 100%;
+}
+
+.btn-primary {
+  margin-top: 40px;
+  box-shadow: 0 8px 20px rgba(44, 44, 44, 0.2);
 }

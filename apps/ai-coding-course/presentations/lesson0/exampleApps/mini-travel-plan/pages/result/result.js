@@ -1,50 +1,44 @@
 Page({
   data: {
     destination: '',
-    days: 3,
-    budgetLabel: '',
-    plan: []
+    days: '',
+    budget: '',
+    itinerary: []
   },
 
   onLoad(options) {
-    const { dest, days, budget } = options;
-    const budgetMap = {
-      low: '穷游',
-      mid: '舒适',
-      high: '豪华'
-    };
-
+    const { destination, days, budget } = options;
     this.setData({
-      destination: dest,
-      days: parseInt(days),
-      budgetLabel: budgetMap[budget]
+      destination: decodeURIComponent(destination || '未知目的地'),
+      days: days || 3,
+      budget: budget || 5000
     });
-
-    this.generateMockPlan(parseInt(days));
+    this.generateItinerary(parseInt(days || 3));
   },
 
-  generateMockPlan(days) {
+  generateItinerary(days) {
     const activities = [
-      { time: '09:00', name: '城市地标打卡', desc: '参观市中心最著名的地标建筑，拍照留念' },
-      { time: '12:00', name: '特色午餐', desc: '品尝当地最地道的特色美食' },
-      { time: '14:00', name: '博物馆巡礼', desc: '深入了解当地的历史文化底蕴' },
-      { time: '18:00', name: '日落观景台', desc: '在最佳观景点欣赏城市日落全景' },
-      { time: '20:00', name: '夜市探索', desc: '感受当地热闹的夜生活氛围' }
+      { morning: '探访当地历史博物馆，感受文化底蕴', afternoon: '漫步市中心特色街区，打卡网红咖啡店', evening: '欣赏城市夜景，体验地道美食' },
+      { morning: '前往自然公园徒步，呼吸新鲜空气', afternoon: '参观艺术画廊，沉浸在艺术海洋', evening: '在爵士酒吧小酌，享受惬意时光' },
+      { morning: '体验当地手工艺制作', afternoon: '去海边/湖边散步，放松身心', evening: '逛当地夜市，搜罗特色纪念品' },
+      { morning: '打卡著名地标建筑', afternoon: '在特色书店度过午后时光', evening: '观看当地特色演出' },
+      { morning: '寻找隐藏在巷弄里的美食', afternoon: '去观景台俯瞰整个城市', evening: '在河边餐厅享用浪漫晚餐' }
     ];
 
-    const plan = [];
-    for (let i = 1; i <= days; i++) {
-      // 随机选择部分活动，但保持时间顺序
-      // 这里简单起见，我们直接使用完整的活动列表，确保时间有序
-      const dailyActs = [...activities];
-      
-      plan.push({
-        day: i,
-        theme: `第${i}天 - 深度探索之旅`,
-        activities: dailyActs
+    const itinerary = [];
+    for (let i = 0; i < days; i++) {
+      // 循环使用活动模板，避免天数过多时越界
+      const activity = activities[i % activities.length];
+      itinerary.push({
+        day: i + 1,
+        ...activity
       });
     }
 
-    this.setData({ plan });
+    this.setData({ itinerary });
+  },
+
+  goBack() {
+    wx.navigateBack();
   }
 });

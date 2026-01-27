@@ -5,8 +5,8 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "AI行程规划",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "Mini Travel Plan",
     "navigationBarTextStyle": "black"
   },
   "style": "v2",

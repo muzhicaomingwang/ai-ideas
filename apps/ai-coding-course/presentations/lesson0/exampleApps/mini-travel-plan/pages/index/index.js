@@ -1,42 +1,35 @@
 Page({
   data: {
     destination: '',
-    days: 3,
-    budget: 'mid'
+    days: '',
+    budget: '',
+    daysRange: Array.from({length: 15}, (_, i) => i + 1)
   },
 
-  onDestInput(e) {
+  onDestinationInput(e) {
     this.setData({ destination: e.detail.value });
   },
 
   onDaysChange(e) {
-    this.setData({ days: e.detail.value });
+    this.setData({ days: this.data.daysRange[e.detail.value] });
   },
 
-  onBudgetChange(e) {
+  onBudgetInput(e) {
     this.setData({ budget: e.detail.value });
   },
 
   generatePlan() {
-    if (!this.data.destination) {
+    const { destination, days, budget } = this.data;
+    if (!destination || !days || !budget) {
       wx.showToast({
-        title: '请输入目的地',
+        title: '请填写完整信息',
         icon: 'none'
       });
       return;
     }
 
-    wx.showLoading({
-      title: 'AI正在规划中...',
+    wx.navigateTo({
+      url: `/pages/result/result?destination=${destination}&days=${days}&budget=${budget}`
     });
-
-    // 模拟AI生成过程
-    setTimeout(() => {
-      wx.hideLoading();
-      const params = `?dest=${this.data.destination}&days=${this.data.days}&budget=${this.data.budget}`;
-      wx.navigateTo({
-        url: '/pages/result/result' + params
-      });
-    }, 1500);
   }
 });
