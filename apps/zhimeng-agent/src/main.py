@@ -17,6 +17,7 @@ from config.settings import settings
 from src.retriever import get_retriever
 from src.llm_client import get_llm_client
 from src.indexer import ObsidianIndexer
+from src.notification_handler import router as notification_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,6 +54,9 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# 注册通知路由
+app.include_router(notification_router, tags=["notifications"])
 
 
 # ==================== 数据模型 ====================
