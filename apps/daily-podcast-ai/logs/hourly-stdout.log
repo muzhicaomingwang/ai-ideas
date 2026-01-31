@@ -2227,3 +2227,139 @@
 📊 总计: 10 篇文章 (去重后)
 ✅ 新增 0 篇，总计 16 篇
 💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-30-news.json
+⏰ [00:00] 开始收集新闻...
+📂 当前缓存: 0 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 10 篇文章
+📰 获取 少数派 ...
+  ❌ 请求失败 (尝试 1/3): HTTPSConnectionPool(host='sspai.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='sspai.com', port=443): Failed to resolve 'sspai.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 2/3): HTTPSConnectionPool(host='sspai.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='sspai.com', port=443): Failed to resolve 'sspai.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 3/3): HTTPSConnectionPool(host='sspai.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='sspai.com', port=443): Failed to resolve 'sspai.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 获取失败
+📰 获取 虎嗅 ...
+  ✅ 获取 8 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 18 篇文章 (去重后)
+✅ 新增 18 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json
+⏰ [01:00] 开始收集新闻...
+📂 当前缓存: 18 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 10 篇文章
+📰 获取 少数派 ...
+  ✅ 获取 0 篇文章
+📰 获取 虎嗅 ...
+  ✅ 获取 8 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 18 篇文章 (去重后)
+✅ 新增 0 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json
+⏰ [02:00] 开始收集新闻...
+📂 当前缓存: 18 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 9 篇文章
+📰 获取 少数派 ...
+  ✅ 获取 0 篇文章
+📰 获取 虎嗅 ...
+  ✅ 获取 8 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 17 篇文章 (去重后)
+✅ 新增 0 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json
+⏰ [03:02] 开始收集新闻...
+📂 当前缓存: 18 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 9 篇文章
+📰 获取 少数派 ...
+  ✅ 获取 0 篇文章
+📰 获取 虎嗅 ...
+  ✅ 获取 8 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 17 篇文章 (去重后)
+✅ 新增 0 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json
+⏰ [04:10] 开始收集新闻...
+📂 当前缓存: 18 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 9 篇文章
+📰 获取 少数派 ...
+  ✅ 获取 0 篇文章
+📰 获取 虎嗅 ...
+  ✅ 获取 7 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 16 篇文章 (去重后)
+✅ 新增 0 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json
+⏰ [05:07] 开始收集新闻...
+📂 当前缓存: 18 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 9 篇文章
+📰 获取 少数派 ...
+  ✅ 获取 0 篇文章
+📰 获取 虎嗅 ...
+  ✅ 获取 6 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 15 篇文章 (去重后)
+✅ 新增 0 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json
+⏰ [06:03] 开始收集新闻...
+📂 当前缓存: 18 篇
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ✅ 获取 9 篇文章
+📰 获取 少数派 ...
+  ✅ 获取 0 篇文章
+📰 获取 虎嗅 ...
+  ✅ 获取 5 篇文章
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 2/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 请求失败 (尝试 3/3): 404 Client Error: Not Found for url: https://m.thepaper.cn/rss_newsDetail.jsp
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 14 篇文章 (去重后)
+✅ 新增 0 篇，总计 18 篇
+💾 已保存到: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-01-31-news.json

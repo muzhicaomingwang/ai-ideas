@@ -22,3 +22,229 @@ https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/READM
   from pydantic.v1.datetime_parse import parse_date as parse_date
 /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
   warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-01-30
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  📂 从缓存加载 16 篇新闻
+📊 候选新闻: 16 篇
+📊 过滤后: 16 篇
+🤖 步骤 1.5: AI 优选新闻 (从 16 篇中选出 10 篇)
+----------------------------------------
+  🤖 使用 AI 评估 16 篇新闻质量...
+  ⚠️ AI 评分失败: Request timed out.
+  📊 回退到按时间排序，返回前 10 篇
+✅ 最终选定 10 篇文章
+
+📝 步骤 2/5: 内容处理
+----------------------------------------
+  使用 AI 摘要 (OpenAI GPT-4o-mini)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.250.204.42:443: tcp handshaker shutdown
+  ⚠️ OpenAI 摘要失败: Connection error.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.251.33.74:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.250.73.138:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.251.33.74:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.251.33.74:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.251.34.202:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:142.250.69.170:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+✅ 处理完成 10 篇文章
+
+📜 步骤 3/5: 生成脚本 (Deep Dive 对话模式)
+----------------------------------------
+  🤖 使用 Anthropic Claude 生成高质量对话
+  📋 过滤新闻: 10 → 8 篇 (移除 2 篇低质量内容)
+  🤖 正在使用 Claude (claude-sonnet-4-20250514) 生成深度对话...
+  ✅ 生成 24 句对话
+✅ 脚本已保存: output/2026-01-30/dailytechnews/dialogue-2026-01-30.md
+
+🎙️ 步骤 4/5: 语音合成
+----------------------------------------
+
+🎙️ 开始生成双人对话音频，共 24 句对话
+   植萌 Voice: SKlxpKXGwoM0E8XpnxNs
+   小雅 Voice: cgSgspJ2msm6clMCkdW9
+----------------------------------------
+  [1/24] 🤖 Sound: [片头音乐渐入]...
+❌ 音频生成失败: headers: {'date': 'Fri, 30 Jan 2026 16:30:46 GMT', 'server': 'uvicorn', 'content-length': '128', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '62ebd8283955731eda36cf9ca92a36be', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'status': 'input_text_empty', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text.'}}
+    ❌ 生成失败
+  [2/24] 🗣️ 植萌: 诶小雅，你有没有发现最近可穿戴设备突然变...
+  [3/24] 🤖 小雅: 哈哈，你这么一说还真的诶！而且你注意到没...
+  [4/24] 🗣️ 植萌: 对对对！但是说实话，我对那个AI戒指的故...
+  [5/24] 🤖 小雅: 这个故事其实很典型啊。硬件创业本来就是地...
+  [6/24] 🗣️ 植萌: 等等，你觉得这些设备真的是刚需吗？我记得...
+  [7/24] 🤖 小雅: 这就要看你怎么理解'需求'了。现在的智能...
+  [8/24] 🗣️ 植萌: 诶，你这么说我想到宇树开源的那个VLA模...
+  [9/24] 🤖 小雅: 对！这个就很有意思了。你看，不管是AR眼...
+  [10/24] 🗣️ 植萌: 所以本质上是一场'具身化'的竞赛？AI不...
+  [11/24] 🤖 小雅: 没错！而且你注意到没有，宇树选择开源这个...
+  [12/24] 🗣️ 植萌: 但是话说回来，三星这种大厂进入AR眼镜市...
+  [13/24] 🤖 小雅: 这个问题很现实。大厂有资金、有渠道、有生...
+  [14/24] 🗣️ 植萌: 而且现在的时间窗口可能很关键。三星说20...
+  [15/24] 🤖 小雅: 对，而且我觉得市场可能比我们想象的更大。...
+  [16/24] 🗣️ 植萌: 你这么说我就想到一个问题：这些设备之间会...
+  [17/24] 🤖 小雅: 哇，这个想法很有意思！就像一个分布式的A...
+  [18/24] 🗣️ 植萌: 不过这样一来，数据隐私和安全问题就更复杂...
+  [19/24] 🤖 小雅: 这确实是个大问题。但我觉得这也可能成为小...
+  [20/24] 🗣️ 植萌: 所以你觉得这波可穿戴AI设备的热潮，最终...
+  [21/24] 🤖 小雅: 我个人比较看好多元化的发展。因为可穿戴设...
+  [22/24] 🗣️ 植萌: 那我们给听众朋友们留个思考题吧：如果让你...
+  [23/24] 🤖 小雅: 哈哈，好问题！我觉得这个选择可能会反映出...
+  [24/24] 🤖 Sound: [片尾音乐渐入渐出]...
+❌ 音频生成失败: headers: {'date': 'Fri, 30 Jan 2026 16:34:18 GMT', 'server': 'uvicorn', 'content-length': '128', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'afa589b50b51c79c7b719956a22a8d83', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'status': 'input_text_empty', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text.'}}
+    ❌ 生成失败
+✅ 生成 22 个音频片段
+
+🎧 步骤 5/5: 音频后处理
+----------------------------------------
+
+📀 步骤 1/3: 合并音频片段
+
+🎧 开始合并音频，共 22 个片段
+----------------------------------------
+  [1/22] 处理: 2026-01-30_line_001_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_001_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [2/22] 处理: 2026-01-30_line_002_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_002_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [3/22] 处理: 2026-01-30_line_003_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_003_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [4/22] 处理: 2026-01-30_line_004_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_004_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [5/22] 处理: 2026-01-30_line_005_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_005_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [6/22] 处理: 2026-01-30_line_006_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_006_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [7/22] 处理: 2026-01-30_line_007_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_007_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [8/22] 处理: 2026-01-30_line_008_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_008_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [9/22] 处理: 2026-01-30_line_009_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_009_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [10/22] 处理: 2026-01-30_line_010_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_010_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [11/22] 处理: 2026-01-30_line_011_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_011_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [12/22] 处理: 2026-01-30_line_012_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_012_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [13/22] 处理: 2026-01-30_line_013_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_013_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [14/22] 处理: 2026-01-30_line_014_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_014_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [15/22] 处理: 2026-01-30_line_015_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_015_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [16/22] 处理: 2026-01-30_line_016_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_016_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [17/22] 处理: 2026-01-30_line_017_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_017_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [18/22] 处理: 2026-01-30_line_018_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_018_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [19/22] 处理: 2026-01-30_line_019_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_019_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [20/22] 处理: 2026-01-30_line_020_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_020_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [21/22] 处理: 2026-01-30_line_021_植萌.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_021_植萌.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [22/22] 处理: 2026-01-30_line_022_小雅.mp3
+❌ 加载音频失败 (output/2026-01-30/dailytechnews/audio/2026-01-30_line_022_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+❌ 合并失败，没有有效的音频
+  ❌ 音频后处理失败
+
+🎨 步骤 6/6: 封面生成
+----------------------------------------
+  📊 新闻类别分布: {'ai': 4, 'business': 2, 'hardware': 2, 'chip': 1}
+  🎨 根据新闻内容检测到主题: ai
+✅ 封面生成完成: output/2026-01-30/dailytechnews/cover-2026-01-30.png
+
+==================================================
+🎉 播客生成完成!
+==================================================
+📝 脚本文件: output/2026-01-30/dailytechnews/dialogue-2026-01-30.md
+📰 文章数: 10
+
+✅ 播客生成完成
+
+🎨 步骤2: 生成封面图片...
+⚠️ 讲稿文件不存在，使用默认新闻数量: 10
+🎨 生成播客封面...
+   日期: 2026-01-30
+   标题: 今日科技早报
+   新闻数: 10
+✅ 封面已生成: output/2026-01-30/cover-2026-01-30.png
+✅ 封面生成完成
+
+========================================
+📋 生成结果摘要:
+========================================
+输出目录内容:
+total 768
+drwxr-xr-x@  4 qitmac001395  staff     128 Jan 31 00:34 .
+drwxr-xr-x@ 37 qitmac001395  staff    1184 Jan 30 07:04 ..
+-rw-r--r--@  1 qitmac001395  staff  390705 Jan 31 00:34 cover-2026-01-30.png
+drwxr-xr-x@  7 qitmac001395  staff     224 Jan 31 00:34 dailytechnews
+
+✅ 每日任务完成: 2026-01-31 00:34:24
+
+
+📱 步骤3: 发送飞书通知...
+2026-01-31 00:34:24,788 - INFO - 📤 发送飞书通知 (尝试 1/3): 🎙️ 今日科技早报已生成
+2026-01-31 00:34:25,178 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal "HTTP/1.1 200 OK"
+2026-01-31 00:34:25,179 - INFO - ✅ 获取飞书 token 成功，有效期至: Sat Jan 31 01:51:43 2026
+2026-01-31 00:34:25,843 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id "HTTP/1.1 200 OK"
+2026-01-31 00:34:25,844 - INFO - ✅ 飞书消息发送成功: message_id=om_x100b58f997d5aca4b203ea8b1b6f03b
+2026-01-31 00:34:25,845 - INFO - ✅ 通知发送成功!
+✅ 飞书通知发送成功
