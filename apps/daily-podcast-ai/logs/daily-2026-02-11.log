@@ -1,0 +1,158 @@
+========================================
+开始执行: 2026-02-11 07:01:03
+========================================
+✅ 环境变量已加载
+📅 生成日期: 2026-02-11
+📁 输出目录: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/output/2026-02-11
+
+🔄 步骤0: 检查并重试离线队列...
+2026-02-11 07:01:03,370 - INFO - 📭 离线队列为空
+
+🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）...
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/src/processors/dialogue_writer.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-02-11
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  📂 从缓存加载 15 篇新闻
+📊 候选新闻: 15 篇
+📊 过滤后: 15 篇
+🤖 步骤 1.5: AI 优选新闻 (从 15 篇中选出 10 篇)
+----------------------------------------
+  🤖 使用 AI 评估 15 篇新闻质量...
+  ⚠️ AI 评分失败: Request timed out.
+  📊 回退到按时间排序，返回前 10 篇
+✅ 最终选定 10 篇文章
+
+📝 步骤 2/5: 内容处理
+----------------------------------------
+  使用 AI 摘要 (OpenAI GPT-4o-mini)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 504 Deadline Exceeded
+  ⚠️ OpenAI 摘要失败: Connection error.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+✅ 处理完成 10 篇文章
+
+📜 步骤 3/5: 生成脚本 (Deep Dive 对话模式)
+----------------------------------------
+  🤖 使用 Anthropic Claude 生成高质量对话
+  📋 过滤新闻: 10 → 8 篇 (移除 2 篇低质量内容)
+  🤖 正在使用 Claude (claude-sonnet-4-20250514) 生成深度对话...
+  ❌ 对话生成失败: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CY1NckLE5iiJGMuJzw624'}
+✅ 脚本已保存: output/2026-02-11/dailytechnews/dialogue-2026-02-11.md
+
+🎙️ 步骤 4/5: 语音合成
+----------------------------------------
+
+🎙️ 开始生成双人对话音频，共 12 句对话
+   植萌 Voice: SKlxpKXGwoM0E8XpnxNs
+   小雅 Voice: cgSgspJ2msm6clMCkdW9
+----------------------------------------
+  [1/12] 🤖 Sound: [片头音乐]...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:41 GMT', 'server': 'uvicorn', 'content-length': '128', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'df64543db0639fcd7d0def2891d386d3', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'status': 'input_text_empty', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text.'}}
+    ❌ 生成失败
+  [2/12] 🤖 Host A: 大家好，欢迎收听今日科技早报，今天是20...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:41 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'e883ee4166fee8987d0def2891d38672', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [3/12] 🤖 Host B: 今天我们为大家准备了一些有趣的科技资讯。...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:43 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '89714ccbb0e7d7d0969826959a5d293a', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [4/12] 🤖 Host A: 我们来聊聊这条新闻：豆包官宣总台春晚互动...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:44 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'a016dad48b63cd88969826959a5d2b5e', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [5/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:45 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'd3ba05789f48b082969826959a5d2ea6', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [6/12] 🤖 Host A: 我们来聊聊这条新闻：被马斯克点赞，陈炜鹏...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:46 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '9ebb94cc390e8868969826959a5d2da2', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [7/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:47 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'afeb50e45a01af37969826959a5d2a67', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [8/12] 🤖 Host A: 我们来聊聊这条新闻：抖音生活服务上线“抖...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:47 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'f71f890aff9bcbf2969826959a5d24df', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [9/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:48 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '96ef0beedc0c287f7c49469c1568eeb5', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [10/12] 🤖 Host A: 好的，今天的节目就到这里。...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:50 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '5dde3413b5c689887c49469c1568e78b', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [11/12] 🤖 Host B: 感谢收听，我们下期再见！...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:50 GMT', 'server': 'uvicorn', 'content-length': '150', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'b2512af780bbfb467c49469c1568e8d7', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'payment_issue', 'message': 'Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.'}}
+    ❌ 生成失败
+  [12/12] 🤖 Sound: [片尾音乐]...
+❌ 音频生成失败: headers: {'date': 'Wed, 11 Feb 2026 00:57:52 GMT', 'server': 'uvicorn', 'content-length': '128', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '79d827cd62f392367c49469c1568e12d', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'status': 'input_text_empty', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text.'}}
+    ❌ 生成失败
+  ❌ 音频生成失败
+
+==================================================
+🎉 播客生成完成!
+==================================================
+📝 脚本文件: output/2026-02-11/dailytechnews/dialogue-2026-02-11.md
+📰 文章数: 10
+
+✅ 播客生成完成
+
+🎨 步骤2: 生成封面图片...
+⚠️ 讲稿文件不存在，使用默认新闻数量: 10
+🎨 生成播客封面...
+   日期: 2026-02-11
+   标题: 今日科技早报
+   新闻数: 10
+✅ 封面已生成: output/2026-02-11/cover-2026-02-11.png
+✅ 封面生成完成
+
+========================================
+📋 生成结果摘要:
+========================================
+输出目录内容:
+total 760
+drwxr-xr-x@  4 qitmac001395  staff     128 Feb 11 08:57 .
+drwxr-xr-x@ 47 qitmac001395  staff    1504 Feb 11 07:01 ..
+-rw-r--r--@  1 qitmac001395  staff  388418 Feb 11 08:57 cover-2026-02-11.png
+drwxr-xr-x@  5 qitmac001395  staff     160 Feb 11 08:57 dailytechnews
+
+✅ 每日任务完成: 2026-02-11 08:57:57
+
+
+📱 步骤3: 发送飞书通知...
+2026-02-11 08:57:57,342 - INFO - 📤 发送飞书通知 (尝试 1/3): 🎙️ 今日科技早报已生成
+2026-02-11 08:57:57,913 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal "HTTP/1.1 200 OK"
+2026-02-11 08:57:57,914 - INFO - ✅ 获取飞书 token 成功，有效期至: Wed Feb 11 09:50:18 2026
+2026-02-11 08:57:58,749 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id "HTTP/1.1 200 OK"
+2026-02-11 08:57:58,754 - INFO - ✅ 飞书消息发送成功: message_id=om_x100b57890faac0b4b34e6481667fbc7
+2026-02-11 08:57:58,755 - INFO - ✅ 通知发送成功!
+✅ 飞书通知发送成功
