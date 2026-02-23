@@ -8,6 +8,7 @@ from typing import Iterable, Optional
 
 NOTEID_PATTERNS = [
     re.compile(r"/discovery/item/([0-9a-fA-F]{16,64})"),
+    re.compile(r"/explore/([0-9a-fA-F]{16,64})"),  # New pattern for /explore/ URLs
     re.compile(r"[?&](?:noteId|note_id)=([0-9a-fA-F]{16,64})"),
 ]
 
