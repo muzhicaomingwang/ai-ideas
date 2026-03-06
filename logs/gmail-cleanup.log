@@ -660,3 +660,31 @@ Gmail 批量清理工具 v2.0 (支持Token自动刷新)
 ❌ 请求异常: <urlopen error [Errno 51] Network is unreachable>
 ❌ 获取邮件列表失败: <urlopen error [Errno 51] Network is unreachable>
 ✅ 收件箱已经是空的！
+============================================================
+Gmail 批量清理工具 v2.0 (支持Token自动刷新)
+============================================================
+开始时间: 2026-03-06 09:00:05
+
+✅ Token 加载成功
+📧 正在获取未读邮件列表...
+❌ API请求失败 (401): {
+  "error": {
+    "code": 401,
+    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",
+    "errors": [
+      {
+        "message": "Invalid Credentials",
+        "domain": "global",
+        "reason": "authError",
+        "location": "Authorization",
+        "locationType": "header"
+      }
+    ],
+    "status": "UNAUTHENTICATED"
+  }
+}
+
+🔄 Access token已过期，正在刷新...
+❌ Token刷新失败: HTTP Error 400: Bad Request
+❌ 获取邮件列表失败: HTTP Error 401: Unauthorized
+✅ 收件箱已经是空的！
