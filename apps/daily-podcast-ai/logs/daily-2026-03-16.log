@@ -1,0 +1,240 @@
+========================================
+开始执行: 2026-03-16 07:00:05
+========================================
+✅ 环境变量已加载
+📅 生成日期: 2026-03-16
+📁 输出目录: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/output/2026-03-16
+
+🔄 步骤0: 检查并重试离线队列...
+2026-03-16 07:00:05,147 - INFO - 📭 离线队列为空
+
+🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）...
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/src/processors/dialogue_writer.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:198: RuntimeWarning: Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work
+  warn("Couldn't find ffprobe or avprobe - defaulting to ffprobe, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-03-16
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  📂 从缓存加载 11 篇新闻
+📊 候选新闻: 11 篇
+📊 过滤后: 11 篇
+🤖 步骤 1.5: AI 优选新闻 (从 11 篇中选出 10 篇)
+----------------------------------------
+  🤖 使用 AI 评估 11 篇新闻质量...
+  ⚠️ AI 评分失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}
+  📊 回退到按时间排序，返回前 10 篇
+✅ 最终选定 10 篇文章
+
+📝 步骤 2/5: 内容处理
+----------------------------------------
+  使用 AI 摘要 (OpenAI GPT-4o-mini)
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+✅ 处理完成 10 篇文章
+
+📜 步骤 3/5: 生成脚本 (Deep Dive 对话模式)
+----------------------------------------
+  🤖 使用 Anthropic Claude 生成高质量对话
+  📋 过滤新闻: 10 → 9 篇 (移除 1 篇低质量内容)
+  🤖 正在使用 Claude (claude-sonnet-4-20250514) 生成深度对话...
+  ✅ 生成 26 句对话
+✅ 脚本已保存: output/2026-03-16/dailytechnews/dialogue-2026-03-16.md
+
+🎙️ 步骤 4/5: 语音合成
+----------------------------------------
+
+🎙️ 开始生成双人对话音频，共 26 句对话
+   植萌 Voice: SKlxpKXGwoM0E8XpnxNs
+   小雅 Voice: cgSgspJ2msm6clMCkdW9
+----------------------------------------
+  [1/26] 🤖 Sound: [片头音乐渐入]...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:11 GMT', 'server': 'uvicorn', 'content-length': '284', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '853f41976699317a88db3f10313e39ef', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'type': 'validation_error', 'code': 'invalid_parameters', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text after removing speaker tags and emojis.', 'status': 'input_text_empty', 'request_id': '853f41976699317a88db3f10313e39ef', 'param': 'text'}}
+    ❌ 生成失败
+  [2/26] 🗣️ 植萌: 诶，小雅，你知道吗？今年的GDC游戏开发...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:12 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'c7554b60467c7794e9ce4841cac07ff3', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'c7554b60467c7794e9ce4841cac07ff3'}}
+    ❌ 生成失败
+  [3/26] 🤖 小雅: 哇，这个数字真的很夸张。我注意到一个有意...
+  [4/26] 🗣️ 植萌: 21场！这几乎是中国厂商的80%啊。看来...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:18 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '745aa0cad92cc9de538d83342c04dad1', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '745aa0cad92cc9de538d83342c04dad1'}}
+    ❌ 生成失败
+  [5/26] 🤖 小雅: 对对对，这其实反映了一个很重要的趋势。游...
+  [6/26] 🗣️ 植萌: 等等，你这么说我想起来了，刚好今天还看到...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:26 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'ad01f538c88df539d73931ea22fa4133', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'ad01f538c88df539d73931ea22fa4133'}}
+    ❌ 生成失败
+  [7/26] 🤖 小雅: 没错！这就是我想说的。游戏、网文、视频制...
+  [8/26] 🗣️ 植萌: 对，达瓦科技这个案例特别有意思。他们说自...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:32 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '57beb97683102893afd79fa115632c49', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '57beb97683102893afd79fa115632c49'}}
+    ❌ 生成失败
+  [9/26] 🤖 小雅: 你说得特别对！他们的创始人提到了一个观点...
+  [10/26] 🗣️ 植萌: 这个角度太棒了！就像学画画，光看名画没用...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:37 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'f855717d98fbb002da26b05517c251a2', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'f855717d98fbb002da26b05517c251a2'}}
+    ❌ 生成失败
+  [11/26] 🤖 小雅: 没错！而且你注意到没有，这些公司都在强调...
+  [12/26] 🗣️ 植萌: 这让我想到今天看的另一个新闻，AWE展会...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:43 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '823cb3496b3f7079b8ae1329dbc522aa', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '823cb3496b3f7079b8ae1329dbc522aa'}}
+    ❌ 生成失败
+  [13/26] 🤖 小雅: 哈哈，连睡觉都要AI了。不过这个其实挺有...
+  [14/26] 🗣️ 植萌: 对啊，就像家里的语音助手，有时候明明是来...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:49 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '65b146e4b5f3c83d394c15cf3fffef7f', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '65b146e4b5f3c83d394c15cf3fffef7f'}}
+    ❌ 生成失败
+  [15/26] 🤖 小雅: 所以真正的智能应该是'无感存在'、'主动...
+  [16/26] 🗣️ 植萌: 这就回到了我们刚才说的数据问题。无论是游...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:54 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'b841aedb0476ed4bba3cad90c409a708', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'b841aedb0476ed4bba3cad90c409a708'}}
+    ❌ 生成失败
+  [17/26] 🤖 小雅: 而且这些数据必须是专业的、结构化的、有深...
+  [18/26] 🗣️ 植萌: 真的假的，这样看来，各行各业的AI化可能...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:43:59 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'a0b8fa9b6736b449be98fbf738d11b89', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'a0b8fa9b6736b449be98fbf738d11b89'}}
+    ❌ 生成失败
+  [19/26] 🤖 小雅: 很有可能！就像达瓦科技，他们的核心竞争力...
+  [20/26] 🗣️ 植萌: 那么问题来了，当AI在各个创意领域都变得...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:44:05 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'b65fae0acaaa69e7a5fdf1deda2760c3', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'b65fae0acaaa69e7a5fdf1deda2760c3'}}
+    ❌ 生成失败
+  [21/26] 🤖 小雅: 这是个很好的问题。我觉得人类的价值可能会...
+  [22/26] 🗣️ 植萌: 嗯，就像一个优秀的导演，不一定要会摄影会...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:44:12 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '54024aaa6a5ced904fbbefd7ee1cd6fd', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '54024aaa6a5ced904fbbefd7ee1cd6fd'}}
+    ❌ 生成失败
+  [23/26] 🤖 小雅: 没错！所以我觉得这轮AI浪潮最终会让创作...
+  [24/26] 🗣️ 植萌: 好，那今天就聊到这里。留个问题给大家思考...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:44:17 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '1232dba4a6c5fb162c5db8f8cf0c8612', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '1232dba4a6c5fb162c5db8f8cf0c8612'}}
+    ❌ 生成失败
+  [25/26] 🤖 小雅: 欢迎大家在评论区分享你的想法。我们下期再...
+  [26/26] 🤖 Sound: [片尾音乐渐入]...
+❌ 音频生成失败: headers: {'date': 'Sun, 15 Mar 2026 23:44:19 GMT', 'server': 'uvicorn', 'content-length': '284', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'd09e051b3337bc4f0038552069107394', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'type': 'validation_error', 'code': 'invalid_parameters', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text after removing speaker tags and emojis.', 'status': 'input_text_empty', 'request_id': 'd09e051b3337bc4f0038552069107394', 'param': 'text'}}
+    ❌ 生成失败
+✅ 生成 12 个音频片段
+
+🎧 步骤 5/5: 音频后处理
+----------------------------------------
+
+📀 步骤 1/3: 合并音频片段
+
+🎧 开始合并音频，共 12 个片段
+----------------------------------------
+  [1/12] 处理: 2026-03-16_line_002_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_002_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [2/12] 处理: 2026-03-16_line_004_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_004_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [3/12] 处理: 2026-03-16_line_006_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_006_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [4/12] 处理: 2026-03-16_line_008_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_008_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [5/12] 处理: 2026-03-16_line_010_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_010_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [6/12] 处理: 2026-03-16_line_012_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_012_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [7/12] 处理: 2026-03-16_line_014_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_014_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [8/12] 处理: 2026-03-16_line_016_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_016_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [9/12] 处理: 2026-03-16_line_018_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_018_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [10/12] 处理: 2026-03-16_line_020_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_020_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [11/12] 处理: 2026-03-16_line_022_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_022_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+  [12/12] 处理: 2026-03-16_line_024_小雅.mp3
+❌ 加载音频失败 (output/2026-03-16/dailytechnews/audio/2026-03-16_line_024_小雅.mp3): [Errno 2] No such file or directory: 'ffprobe'
+❌ 合并失败，没有有效的音频
+  ❌ 音频后处理失败
+
+🎨 步骤 6/6: 封面生成
+----------------------------------------
+  📊 新闻类别分布: {'ai': 5, 'green': 3, 'business': 2, 'hardware': 1}
+  🎨 根据新闻内容检测到主题: ai
+✅ 封面生成完成: output/2026-03-16/dailytechnews/cover-2026-03-16.png
+
+==================================================
+🎉 播客生成完成!
+==================================================
+📝 脚本文件: output/2026-03-16/dailytechnews/dialogue-2026-03-16.md
+📰 文章数: 10
+
+✅ 播客生成完成
+
+🎨 步骤2: 生成封面图片...
+⚠️ 讲稿文件不存在，使用默认新闻数量: 10
+🎨 生成播客封面...
+   日期: 2026-03-16
+   标题: 今日科技早报
+   新闻数: 10
+✅ 封面已生成: output/2026-03-16/cover-2026-03-16.png
+✅ 封面生成完成
+
+========================================
+📋 生成结果摘要:
+========================================
+输出目录内容:
+total 768
+drwxr-xr-x@  4 qitmac001395  staff     128 Mar 16 07:44 .
+drwxr-xr-x@ 78 qitmac001395  staff    2496 Mar 16 07:00 ..
+-rw-r--r--@  1 qitmac001395  staff  390120 Mar 16 07:44 cover-2026-03-16.png
+drwxr-xr-x@  7 qitmac001395  staff     224 Mar 16 07:44 dailytechnews
+
+✅ 每日任务完成: 2026-03-16 07:44:25
+
+
+📱 步骤3: 发送飞书通知...
+2026-03-16 07:44:25,488 - INFO - 📤 发送飞书通知 (尝试 1/3): 🎙️ 今日科技早报已生成
+2026-03-16 07:44:27,281 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal "HTTP/1.1 200 OK"
+2026-03-16 07:44:27,283 - INFO - ✅ 获取飞书 token 成功，有效期至: Mon Mar 16 09:43:27 2026
+2026-03-16 07:44:28,650 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id "HTTP/1.1 200 OK"
+2026-03-16 07:44:28,651 - INFO - ✅ 飞书消息发送成功: message_id=om_x100b54400b0820a4b36bcfc19c864c4
+2026-03-16 07:44:28,654 - INFO - ✅ 通知发送成功!
+✅ 飞书通知发送成功
