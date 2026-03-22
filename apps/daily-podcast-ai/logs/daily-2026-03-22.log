@@ -1,0 +1,185 @@
+========================================
+开始执行: 2026-03-22 07:03:05
+========================================
+✅ 环境变量已加载
+📅 生成日期: 2026-03-22
+📁 输出目录: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/output/2026-03-22
+
+🔄 步骤0: 检查并重试离线队列...
+2026-03-22 07:03:06,197 - INFO - 📭 离线队列为空
+
+🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）...
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/src/processors/dialogue_writer.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-03-22
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  📂 从缓存加载 8 篇新闻
+📊 候选新闻: 8 篇
+📊 过滤后: 8 篇
+✅ 最终选定 8 篇文章
+
+📝 步骤 2/5: 内容处理
+----------------------------------------
+  使用 AI 摘要 (OpenAI GPT-4o-mini)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 504 Deadline Exceeded
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 504 Deadline Exceeded
+  ⚠️ OpenAI 摘要失败: Connection error.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+  ⚠️ OpenAI 摘要失败: Error code: 429 - {'error': {'message': 'Your account is not active, please check your billing details on our website.', 'type': 'billing_not_active', 'param': None, 'code': 'billing_not_active'}}，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+✅ 处理完成 8 篇文章
+
+📜 步骤 3/5: 生成脚本 (Deep Dive 对话模式)
+----------------------------------------
+  🤖 使用 Anthropic Claude 生成高质量对话
+  📋 过滤新闻: 8 → 8 篇 (移除 0 篇低质量内容)
+  🤖 正在使用 Claude (claude-sonnet-4-20250514) 生成深度对话...
+  ✅ 生成 24 句对话
+✅ 脚本已保存: output/2026-03-22/dailytechnews/dialogue-2026-03-22.md
+
+🎙️ 步骤 4/5: 语音合成
+----------------------------------------
+
+🎙️ 开始生成双人对话音频，共 24 句对话
+   植萌 Voice: SKlxpKXGwoM0E8XpnxNs
+   小雅 Voice: cgSgspJ2msm6clMCkdW9
+----------------------------------------
+  [1/24] 🤖 Sound: [片头音乐渐入]...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:50:57 GMT', 'server': 'uvicorn', 'content-length': '284', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'f7689519024e55176173710256523b30', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'type': 'validation_error', 'code': 'invalid_parameters', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text after removing speaker tags and emojis.', 'status': 'input_text_empty', 'request_id': 'f7689519024e55176173710256523b30', 'param': 'text'}}
+    ❌ 生成失败
+  [2/24] 🗣️ 植萌: 诶小雅，你有没有发现最近AI这个赛道变得...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:50:59 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '4da8809f558bb330b03e958faea1ae37', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '4da8809f558bb330b03e958faea1ae37'}}
+    ❌ 生成失败
+  [3/24] 🤖 小雅: 哦对，我也注意到了！项目代号叫'Tran...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:00 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '6cd12280ebc11f35b03e958faea1a09f', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 77 credits are required for this request.'}}
+    ❌ 生成失败
+  [4/24] 🗣️ 植萌: 哈哈，你说的是Fire Phone对吧？...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:02 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '4a81e0265cc3b16fb03e958faea1ab4e', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '4a81e0265cc3b16fb03e958faea1ab4e'}}
+    ❌ 生成失败
+  [5/24] 🤖 小雅: 这次确实不太一样。你看啊，他们说这个手机...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:02 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '54dd45991dcf1f22b03e958faea1a72c', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 77 credits are required for this request.'}}
+    ❌ 生成失败
+  [6/24] 🗣️ 植萌: 对对对！而且你注意到没有，这其实和另一个...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:03 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'dc1aeb522a960f65b03e958faea1a8d7', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'dc1aeb522a960f65b03e958faea1a8d7'}}
+    ❌ 生成失败
+  [7/24] 🤖 小雅: 等等，你是说把Agent当作'新型用户'...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:05 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'cb171c4946ebdd890cc734cfbecdfa8e', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 65 credits are required for this request.'}}
+    ❌ 生成失败
+  [8/24] 🗣️ 植萌: 没错！我觉得这背后反映的是一个更大的趋势...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:07 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '1c20c333fc09c19c0cc734cfbecdfb15', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '1c20c333fc09c19c0cc734cfbecdfb15'}}
+    ❌ 生成失败
+  [9/24] 🤖 小雅: 这个观察很敏锐。而且你看，这种变化在基础...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:09 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '01ce52a13a578e380cc734cfbecdf15c', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 63 credits are required for this request.'}}
+    ❌ 生成失败
+  [10/24] 🗣️ 植萌: 诶这个我也看到了！在广州的那个对吧？说是...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:10 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '5b62c65408e0e4ae0cc734cfbecdf476', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '5b62c65408e0e4ae0cc734cfbecdf476'}}
+    ❌ 生成失败
+  [11/24] 🤖 小雅: 其实这个很关键。电力系统是所有基础设施的...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:11 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'd783ec75c8cf346b9f1834826fe3dd8e', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 85 credits are required for this request.'}}
+    ❌ 生成失败
+  [12/24] 🗣️ 植萌: 哇，这样一说我就明白了！就像搭积木一样，...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:12 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'a473e67bfe07c0b99f1834826fe3d305', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'a473e67bfe07c0b99f1834826fe3d305'}}
+    ❌ 生成失败
+  [13/24] 🤖 小雅: 对！而且这种基础设施的变化，往往比我们看...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:13 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '876753c5ccdb23bb9f1834826fe3d275', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 74 credits are required for this request.'}}
+    ❌ 生成失败
+  [14/24] 🗣️ 植萌: 说到基础设施，今天还有一个消息挺有意思的...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:14 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '2cae1e1edf0451e09f1834826fe3d690', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '2cae1e1edf0451e09f1834826fe3d690'}}
+    ❌ 生成失败
+  [15/24] 🤖 小雅: 这个意义其实挺重大的。长期以来，学术评价...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:15 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '1c094a95d71576ae9f1834826fe3d00c', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 85 credits are required for this request.'}}
+    ❌ 生成失败
+  [16/24] 🗣️ 植萌: 是的，尤其是在AI和生命科学这些前沿领域...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:16 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '309b6cb68704138877758689f182a064', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '309b6cb68704138877758689f182a064'}}
+    ❌ 生成失败
+  [17/24] 🤖 小雅: 而且你注意到没有，这些消息放在一起看，其...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:17 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'afe620b6d1e87cb177758689f182a642', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 67 credits are required for this request.'}}
+    ❌ 生成失败
+  [18/24] 🗣️ 植萌: 对！就像亚马逊想要重新定义手机一样，我们...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:18 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '5643954b6fd39fa077758689f182a91b', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '5643954b6fd39fa077758689f182a91b'}}
+    ❌ 生成失败
+  [19/24] 🤖 小雅: 我觉得最直观的就是，我们可能很快就会进入...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:19 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'aaa357ba7cd119ed77758689f182a29e', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 69 credits are required for this request.'}}
+    ❌ 生成失败
+  [20/24] 🗣️ 植萌: 这么说来，我们现在看到的这些消息，其实都...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:20 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '986ccc5bdc4a261277758689f182a73f', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '986ccc5bdc4a261277758689f182a73f'}}
+    ❌ 生成失败
+  [21/24] 🤖 小雅: 我觉得最重要的是保持好奇心和学习能力。技...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:22 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '33f08c0477f5782d77758689f182a973', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 68 credits are required for this request.'}}
+    ❌ 生成失败
+  [22/24] 🗣️ 植萌: 说得好！好了，今天的话题就聊到这里。给听...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:23 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '7fa278d43b89b7911940572310d4d452', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '7fa278d43b89b7911940572310d4d452'}}
+    ❌ 生成失败
+  [23/24] 🤖 小雅: 这个问题很有意思，期待大家的想法。我们下...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:24 GMT', 'server': 'uvicorn', 'content-length': '170', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '7da006665b64ee291940572310d4d926', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 401, body: {'detail': {'status': 'quota_exceeded', 'message': 'This request exceeds your quota of 10000. You have 0 credits remaining, while 23 credits are required for this request.'}}
+    ❌ 生成失败
+  [24/24] 🤖 Sound: [片尾音乐渐入]...
+❌ 音频生成失败: headers: {'date': 'Sun, 22 Mar 2026 03:51:25 GMT', 'server': 'uvicorn', 'content-length': '284', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'e073f3a5ad1c3e831940572310d4d789', 'x-region': 'us-central1', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'type': 'validation_error', 'code': 'invalid_parameters', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text after removing speaker tags and emojis.', 'status': 'input_text_empty', 'request_id': 'e073f3a5ad1c3e831940572310d4d789', 'param': 'text'}}
+    ❌ 生成失败
+  ❌ 音频生成失败
+
+==================================================
+🎉 播客生成完成!
+==================================================
+📝 脚本文件: output/2026-03-22/dailytechnews/dialogue-2026-03-22.md
+📰 文章数: 8
+
+✅ 播客生成完成
+
+🎨 步骤2: 生成封面图片...
+⚠️ 讲稿文件不存在，使用默认新闻数量: 10
+🎨 生成播客封面...
+   日期: 2026-03-22
+   标题: 今日科技早报
+   新闻数: 10
+✅ 封面已生成: output/2026-03-22/cover-2026-03-22.png
+✅ 封面生成完成
+
+========================================
+📋 生成结果摘要:
+========================================
+输出目录内容:
+total 768
+drwxr-xr-x@  4 qitmac001395  staff     128 Mar 22 11:51 .
+drwxr-xr-x@ 84 qitmac001395  staff    2688 Mar 22 07:03 ..
+-rw-r--r--@  1 qitmac001395  staff  390365 Mar 22 11:51 cover-2026-03-22.png
+drwxr-xr-x@  5 qitmac001395  staff     160 Mar 22 11:50 dailytechnews
+
+✅ 每日任务完成: 2026-03-22 11:51:29
+
+
+📱 步骤3: 发送飞书通知...
+2026-03-22 11:51:29,876 - INFO - 📤 发送飞书通知 (尝试 1/3): 🎙️ 今日科技早报已生成
+2026-03-22 11:51:30,607 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal "HTTP/1.1 200 OK"
+2026-03-22 11:51:30,608 - INFO - ✅ 获取飞书 token 成功，有效期至: Sun Mar 22 13:50:30 2026
+2026-03-22 11:51:31,373 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id "HTTP/1.1 200 OK"
+2026-03-22 11:51:31,374 - INFO - ✅ 飞书消息发送成功: message_id=om_x100b54c23af8bca0b103a990dbe9bd3
+2026-03-22 11:51:31,374 - INFO - ✅ 通知发送成功!
+✅ 飞书通知发送成功
