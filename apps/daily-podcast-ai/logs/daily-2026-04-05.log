@@ -1,0 +1,140 @@
+========================================
+开始执行: 2026-04-05 07:00:05
+========================================
+✅ 环境变量已加载
+📅 生成日期: 2026-04-05
+📁 输出目录: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/output/2026-04-05
+
+🔄 步骤0: 检查并重试离线队列...
+2026-04-05 07:00:05,237 - INFO - 📭 离线队列为空
+
+🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）...
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/src/processors/dialogue_writer.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-04-05
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  📂 从缓存加载 3 篇新闻
+📊 候选新闻: 3 篇
+📊 过滤后: 3 篇
+✅ 最终选定 3 篇文章
+
+📝 步骤 2/5: 内容处理
+----------------------------------------
+  使用 AI 摘要 (OpenAI GPT-4o-mini)
+  ⚠️ OpenAI 摘要失败: Connection error.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=AAAA name=generativelanguage.googleapis.com is_balancer=0: Timeout while contacting DNS servers
+  ⚠️ OpenAI 摘要失败: Connection error.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=SRV name=_grpclb._tcp.generativelanguage.googleapis.com: Timeout while contacting DNS servers
+  ⚠️ OpenAI 摘要失败: Connection error.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=A name=generativelanguage.googleapis.com is_balancer=0: Timeout while contacting DNS servers
+✅ 处理完成 3 篇文章
+
+📜 步骤 3/5: 生成脚本 (Deep Dive 对话模式)
+----------------------------------------
+  🤖 使用 Anthropic Claude 生成高质量对话
+  📋 过滤新闻: 3 → 3 篇 (移除 0 篇低质量内容)
+  🤖 正在使用 Claude (claude-sonnet-4-20250514) 生成深度对话...
+  ❌ 对话生成失败: Connection error.
+✅ 脚本已保存: output/2026-04-05/dailytechnews/dialogue-2026-04-05.md
+
+🎙️ 步骤 4/5: 语音合成
+----------------------------------------
+
+🎙️ 开始生成双人对话音频，共 12 句对话
+   植萌 Voice: SKlxpKXGwoM0E8XpnxNs
+   小雅 Voice: cgSgspJ2msm6clMCkdW9
+----------------------------------------
+  [1/12] 🤖 Sound: [片头音乐]...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [2/12] 🤖 Host A: 大家好，欢迎收听今日科技早报，今天是20...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [3/12] 🤖 Host B: 今天我们为大家准备了一些有趣的科技资讯。...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [4/12] 🤖 Host A: 我们来聊聊这条新闻：买前必看：千问 AI...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [5/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [6/12] 🤖 Host A: 我们来聊聊这条新闻：中国有色金属工业协会...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [7/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [8/12] 🤖 Host A: 我们来聊聊这条新闻：一群00后极客和这家...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [9/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [10/12] 🤖 Host A: 好的，今天的节目就到这里。...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [11/12] 🤖 Host B: 感谢收听，我们下期再见！...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  [12/12] 🤖 Sound: [片尾音乐]...
+❌ 音频生成失败: [Errno 8] nodename nor servname provided, or not known
+    ❌ 生成失败
+  ❌ 音频生成失败
+
+==================================================
+🎉 播客生成完成!
+==================================================
+📝 脚本文件: output/2026-04-05/dailytechnews/dialogue-2026-04-05.md
+📰 文章数: 3
+
+✅ 播客生成完成
+
+🎨 步骤2: 生成封面图片...
+⚠️ 讲稿文件不存在，使用默认新闻数量: 10
+🎨 生成播客封面...
+   日期: 2026-04-05
+   标题: 今日科技早报
+   新闻数: 10
+✅ 封面已生成: output/2026-04-05/cover-2026-04-05.png
+✅ 封面生成完成
+
+========================================
+📋 生成结果摘要:
+========================================
+输出目录内容:
+total 768
+drwxr-xr-x@  4 qitmac001395  staff     128 Apr  5 07:45 .
+drwxr-xr-x@ 97 qitmac001395  staff    3104 Apr  5 07:00 ..
+-rw-r--r--@  1 qitmac001395  staff  390113 Apr  5 07:45 cover-2026-04-05.png
+drwxr-xr-x@  5 qitmac001395  staff     160 Apr  5 07:45 dailytechnews
+
+✅ 每日任务完成: 2026-04-05 07:45:11
+
+
+📱 步骤3: 发送飞书通知...
+2026-04-05 07:45:11,472 - INFO - 📤 发送飞书通知 (尝试 1/3): 🎙️ 今日科技早报已生成
+2026-04-05 07:45:11,548 - WARNING - ⚠️ 网络错误 (尝试 1/3): [Errno 8] nodename nor servname provided, or not known
+2026-04-05 07:45:12,551 - INFO - 📤 发送飞书通知 (尝试 2/3): 🎙️ 今日科技早报已生成
+2026-04-05 07:45:12,572 - WARNING - ⚠️ 网络错误 (尝试 2/3): [Errno 8] nodename nor servname provided, or not known
+2026-04-05 07:45:14,574 - INFO - 📤 发送飞书通知 (尝试 3/3): 🎙️ 今日科技早报已生成
+2026-04-05 07:45:14,586 - WARNING - ⚠️ 网络错误 (尝试 3/3): [Errno 8] nodename nor servname provided, or not known
+2026-04-05 07:45:14,587 - WARNING - 📥 发送失败，消息已加入离线队列（网络恢复后将自动重试）
+2026-04-05 07:45:14,589 - INFO - 📥 消息已加入离线队列（当前队列: 1 条）
