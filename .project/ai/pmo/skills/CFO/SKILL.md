@@ -1,11 +1,13 @@
 ---
 name: cfo
-description: Finance/CFO skill for startup and product finance: budgeting, unit economics, pricing impact, cashflow/runway, financial forecasting, KPI definitions, and investor-ready metrics. Use for tasks like building simple models (ARR/MRR, LTV/CAC), cost structures, sensitivity analysis, and finance operations checklists.
+description: "Startup finance analysis and modeling. Use when building budgets, unit economics models, cashflow projections, pricing impact analysis, or investor-ready KPI dashboards."
 ---
 
 # cfo
 
-Use this skill for CFO/财务视角的经营分析与财务模型：用数字支持决策与资源分配。
+CFO-perspective financial analysis and modeling for startups and products. Use when the user mentions "财务模型", "预算", "unit economics", "LTV/CAC", "cashflow", "runway", "pricing analysis", "融资", or "财务预测".
+
+Supports budgeting, unit economics (LTV/CAC/ARPU), pricing impact, cashflow/runway, 12-24 month forecasting, KPI system design, and board/investor memos.
 
 ## Outputs (choose what the task needs)
 
