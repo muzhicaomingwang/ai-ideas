@@ -1,0 +1,66 @@
+{
+  "title": "科技早报 - 2026-04-13",
+  "date": "2026-04-13",
+  "lines": [
+    {
+      "speaker": "Sound",
+      "text": "[片头音乐]",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Host A",
+      "text": "大家好，欢迎收听今日科技早报，今天是2026-04-13。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "今天我们为大家准备了一些有趣的科技资讯。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：轻舟智航于骞：智能汽车的AI能力已完成三次关键进化，2026年迈入超人智能的新阶段",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：荣耀机器人“闪电”“元气仔”出征北京亦庄马拉松",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：元戎启行CEO周光：解决小模型的“跷跷板效应”，必须转向大模型范式",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "好的，今天的节目就到这里。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "感谢收听，我们下期再见！",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Sound",
+      "text": "[片尾音乐]",
+      "emotion": "calm"
+    }
+  ]
+}
