@@ -651,3 +651,10 @@
 [2026-04-17 09:03:07] Executing: python scripts/daily_generate.py --date 2026-04-17 --classic --output output
 [2026-04-17 09:03:07] Check /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/logs/daily_error.log for details
 [2026-04-17 09:03:07] ========================================
+[2026-04-18 09:06:59] ========================================
+[2026-04-18 09:06:59] Starting daily podcast generation for 2026-04-18
+[2026-04-18 09:06:59] Loaded environment variables from .env
+[2026-04-18 09:06:59] Environment variables verified
+[2026-04-18 09:06:59] Executing: python scripts/daily_generate.py --date 2026-04-18 --classic --output output
+[2026-04-18 09:06:59] Check /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/logs/daily_error.log for details
+[2026-04-18 09:06:59] ========================================
