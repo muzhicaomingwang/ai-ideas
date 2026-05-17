@@ -1,0 +1,66 @@
+{
+  "title": "科技早报 - 2026-05-16",
+  "date": "2026-05-16",
+  "lines": [
+    {
+      "speaker": "Sound",
+      "text": "[片头音乐]",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Host A",
+      "text": "大家好，欢迎收听今日科技早报，今天是2026-05-16。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "今天我们为大家准备了一些有趣的科技资讯。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：理想出牌：全新L9上市，45.98万元起｜最前线",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：2026 Shokz Day圆满收官：韶音以「随我动听」开启全场景声态新时代",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：麦肯锡推行人工智能时代薪酬改革，削减合伙人现金分红比例",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "好的，今天的节目就到这里。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "感谢收听，我们下期再见！",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Sound",
+      "text": "[片尾音乐]",
+      "emotion": "calm"
+    }
+  ]
+}
