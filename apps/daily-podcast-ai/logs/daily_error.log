@@ -260,3 +260,5 @@
 [2026-05-30 09:11:37] ❌ ERROR: Podcast generation failed for 2026-05-30
 /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/scripts/daily_automated_run.sh: line 64: python: command not found
 [2026-05-31 09:00:04] ❌ ERROR: Podcast generation failed for 2026-05-31
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/scripts/daily_automated_run.sh: line 64: python: command not found
+[2026-06-01 09:12:33] ❌ ERROR: Podcast generation failed for 2026-06-01
