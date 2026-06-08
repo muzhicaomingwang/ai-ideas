@@ -1,0 +1,66 @@
+{
+  "title": "科技早报 - 2026-06-08",
+  "date": "2026-06-08",
+  "lines": [
+    {
+      "speaker": "Sound",
+      "text": "[片头音乐]",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Host A",
+      "text": "大家好，欢迎收听今日科技早报，今天是2026-06-08。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "今天我们为大家准备了一些有趣的科技资讯。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：东诚药业：注射用甲磺酸萘莫司他上市许可申请获受理",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：金时科技：控股子公司拟投建千吨级多孔炭产线项目",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：优必选：优世界超仿生人形机器人首发预订单量累计超2110台",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "好的，今天的节目就到这里。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "感谢收听，我们下期再见！",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Sound",
+      "text": "[片尾音乐]",
+      "emotion": "calm"
+    }
+  ]
+}
