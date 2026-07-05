@@ -1,0 +1,64 @@
+========================================
+开始执行: 2026-07-05 07:00:00
+========================================
+✅ 环境变量已加载
+📅 生成日期: 2026-07-05
+📁 输出目录: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/output/2026-07-05
+
+🔄 步骤0: 检查并重试离线队列...
+2026-07-05 07:00:00,271 - INFO - 📬 发现 1 条待发送消息，开始重试...
+2026-07-05 07:00:00,272 - INFO - 🔄 重试消息: 🎙️ 今日科技早报已生成 (入队时间: 2026-07-04T08:51:43.511768)
+2026-07-05 07:00:30,343 - WARNING - ⚠️ 消息仍然发送失败: 
+2026-07-05 07:00:30,345 - INFO - 📊 重试结果: 0/1 条消息发送成功
+
+🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）...
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/src/processors/dialogue_writer.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-07-05
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  ⚠️ 缓存文件不存在: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/cache/2026-07-05-news.json
+⚠️ 缓存为空，回退到实时获取
+🚀 开始获取新闻，共 4 个源
+----------------------------------------
+📰 获取 36氪 ...
+  ❌ 请求失败 (尝试 1/3): HTTPSConnectionPool(host='36kr.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='36kr.com', port=443): Failed to resolve '36kr.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 2/3): HTTPSConnectionPool(host='36kr.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='36kr.com', port=443): Failed to resolve '36kr.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 3/3): HTTPSConnectionPool(host='36kr.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='36kr.com', port=443): Failed to resolve '36kr.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 获取失败
+📰 获取 少数派 ...
+  ❌ 请求失败 (尝试 1/3): HTTPSConnectionPool(host='sspai.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='sspai.com', port=443): Failed to resolve 'sspai.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 2/3): HTTPSConnectionPool(host='sspai.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='sspai.com', port=443): Failed to resolve 'sspai.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 3/3): HTTPSConnectionPool(host='sspai.com', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError("HTTPSConnection(host='sspai.com', port=443): Failed to resolve 'sspai.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 获取失败
+📰 获取 虎嗅 ...
+  ❌ 请求失败 (尝试 1/3): HTTPSConnectionPool(host='www.huxiu.com', port=443): Max retries exceeded with url: /rss/0.xml (Caused by NameResolutionError("HTTPSConnection(host='www.huxiu.com', port=443): Failed to resolve 'www.huxiu.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 2/3): HTTPSConnectionPool(host='www.huxiu.com', port=443): Max retries exceeded with url: /rss/0.xml (Caused by NameResolutionError("HTTPSConnection(host='www.huxiu.com', port=443): Failed to resolve 'www.huxiu.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 3/3): HTTPSConnectionPool(host='www.huxiu.com', port=443): Max retries exceeded with url: /rss/0.xml (Caused by NameResolutionError("HTTPSConnection(host='www.huxiu.com', port=443): Failed to resolve 'www.huxiu.com' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 获取失败
+📰 获取 澎湃新闻 ...
+  ❌ 请求失败 (尝试 1/3): HTTPSConnectionPool(host='www.thepaper.cn', port=443): Max retries exceeded with url: /rss_newsDetail.jsp (Caused by NameResolutionError("HTTPSConnection(host='www.thepaper.cn', port=443): Failed to resolve 'www.thepaper.cn' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 2/3): HTTPSConnectionPool(host='www.thepaper.cn', port=443): Max retries exceeded with url: /rss_newsDetail.jsp (Caused by NameResolutionError("HTTPSConnection(host='www.thepaper.cn', port=443): Failed to resolve 'www.thepaper.cn' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 请求失败 (尝试 3/3): HTTPSConnectionPool(host='www.thepaper.cn', port=443): Max retries exceeded with url: /rss_newsDetail.jsp (Caused by NameResolutionError("HTTPSConnection(host='www.thepaper.cn', port=443): Failed to resolve 'www.thepaper.cn' ([Errno 8] nodename nor servname provided, or not known)"))
+  ❌ 获取失败
+----------------------------------------
+📊 总计: 0 篇文章 (去重后)
+❌ 没有获取到任何文章
+
+❌ 播客生成失败
