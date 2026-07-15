@@ -1,0 +1,66 @@
+{
+  "title": "科技早报 - 2026-07-15",
+  "date": "2026-07-15",
+  "lines": [
+    {
+      "speaker": "Sound",
+      "text": "[片头音乐]",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Host A",
+      "text": "大家好，欢迎收听今日科技早报，今天是2026-07-15。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "今天我们为大家准备了一些有趣的科技资讯。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：长鑫科技：发行价格为8.66元/股",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：信维通信：拟收购益阳电子科技55%股权并增资，加强高端MLCC产品布局",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "我们来聊聊这条新闻：估值110亿美元，这家超级独角兽要帮初创公司从Day0走向全球",
+      "emotion": "curious"
+    },
+    {
+      "speaker": "Host B",
+      "text": "这确实是一个值得关注的话题。",
+      "emotion": "thoughtful"
+    },
+    {
+      "speaker": "Host A",
+      "text": "好的，今天的节目就到这里。",
+      "emotion": "calm"
+    },
+    {
+      "speaker": "Host B",
+      "text": "感谢收听，我们下期再见！",
+      "emotion": "energetic"
+    },
+    {
+      "speaker": "Sound",
+      "text": "[片尾音乐]",
+      "emotion": "calm"
+    }
+  ]
+}
