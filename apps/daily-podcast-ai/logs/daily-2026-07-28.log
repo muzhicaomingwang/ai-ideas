@@ -1,0 +1,143 @@
+========================================
+开始执行: 2026-07-28 07:00:05
+========================================
+✅ 环境变量已加载
+📅 生成日期: 2026-07-28
+📁 输出目录: /Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/output/2026-07-28
+
+🔄 步骤0: 检查并重试离线队列...
+2026-07-28 07:00:05,313 - INFO - 📭 离线队列为空
+
+🎙️ 步骤1: 生成播客讲稿和音频（从缓存优选）...
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/src/processors/dialogue_writer.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+/Users/qitmac001395/workspace/QAL/ideas/apps/daily-podcast-ai/venv/lib/python3.14/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+
+==================================================
+🎙️  每日播客生成器
+==================================================
+📅 日期: 2026-07-28
+
+📰 步骤 1/5: 获取新闻
+----------------------------------------
+  📂 从缓存加载 5 篇新闻
+📊 候选新闻: 5 篇
+📊 过滤后: 5 篇
+✅ 最终选定 5 篇文章
+
+📝 步骤 2/5: 内容处理
+----------------------------------------
+  使用 AI 摘要 (OpenAI GPT-4o-mini)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:172.217.113.4:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:172.217.114.4:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:172.217.119.4:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:172.217.119.4:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+  ⚠️ OpenAI 摘要失败: Request timed out.，尝试切换到 Gemini...
+  ❌ AI 摘要失败 (OpenAI & Gemini): Timeout of 600.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:172.217.113.4:443: Failed to connect to remote host: getsockopt(SO_ERROR): Operation timed out (60)
+✅ 处理完成 5 篇文章
+
+📜 步骤 3/5: 生成脚本 (Deep Dive 对话模式)
+----------------------------------------
+  🤖 使用 Anthropic Claude 生成高质量对话
+  📋 过滤新闻: 5 → 3 篇 (移除 2 篇低质量内容)
+  🤖 正在使用 Claude (claude-sonnet-4-20250514) 生成深度对话...
+  ❌ 对话生成失败: Error code: 403 - {'error': {'type': 'forbidden', 'message': 'Request not allowed'}}
+✅ 脚本已保存: output/2026-07-28/dailytechnews/dialogue-2026-07-28.md
+
+🎙️ 步骤 4/5: 语音合成
+----------------------------------------
+
+🎙️ 开始生成双人对话音频，共 12 句对话
+   植萌 Voice: SKlxpKXGwoM0E8XpnxNs
+   小雅 Voice: cgSgspJ2msm6clMCkdW9
+----------------------------------------
+  [1/12] 🤖 Sound: [片头音乐]...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:24 GMT', 'server': 'uvicorn', 'content-length': '284', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '0072897a9c3d64c60de610e69df033f9', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'type': 'validation_error', 'code': 'invalid_parameters', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text after removing speaker tags and emojis.', 'status': 'input_text_empty', 'request_id': '0072897a9c3d64c60de610e69df033f9', 'param': 'text'}}
+    ❌ 生成失败
+  [2/12] 🤖 Host A: 大家好，欢迎收听今日科技早报，今天是20...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:28 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'c1c8b7f42352f3c5e901005bb78d2263', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'c1c8b7f42352f3c5e901005bb78d2263'}}
+    ❌ 生成失败
+  [3/12] 🤖 Host B: 今天我们为大家准备了一些有趣的科技资讯。...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:30 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'bf86c94af886fb51e901005bb78d27d6', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'bf86c94af886fb51e901005bb78d27d6'}}
+    ❌ 生成失败
+  [4/12] 🤖 Host A: 我们来聊聊这条新闻：2026年，为什么资...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:31 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'd1db4a2990e86898e901005bb78d2ba0', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'd1db4a2990e86898e901005bb78d2ba0'}}
+    ❌ 生成失败
+  [5/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:31 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '2c331767317e515ce901005bb78d2cbb', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '2c331767317e515ce901005bb78d2cbb'}}
+    ❌ 生成失败
+  [6/12] 🤖 Host A: 我们来聊聊这条新闻：36氪首发｜家居音频...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:32 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '8efe6c804ed1dbb3e901005bb78d2a76', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '8efe6c804ed1dbb3e901005bb78d2a76'}}
+    ❌ 生成失败
+  [7/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:33 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'ae711c76c9be2615e901005bb78d26f0', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'ae711c76c9be2615e901005bb78d26f0'}}
+    ❌ 生成失败
+  [8/12] 🤖 Host A: 我们来聊聊这条新闻：最前线｜加速构建太空...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:34 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '79e94568a04ece19e901005bb78d2b9f', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '79e94568a04ece19e901005bb78d2b9f'}}
+    ❌ 生成失败
+  [9/12] 🤖 Host B: 这确实是一个值得关注的话题。...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:35 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'eba880a08ccc61d0e901005bb78d2d08', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'eba880a08ccc61d0e901005bb78d2d08'}}
+    ❌ 生成失败
+  [10/12] 🤖 Host A: 好的，今天的节目就到这里。...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:36 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': 'a775f21956369236e901005bb78d210d', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': 'a775f21956369236e901005bb78d210d'}}
+    ❌ 生成失败
+  [11/12] 🤖 Host B: 感谢收听，我们下期再见！...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:37 GMT', 'server': 'uvicorn', 'content-length': '227', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '60c4075441e42e20e901005bb78d29f3', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 403, body: {'detail': {'type': 'authorization_error', 'code': 'subscription_required', 'message': 'Professional voices require a Creator tier subscription or above.', 'status': 'only_for_creator+', 'request_id': '60c4075441e42e20e901005bb78d29f3'}}
+    ❌ 生成失败
+  [12/12] 🤖 Sound: [片尾音乐]...
+❌ 音频生成失败: headers: {'date': 'Mon, 27 Jul 2026 23:51:38 GMT', 'server': 'uvicorn', 'content-length': '284', 'content-type': 'application/json', 'vary': 'Accept-Language', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, PATCH, OPTIONS, DELETE, GET, PUT', 'access-control-max-age': '600', 'strict-transport-security': 'max-age=1800;', 'x-trace-id': '873e1974786ef46c299477ac1baff733', 'x-region': 'europe-west4', 'via': '1.1 google', 'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}, status_code: 400, body: {'detail': {'type': 'validation_error', 'code': 'invalid_parameters', 'message': 'Input at position 0 has empty text. All inputs must include non-empty text after removing speaker tags and emojis.', 'status': 'input_text_empty', 'request_id': '873e1974786ef46c299477ac1baff733', 'param': 'text'}}
+    ❌ 生成失败
+  ❌ 音频生成失败
+
+==================================================
+🎉 播客生成完成!
+==================================================
+📝 脚本文件: output/2026-07-28/dailytechnews/dialogue-2026-07-28.md
+📰 文章数: 5
+
+✅ 播客生成完成
+
+🎨 步骤2: 生成封面图片...
+⚠️ 讲稿文件不存在，使用默认新闻数量: 10
+🎨 生成播客封面...
+   日期: 2026-07-28
+   标题: 今日科技早报
+   新闻数: 10
+✅ 封面已生成: output/2026-07-28/cover-2026-07-28.png
+✅ 封面生成完成
+
+========================================
+📋 生成结果摘要:
+========================================
+输出目录内容:
+total 768
+drwxr-xr-x@   4 qitmac001395  staff     128 Jul 28 07:51 .
+drwxr-xr-x@ 202 qitmac001395  staff    6464 Jul 28 07:00 ..
+-rw-r--r--@   1 qitmac001395  staff  390868 Jul 28 07:51 cover-2026-07-28.png
+drwxr-xr-x@   5 qitmac001395  staff     160 Jul 28 07:51 dailytechnews
+
+✅ 每日任务完成: 2026-07-28 07:51:43
+
+
+📱 步骤3: 发送飞书通知...
+2026-07-28 07:51:43,521 - INFO - 📤 发送飞书通知 (尝试 1/3): 🎙️ 今日科技早报已生成
+2026-07-28 07:51:43,723 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal "HTTP/1.1 200 OK"
+2026-07-28 07:51:43,724 - INFO - ✅ 获取飞书 token 成功，有效期至: Tue Jul 28 09:32:59 2026
+2026-07-28 07:51:44,256 - INFO - HTTP Request: POST https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id "HTTP/1.1 200 OK"
+2026-07-28 07:51:44,258 - INFO - ✅ 飞书消息发送成功: message_id=om_x100b694abe3218a0b4af0ff353a7626
+2026-07-28 07:51:44,259 - INFO - ✅ 通知发送成功!
+✅ 飞书通知发送成功
